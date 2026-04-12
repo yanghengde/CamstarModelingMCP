@@ -21,11 +21,13 @@ import server
 # 确保控制台输出 UTF-8
 sys.stdout.reconfigure(encoding='utf-8')
 
-DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "sk-e258e65ced244d40a2de433fb667dfab")
-DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
+# LLM 通用配置 —— 兼容任意 OpenAI 协议的大模型
+LLM_API_KEY = os.getenv("LLM_API_KEY", "")
+LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.deepseek.com/v1")
+LLM_MODEL = os.getenv("LLM_MODEL", "deepseek-chat")
 
 openai_tools = []
-oai_client = AsyncOpenAI(api_key=DEEPSEEK_API_KEY, base_url=DEEPSEEK_BASE_URL)
+oai_client = AsyncOpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
 
 MEMORY_FILE = "memory.json"
 
@@ -121,13 +123,13 @@ async def chat_endpoint(req: ChatRequest):
 
             try:
                 response = await oai_client.chat.completions.create(
-                    model="deepseek-chat",
+                    model=LLM_MODEL,
                     messages=chat_messages,
                     tools=openai_tools,
                     tool_choice="auto"
                 )
             except Exception as e:
-                reply = f"❌ 请求 DeepSeek 失败: {e}"
+                reply = f"❌ 请求 LLM ({LLM_MODEL}) 失败: {e}"
                 yield f"data: {json.dumps({'type': 'error', 'message': reply}, ensure_ascii=False)}\n\n"
                 break
 

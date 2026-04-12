@@ -587,6 +587,102 @@
     {
       "role": "assistant",
       "content": "## HD-004 Spec 创建成功！\n\n### 新创建的 Spec 详细信息：\n- **名称 (Name)**: HD-004\n- **版本 (Revision)**: A\n- **描述 (Description)**: 入库工序\n- **状态 (Status)**: 1 (Active - 活跃状态)\n- **InstanceID**: 00071c8000000080\n- **关联操作 (Operation)**: RM Inventory\n  - **Operation InstanceId**: 00060e8000000004\n  - **Operation 名称**: RM Inventory\n\n### 状态信息：\n- **是否为记录版本 (IsRevOfRcd)**: true (是当前记录版本)\n- **是否冻结 (IsFrozen)**: false (未冻结)\n- **使用 ROR (UseRor)**: false (不使用 ROR)\n\n### 其他信息：\n- **ECO**: null (无工程变更单)\n- **显示名称 (DisplayName)**: null (未设置显示名称)\n- **创建时间**: 2026年4月12日 20:43:52\n\n### 系统当前 Spec 列表：\n现在系统中已有以下 Spec：\n1. **HD-002** (版本 1) - HD-002质量工序\n2. **HD-003** (版本 1) - 包装工序\n3. **HD-004** (版本 A) - 入库工序 ✅ **新增**\n4. Incoming Inspection\n5. Quarantine\n6. RM Inventory\n7. TestSpecForDelete\n\nHD-004 Spec 已成功创建并处于活跃状态，关联到 RM Inventory 操作，可用于入库工序管理。"
+    },
+    {
+      "role": "user",
+      "content": "复制HD-002的质量工序，名称为HD-002-01，描述为五项安检"
+    },
+    {
+      "role": "assistant",
+      "content": "我来帮您复制 HD-002 的质量工序，创建名为 HD-002-01 的新 Spec，描述为\"五项安检\"。\n\n首先，让我获取 HD-002 的完整信息，以便了解需要复制的字段：",
+      "tool_calls": [
+        {
+          "id": "call_00_DWjeJhYENd782HM6oDdENb7u",
+          "type": "function",
+          "function": {
+            "name": "get_spec",
+            "arguments": "{\"key\": \"00071c8000000035\"}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_00_DWjeJhYENd782HM6oDdENb7u",
+      "name": "get_spec",
+      "content": "⚠️ Response was too large and has been trimmed to key fields (instanceID, name, revision, status, description, timestamps, etc.).\nUse get_spec(key) for the full object.\n\n{\n  \"Name\": \"HD-002\",\n  \"UseRor\": false,\n  \"Description\": \"HD-002质量工序\",\n  \"ECO\": null,\n  \"InstanceID\": \"00071c8000000035\",\n  \"IsFrozen\": false,\n  \"IsRevOfRcd\": true,\n  \"Revision\": \"1\",\n  \"Status\": 1,\n  \"DisplayName\": null,\n  \"Operation\": {\n    \"InstanceId\": \"00060e8000000003\",\n    \"CDOTypeName\": \"Operation\",\n    \"Name\": \"Quarantine\"\n  }\n}"
+    },
+    {
+      "role": "assistant",
+      "content": "从 HD-002 的信息中，我可以看到：\n1. **Operation**: Quarantine\n2. **Status**: 1 (Active)\n3. **Description**: HD-002质量工序\n\n现在我需要创建 HD-002-01，使用相同的 Operation (Quarantine)，但需要一个新的版本号。请问 HD-002-01 的版本号（Revision）是多少？"
+    },
+    {
+      "role": "user",
+      "content": "A"
+    },
+    {
+      "role": "assistant",
+      "content": "我来帮您创建名为 HD-002-01，版本为 A，描述为\"五项安检\"，基于 HD-002 质量工序的 Spec。",
+      "tool_calls": [
+        {
+          "id": "call_00_nFN5rlXvpDuQ92PGcd94SJON",
+          "type": "function",
+          "function": {
+            "name": "create_spec",
+            "arguments": "{\"name\": \"HD-002-01\", \"revision\": \"A\", \"operation_name\": \"Quarantine\", \"description\": \"五项安检\", \"status\": 1}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_00_nFN5rlXvpDuQ92PGcd94SJON",
+      "name": "create_spec",
+      "content": "{\n  \"@odata.context\": \"https://172.27.251.56/api/$metadata#Specs/$entity\",\n  \"value\": \"规范 \\\"HD-002-01 (A)*\\\" 已于 4/12/2026 9:01:08 PM 添加\"\n}"
+    },
+    {
+      "role": "assistant",
+      "content": "太好了！让我验证一下新创建的 HD-002-01 Spec：",
+      "tool_calls": [
+        {
+          "id": "call_00_IxQTKlyj6z4h9MtAA7lJld8N",
+          "type": "function",
+          "function": {
+            "name": "list_specs",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_00_IxQTKlyj6z4h9MtAA7lJld8N",
+      "name": "list_specs",
+      "content": "⚠️ Response was too large and has been trimmed to key fields (instanceID, name, revision, status, description, timestamps, etc.).\nUse get_spec(key) for the full object.\n\n{\n  \"value\": [\n    {\n      \"Name\": \"HD-002\",\n      \"UseRor\": null,\n      \"Description\": \"HD-002质量工序\",\n      \"ECO\": null,\n      \"InstanceID\": \"00071c8000000035\",\n      \"IsFrozen\": false,\n      \"IsRevOfRcd\": true,\n      \"Revision\": \"1\",\n      \"Status\": 1,\n      \"DisplayName\": null,\n      \"Operation\": null\n    },\n    {\n      \"Name\": \"HD-002-01\",\n      \"UseRor\": null,\n      \"Description\": \"五项安检\",\n      \"ECO\": null,\n      \"InstanceID\": \"00071c8000000081\",\n      \"IsFrozen\": false,\n      \"IsRevOfRcd\": true,\n      \"Revision\": \"A\",\n      \"Status\": 1,\n      \"DisplayName\": null,\n      \"Operation\": null\n    },\n    {\n      \"Name\": \"HD-003\",\n      \"UseRor\": null,\n      \"Description\": \"包装工序\",\n      \"ECO\": null,\n      \"InstanceID\": \"00071c800000007f\",\n      \"IsFrozen\": false,\n      \"IsRevOfRcd\": true,\n      \"Revision\": \"1\",\n      \"Status\": 1,\n      \"DisplayName\": null,\n      \"Operation\": null\n    },\n    {\n      \"Name\": \"HD-004\",\n      \"UseRor\": null,\n      \"Description\": \"入库工序\",\n      \"ECO\": null,\n      \"InstanceID\": \"00071c8000000080\",\n      \"IsFrozen\": false,\n      \"IsRevOfRcd\": true,\n      \"Revision\": \"A\",\n      \"Status\": 1,\n      \"DisplayName\": null,\n      \"Operation\": null\n    },\n    {\n      \"Name\": \"Incoming Inspection\",\n      \"UseRor\": null,\n      \"Description\": null,\n      \"ECO\": null,\n      \"InstanceID\": \"00071c8000000002\",\n      \"IsFrozen\": false,\n      \"IsRevOfRcd\": true,\n      \"Revision\": \"1\",\n      \"Status\": 1,\n      \"DisplayName\": null,\n      \"Operation\": null\n    },\n    {\n      \"Name\": \"Quarantine\",\n      \"UseRor\": null,\n      \"Description\": null,\n      \"ECO\": null,\n      \"InstanceID\": \"00071c8000000003\",\n      \"IsFrozen\": false,\n      \"IsRevOfRcd\": true,\n      \"Revision\": \"1\",\n      \"Status\": 1,\n      \"DisplayName\": null,\n      \"Operation\": null\n    },\n    {\n      \"Name\": \"RM Inventory\",\n      \"UseRor\": null,\n      \"Description\": null,\n      \"ECO\": null,\n      \"InstanceID\": \"00071c8000000004\",\n      \"IsFrozen\": false,\n      \"IsRevOfRcd\": true,\n      \"Revision\": \"1\",\n      \"Status\": 1,\n      \"DisplayName\": null,\n      \"Operation\": null\n    },\n    {\n      \"Name\": \"TestSpecForDelete\",\n      \"UseRor\": null,\n      \"Description\": null,\n      \"ECO\": null,\n      \"InstanceID\": \"00071c8000000036\",\n      \"IsFrozen\": false,\n      \"IsRevOfRcd\": true,\n      \"Revision\": \"1\",\n      \"Status\": 2,\n      \"DisplayName\": null,\n      \"Operation\": null\n    }\n  ]\n}"
+    },
+    {
+      "role": "assistant",
+      "content": "现在让我获取 HD-002-01 的详细信息：",
+      "tool_calls": [
+        {
+          "id": "call_00_f1n1nrC1YawzuipN8FrdljKx",
+          "type": "function",
+          "function": {
+            "name": "get_spec",
+            "arguments": "{\"key\": \"00071c8000000081\"}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_00_f1n1nrC1YawzuipN8FrdljKx",
+      "name": "get_spec",
+      "content": "⚠️ Response was too large and has been trimmed to key fields (instanceID, name, revision, status, description, timestamps, etc.).\nUse get_spec(key) for the full object.\n\n{\n  \"Name\": \"HD-002-01\",\n  \"UseRor\": false,\n  \"Description\": \"五项安检\",\n  \"ECO\": null,\n  \"InstanceID\": \"00071c8000000081\",\n  \"IsFrozen\": false,\n  \"IsRevOfRcd\": true,\n  \"Revision\": \"A\",\n  \"Status\": 1,\n  \"DisplayName\": null,\n  \"Operation\": {\n    \"InstanceId\": \"00060e8000000003\",\n    \"CDOTypeName\": \"Operation\",\n    \"Name\": \"Quarantine\"\n  }\n}"
+    },
+    {
+      "role": "assistant",
+      "content": "## HD-002-01 Spec 创建成功！\n\n### 新创建的 Spec 详细信息：\n- **名称 (Name)**: HD-002-01\n- **版本 (Revision)**: A\n- **描述 (Description)**: 五项安检\n- **状态 (Status)**: 1 (Active - 活跃状态)\n- **InstanceID**: 00071c8000000081\n- **关联操作 (Operation)**: Quarantine\n  - **Operation InstanceId**: 00060e8000000003\n  - **Operation 名称**: Quarantine\n\n### 状态信息：\n- **是否为记录版本 (IsRevOfRcd)**: true (是当前记录版本)\n- **是否冻结 (IsFrozen)**: false (未冻结)\n- **使用 ROR (UseRor)**: false (不使用 ROR)\n\n### 复制对比：\n**源 Spec (HD-002)**：\n- 名称：HD-002\n- 版本：1\n- 描述：HD-002质量工序\n- 操作：Quarantine\n- 状态：Active\n\n**新 Spec (HD-002-01)**：\n- 名称：HD-002-01 ✅ **新名称**\n- 版本：A ✅ **新版本**\n- 描述：五项安检 ✅ **新描述**\n- 操作：Quarantine ✅ **相同操作**\n- 状态：Active ✅ **相同状态**\n\n### 系统当前 Spec 列表：\n现在系统中已有以下 Spec：\n1. **HD-002** (版本 1) - HD-002质量工序\n2. **HD-002-01** (版本 A) - 五项安检 ✅ **新增**\n3. **HD-003** (版本 1) - 包装工序\n4. **HD-004** (版本 A) - 入库工序\n5. Incoming Inspection\n6. Quarantine\n7. RM Inventory\n8. TestSpecForDelete\n\nHD-002-01 Spec 已成功创建并处于活跃状态，基于 HD-002 的质量工序，但具有新的名称、版本和描述，可用于五项安检工序管理。"
     }
   ]
 }
