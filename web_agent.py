@@ -6,7 +6,8 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 from pydantic import BaseModel
 from openai import AsyncOpenAI
@@ -70,6 +71,7 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
+app.mount("/svg", StaticFiles(directory="svg"), name="svg")
 
 class ChatRequest(BaseModel):
     message: str
@@ -85,81 +87,89 @@ def history_endpoint(username: str):
 
 @app.post("/chat")
 async def chat_endpoint(req: ChatRequest):
-    user_input = req.message
-    username = req.username
-    
-    chat_messages = get_user_messages(username)
-    chat_messages.append({"role": "user", "content": user_input})
-    save_memory(user_memories)
-    
-    max_loops = 15
-    loops = 0
-
-    while True:
-        loops += 1
-        if loops > max_loops:
-            reply = "⚠️ 遇到过多连续的操作，自动中断了当前任务。"
-            chat_messages.append({"role": "assistant", "content": reply})
-            save_memory(user_memories)
-            return {"reply": reply}
-
-        try:
-            response = await oai_client.chat.completions.create(
-                model="deepseek-chat",
-                messages=chat_messages,
-                tools=openai_tools,
-                tool_choice="auto"
-            )
-        except Exception as e:
-            reply = f"❌ 请求 DeepSeek 失败: {e}"
-            # 记录失败信息到记忆以便前端显示，但也可以不计入记忆，这里加入方便用户看
-            return {"reply": reply}
-
-        response_message = response.choices[0].message
+    async def event_generator():
+        user_input = req.message
+        username = req.username
         
-        msg_dict = {"role": response_message.role}
-        if response_message.content:
-            msg_dict["content"] = response_message.content
-        if response_message.tool_calls:
-            msg_dict["tool_calls"] = [
-                {
-                    "id": tc.id,
-                    "type": "function",
-                    "function": {
-                        "name": tc.function.name,
-                        "arguments": tc.function.arguments
-                    }
-                } for tc in response_message.tool_calls
-            ]
-        chat_messages.append(msg_dict)
+        chat_messages = get_user_messages(username)
+        chat_messages.append({"role": "user", "content": user_input})
         save_memory(user_memories)
+        
+        max_loops = 15
+        loops = 0
 
-        if not response_message.tool_calls:
-            return {"reply": response_message.content}
+        while True:
+            loops += 1
+            if loops > max_loops:
+                reply = "⚠️ 遇到过多连续的操作，自动中断了当前任务。"
+                chat_messages.append({"role": "assistant", "content": reply})
+                save_memory(user_memories)
+                yield f"data: {json.dumps({'type': 'done', 'reply': reply}, ensure_ascii=False)}\n\n"
+                break
 
-        for tool_call in response_message.tool_calls:
-            func_name = tool_call.function.name
-            func_args_str = tool_call.function.arguments
-            
-            print(f"⚡ 执行: {func_name}({func_args_str}) [@{username}]")
             try:
-                func_args = json.loads(func_args_str)
-            except json.JSONDecodeError:
-                func_args = {}
-
-            try:
-                tool_func = getattr(server, func_name)
-                result = await tool_func(**func_args)
+                response = await oai_client.chat.completions.create(
+                    model="deepseek-chat",
+                    messages=chat_messages,
+                    tools=openai_tools,
+                    tool_choice="auto"
+                )
             except Exception as e:
-                result = f"Error executing {func_name}: {e}"
+                reply = f"❌ 请求 DeepSeek 失败: {e}"
+                yield f"data: {json.dumps({'type': 'error', 'message': reply}, ensure_ascii=False)}\n\n"
+                break
 
-            chat_messages.append({
-                "role": "tool",
-                "tool_call_id": tool_call.id,
-                "name": func_name,
-                "content": str(result)
-            })
+            response_message = response.choices[0].message
+            
+            msg_dict = {"role": response_message.role}
+            if response_message.content:
+                msg_dict["content"] = response_message.content
+            if response_message.tool_calls:
+                msg_dict["tool_calls"] = [
+                    {
+                        "id": tc.id,
+                        "type": "function",
+                        "function": {
+                            "name": tc.function.name,
+                            "arguments": tc.function.arguments
+                        }
+                    } for tc in response_message.tool_calls
+                ]
+            chat_messages.append(msg_dict)
             save_memory(user_memories)
+
+            if not response_message.tool_calls:
+                yield f"data: {json.dumps({'type': 'done', 'reply': response_message.content}, ensure_ascii=False)}\n\n"
+                break
+
+            for tool_call in response_message.tool_calls:
+                func_name = tool_call.function.name
+                func_args_str = tool_call.function.arguments
+                
+                print(f"⚡ 执行: {func_name}({func_args_str}) [@{username}]")
+                # 向前端推送当前正在调用的工具名
+                yield f"data: {json.dumps({'type': 'step', 'func': func_name, 'args': func_args_str}, ensure_ascii=False)}\n\n"
+                
+                try:
+                    func_args = json.loads(func_args_str)
+                except json.JSONDecodeError:
+                    func_args = {}
+
+                try:
+                    tool_func = getattr(server, func_name)
+                    result = await tool_func(**func_args)
+                except Exception as e:
+                    result = f"Error executing {func_name}: {e}"
+
+                chat_messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "name": func_name,
+                    "content": str(result)
+                })
+                save_memory(user_memories)
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 @app.get("/")
 def index():
