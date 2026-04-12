@@ -11,6 +11,7 @@ import uvicorn
 from pydantic import BaseModel
 from openai import AsyncOpenAI
 
+# 确保在导入 server 之前加载环境变量
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -23,12 +24,31 @@ DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "sk-e258e65ced244d40a2de433fb66
 DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
 
 openai_tools = []
-# 初始化一个简单的上下文给单用户测试用
-chat_messages = [
-    {"role": "system", "content": "你是 Camstar MES Modeling 的超级助手，懂技术并且熟练使用提供的 MCP 工具。你是 Siemens 产品的专家。回答请专业、简洁、友好，并使用 Markdown 进行排版。遇到错误时请明确告知原因。"}
-]
-
 oai_client = AsyncOpenAI(api_key=DEEPSEEK_API_KEY, base_url=DEEPSEEK_BASE_URL)
+
+MEMORY_FILE = "memory.json"
+
+def load_memory():
+    if os.path.exists(MEMORY_FILE):
+        try:
+            with open(MEMORY_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
+
+def save_memory(mem_dict):
+    with open(MEMORY_FILE, "w", encoding="utf-8") as f:
+        json.dump(mem_dict, f, ensure_ascii=False, indent=2)
+
+user_memories = load_memory()
+
+def get_user_messages(username: str):
+    if username not in user_memories:
+        user_memories[username] = [
+            {"role": "system", "content": "你是 Camstar MES Modeling 的超级助手，懂技术并且熟练使用提供的 MCP 工具。你是 Siemens 产品的专家。回答请专业、简洁、友好，并使用 Markdown 进行排版。遇到错误时请明确告知原因。"}
+        ]
+    return user_memories[username]
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -53,20 +73,35 @@ app = FastAPI(lifespan=lifespan)
 
 class ChatRequest(BaseModel):
     message: str
+    username: str
+
+@app.get("/config")
+def config_endpoint():
+    return {"username": os.getenv("CAMSTAR_USERNAME", "CamstarAdmin")}
+
+@app.get("/history/{username}")
+def history_endpoint(username: str):
+    return {"messages": get_user_messages(username)}
 
 @app.post("/chat")
 async def chat_endpoint(req: ChatRequest):
     user_input = req.message
-    chat_messages.append({"role": "user", "content": user_input})
+    username = req.username
     
-    # 循环：让模型能够连续调用工具，最多循环 15 次防死循环
+    chat_messages = get_user_messages(username)
+    chat_messages.append({"role": "user", "content": user_input})
+    save_memory(user_memories)
+    
     max_loops = 15
     loops = 0
 
     while True:
         loops += 1
         if loops > max_loops:
-            return {"reply": "⚠️ 遇到过多连续的操作，自动中断了当前任务。"}
+            reply = "⚠️ 遇到过多连续的操作，自动中断了当前任务。"
+            chat_messages.append({"role": "assistant", "content": reply})
+            save_memory(user_memories)
+            return {"reply": reply}
 
         try:
             response = await oai_client.chat.completions.create(
@@ -76,12 +111,12 @@ async def chat_endpoint(req: ChatRequest):
                 tool_choice="auto"
             )
         except Exception as e:
-            return {"reply": f"❌ 请求 DeepSeek 失败: {e}"}
+            reply = f"❌ 请求 DeepSeek 失败: {e}"
+            # 记录失败信息到记忆以便前端显示，但也可以不计入记忆，这里加入方便用户看
+            return {"reply": reply}
 
         response_message = response.choices[0].message
         
-        # 为了能够在后续传给 DeepSeek，必须先处理 response_message
-        # OpenAI 的 message 转换为 dict 时移除 None 以符合 Schema
         msg_dict = {"role": response_message.role}
         if response_message.content:
             msg_dict["content"] = response_message.content
@@ -97,17 +132,16 @@ async def chat_endpoint(req: ChatRequest):
                 } for tc in response_message.tool_calls
             ]
         chat_messages.append(msg_dict)
+        save_memory(user_memories)
 
         if not response_message.tool_calls:
-            # 模型没有工具调用请求了，直接返回给前端
             return {"reply": response_message.content}
 
-        # 处理工具调用
         for tool_call in response_message.tool_calls:
             func_name = tool_call.function.name
             func_args_str = tool_call.function.arguments
             
-            print(f"⚡ 执行: {func_name}({func_args_str})")
+            print(f"⚡ 执行: {func_name}({func_args_str}) [@{username}]")
             try:
                 func_args = json.loads(func_args_str)
             except json.JSONDecodeError:
@@ -125,6 +159,7 @@ async def chat_endpoint(req: ChatRequest):
                 "name": func_name,
                 "content": str(result)
             })
+            save_memory(user_memories)
 
 @app.get("/")
 def index():

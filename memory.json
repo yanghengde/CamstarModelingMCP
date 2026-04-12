@@ -1,0 +1,116 @@
+{
+  "CamstarAdmin": [
+    {
+      "role": "system",
+      "content": "你是 Camstar MES Modeling 的超级助手，懂技术并且熟练使用提供的 MCP 工具。你是 Siemens 产品的专家。回答请专业、简洁、友好，并使用 Markdown 进行排版。遇到错误时请明确告知原因。"
+    },
+    {
+      "role": "user",
+      "content": "查询一下系统里名为 HD-003 的 Spec 的详细信息。"
+    },
+    {
+      "role": "assistant",
+      "content": "我来帮您查询名为 HD-003 的 Spec 的详细信息。",
+      "tool_calls": [
+        {
+          "id": "call_00_HiJN4bR1cXOpxlHYKMRdTqaG",
+          "type": "function",
+          "function": {
+            "name": "list_specs",
+            "arguments": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_00_HiJN4bR1cXOpxlHYKMRdTqaG",
+      "name": "list_specs",
+      "content": "⚠️ Response was too large and has been trimmed to key fields (instanceID, name, revision, status, description, timestamps, etc.).\nUse get_spec(key) for the full object.\n\n{\n  \"value\": [\n    {\n      \"Name\": \"HD-002\",\n      \"UseRor\": null,\n      \"Description\": \"HD-002质量工序\",\n      \"ECO\": null,\n      \"InstanceID\": \"00071c8000000035\",\n      \"IsFrozen\": false,\n      \"IsRevOfRcd\": true,\n      \"Revision\": \"1\",\n      \"Status\": 1,\n      \"DisplayName\": null,\n      \"Operation\": null\n    },\n    {\n      \"Name\": \"HD-003\",\n      \"UseRor\": null,\n      \"Description\": \"包装工序\",\n      \"ECO\": null,\n      \"InstanceID\": \"00071c800000007f\",\n      \"IsFrozen\": false,\n      \"IsRevOfRcd\": true,\n      \"Revision\": \"1\",\n      \"Status\": 2,\n      \"DisplayName\": null,\n      \"Operation\": null\n    },\n    {\n      \"Name\": \"Incoming Inspection\",\n      \"UseRor\": null,\n      \"Description\": null,\n      \"ECO\": null,\n      \"InstanceID\": \"00071c8000000002\",\n      \"IsFrozen\": false,\n      \"IsRevOfRcd\": true,\n      \"Revision\": \"1\",\n      \"Status\": 1,\n      \"DisplayName\": null,\n      \"Operation\": null\n    },\n    {\n      \"Name\": \"Quarantine\",\n      \"UseRor\": null,\n      \"Description\": null,\n      \"ECO\": null,\n      \"InstanceID\": \"00071c8000000003\",\n      \"IsFrozen\": false,\n      \"IsRevOfRcd\": true,\n      \"Revision\": \"1\",\n      \"Status\": 1,\n      \"DisplayName\": null,\n      \"Operation\": null\n    },\n    {\n      \"Name\": \"RM Inventory\",\n      \"UseRor\": null,\n      \"Description\": null,\n      \"ECO\": null,\n      \"InstanceID\": \"00071c8000000004\",\n      \"IsFrozen\": false,\n      \"IsRevOfRcd\": true,\n      \"Revision\": \"1\",\n      \"Status\": 1,\n      \"DisplayName\": null,\n      \"Operation\": null\n    },\n    {\n      \"Name\": \"TestSpecForDelete\",\n      \"UseRor\": null,\n      \"Description\": null,\n      \"ECO\": null,\n      \"InstanceID\": \"00071c8000000036\",\n      \"IsFrozen\": false,\n      \"IsRevOfRcd\": true,\n      \"Revision\": \"1\",\n      \"Status\": 2,\n      \"DisplayName\": null,\n      \"Operation\": null\n    }\n  ]\n}"
+    },
+    {
+      "role": "assistant",
+      "content": "从列表中可以找到 HD-003 这个 Spec。现在让我获取它的完整详细信息：",
+      "tool_calls": [
+        {
+          "id": "call_00_w9JG6GAB6dCMBenM5TOCCcNQ",
+          "type": "function",
+          "function": {
+            "name": "get_spec",
+            "arguments": "{\"key\": \"HD-003:1\"}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_00_w9JG6GAB6dCMBenM5TOCCcNQ",
+      "name": "get_spec",
+      "content": "❌ HTTP 400 Error\nURL: https://172.27.251.56/Modeling/api/Specs/HD-003:1\nResponse: {\"ErrorCode\":\"13500645\",\"Message\":\"A server error occurred.\",\"Target\":null,\"Details\":[{\"ErrorCode\":\"13500645\",\"Message\":\"Spec \\u0022HD-003:1\\u0022 \\u7684\\u8BB0\\u5F55\\u4FEE\\u8BA2\\u7248\\u672C\\u672A\\u627E\\u5230\\u3002\",\"Target\":null}],\"InnerError\":null,\"InstanceAnnotations\":[],\"TypeAnnotation\":null}"
+    },
+    {
+      "role": "assistant",
+      "content": "看起来使用 `name:revision` 格式遇到了问题。让我尝试使用 InstanceID 来获取：",
+      "tool_calls": [
+        {
+          "id": "call_00_FmSCI6I0Kcg5IAhPhzMogUuf",
+          "type": "function",
+          "function": {
+            "name": "get_spec",
+            "arguments": "{\"key\": \"00071c800000007f\"}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_00_FmSCI6I0Kcg5IAhPhzMogUuf",
+      "name": "get_spec",
+      "content": "⚠️ Response was too large and has been trimmed to key fields (instanceID, name, revision, status, description, timestamps, etc.).\nUse get_spec(key) for the full object.\n\n{\n  \"Name\": \"HD-003\",\n  \"UseRor\": false,\n  \"Description\": \"包装工序\",\n  \"ECO\": null,\n  \"InstanceID\": \"00071c800000007f\",\n  \"IsFrozen\": false,\n  \"IsRevOfRcd\": true,\n  \"Revision\": \"1\",\n  \"Status\": 2,\n  \"DisplayName\": null,\n  \"Operation\": {\n    \"InstanceId\": \"00060e8000000003\",\n    \"CDOTypeName\": \"Operation\",\n    \"Name\": \"Quarantine\"\n  }\n}"
+    },
+    {
+      "role": "assistant",
+      "content": "让我尝试使用 OData key 语法来获取完整信息：",
+      "tool_calls": [
+        {
+          "id": "call_00_LHQ8ipuLcFlv9nKK3sJHzJiJ",
+          "type": "function",
+          "function": {
+            "name": "get_spec_by_odata_key",
+            "arguments": "{\"key\": \"'HD-003:1'\"}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_00_LHQ8ipuLcFlv9nKK3sJHzJiJ",
+      "name": "get_spec_by_odata_key",
+      "content": "❌ HTTP 400 Error\nURL: https://172.27.251.56/Modeling/api/Specs('HD-003:1')\nResponse: {\"ErrorCode\":\"13500645\",\"Message\":\"A server error occurred.\",\"Target\":null,\"Details\":[{\"ErrorCode\":\"13500645\",\"Message\":\"Spec \\u0022HD-003:1\\u0022 \\u7684\\u8BB0\\u5F55\\u4FEE\\u8BA2\\u7248\\u672C\\u672A\\u627E\\u5230\\u3002\",\"Target\":null}],\"InnerError\":null,\"InstanceAnnotations\":[],\"TypeAnnotation\":null}"
+    },
+    {
+      "role": "assistant",
+      "content": "让我尝试使用 InstanceID 的 OData 语法：",
+      "tool_calls": [
+        {
+          "id": "call_00_rW8ZRoaGktMJocnrQ20Pzx4M",
+          "type": "function",
+          "function": {
+            "name": "get_spec_by_odata_key",
+            "arguments": "{\"key\": \"'00071c800000007f'\"}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_00_rW8ZRoaGktMJocnrQ20Pzx4M",
+      "name": "get_spec_by_odata_key",
+      "content": "⚠️ Response was too large and has been trimmed to key fields (instanceID, name, revision, status, description, timestamps, etc.).\nUse get_spec(key) for the full object.\n\n{\n  \"Name\": \"HD-003\",\n  \"UseRor\": false,\n  \"Description\": \"包装工序\",\n  \"ECO\": null,\n  \"InstanceID\": \"00071c800000007f\",\n  \"IsFrozen\": false,\n  \"IsRevOfRcd\": true,\n  \"Revision\": \"1\",\n  \"Status\": 2,\n  \"DisplayName\": null,\n  \"Operation\": {\n    \"InstanceId\": \"00060e8000000003\",\n    \"CDOTypeName\": \"Operation\",\n    \"Name\": \"Quarantine\"\n  }\n}"
+    },
+    {
+      "role": "assistant",
+      "content": "## HD-003 Spec 详细信息\n\n根据查询结果，以下是 HD-003 Spec 的详细信息：\n\n### 基本信息\n- **名称 (Name)**: HD-003\n- **描述 (Description)**: 包装工序\n- **版本 (Revision)**: 1\n- **状态 (Status)**: 2 (Inactive - 非活跃状态)\n- **InstanceID**: 00071c800000007f\n\n### 状态信息\n- **是否为记录版本 (IsRevOfRcd)**: true (是当前记录版本)\n- **是否冻结 (IsFrozen)**: false (未冻结)\n- **使用 ROR (UseRor)**: false (不使用 ROR)\n\n### 关联信息\n- **关联的操作 (Operation)**:\n  - **名称**: Quarantine (隔离)\n  - **InstanceId**: 00060e8000000003\n  - **CDO类型**: Operation\n\n### 其他信息\n- **ECO**: null (无工程变更单)\n- **显示名称 (DisplayName)**: null (未设置显示名称)\n\n### 状态说明\n- **Status = 1**: Active (活跃)\n- **Status = 2**: Inactive (非活跃)\n\n**注意**: HD-003 Spec 当前处于非活跃状态 (Status = 2)，它关联到 \"Quarantine\" 操作，用于包装工序。"
+    }
+  ]
+}

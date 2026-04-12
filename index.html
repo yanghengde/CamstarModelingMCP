@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siemens Camstar AI Agent</title>
+    <title>Siemens Opcenter Modeling AI Agent</title>
     <!-- Use Siemens-ish modern font -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <!-- Markdown Parser -->
@@ -24,8 +25,12 @@
             --text-light: #fefefe;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             background: var(--bg-gradient);
@@ -44,7 +49,7 @@
             height: 100%;
             background: var(--chat-bg);
             border-radius: 16px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -59,7 +64,7 @@
             display: flex;
             align-items: center;
             gap: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             z-index: 10;
         }
 
@@ -90,6 +95,7 @@
         .messages::-webkit-scrollbar {
             width: 8px;
         }
+
         .messages::-webkit-scrollbar-thumb {
             background-color: rgba(0, 0, 0, 0.2);
             border-radius: 4px;
@@ -103,12 +109,24 @@
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .user-wrapper { justify-content: flex-end; }
-        .agent-wrapper { justify-content: flex-start; }
+        .user-wrapper {
+            justify-content: flex-end;
+        }
+
+        .agent-wrapper {
+            justify-content: flex-start;
+        }
 
         .bubble {
             max-width: 80%;
@@ -130,18 +148,36 @@
             background: #ffffff;
             color: var(--text-regular);
             border-bottom-left-radius: 4px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
             border: 1px solid #eee;
         }
 
         /* Markdown Styling inside Agent Bubble */
-        .agent-bubble h1, .agent-bubble h2, .agent-bubble h3 {
-            margin-top: 15px; margin-bottom: 10px; font-weight: 500;
+        .agent-bubble h1,
+        .agent-bubble h2,
+        .agent-bubble h3 {
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-weight: 500;
         }
-        .agent-bubble p { margin-bottom: 10px; }
-        .agent-bubble p:last-child { margin-bottom: 0; }
-        .agent-bubble ul, .agent-bubble ol { margin-left: 20px; margin-bottom: 10px; }
-        .agent-bubble li { margin-bottom: 5px; }
+
+        .agent-bubble p {
+            margin-bottom: 10px;
+        }
+
+        .agent-bubble p:last-child {
+            margin-bottom: 0;
+        }
+
+        .agent-bubble ul,
+        .agent-bubble ol {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .agent-bubble li {
+            margin-bottom: 5px;
+        }
 
         .agent-bubble code {
             font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
@@ -179,18 +215,41 @@
             align-items: center;
             gap: 8px;
         }
-        .typing-dots { display: flex; gap: 4px; }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
         .dot {
-            width: 6px; height: 6px;
+            width: 6px;
+            height: 6px;
             background: var(--siemens-teal);
             border-radius: 50%;
             animation: bounce 1.4s infinite ease-in-out both;
         }
-        .dot:nth-child(1) { animation-delay: -0.32s; }
-        .dot:nth-child(2) { animation-delay: -0.16s; }
+
+        .dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
         @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); opacity: 0.4;}
-            40% { transform: scale(1); opacity: 1;}
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+                opacity: 0.4;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         /* Input Area */
@@ -212,7 +271,7 @@
             outline: none;
             background: #f9f9f9;
             transition: all 0.3s ease;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
         }
 
         input[type="text"]:focus {
@@ -262,33 +321,22 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="chat-container">
         <!-- Header -->
         <div class="header">
             <!-- Siemens Text Logo -->
-            <div style="font-family: inherit; font-weight: 800; font-size: 26px; letter-spacing: 3px; color: var(--siemens-teal); user-select: none;">SIEMENS</div>
-            <h1>Camstar Modeling MCP Server</h1>
+            <div
+                style="font-family: inherit; font-weight: 800; font-size: 26px; letter-spacing: 3px; color: var(--siemens-teal); user-select: none;">
+                SIEMENS</div>
+            <h1>Opcenter Modeling Agent</h1>
         </div>
 
         <!-- Messages -->
         <div class="messages" id="msgs">
-            <div class="welcome-msg">基于 DeepSeek 与 FastMCP 驱动</div>
-            
-            <div class="msg-wrapper agent-wrapper">
-                <div class="bubble agent-bubble">
-                    <p>你好！我是西门子 Camstar MES 智能建模助手。我可以帮你查询参数、创建并管理 Spec。</p>
-                    <p>例如你可以问我：<strong>"查询一下系统里名为 HD-002 的 Spec 的详细信息。"</strong></p>
-                </div>
-            </div>
-            
-            <div class="typing" id="typing">
-                <div class="typing-dots">
-                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-                </div>
-                <span>Agent 正在查询并处理决策...</span>
-            </div>
+            <!-- Content will be injected dynamically via JS -->
         </div>
 
         <!-- Input Area -->
@@ -307,27 +355,46 @@
         const input = document.getElementById('inputBox');
         const sendBtn = document.getElementById('sendBtn');
         const messagesDiv = document.getElementById('msgs');
-        const typingIndicator = document.getElementById('typing');
+        
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'typing';
+        typingIndicator.id = 'typing';
+        typingIndicator.innerHTML = '<div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><span>Agent 正在查询并处理决策...</span>';
+
+        let currentUsername = "CamstarAdmin";
+
+        async function initializeApp() {
+            try {
+                const res = await fetch('/config');
+                const data = await res.json();
+                if (data.username) currentUsername = data.username;
+            } catch (err) {
+                console.warn("读取配置失败，使用默认用户", err);
+            }
+            
+            const headerTitle = document.querySelector('.header h1');
+            headerTitle.innerHTML += ` <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:400;margin-left:10px;">@${currentUsername}</span>`;
+            
+            loadHistory();
+        }
 
         function appendMessage(role, text) {
             const wrapper = document.createElement('div');
             wrapper.className = `msg-wrapper ${role}-wrapper`;
-            
+
             const bubble = document.createElement('div');
             bubble.className = `bubble ${role}-bubble`;
-            
+
             if (role === 'agent') {
                 bubble.innerHTML = marked.parse(text);
-                // Apply syntax highlighting
                 bubble.querySelectorAll('pre code').forEach((block) => {
                     hljs.highlightElement(block);
                 });
             } else {
                 bubble.textContent = text;
             }
-            
+
             wrapper.appendChild(bubble);
-            // Insert before typing indicator
             messagesDiv.insertBefore(wrapper, typingIndicator);
             scrollToBottom();
         }
@@ -339,18 +406,45 @@
             });
         }
 
+        async function loadHistory() {
+            messagesDiv.innerHTML = '<div class="welcome-msg">Siemens Opcenter 驱动</div>';
+            messagesDiv.appendChild(typingIndicator);
+            
+            try {
+                const response = await fetch(`/history/${encodeURIComponent(currentUsername)}`);
+                const data = await response.json();
+                let hasVisible = false;
+                
+                if (data.messages && data.messages.length > 0) {
+                    data.messages.forEach(msg => {
+                        if (msg.role === 'user') {
+                            appendMessage('user', msg.content);
+                            hasVisible = true;
+                        } else if (msg.role === 'assistant' && msg.content) {
+                            appendMessage('agent', msg.content);
+                            hasVisible = true;
+                        }
+                    });
+                }
+                
+                if (!hasVisible) {
+                    appendMessage('agent', '你好！我是西门子 Opcenter Modeling 智能建模助手。我可以帮你查询参数、创建并管理 Spec。\n\n例如你可以问我：**"查询一下系统里名为 HD-002 的 Spec 的详细信息。"**');
+                }
+            } catch (err) {
+                console.error("加载历史失败", err);
+            }
+        }
+
         async function handleSend() {
             const text = input.value.trim();
             if (!text) return;
 
-            // Remove input
             input.value = '';
             input.disabled = true;
             sendBtn.disabled = true;
 
             appendMessage('user', text);
-            
-            // Show typing indicator
+
             typingIndicator.style.display = 'flex';
             scrollToBottom();
 
@@ -358,7 +452,7 @@
                 const response = await fetch('/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text })
+                    body: JSON.stringify({ message: text, username: currentUsername })
                 });
 
                 const data = await response.json();
@@ -376,6 +470,7 @@
                 input.disabled = false;
                 sendBtn.disabled = false;
                 input.focus();
+                scrollToBottom();
             }
         }
 
@@ -383,12 +478,16 @@
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleSend();
         });
-        
+
         // Highlight configuration
         marked.setOptions({
             breaks: true,
             gfm: true
         });
+
+        // Initialize the app
+        initializeApp();
     </script>
 </body>
+
 </html>
