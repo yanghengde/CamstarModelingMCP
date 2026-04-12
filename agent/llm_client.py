@@ -5,6 +5,7 @@ LLM 客户端 & 工具编排
 """
 
 import json
+import asyncio
 from openai import AsyncOpenAI
 
 from config import LLM_API_KEY, LLM_BASE_URL, LLM_MODEL, MAX_TOOL_LOOPS
@@ -66,6 +67,10 @@ async def chat_stream(username: str, message: str):
                 tools=openai_tools,
                 tool_choice="auto"
             )
+        except asyncio.CancelledError:
+            print(f"⚠️ [中止] 用户取消了请求 [@{username}]")
+            # If the last message in chat_messages is not complete, we don't need to do anything special here since it wasn't saved yet
+            raise
         except Exception as e:
             reply = f"❌ 请求 LLM ({LLM_MODEL}) 失败: {e}"
             yield f"data: {json.dumps({'type': 'error', 'message': reply}, ensure_ascii=False)}\n\n"
@@ -116,6 +121,17 @@ async def chat_stream(username: str, message: str):
                     result = f"Error: tool '{func_name}' not found"
                 else:
                     result = await tool_func(**func_args)
+            except asyncio.CancelledError:
+                print(f"⚠️ [中止] 用户在执行工具 {func_name} 时取消了请求")
+                # Add a dummy response so history isn't completely corrupted
+                chat_messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "name": func_name,
+                    "content": "Action aborted by user/system."
+                })
+                save_memory()
+                raise
             except Exception as e:
                 result = f"Error executing {func_name}: {e}"
 

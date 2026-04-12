@@ -295,6 +295,17 @@
             align-items: center;
             transition: all 0.2s ease;
             box-shadow: 0 4px 10px rgba(0, 153, 153, 0.3);
+            flex-shrink: 0;
+        }
+
+        #stopBtn {
+            background: #e74c3c;
+            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+        }
+
+        #stopBtn:hover {
+            background: #c0392b;
+            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
         }
 
         button:hover {
@@ -350,12 +361,19 @@
                     <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
                 </svg>
             </button>
+            <button id="stopBtn" style="display: none;" title="终止回答">
+                <!-- Stop Icon SVG -->
+                <svg viewBox="0 0 24 24">
+                    <rect x="6" y="6" width="12" height="12"></rect>
+                </svg>
+            </button>
         </div>
     </div>
 
     <script>
         const input = document.getElementById('inputBox');
         const sendBtn = document.getElementById('sendBtn');
+        const stopBtn = document.getElementById('stopBtn');
         const messagesDiv = document.getElementById('msgs');
 
         const typingIndicator = document.createElement('div');
@@ -364,6 +382,7 @@
         typingIndicator.innerHTML = '<div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><span>Agent 正在查询并处理决策...</span>';
 
         let currentUsername = "CamstarAdmin";
+        let abortController = null;
 
         async function initializeApp() {
             try {
@@ -443,7 +462,8 @@
 
             input.value = '';
             input.disabled = true;
-            sendBtn.disabled = true;
+            sendBtn.style.display = 'none';
+            stopBtn.style.display = 'flex';
 
             appendMessage('user', text);
 
@@ -452,11 +472,14 @@
             typingText.textContent = "Agent 正在分析并处理决策...";
             scrollToBottom();
 
+            abortController = new AbortController();
+
             try {
                 const response = await fetch('/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text, username: currentUsername })
+                    body: JSON.stringify({ message: text, username: currentUsername }),
+                    signal: abortController.signal
                 });
 
                 const reader = response.body.getReader();
@@ -490,14 +513,26 @@
                 }
             } catch (err) {
                 typingIndicator.style.display = 'none';
-                appendMessage('agent', '❌ 网络或服务错误: ' + err.message);
+                if (err.name === 'AbortError') {
+                    appendMessage('agent', '🚫 *本次回答已主动终止*');
+                } else {
+                    appendMessage('agent', '❌ 网络或服务错误: ' + err.message);
+                }
             } finally {
+                abortController = null;
                 input.disabled = false;
-                sendBtn.disabled = false;
+                stopBtn.style.display = 'none';
+                sendBtn.style.display = 'flex';
                 input.focus();
                 scrollToBottom();
             }
         }
+
+        stopBtn.addEventListener('click', () => {
+            if (abortController) {
+                abortController.abort();
+            }
+        });
 
         sendBtn.addEventListener('click', handleSend);
         input.addEventListener('keypress', (e) => {
