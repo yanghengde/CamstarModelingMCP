@@ -226,8 +226,7 @@ async def request_workflow_selection_values(
 
 @mcp.tool
 async def add_spec_step_to_workflow(
-    workflow_name: str,
-    workflow_revision: str,
+    workflow_id: str,
     step_name: str,
     spec_name: str,
     spec_revision: Optional[str] = None,
@@ -235,11 +234,10 @@ async def add_spec_step_to_workflow(
 ) -> str:
     """
     Add a step associated with a Spec to an existing Workflow.
-    PUT /api/Workflows/{workflow_name}:{workflow_revision}
+    PUT /api/Workflows/{workflow_id}
 
     Required fields:
-      - workflow_name: Name of the target workflow
-      - workflow_revision: Revision of the target workflow
+      - workflow_id: Instance ID or Name:Revision of the target workflow. For newly created/draft workflows, InstanceID MUST be used.
       - step_name: Name for the new step in the workflow
       - spec_name: Name of the Spec to associate with this step
 
@@ -254,8 +252,6 @@ async def add_spec_step_to_workflow(
         spec_ref["useROR"] = True
 
     payload = {
-        "name": workflow_name,
-        "revision": workflow_revision,
         "steps-Expanded": [
             {
                 "listItemAction": "add",
@@ -271,5 +267,4 @@ async def add_spec_step_to_workflow(
     if sequence is not None:
         payload["steps-Expanded"][0]["value"]["sequence"] = sequence
 
-    key = f"{workflow_name}:{workflow_revision}"
-    return await request("PUT", f"/api/Workflows/{key}", body=payload)
+    return await request("PUT", f"/api/Workflows/{workflow_id}", body=payload)
