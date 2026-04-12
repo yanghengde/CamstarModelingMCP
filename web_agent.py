@@ -44,11 +44,23 @@ def save_memory(mem_dict):
 
 user_memories = load_memory()
 
+SYSTEM_PROMPT = """你是 Siemens Opcenter (Camstar) MES Modeling 的超级助手，专业且熟练使用提供的 MCP 工具。
+请务必严格遵循以下核心原则：
+1. **严格参数审查与拒答机制**：在调用任何 MCP API 之前，请核对该操作所需的核心必填参数（如 Name, Revision, Operation等）。如果用户的指令缺乏完成工具调用的必要参数，**绝对不要凭空猜测或虚构参数值，也不要自己填入临时值测试**。
+2. **互动追问**：当参数信息不充分时，请**直接放弃本次工具调用**，并在回复中用友好的语气向用户指出缺少哪些具体字段，等待用户补充。例如："您想要创建 Spec，但是缺失了 Revision 字段，请问具体的值是多少？"
+3. **记忆连贯性**：由于我们有持久历史记录，在用户补充缺失信息后，你需要结合上文自动拼接出完整的数据，然后再执行正确的工具调用。
+4. **格式与态度**：使用 Markdown 丰富排版，回答专业简练，切忌啰嗦。"""
+
 def get_user_messages(username: str):
     if username not in user_memories:
         user_memories[username] = [
-            {"role": "system", "content": "你是 Camstar MES Modeling 的超级助手，懂技术并且熟练使用提供的 MCP 工具。你是 Siemens 产品的专家。回答请专业、简洁、友好，并使用 Markdown 进行排版。遇到错误时请明确告知原因。"}
+            {"role": "system", "content": SYSTEM_PROMPT}
         ]
+    else:
+        # 强制更新老用户的系统提示词，以便新策略立即生效
+        if user_memories[username] and user_memories[username][0].get("role") == "system":
+            user_memories[username][0]["content"] = SYSTEM_PROMPT
+            
     return user_memories[username]
 
 @asynccontextmanager
