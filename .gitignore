@@ -21,6 +21,7 @@ build/
 secret.json
 
 # Local Data / DB
+data/
 memory.json
 *.sqlite3
 
@@ -29,3 +30,5 @@ memory.json
 .idea/
 .DS_Store
 Thumbs.db
+
+# Legacy files (kept for reference, remove when ready)
