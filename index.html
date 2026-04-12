@@ -355,7 +355,7 @@
         const input = document.getElementById('inputBox');
         const sendBtn = document.getElementById('sendBtn');
         const messagesDiv = document.getElementById('msgs');
-        
+
         const typingIndicator = document.createElement('div');
         typingIndicator.className = 'typing';
         typingIndicator.id = 'typing';
@@ -371,10 +371,10 @@
             } catch (err) {
                 console.warn("读取配置失败，使用默认用户", err);
             }
-            
+
             const headerTitle = document.querySelector('.header h1');
             headerTitle.innerHTML += ` <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:400;margin-left:10px;">@${currentUsername}</span>`;
-            
+
             loadHistory();
         }
 
@@ -407,14 +407,14 @@
         }
 
         async function loadHistory() {
-            messagesDiv.innerHTML = '<div class="welcome-msg">Siemens Opcenter 驱动</div>';
+            messagesDiv.innerHTML = '<div class="welcome-msg">Siemens Opcenter AI 助手</div>';
             messagesDiv.appendChild(typingIndicator);
-            
+
             try {
                 const response = await fetch(`/history/${encodeURIComponent(currentUsername)}`);
                 const data = await response.json();
                 let hasVisible = false;
-                
+
                 if (data.messages && data.messages.length > 0) {
                     data.messages.forEach(msg => {
                         if (msg.role === 'user') {
@@ -426,7 +426,7 @@
                         }
                     });
                 }
-                
+
                 if (!hasVisible) {
                     appendMessage('agent', '你好！我是西门子 Opcenter Modeling 智能建模助手。我可以帮你查询参数、创建并管理 Spec。\n\n例如你可以问我：**"查询一下系统里名为 HD-002 的 Spec 的详细信息。"**');
                 }
