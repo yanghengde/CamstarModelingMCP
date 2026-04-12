@@ -268,3 +268,56 @@ async def add_spec_step_to_workflow(
         payload["steps-Expanded"][0]["value"]["sequence"] = sequence
 
     return await request("PUT", f"/api/Workflows/{workflow_id}", body=payload)
+
+
+@mcp.tool
+async def connect_workflow_steps(
+    workflow_id: str,
+    workflow_name: str,
+    workflow_revision: str,
+    from_step: str,
+    to_step: str,
+    path_name: Optional[str] = None
+) -> str:
+    """
+    Connect two steps within a Workflow by creating a MovePath.
+    PUT /api/Workflows/{workflow_id}
+
+    Required fields:
+      - workflow_id: Instance ID (or Name:Revision) of the target workflow. For Drafts, InstanceID is required.
+      - workflow_name: Name of the workflow (needed for parent reference)
+      - workflow_revision: Revision of the workflow (needed for parent reference)
+      - from_step: The name of the step where the connection starts
+      - to_step: The name of the step where the connection goes
+
+    Optional:
+      - path_name: Custom name for the path. Defaults to '{from_step}_to_{to_step}'.
+    """
+    if not path_name:
+        path_name = f"{from_step}_to_{to_step}"
+
+    payload = {
+        "steps-Expanded": [
+            {
+                "listItemAction": "change",
+                "key": {"name": from_step},
+                "value": {
+                    "@odata.type": "#modeling.SpecStepChanges",
+                    "name": from_step,
+                    "paths-Expanded": [{
+                        "listItemAction": "add",
+                        "value": {
+                            "@odata.type": "#modeling.MovePathChanges",
+                            "name": path_name,
+                            "toStep": {
+                                "name": to_step,
+                                "parent": {"name": workflow_name, "revision": workflow_revision}
+                            }
+                        }
+                    }]
+                }
+            }
+        ]
+    }
+    
+    return await request("PUT", f"/api/Workflows/{workflow_id}", body=payload)
