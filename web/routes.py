@@ -10,7 +10,7 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel
 
 from config import CAMSTAR_USERNAME
-from agent.memory import get_user_messages
+from agent.memory import get_user_messages, get_sessions, create_session, set_active_session
 from agent.llm_client import chat_stream
 
 router = APIRouter()
@@ -19,6 +19,7 @@ router = APIRouter()
 class ChatRequest(BaseModel):
     message: str
     username: str
+    session_id: str = None
 
 
 @router.get("/")
@@ -35,16 +36,29 @@ def config_endpoint():
     return {"username": CAMSTAR_USERNAME}
 
 
+@router.get("/sessions/{username}")
+def sessions_endpoint(username: str):
+    """获取用户所有会话"""
+    return {"sessions": get_sessions(username)}
+
+@router.post("/sessions/{username}/new")
+def new_session_endpoint(username: str):
+    """创建新会话"""
+    session_id = create_session(username)
+    return {"session_id": session_id}
+
 @router.get("/history/{username}")
-def history_endpoint(username: str):
+def history_endpoint(username: str, session_id: str = None):
     """获取指定用户的聊天历史。"""
-    return {"messages": get_user_messages(username)}
+    if session_id:
+        set_active_session(username, session_id)
+    return {"messages": get_user_messages(username, session_id)}
 
 
 @router.post("/chat")
 async def chat_endpoint(req: ChatRequest):
     """流式聊天接口 (SSE)。"""
     return StreamingResponse(
-        chat_stream(req.username, req.message),
+        chat_stream(req.username, req.message, req.session_id),
         media_type="text/event-stream"
     )

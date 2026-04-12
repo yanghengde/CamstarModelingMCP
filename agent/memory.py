@@ -33,17 +33,75 @@ def save_memory():
         json.dump(user_memories, f, ensure_ascii=False, indent=2)
 
 
-def get_user_messages(username: str) -> list:
+def _migrate_if_needed(username: str):
+    data = user_memories.get(username)
+    if isinstance(data, list):
+        user_memories[username] = {
+            "sessions": {
+                "default": {
+                    "id": "default",
+                    "title": "默认会话",
+                    "messages": data
+                }
+            },
+            "active_session": "default"
+        }
+
+def get_sessions(username: str) -> list:
+    """获取指定用户的所有会话列表"""
+    if username not in user_memories:
+        return []
+    _migrate_if_needed(username)
+    sessions = user_memories[username].get("sessions", {})
+    return [{"id": k, "title": v.get("title", "会话")} for k, v in sessions.items()]
+
+import uuid
+
+def create_session(username: str) -> str:
+    """创建一个新会话"""
+    if username not in user_memories:
+        user_memories[username] = {"sessions": {}, "active_session": None}
+    else:
+        _migrate_if_needed(username)
+    
+    session_id = str(uuid.uuid4())
+    user_memories[username]["sessions"][session_id] = {
+        "id": session_id,
+        "title": f"新对话 {len(user_memories[username]['sessions']) + 1}",
+        "messages": [{"role": "system", "content": SYSTEM_PROMPT}]
+    }
+    user_memories[username]["active_session"] = session_id
+    save_memory()
+    return session_id
+
+def set_active_session(username: str, session_id: str):
+    if username in user_memories:
+        _migrate_if_needed(username)
+        if session_id in user_memories[username]["sessions"]:
+            user_memories[username]["active_session"] = session_id
+            save_memory()
+
+def get_user_messages(username: str, session_id: str = None) -> list:
     """获取指定用户的消息历史，不存在则初始化。"""
     if username not in user_memories:
-        user_memories[username] = [
-            {"role": "system", "content": SYSTEM_PROMPT}
-        ]
+        create_session(username)
     else:
-        # 强制更新老用户的系统提示词，以便新策略立即生效
-        if user_memories[username] and user_memories[username][0].get("role") == "system":
-            user_memories[username][0]["content"] = SYSTEM_PROMPT
-    return user_memories[username]
+        _migrate_if_needed(username)
+        
+    user_data = user_memories[username]
+    if not session_id or session_id not in user_data["sessions"]:
+        session_id = user_data["active_session"]
+        if not session_id or session_id not in user_data["sessions"]:
+             # create one if missing
+             session_id = create_session(username)
+             
+    messages = user_data["sessions"][session_id]["messages"]
+    
+    # 强制更新老用户的系统提示词，以便新策略立即生效
+    if messages and messages[0].get("role") == "system":
+        messages[0]["content"] = SYSTEM_PROMPT
+        
+    return messages
 
 
 def init_memory():

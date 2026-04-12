@@ -332,6 +332,26 @@
             font-size: 0.9rem;
             margin-bottom: 10px;
         }
+
+        /* Sessions Dropdown */
+        .session-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f9f9f9;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .session-item:hover {
+            background: #f0f0f0;
+        }
+        .session-item.active {
+            background: rgba(0, 153, 153, 0.1);
+            color: var(--siemens-teal);
+            font-weight: 500;
+        }
     </style>
 </head>
 
@@ -345,6 +365,23 @@
                 style="font-family: inherit; font-weight: 800; font-size: 26px; letter-spacing: 3px; color: var(--siemens-teal); user-select: none;">
                 SIEMENS</div>
             <h1>Opcenter Modeling Agent</h1>
+
+            <div style="margin-left: auto; position: relative;">
+                <button id="sessionsToggleBtn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; color: white; padding: 8px 16px; height: auto; width: auto; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: none;">
+                    历次对话
+                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:white;"><path d="M7 10l5 5 5-5z"/></svg>
+                </button>
+                <div id="sessionsDropdown" style="display: none; position: absolute; top: calc(100% + 15px); right: 0; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); width: 240px; z-index: 100; flex-direction: column; overflow: hidden; color: var(--text-regular);">
+                    <div style="padding: 12px; border-bottom: 1px solid #eee;">
+                        <button id="newChatTopBtn" style="width: 100%; height: 38px; border-radius: 8px; background: var(--siemens-teal); color: white; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer; border: none; box-shadow: none;">
+                            <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:white;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> 新建会话
+                        </button>
+                    </div>
+                    <div id="sessionListUI" style="max-height: 350px; overflow-y: auto;">
+                        <!-- dynamic list -->
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Messages -->
@@ -382,7 +419,64 @@
         typingIndicator.innerHTML = '<div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><span>Agent 正在查询并处理决策...</span>';
 
         let currentUsername = "CamstarAdmin";
+        let currentSessionId = null;
         let abortController = null;
+
+        const sessionsToggleBtn = document.getElementById('sessionsToggleBtn');
+        const sessionsDropdown = document.getElementById('sessionsDropdown');
+        const newChatTopBtn = document.getElementById('newChatTopBtn');
+        const sessionListUI = document.getElementById('sessionListUI');
+
+        sessionsToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sessionsDropdown.style.display = sessionsDropdown.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!sessionsDropdown.contains(e.target)) {
+                sessionsDropdown.style.display = 'none';
+            }
+        });
+
+        newChatTopBtn.addEventListener('click', async () => {
+            try {
+                const res = await fetch(`/sessions/${encodeURIComponent(currentUsername)}/new`, { method: 'POST' });
+                const data = await res.json();
+                currentSessionId = data.session_id;
+                sessionsDropdown.style.display = 'none';
+                await refreshSessionsList();
+                await loadHistory();
+            } catch (err) {
+                console.error("创建新会话失败", err);
+            }
+        });
+
+        async function refreshSessionsList() {
+            try {
+                const res = await fetch(`/sessions/${encodeURIComponent(currentUsername)}`);
+                const data = await res.json();
+                sessionListUI.innerHTML = '';
+                
+                // Reverse to show newest first
+                data.sessions.reverse().forEach(sc => {
+                    if (!currentSessionId && sc.id === 'default') {
+                        currentSessionId = 'default';
+                    }
+                    const item = document.createElement('div');
+                    item.className = 'session-item' + (currentSessionId === sc.id ? ' active' : '');
+                    item.textContent = sc.title;
+                    item.addEventListener('click', async () => {
+                        currentSessionId = sc.id;
+                        sessionsDropdown.style.display = 'none';
+                        await refreshSessionsList();
+                        await loadHistory();
+                    });
+                    sessionListUI.appendChild(item);
+                });
+            } catch (e) {
+                 console.error("加载会话列表失败", e);
+            }
+        }
 
         async function initializeApp() {
             try {
@@ -396,7 +490,8 @@
             const headerTitle = document.querySelector('.header h1');
             headerTitle.innerHTML += ` <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:400;margin-left:10px;">@${currentUsername}</span>`;
 
-            loadHistory();
+            await refreshSessionsList();
+            await loadHistory();
         }
 
         function appendMessage(role, text) {
@@ -432,7 +527,9 @@
             messagesDiv.appendChild(typingIndicator);
 
             try {
-                const response = await fetch(`/history/${encodeURIComponent(currentUsername)}`);
+                let url = `/history/${encodeURIComponent(currentUsername)}`;
+                if (currentSessionId) url += `?session_id=${encodeURIComponent(currentSessionId)}`;
+                const response = await fetch(url);
                 const data = await response.json();
                 let hasVisible = false;
 
@@ -475,10 +572,13 @@
             abortController = new AbortController();
 
             try {
+                const reqBody = { message: text, username: currentUsername };
+                if (currentSessionId) reqBody.session_id = currentSessionId;
+                
                 const response = await fetch('/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text, username: currentUsername }),
+                    body: JSON.stringify(reqBody),
                     signal: abortController.signal
                 });
 

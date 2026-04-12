@@ -40,12 +40,12 @@ async def register_tools():
     return openai_tools
 
 
-async def chat_stream(username: str, message: str):
+async def chat_stream(username: str, message: str, session_id: str = None):
     """
     SSE 流式聊天生成器。
     每执行一步工具调用都会向前端推送进度事件。
     """
-    chat_messages = get_user_messages(username)
+    chat_messages = get_user_messages(username, session_id)
     chat_messages.append({"role": "user", "content": message})
     save_memory()
 
