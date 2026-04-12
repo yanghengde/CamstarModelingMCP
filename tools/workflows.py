@@ -222,3 +222,54 @@ async def request_workflow_selection_values(
 
     return await request("POST", "/api/Workflows/RequestSelectionValues",
                          body=payload, params=params or None)
+
+
+@mcp.tool
+async def add_spec_step_to_workflow(
+    workflow_name: str,
+    workflow_revision: str,
+    step_name: str,
+    spec_name: str,
+    spec_revision: Optional[str] = None,
+    sequence: Optional[int] = None
+) -> str:
+    """
+    Add a step associated with a Spec to an existing Workflow.
+    PUT /api/Workflows/{workflow_name}:{workflow_revision}
+
+    Required fields:
+      - workflow_name: Name of the target workflow
+      - workflow_revision: Revision of the target workflow
+      - step_name: Name for the new step in the workflow
+      - spec_name: Name of the Spec to associate with this step
+
+    Optional:
+      - spec_revision: Specific revision of the Spec. Defaults to Revision of Record if not provided.
+      - sequence: Sequence number for the step.
+    """
+    spec_ref = {"name": spec_name}
+    if spec_revision:
+        spec_ref["revision"] = spec_revision
+    else:
+        spec_ref["useROR"] = True
+
+    payload = {
+        "name": workflow_name,
+        "revision": workflow_revision,
+        "steps-Expanded": [
+            {
+                "listItemAction": "add",
+                "value": {
+                    "@odata.type": "#modeling.SpecStepChanges",
+                    "name": step_name,
+                    "spec": spec_ref
+                }
+            }
+        ]
+    }
+    
+    if sequence is not None:
+        payload["steps-Expanded"][0]["value"]["sequence"] = sequence
+
+    key = f"{workflow_name}:{workflow_revision}"
+    return await request("PUT", f"/api/Workflows/{key}", body=payload)
