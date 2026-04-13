@@ -32,3 +32,4 @@ LLM_MODEL = os.getenv("LLM_MODEL", "deepseek-chat")
 # ---------------------------------------------------------------------------
 MAX_TOOL_LOOPS = int(os.getenv("MAX_TOOL_LOOPS", "15"))
 MEMORY_FILE = os.path.join("data", "memory.json")
+SESSIONS_DIR = os.path.join("data", "sessions")
