@@ -33,3 +33,8 @@ LLM_MODEL = os.getenv("LLM_MODEL", "deepseek-chat")
 MAX_TOOL_LOOPS = int(os.getenv("MAX_TOOL_LOOPS", "15"))
 MEMORY_FILE = os.path.join("data", "memory.json")
 SESSIONS_DIR = os.path.join("data", "sessions")
+
+# ---------------------------------------------------------------------------
+# 日志与性能监控开关
+# ---------------------------------------------------------------------------
+ENABLE_PERFORMANCE_LOG = os.getenv("ENABLE_PERFORMANCE_LOG", "True").lower() in ("true", "1", "yes")

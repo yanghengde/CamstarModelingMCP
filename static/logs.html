@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统性能洞察</title>
+    <!-- Use Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --surface-color: rgba(20, 27, 45, 0.6);
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-glow: rgba(56, 189, 248, 0.15);
+            --accent-primary: #38bdf8;
+            --accent-success: #10b981;
+            --accent-warning: #f59e0b;
+            --accent-danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 50%, var(--accent-glow), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.1), transparent 25%);
+        }
+
+        /* Glassmorphism utility */
+        .glass {
+            background: var(--surface-color);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #38bdf8, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1.25rem;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-enabled {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-disabled {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: currentColor;
+            box-shadow: 0 0 8px currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .metric-card {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px var(--accent-glow);
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .metric-value span {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-left: 0.25rem;
+        }
+
+        .logs-section {
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(4px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .pill {
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .pill.llm {
+            background: rgba(139, 92, 246, 0.15);
+            color: #c4b5fd;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .pill.tool {
+            background: rgba(56, 189, 248, 0.15);
+            color: #7dd3fc;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .duration-fast { color: var(--accent-success); font-weight: 600; }
+        .duration-medium { color: var(--accent-warning); font-weight: 600; }
+        .duration-slow { color: var(--accent-danger); font-weight: 600; }
+
+        .details-text {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>系统性能洞察</h1>
+        <div id="statusBadge" class="status-badge glass">
+            <div class="status-dot"></div>
+            <span id="statusText">加载中...</span>
+        </div>
+    </header>
+
+    <div class="metrics-grid" id="metricsGrid" style="display: none;">
+        <div class="metric-card glass">
+            <span class="metric-label">平均 LLM 耗时</span>
+            <span class="metric-value" id="avgLlmTime">--<span>ms</span></span>
+        </div>
+        <div class="metric-card glass">
+            <span class="metric-label">平均工具耗时</span>
+            <span class="metric-value" id="avgToolTime">--<span>ms</span></span>
+        </div>
+        <div class="metric-card glass">
+            <span class="metric-label">总记录数</span>
+            <span class="metric-value" id="totalLogs">--</span>
+        </div>
+    </div>
+
+    <div class="logs-section glass">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>动作类型</th>
+                        <th>耗时 (ms)</th>
+                        <th>用户 (会话)</th>
+                        <th>详情</th>
+                    </tr>
+                </thead>
+                <tbody id="logsBody">
+                    <tr>
+                        <td colspan="5" class="empty-state">正在加载性能数据...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', fetchLogs);
+
+    async function fetchLogs() {
+        try {
+            const res = await fetch('/api/logs/data');
+            const data = await res.json();
+            
+            const badge = document.getElementById('statusBadge');
+            const statusText = document.getElementById('statusText');
+            
+            if (data.status === 'disabled') {
+                badge.className = 'status-badge status-disabled glass';
+                statusText.innerText = '日志已关闭 (在 .env 启用)';
+                document.getElementById('logsBody').innerHTML = `
+                    <tr><td colspan="5" class="empty-state">日志已被禁用，系统正以最高性能运行，无记录产生。</td></tr>`;
+                return;
+            }
+
+            badge.className = 'status-badge status-enabled glass';
+            statusText.innerText = '性能监控采集中';
+
+            renderLogs(data.logs);
+        } catch (e) {
+            console.error('Failed to fetch logs', e);
+        }
+    }
+
+    function renderLogs(logs) {
+        document.getElementById('metricsGrid').style.display = 'grid';
+        const tbody = document.getElementById('logsBody');
+        
+        if (!logs || logs.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="empty-state">暂无性能数据记录</td></tr>`;
+            return;
+        }
+
+        // Calculate metrics
+        let llmTotal = 0, llmCount = 0;
+        let toolTotal = 0, toolCount = 0;
+
+        const rows = logs.map(log => {
+            let durationClass = 'duration-fast';
+            if (log.duration_ms > 5000) durationClass = 'duration-slow';
+            else if (log.duration_ms > 1500) durationClass = 'duration-medium';
+
+            const isLLM = log.action.toLowerCase().includes('llm');
+            if (isLLM) {
+                llmTotal += log.duration_ms;
+                llmCount++;
+            } else {
+                toolTotal += log.duration_ms;
+                toolCount++;
+            }
+
+            const pillClass = isLLM ? 'pill llm' : 'pill tool';
+            const actionText = isLLM ? 'AI 推理' : '工具调用';
+            
+            // Format details
+            let details = '';
+            if (log.details.model) details = `模型: ${log.details.model}`;
+            if (log.details.tool) details = `工具: ${log.details.tool}`;
+
+            return `
+                <tr>
+                    <td style="color: var(--text-secondary); font-size: 0.875rem;">${log.timestamp}</td>
+                    <td><span class="${pillClass}">${actionText}</span></td>
+                    <td class="${durationClass}">${log.duration_ms.toLocaleString()}</td>
+                    <td>
+                        <div style="font-weight: 500;">${log.username}</div>
+                        <div style="color: var(--text-secondary); font-size: 0.75rem;">${log.session_id.substring(0,8)}...</div>
+                    </td>
+                    <td class="details-text">${details}</td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = rows.join('');
+
+        // Update metrics
+        const avgLlm = llmCount ? Math.round(llmTotal / llmCount) : 0;
+        const avgTool = toolCount ? Math.round(toolTotal / toolCount) : 0;
+
+        document.getElementById('avgLlmTime').innerHTML = `${avgLlm.toLocaleString()}<span>ms</span>`;
+        document.getElementById('avgToolTime').innerHTML = `${avgTool.toLocaleString()}<span>ms</span>`;
+        document.getElementById('totalLogs').innerText = logs.length.toLocaleString();
+    }
+</script>
+
+</body>
+</html>

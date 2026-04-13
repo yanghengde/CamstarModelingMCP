@@ -9,9 +9,10 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel
 
-from config import CAMSTAR_USERNAME
+from config import CAMSTAR_USERNAME, ENABLE_PERFORMANCE_LOG
 from agent.memory import get_user_messages, get_sessions, create_session, set_active_session
 from agent.llm_client import chat_stream
+from core.perf_logger import get_perf_logs
 
 router = APIRouter()
 
@@ -62,3 +63,20 @@ async def chat_endpoint(req: ChatRequest):
         chat_stream(req.username, req.message, req.session_id),
         media_type="text/event-stream"
     )
+
+@router.get("/logs")
+def logs_page():
+    """返回性能日志管理页面 HTML。"""
+    html_path = os.path.join("static", "logs.html")
+    with open(html_path, "r", encoding="utf-8") as f:
+        return HTMLResponse(f.read())
+
+@router.get("/api/logs/data")
+def api_logs_data():
+    """获取统计与原始日志数据"""
+    if not ENABLE_PERFORMANCE_LOG:
+        return {"status": "disabled", "logs": []}
+        
+    logs = get_perf_logs(1000)
+    return {"status": "enabled", "logs": logs}
+

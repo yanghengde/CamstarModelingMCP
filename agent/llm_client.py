@@ -6,11 +6,13 @@ LLM 客户端 & 工具编排
 
 import json
 import asyncio
+import time
 from openai import AsyncOpenAI
 
 from config import LLM_API_KEY, LLM_BASE_URL, LLM_MODEL, MAX_TOOL_LOOPS
 from agent.memory import get_user_messages, save_memory
 from tools import mcp, get_tool_func
+from core.perf_logger import record_perf
 
 oai_client = AsyncOpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
 
@@ -46,6 +48,14 @@ async def chat_stream(username: str, message: str, session_id: str = None):
     每执行一步工具调用都会向前端推送进度事件。
     """
     chat_messages = get_user_messages(username, session_id)
+    
+    # 尝试恢复 session_id，保证日志准确性
+    actual_session_id = session_id or "unknown"
+    if not session_id and chat_messages and len(chat_messages) > 0:
+        # 如果是新传来的空，那么上一句执行完的实际已分配id无法在这里直接取，
+        # 为了兼容，我们就暂用传入的字面值或者 "unknown"
+        pass
+        
     chat_messages.append({"role": "user", "content": message})
     save_memory()
 
@@ -61,15 +71,17 @@ async def chat_stream(username: str, message: str, session_id: str = None):
             break
 
         try:
+            llm_start_time = time.time()
             response = await oai_client.chat.completions.create(
                 model=LLM_MODEL,
                 messages=chat_messages,
                 tools=openai_tools,
                 tool_choice="auto"
             )
+            llm_duration = time.time() - llm_start_time
+            record_perf("LLM_Inference", llm_duration, username, actual_session_id, {"model": LLM_MODEL})
         except asyncio.CancelledError:
             print(f"⚠️ [中止] 用户取消了请求 [@{username}]")
-            # If the last message in chat_messages is not complete, we don't need to do anything special here since it wasn't saved yet
             raise
         except Exception as e:
             reply = f"❌ 请求 LLM ({LLM_MODEL}) 失败: {e}"
@@ -115,6 +127,7 @@ async def chat_stream(username: str, message: str, session_id: str = None):
             except json.JSONDecodeError:
                 func_args = {}
 
+            tool_start_time = time.time()
             try:
                 tool_func = get_tool_func(func_name)
                 if tool_func is None:
@@ -123,7 +136,6 @@ async def chat_stream(username: str, message: str, session_id: str = None):
                     result = await tool_func(**func_args)
             except asyncio.CancelledError:
                 print(f"⚠️ [中止] 用户在执行工具 {func_name} 时取消了请求")
-                # Add a dummy response so history isn't completely corrupted
                 chat_messages.append({
                     "role": "tool",
                     "tool_call_id": tool_call.id,
@@ -134,6 +146,9 @@ async def chat_stream(username: str, message: str, session_id: str = None):
                 raise
             except Exception as e:
                 result = f"Error executing {func_name}: {e}"
+            
+            tool_duration = time.time() - tool_start_time
+            record_perf(f"Tool_Execute", tool_duration, username, actual_session_id, {"tool": func_name})
 
             chat_messages.append({
                 "role": "tool",
@@ -142,3 +157,4 @@ async def chat_stream(username: str, message: str, session_id: str = None):
                 "content": str(result)
             })
             save_memory()
+
