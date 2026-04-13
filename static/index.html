@@ -457,22 +457,26 @@
                 const data = await res.json();
                 sessionListUI.innerHTML = '';
                 
-                // Reverse to show newest first
-                data.sessions.reverse().forEach(sc => {
-                    if (!currentSessionId && sc.id === 'default') {
-                        currentSessionId = 'default';
+                if (data.sessions && data.sessions.length > 0) {
+                    const reversedSessions = data.sessions.reverse();
+                    
+                    if (!currentSessionId) {
+                        currentSessionId = reversedSessions[0].id;
                     }
-                    const item = document.createElement('div');
-                    item.className = 'session-item' + (currentSessionId === sc.id ? ' active' : '');
-                    item.textContent = sc.title;
-                    item.addEventListener('click', async () => {
-                        currentSessionId = sc.id;
-                        sessionsDropdown.style.display = 'none';
-                        await refreshSessionsList();
-                        await loadHistory();
+
+                    reversedSessions.forEach(sc => {
+                        const item = document.createElement('div');
+                        item.className = 'session-item' + (currentSessionId === sc.id ? ' active' : '');
+                        item.textContent = sc.title;
+                        item.addEventListener('click', async () => {
+                            currentSessionId = sc.id;
+                            sessionsDropdown.style.display = 'none';
+                            await refreshSessionsList();
+                            await loadHistory();
+                        });
+                        sessionListUI.appendChild(item);
                     });
-                    sessionListUI.appendChild(item);
-                });
+                }
             } catch (e) {
                  console.error("加载会话列表失败", e);
             }
@@ -586,6 +590,9 @@
                 const decoder = new TextDecoder("utf-8");
                 let buffer = "";
 
+                let currentStreamBubble = null;
+                let currentStreamContent = "";
+
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
@@ -607,6 +614,31 @@
                             } else if (data.type === 'error') {
                                 typingIndicator.style.display = 'none';
                                 appendMessage('agent', '❌ ' + data.message);
+                            } else if (data.type === 'stream_start') {
+                                typingIndicator.style.display = 'none';
+                                
+                                const wrapper = document.createElement('div');
+                                wrapper.className = `msg-wrapper agent-wrapper`;
+                                const bubble = document.createElement('div');
+                                bubble.className = `bubble agent-bubble`;
+                                wrapper.appendChild(bubble);
+                                messagesDiv.insertBefore(wrapper, typingIndicator);
+                                
+                                currentStreamBubble = bubble;
+                                currentStreamContent = "";
+                                scrollToBottom();
+                            } else if (data.type === 'stream_chunk') {
+                                if (currentStreamBubble) {
+                                    currentStreamContent += data.content;
+                                    currentStreamBubble.innerHTML = marked.parse(currentStreamContent);
+                                    // Syntax highlight live chunks
+                                    currentStreamBubble.querySelectorAll('pre code').forEach((block) => {
+                                        hljs.highlightElement(block);
+                                    });
+                                    scrollToBottom();
+                                }
+                            } else if (data.type === 'stream_end') {
+                                currentStreamBubble = null;
                             }
                         }
                     }

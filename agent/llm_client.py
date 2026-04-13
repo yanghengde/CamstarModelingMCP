@@ -72,14 +72,53 @@ async def chat_stream(username: str, message: str, session_id: str = None):
 
         try:
             llm_start_time = time.time()
-            response = await oai_client.chat.completions.create(
+            response_stream = await oai_client.chat.completions.create(
                 model=LLM_MODEL,
                 messages=chat_messages,
                 tools=openai_tools,
-                tool_choice="auto"
+                tool_choice="auto",
+                stream=True
             )
+            
+            tool_calls_dict = {}
+            full_content = ""
+            has_started_stream = False
+            
+            async for chunk in response_stream:
+                if len(chunk.choices) == 0:
+                    continue
+                delta = chunk.choices[0].delta
+                
+                # 推送流式文本
+                if delta.content:
+                    if not has_started_stream:
+                        yield f"data: {json.dumps({'type': 'stream_start'}, ensure_ascii=False)}\n\n"
+                        has_started_stream = True
+                    full_content += delta.content
+                    # Streaming per chunk
+                    yield f"data: {json.dumps({'type': 'stream_chunk', 'content': delta.content}, ensure_ascii=False)}\n\n"
+                
+                # 拼接工具调用
+                if delta.tool_calls:
+                    for tc in delta.tool_calls:
+                        idx = tc.index
+                        if idx not in tool_calls_dict:
+                            tool_calls_dict[idx] = {
+                                "id": tc.id,
+                                "type": "function",
+                                "function": {
+                                    "name": tc.function.name or "",
+                                    "arguments": tc.function.arguments or ""
+                                }
+                            }
+                        else:
+                            if tc.function.name:
+                                tool_calls_dict[idx]["function"]["name"] += tc.function.name
+                            if tc.function.arguments:
+                                tool_calls_dict[idx]["function"]["arguments"] += tc.function.arguments
+
             llm_duration = time.time() - llm_start_time
-            record_perf("LLM_Inference", llm_duration, username, actual_session_id, {"model": LLM_MODEL, "prompt": message})
+            record_perf("LLM_Inference", llm_duration, username, actual_session_id, {"model": LLM_MODEL, "prompt": message, "streamed": True})
         except asyncio.CancelledError:
             print(f"⚠️ [中止] 用户取消了请求 [@{username}]")
             raise
@@ -88,35 +127,33 @@ async def chat_stream(username: str, message: str, session_id: str = None):
             yield f"data: {json.dumps({'type': 'error', 'message': reply}, ensure_ascii=False)}\n\n"
             break
 
-        response_message = response.choices[0].message
+        # 整理出 response 结构
+        response_tool_calls = [tool_calls_dict[k] for k in sorted(tool_calls_dict.keys())]
 
         # 序列化模型回复以存入记忆
-        msg_dict = {"role": response_message.role}
-        if response_message.content:
-            msg_dict["content"] = response_message.content
-        if response_message.tool_calls:
-            msg_dict["tool_calls"] = [
-                {
-                    "id": tc.id,
-                    "type": "function",
-                    "function": {
-                        "name": tc.function.name,
-                        "arguments": tc.function.arguments
-                    }
-                } for tc in response_message.tool_calls
-            ]
+        msg_dict = {"role": "assistant"}
+        if full_content:
+            msg_dict["content"] = full_content
+        if response_tool_calls:
+            msg_dict["tool_calls"] = response_tool_calls
+            
         chat_messages.append(msg_dict)
         save_memory()
 
         # 无工具调用 → 返回最终回答
-        if not response_message.tool_calls:
-            yield f"data: {json.dumps({'type': 'done', 'reply': response_message.content}, ensure_ascii=False)}\n\n"
+        if not response_tool_calls:
+            if has_started_stream:
+                # 已经推过流，则用 stream_end
+                yield f"data: {json.dumps({'type': 'stream_end'}, ensure_ascii=False)}\n\n"
+            else:
+                # 从没推过流，用原来的 done 兜底
+                yield f"data: {json.dumps({'type': 'done', 'reply': full_content}, ensure_ascii=False)}\n\n"
             break
 
         # 依次执行工具调用
-        for tool_call in response_message.tool_calls:
-            func_name = tool_call.function.name
-            func_args_str = tool_call.function.arguments
+        for tool_call in response_tool_calls:
+            func_name = tool_call["function"]["name"]
+            func_args_str = tool_call["function"]["arguments"]
 
             print(f"⚡ 执行: {func_name}({func_args_str}) [@{username}]")
             # 向前端推送当前正在调用的工具名
@@ -138,7 +175,7 @@ async def chat_stream(username: str, message: str, session_id: str = None):
                 print(f"⚠️ [中止] 用户在执行工具 {func_name} 时取消了请求")
                 chat_messages.append({
                     "role": "tool",
-                    "tool_call_id": tool_call.id,
+                    "tool_call_id": tool_call["id"],
                     "name": func_name,
                     "content": "Action aborted by user/system."
                 })
@@ -152,7 +189,7 @@ async def chat_stream(username: str, message: str, session_id: str = None):
 
             chat_messages.append({
                 "role": "tool",
-                "tool_call_id": tool_call.id,
+                "tool_call_id": tool_call["id"],
                 "name": func_name,
                 "content": str(result)
             })
