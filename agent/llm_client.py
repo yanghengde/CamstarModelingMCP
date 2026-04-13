@@ -79,7 +79,7 @@ async def chat_stream(username: str, message: str, session_id: str = None):
                 tool_choice="auto"
             )
             llm_duration = time.time() - llm_start_time
-            record_perf("LLM_Inference", llm_duration, username, actual_session_id, {"model": LLM_MODEL})
+            record_perf("LLM_Inference", llm_duration, username, actual_session_id, {"model": LLM_MODEL, "prompt": message})
         except asyncio.CancelledError:
             print(f"⚠️ [中止] 用户取消了请求 [@{username}]")
             raise
@@ -148,7 +148,7 @@ async def chat_stream(username: str, message: str, session_id: str = None):
                 result = f"Error executing {func_name}: {e}"
             
             tool_duration = time.time() - tool_start_time
-            record_perf(f"Tool_Execute", tool_duration, username, actual_session_id, {"tool": func_name})
+            record_perf(f"Tool_Execute", tool_duration, username, actual_session_id, {"tool": func_name, "prompt": message})
 
             chat_messages.append({
                 "role": "tool",
