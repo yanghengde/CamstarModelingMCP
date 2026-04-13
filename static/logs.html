@@ -526,6 +526,12 @@
                 if (!isLLM && step.details.tool) {
                     metaHtml += `<div class="meta-row"><div class="meta-label">Target Name</div><div class="meta-value">${step.details.tool}</div></div>`;
                 }
+                
+                // Add start and end timestamps if available
+                if (step.start_time && step.end_time) {
+                    metaHtml += `<div class="meta-row"><div class="meta-label" style="width: 60px;">Started</div><div class="meta-value" style="background: transparent; padding: 0;">${step.start_time}</div></div>`;
+                    metaHtml += `<div class="meta-row"><div class="meta-label" style="width: 60px;">Finished</div><div class="meta-value" style="background: transparent; padding: 0;">${step.end_time}</div></div>`;
+                }
 
                 stepsHtml += `
                 <div class="node">

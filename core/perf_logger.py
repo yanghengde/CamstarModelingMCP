@@ -17,9 +17,17 @@ def record_perf(action: str, duration_sec: float, username: str = "Unknown", ses
     """
     if not ENABLE_PERFORMANCE_LOG:
         return
-        
+
+    now = datetime.now()
+    start_dt = datetime.fromtimestamp(now.timestamp() - duration_sec)
+    
+    end_time_str = now.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+    start_time_str = start_dt.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+
     record = {
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": end_time_str,  # 保持原用以排序兼容的值
+        "start_time": start_time_str,
+        "end_time": end_time_str,
         "action": action,
         "duration_ms": round(duration_sec * 1000, 2),
         "username": username,
