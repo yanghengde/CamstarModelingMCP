@@ -321,3 +321,236 @@ async def connect_workflow_steps(
     }
     
     return await request("PUT", f"/api/Workflows/{workflow_id}", body=payload)
+
+
+@mcp.tool
+async def delete_workflow_steps(
+    workflow_id: str,
+    step_names_json: str,
+) -> str:
+    """
+    Delete one or more steps from a Workflow by name.
+    PUT /api/Workflows/{workflow_id}
+
+    IMPORTANT: When a step is referenced by paths from other steps,
+    individual deletion will fail. This tool resolves this by batching
+    ALL deletions into a single API call, which Camstar processes atomically.
+
+    Required fields:
+      - workflow_id: Instance ID of the target workflow.
+      - step_names_json: A JSON array of step names to delete.
+        Example: '["HD-001-01", "HD-005"]'
+    """
+    try:
+        step_names = json.loads(step_names_json)
+        if not isinstance(step_names, list):
+            return "❌ step_names_json must be a JSON array of strings"
+    except json.JSONDecodeError as e:
+        return f"❌ Invalid step_names_json: {e}"
+
+    payload = {
+        "steps-Expanded": [
+            {"listItemAction": "delete", "key": {"name": name}}
+            for name in step_names
+        ]
+    }
+
+    return await request("PUT", f"/api/Workflows/{workflow_id}", body=payload)
+
+
+@mcp.tool
+async def rebuild_workflow_route(
+    workflow_id: str,
+    workflow_name: str,
+    workflow_revision: str,
+    route_json: str,
+) -> str:
+    """
+    Rebuild an entire workflow route from scratch: clear ALL existing steps,
+    then add new steps in order and connect them sequentially.
+    PUT /api/Workflows/{workflow_id}
+
+    This is the most reliable way to restructure a workflow route.
+    It performs 3 phases atomically per-step:
+      Phase 1: Delete all existing steps (batch delete).
+      Phase 2: Add each new step (associated with its Spec via useROR).
+      Phase 3: Connect steps sequentially with MovePaths.
+
+    Required fields:
+      - workflow_id: Instance ID of the target workflow.
+      - workflow_name: Name of the workflow (e.g. 'WF-HD').
+      - workflow_revision: Revision of the workflow (e.g. '1').
+      - route_json: A JSON array of step definitions in order.
+        Each element can be:
+          - A string (step name = spec name): "HD-001"
+          - An object with details: {"step_name": "Step1", "spec_name": "HD-001", "spec_revision": "A"}
+        Example: '["HD-001", "HD-002", {"step_name": "QC-Check", "spec_name": "QC-001"}]'
+
+    Returns a summary of all operations performed.
+    """
+    try:
+        route = json.loads(route_json)
+        if not isinstance(route, list) or len(route) == 0:
+            return "❌ route_json must be a non-empty JSON array"
+    except json.JSONDecodeError as e:
+        return f"❌ Invalid route_json: {e}"
+
+    # Normalize route entries
+    steps = []
+    for item in route:
+        if isinstance(item, str):
+            steps.append({"step_name": item, "spec_name": item, "spec_revision": None})
+        elif isinstance(item, dict):
+            step_name = item.get("step_name") or item.get("name")
+            spec_name = item.get("spec_name") or step_name
+            spec_rev = item.get("spec_revision")
+            if not step_name:
+                return f"❌ Each route entry must have a 'step_name' or 'name'. Got: {item}"
+            steps.append({"step_name": step_name, "spec_name": spec_name, "spec_revision": spec_rev})
+        else:
+            return f"❌ Invalid route entry (must be string or object): {item}"
+
+    results = []
+
+    # --- Phase 1: Get current steps and delete them all ---
+    try:
+        current_raw = await request("GET", f"/api/Workflows/{workflow_id}")
+        current = json.loads(current_raw)
+        existing_steps = [ref.get("Name") for ref in current.get("ES_ResolvedSteps", [])]
+    except Exception:
+        existing_steps = []
+
+    if existing_steps:
+        delete_payload = {
+            "steps-Expanded": [
+                {"listItemAction": "delete", "key": {"name": name}}
+                for name in existing_steps
+            ]
+        }
+        del_result = await request("PUT", f"/api/Workflows/{workflow_id}", body=delete_payload)
+        results.append(f"Phase 1 - Deleted {len(existing_steps)} existing steps: {existing_steps}")
+    else:
+        results.append("Phase 1 - No existing steps to delete")
+
+    # --- Phase 2: Add each step ---
+    for s in steps:
+        spec_ref = {"name": s["spec_name"]}
+        if s["spec_revision"]:
+            spec_ref["revision"] = s["spec_revision"]
+        else:
+            spec_ref["useROR"] = True
+
+        add_payload = {
+            "steps-Expanded": [{
+                "listItemAction": "add",
+                "value": {
+                    "@odata.type": "#modeling.SpecStepChanges",
+                    "name": s["step_name"],
+                    "spec": spec_ref
+                }
+            }]
+        }
+        add_result = await request("PUT", f"/api/Workflows/{workflow_id}", body=add_payload)
+        ok = "✅" if "已于" in add_result or "updated" in add_result.lower() else "⚠️"
+        results.append(f"Phase 2 - Add step '{s['step_name']}' (Spec: {s['spec_name']}): {ok}")
+
+    # --- Phase 3: Connect steps sequentially ---
+    for i in range(len(steps) - 1):
+        from_step = steps[i]["step_name"]
+        to_step = steps[i + 1]["step_name"]
+        path_name = f"{from_step}_to_{to_step}"
+
+        connect_payload = {
+            "steps-Expanded": [{
+                "listItemAction": "change",
+                "key": {"name": from_step},
+                "value": {
+                    "@odata.type": "#modeling.SpecStepChanges",
+                    "name": from_step,
+                    "paths-Expanded": [{
+                        "listItemAction": "add",
+                        "value": {
+                            "@odata.type": "#modeling.MovePathChanges",
+                            "name": path_name,
+                            "toStep": {
+                                "name": to_step,
+                                "parent": {"name": workflow_name, "revision": workflow_revision}
+                            }
+                        }
+                    }]
+                }
+            }]
+        }
+        conn_result = await request("PUT", f"/api/Workflows/{workflow_id}", body=connect_payload)
+        ok = "✅" if "已于" in conn_result or "updated" in conn_result.lower() else "⚠️"
+        results.append(f"Phase 3 - Connect '{from_step}' → '{to_step}': {ok}")
+
+    # --- Verify ---
+    try:
+        verify_raw = await request("GET", f"/api/Workflows/{workflow_id}")
+        verify = json.loads(verify_raw)
+        final_steps = [ref.get("Name") for ref in verify.get("ES_ResolvedSteps", [])]
+        first_step = verify.get("FirstStep", {}).get("Name", "N/A")
+        results.append(f"\n✅ Verification: {len(final_steps)} steps, FirstStep={first_step}")
+        results.append(f"   Route: {' → '.join(final_steps)}")
+    except Exception as e:
+        results.append(f"⚠️ Verification failed: {e}")
+
+    return "\n".join(results)
+
+
+@mcp.tool
+async def update_workflow_step(
+    workflow_id: str,
+    step_name: str,
+    new_spec_name: Optional[str] = None,
+    new_spec_revision: Optional[str] = None,
+    description: Optional[str] = None,
+    is_last_step: Optional[bool] = None,
+    sequence: Optional[int] = None,
+) -> str:
+    """
+    Update properties of an existing step within a Workflow.
+    PUT /api/Workflows/{workflow_id}
+
+    Required fields:
+      - workflow_id: Instance ID of the target workflow.
+      - step_name: Name of the step to modify.
+
+    Optional:
+      - new_spec_name: Change which Spec this step references.
+      - new_spec_revision: Specific Spec revision (defaults to ROR if new_spec_name is given).
+      - description: Update the step description.
+      - is_last_step: Mark this as the last step (true/false).
+      - sequence: Update the step sequence number.
+    """
+    step_value: dict = {
+        "@odata.type": "#modeling.SpecStepChanges",
+        "name": step_name,
+    }
+
+    if new_spec_name:
+        spec_ref = {"name": new_spec_name}
+        if new_spec_revision:
+            spec_ref["revision"] = new_spec_revision
+        else:
+            spec_ref["useROR"] = True
+        step_value["spec"] = spec_ref
+
+    if description is not None:
+        step_value["description"] = description
+    if is_last_step is not None:
+        step_value["isLastStep"] = is_last_step
+    if sequence is not None:
+        step_value["sequence"] = sequence
+
+    payload = {
+        "steps-Expanded": [{
+            "listItemAction": "change",
+            "key": {"name": step_name},
+            "value": step_value
+        }]
+    }
+
+    return await request("PUT", f"/api/Workflows/{workflow_id}", body=payload)
+
