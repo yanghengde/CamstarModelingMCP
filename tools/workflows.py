@@ -10,6 +10,7 @@ from typing import Optional
 
 from tools import mcp
 from core.http_client import request
+from tools.security import verify_and_generate_otp
 
 
 @mcp.tool
@@ -193,29 +194,25 @@ async def patch_workflow(
 
 
 @mcp.tool
-async def delete_workflow(key: str, user_confirmed: bool = False) -> str:
+async def delete_workflow(key: str, otp_code: str = "") -> str:
     """
     Delete a Workflow by key.
     DELETE /api/Workflows/{key}
-    
-    IMPORTANT: You must never automatically set user_confirmed=True.
     """
-    if not user_confirmed:
-        return "⚠️ 系统拦截防御：检测到[单条/批量]删除风险。请面向用户详细罗列即将被删除的Workflow信息，并询问“请确认是否继续？”。当且仅当用户本次明确答复确认后，你才能再次调用此工具并将 user_confirmed 设置为 True。"
+    err = verify_and_generate_otp(f"delete_wf_{key}", otp_code)
+    if err: return err
         
     return await request("DELETE", f"/api/Workflows/{key}")
 
 
 @mcp.tool
-async def delete_workflow_by_odata_key(key: str, user_confirmed: bool = False) -> str:
+async def delete_workflow_by_odata_key(key: str, otp_code: str = "") -> str:
     """
     Delete a Workflow using OData key syntax.
     DELETE /api/Workflows({key})
-    
-    IMPORTANT: You must never automatically set user_confirmed=True.
     """
-    if not user_confirmed:
-        return "⚠️ 系统拦截防御：检测到[单条/批量]删除风险。请面向用户详细罗列即将被删除的Workflow信息，并询问“请确认是否继续？”。当且仅当用户本次明确答复确认后，你才能再次调用此工具并将 user_confirmed 设置为 True。"
+    err = verify_and_generate_otp(f"delete_wf_odata_{key}", otp_code)
+    if err: return err
         
     return await request("DELETE", f"/api/Workflows({key})")
 
@@ -361,7 +358,7 @@ async def connect_workflow_steps(
 async def delete_workflow_steps(
     workflow_id: str,
     step_names_json: str,
-    user_confirmed: bool = False,
+    otp_code: str = "",
 ) -> str:
     """
     Delete one or more steps from a Workflow by name.
@@ -375,11 +372,9 @@ async def delete_workflow_steps(
       - workflow_id: Instance ID of the target workflow.
       - step_names_json: A JSON array of step names to delete.
         Example: '["HD-001-01", "HD-005"]'
-        
-    SECURITY: You must never automatically set user_confirmed=True.
     """
-    if not user_confirmed:
-        return "⚠️ 系统拦截防御：检测到批量破坏性操作风险，即将删除多个步骤。请面向用户详细罗列即将被删除的Step信息，并询问“请确认是否一并删除上述步骤？”。当且仅当用户明确肯定答复后，你才能再次调用并设置 user_confirmed=True。"
+    err = verify_and_generate_otp(f"delete_wf_steps_{workflow_id}_{abs(hash(step_names_json))}", otp_code)
+    if err: return err
 
     try:
         step_names = json.loads(step_names_json)
@@ -404,7 +399,7 @@ async def rebuild_workflow_route(
     workflow_name: str,
     workflow_revision: str,
     route_json: str,
-    user_confirmed: bool = False,
+    otp_code: str = "",
 ) -> str:
     """
     Rebuild an entire workflow route from scratch: clear ALL existing steps,
@@ -426,14 +421,11 @@ async def rebuild_workflow_route(
           - A string (step name = spec name): "HD-001"
           - An object with details: {"step_name": "Step1", "spec_name": "HD-001", "spec_revision": "A"}
         Example: '["HD-001", "HD-002", {"step_name": "QC-Check", "spec_name": "QC-001"}]'
-        
-    SECURITY: Rebuilding a route destroys the current layout completely.
-    You must never automatically set user_confirmed=True.
 
     Returns a summary of all operations performed.
     """
-    if not user_confirmed:
-        return "⚠️ 系统拦截防御：重建工艺路线会首先清空目标 Workflow 中的所有先有步骤。这是一个巨大的破坏性更新！请必须！明确地向用户说明将要清空并重建路线，询问“这是一个高风险操作，确定要将该路线进行彻底覆盖重建吗？”。只有用户肯定回复，才可设置 user_confirmed=True 并继续。"
+    err = verify_and_generate_otp(f"rebuild_wf_{workflow_id}_{abs(hash(route_json))}", otp_code)
+    if err: return err
 
     try:
         route = json.loads(route_json)
