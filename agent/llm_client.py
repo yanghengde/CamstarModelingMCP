@@ -103,7 +103,7 @@ async def chat_stream(username: str, message: str, session_id: str = None):
     while True:
         loops += 1
         if loops > MAX_TOOL_LOOPS:
-            reply = "⚠️ 遇到过多连续的操作，自动中断了当前任务。"
+            reply = f"⚠️ 遇到过多连续的操作，达到预设循环上限 ({MAX_TOOL_LOOPS} 次)，自动中断了当前任务。如需调整，请在 .env 文件中修改 MAX_TOOL_LOOPS 的值。"
             chat_messages.append({"role": "assistant", "content": reply})
             save_memory()
             yield f"data: {json.dumps({'type': 'done', 'reply': reply}, ensure_ascii=False)}\n\n"
