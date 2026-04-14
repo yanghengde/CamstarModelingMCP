@@ -10,7 +10,6 @@ from typing import Optional
 
 from tools import mcp
 from core.http_client import request
-from tools.security import verify_and_generate_otp
 
 
 @mcp.tool
@@ -194,26 +193,20 @@ async def patch_workflow(
 
 
 @mcp.tool
-async def delete_workflow(key: str, otp_code: str = "") -> str:
+async def delete_workflow(key: str) -> str:
     """
     Delete a Workflow by key.
     DELETE /api/Workflows/{key}
     """
-    err = verify_and_generate_otp(f"delete_wf_{key}", otp_code)
-    if err: return err
-        
     return await request("DELETE", f"/api/Workflows/{key}")
 
 
 @mcp.tool
-async def delete_workflow_by_odata_key(key: str, otp_code: str = "") -> str:
+async def delete_workflow_by_odata_key(key: str) -> str:
     """
     Delete a Workflow using OData key syntax.
     DELETE /api/Workflows({key})
     """
-    err = verify_and_generate_otp(f"delete_wf_odata_{key}", otp_code)
-    if err: return err
-        
     return await request("DELETE", f"/api/Workflows({key})")
 
 
@@ -358,7 +351,6 @@ async def connect_workflow_steps(
 async def delete_workflow_steps(
     workflow_id: str,
     step_names_json: str,
-    otp_code: str = "",
 ) -> str:
     """
     Delete one or more steps from a Workflow by name.
@@ -373,8 +365,6 @@ async def delete_workflow_steps(
       - step_names_json: A JSON array of step names to delete.
         Example: '["HD-001-01", "HD-005"]'
     """
-    err = verify_and_generate_otp(f"delete_wf_steps_{workflow_id}_{abs(hash(step_names_json))}", otp_code)
-    if err: return err
 
     try:
         step_names = json.loads(step_names_json)
@@ -399,7 +389,6 @@ async def rebuild_workflow_route(
     workflow_name: str,
     workflow_revision: str,
     route_json: str,
-    otp_code: str = "",
 ) -> str:
     """
     Rebuild an entire workflow route from scratch: clear ALL existing steps,
@@ -424,8 +413,6 @@ async def rebuild_workflow_route(
 
     Returns a summary of all operations performed.
     """
-    err = verify_and_generate_otp(f"rebuild_wf_{workflow_id}_{abs(hash(route_json))}", otp_code)
-    if err: return err
 
     try:
         route = json.loads(route_json)

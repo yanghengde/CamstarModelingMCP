@@ -9,7 +9,10 @@ import asyncio
 import time
 from openai import AsyncOpenAI
 
-from config import LLM_API_KEY, LLM_BASE_URL, LLM_MODEL, MAX_TOOL_LOOPS
+from config import (
+    LLM_API_KEY, LLM_BASE_URL, LLM_MODEL, MAX_TOOL_LOOPS,
+    SAFE_CREATE_THRESHOLD, SAFE_UPDATE_THRESHOLD, SAFE_DELETE_THRESHOLD
+)
 from agent.memory import get_user_messages, save_memory, update_session_title, user_memories
 from tools import mcp, get_tool_func
 from core.perf_logger import record_perf
@@ -90,10 +93,12 @@ async def chat_stream(username: str, message: str, session_id: str = None):
             
     confirmed_words = ["确认", "确定", "是", "修改", "ok", "yes", "y", "继续"]
     # 如果用户的回复很短，且包含确认词，视为赋予了最高授权
-    is_user_confirmation = len(last_user_msg) < 15 and any(w in last_user_msg.lower() for w in confirmed_words)
+    is_user_confirmation = len(last_user_msg) < 20 and any(w in last_user_msg.lower() for w in confirmed_words)
 
     loops = 0
-    turn_modification_count = 0
+    turn_create_count = 0
+    turn_update_count = 0
+    turn_delete_count = 0
 
     while True:
         loops += 1
@@ -185,30 +190,51 @@ async def chat_stream(username: str, message: str, session_id: str = None):
             break
 
         # 预计算本轮大宗修改工具的数量
-        current_batch_mod_count = len([tc for tc in response_tool_calls if tc["function"]["name"].startswith(("update_", "create_", "patch_", "rebuild_"))])
-        block_this_batch = False
-        if (turn_modification_count + current_batch_mod_count) > 3 and not is_user_confirmation:
-            block_this_batch = True
+        current_batch_create_count = len([tc for tc in response_tool_calls if tc["function"]["name"].startswith(("create_",))])
+        current_batch_update_count = len([tc for tc in response_tool_calls if tc["function"]["name"].startswith(("update_", "patch_", "rebuild_"))])
+        current_batch_delete_count = len([tc for tc in response_tool_calls if tc["function"]["name"].startswith(("delete_",))])
+
+        block_creates = (turn_create_count + current_batch_create_count) > SAFE_CREATE_THRESHOLD and not is_user_confirmation
+        block_updates = (turn_update_count + current_batch_update_count) > SAFE_UPDATE_THRESHOLD and not is_user_confirmation
+        block_deletes = (turn_delete_count + current_batch_delete_count) > SAFE_DELETE_THRESHOLD and not is_user_confirmation
 
         # 依次执行工具调用
         for tool_call in response_tool_calls:
             func_name = tool_call["function"]["name"]
             func_args_str = tool_call["function"]["arguments"]
             
-            is_modifying_tool = func_name.startswith(("update_", "create_", "patch_", "rebuild_"))
-            
-            if is_modifying_tool and block_this_batch:
-                yield f"data: {json.dumps({'type': 'step', 'func': '🛡️ 批量安全锁', 'args': f'拦截 {func_name}'}, ensure_ascii=False)}\n\n"
-                chat_messages.append({
-                    "role": "tool",
-                    "tool_call_id": tool_call["id"],
-                    "name": func_name,
-                    "content": f"⚠️ 系统拦截防御：检测到意图批量修改/创建 {current_batch_mod_count + turn_modification_count} 条数据（超过 3 条的防误触阈值）。必须暂停执行！请向用户罗列这些待修改的数据，并明确提示用户必须回复“确认修改”四个字以解封批量写入。拿到授权后，你可以直接再次原样发起全部调用。"
-                })
-                continue
-
-            if is_modifying_tool:
-                turn_modification_count += 1
+            # 创建拦截
+            if func_name.startswith(("create_",)):
+                if block_creates:
+                    yield f"data: {json.dumps({'type': 'step', 'func': '🛡️ 创建安全锁', 'args': f'拦截 {func_name}'}, ensure_ascii=False)}\n\n"
+                    chat_messages.append({
+                        "role": "tool", "tool_call_id": tool_call["id"], "name": func_name,
+                        "content": f"⚠️ 系统拦截防御：检测到单轮意图创建达 {current_batch_create_count + turn_create_count} 条数据（超过 {SAFE_CREATE_THRESHOLD} 条配置参数）。必须暂停！请向用户罗列待修改的数据，并提示用户必须回复“确认删除/确认修改/确认创建”等词汇以解封。拿到授权后，可全部重新发起。"
+                    })
+                    continue
+                turn_create_count += 1
+                
+            # 修改拦截
+            elif func_name.startswith(("update_", "patch_", "rebuild_")):
+                if block_updates:
+                    yield f"data: {json.dumps({'type': 'step', 'func': '🛡️ 修改安全锁', 'args': f'拦截 {func_name}'}, ensure_ascii=False)}\n\n"
+                    chat_messages.append({
+                        "role": "tool", "tool_call_id": tool_call["id"], "name": func_name,
+                        "content": f"⚠️ 系统拦截防御：检测到单轮意图修改/更新达 {current_batch_update_count + turn_update_count} 条数据（超过 {SAFE_UPDATE_THRESHOLD} 条配置参数）。必须暂停！请向用户罗列待修改的数据，并提示用户必须回复“确认修改/确认”等词汇以解封。拿到授权后，可全部重新发起。"
+                    })
+                    continue
+                turn_update_count += 1
+                
+            # 删除拦截
+            elif func_name.startswith(("delete_",)):
+                if block_deletes:
+                    yield f"data: {json.dumps({'type': 'step', 'func': '🛡️ 删除安全锁', 'args': f'拦截高危操作 {func_name}'}, ensure_ascii=False)}\n\n"
+                    chat_messages.append({
+                        "role": "tool", "tool_call_id": tool_call["id"], "name": func_name,
+                        "content": f"⚠️ 系统拦截防御：检测到单轮意图删除达 {current_batch_delete_count + turn_delete_count} 条数据（超过 {SAFE_DELETE_THRESHOLD} 条配置参数）。安全起见必须暂停执行！请向用户详细罗列明确这些【将被永久删除】的数据特征，并提示用户回复“确认删除”等词汇以解封。明确授权后才能重试发送。"
+                    })
+                    continue
+                turn_delete_count += 1
 
             print(f"⚡ 执行: {func_name}({func_args_str}) [@{username}]")
             # 向前端推送当前正在调用的工具名

@@ -10,7 +10,6 @@ from typing import Optional
 
 from tools import mcp
 from core.http_client import request
-from tools.security import verify_and_generate_otp
 
 
 @mcp.tool
@@ -199,26 +198,20 @@ async def patch_spec(body_json: str) -> str:
 
 
 @mcp.tool
-async def delete_spec(key: str, otp_code: str = "") -> str:
+async def delete_spec(key: str) -> str:
     """
     Delete a Spec by key.
     DELETE /api/Specs/{key}
     """
-    err = verify_and_generate_otp(f"delete_spec_{key}", otp_code)
-    if err: return err
-        
     return await request("DELETE", f"/api/Specs/{key}")
 
 
 @mcp.tool
-async def delete_spec_by_odata_key(key: str, otp_code: str = "") -> str:
+async def delete_spec_by_odata_key(key: str) -> str:
     """
     Delete a Spec using OData key syntax.
     DELETE /api/Specs({key})
     """
-    err = verify_and_generate_otp(f"delete_spec_odata_{key}", otp_code)
-    if err: return err
-        
     return await request("DELETE", f"/api/Specs({key})")
 
 

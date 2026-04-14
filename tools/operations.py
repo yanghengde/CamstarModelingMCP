@@ -7,11 +7,8 @@ Swagger: /api/Operations
 
 import json
 from typing import Optional
-from fastmcp import Context
-
 from tools import mcp
 from core.http_client import request
-from tools.security import verify_and_generate_otp
 
 
 @mcp.tool
@@ -177,26 +174,20 @@ async def update_operation_by_odata_key(
 
 
 @mcp.tool
-async def delete_operation(key: str, otp_code: str = "") -> str:
+async def delete_operation(key: str) -> str:
     """
     Delete an Operation by key.
     DELETE /api/Operations/{key}
     """
-    err = verify_and_generate_otp(f"delete_operation_{key}", otp_code)
-    if err: return err
-        
     return await request("DELETE", f"/api/Operations/{key}")
 
 
 @mcp.tool
-async def delete_operation_by_odata_key(key: str, otp_code: str = "") -> str:
+async def delete_operation_by_odata_key(key: str) -> str:
     """
     Delete an Operation using OData key syntax.
     DELETE /api/Operations({key})
     """
-    err = verify_and_generate_otp(f"delete_operation_odata_{key}", otp_code)
-    if err: return err
-        
     return await request("DELETE", f"/api/Operations({key})")
 
 

@@ -34,6 +34,11 @@ MAX_TOOL_LOOPS = int(os.getenv("MAX_TOOL_LOOPS", "15"))
 MEMORY_FILE = os.path.join("data", "memory.json")
 SESSIONS_DIR = os.path.join("data", "sessions")
 
+# 安全卡点阈值：当修改行为超过多少条时要求强制确认
+SAFE_CREATE_THRESHOLD = int(os.getenv("SAFE_CREATE_THRESHOLD", "20"))
+SAFE_UPDATE_THRESHOLD = int(os.getenv("SAFE_UPDATE_THRESHOLD", "3"))
+SAFE_DELETE_THRESHOLD = int(os.getenv("SAFE_DELETE_THRESHOLD", "0")) # Default 0 means >= 1 triggers it
+
 # ---------------------------------------------------------------------------
 # 日志与性能监控开关
 # ---------------------------------------------------------------------------
