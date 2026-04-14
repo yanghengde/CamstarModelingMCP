@@ -10,7 +10,7 @@ import time
 from openai import AsyncOpenAI
 
 from config import LLM_API_KEY, LLM_BASE_URL, LLM_MODEL, MAX_TOOL_LOOPS
-from agent.memory import get_user_messages, save_memory
+from agent.memory import get_user_messages, save_memory, update_session_title, user_memories
 from tools import mcp, get_tool_func
 from core.perf_logger import record_perf
 
@@ -41,6 +41,22 @@ async def register_tools():
     print(f"✅ 成功加载了 {len(openai_tools)} 个 Camstar MCP Tools。")
     return openai_tools
 
+async def generate_title(message: str) -> str:
+    """生成不超过30字的短标题"""
+    try:
+        resp = await oai_client.chat.completions.create(
+            model=LLM_MODEL,
+            messages=[
+                {"role": "system", "content": "你是一个标题生成助手。请根据用户的第一句话提炼总结一个极短的标题（最多30个字符，只输出标题内容，不要加引号、句号等标点符号）。"},
+                {"role": "user", "content": message}
+            ],
+            max_tokens=20,
+            temperature=0.3
+        )
+        return resp.choices[0].message.content.strip()
+    except Exception:
+        return "新对话"
+
 
 async def chat_stream(username: str, message: str, session_id: str = None):
     """
@@ -49,15 +65,21 @@ async def chat_stream(username: str, message: str, session_id: str = None):
     """
     chat_messages = get_user_messages(username, session_id)
     
-    # 尝试恢复 session_id，保证日志准确性
-    actual_session_id = session_id or "unknown"
-    if not session_id and chat_messages and len(chat_messages) > 0:
-        # 如果是新传来的空，那么上一句执行完的实际已分配id无法在这里直接取，
-        # 为了兼容，我们就暂用传入的字面值或者 "unknown"
-        pass
+    # 尝试恢复 session_id，保证日志准确性和更新标题
+    actual_session_id = session_id
+    if not actual_session_id:
+        actual_session_id = user_memories.get(username, {}).get("active_session", "unknown")
+        
+    is_first_message = (len(chat_messages) == 1) # 只有 system prompt
         
     chat_messages.append({"role": "user", "content": message})
     save_memory()
+
+    if is_first_message and actual_session_id != "unknown":
+        new_title = await generate_title(message)
+        update_session_title(username, actual_session_id, new_title)
+        yield f"data: {json.dumps({'type': 'title_update', 'title': new_title, 'session_id': actual_session_id}, ensure_ascii=False)}\n\n"
+
 
     loops = 0
 

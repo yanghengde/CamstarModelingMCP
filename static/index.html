@@ -604,10 +604,11 @@
                     for (let line of lines) {
                         if (line.startsWith('data: ')) {
                             const data = JSON.parse(line.substring(6));
-                            
                             if (data.type === 'step') {
                                 typingText.innerHTML = `正在调用后台接口: <b>${data.func}</b> ...`;
                                 scrollToBottom();
+                            } else if (data.type === 'title_update') {
+                                refreshSessionsList();
                             } else if (data.type === 'done') {
                                 typingIndicator.style.display = 'none';
                                 appendMessage('agent', data.reply);

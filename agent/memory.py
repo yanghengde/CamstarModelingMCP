@@ -152,6 +152,13 @@ def create_session(username: str) -> str:
     _save_metadata(username)
     return session_id
 
+def update_session_title(username: str, session_id: str, title: str):
+    """更新会话的名称并持久化"""
+    if username in user_memories:
+        if session_id in user_memories[username].get("sessions", {}):
+            user_memories[username]["sessions"][session_id]["title"] = title
+            save_session(username, session_id)
+
 
 def set_active_session(username: str, session_id: str):
     if username in user_memories:
