@@ -81,7 +81,19 @@ async def chat_stream(username: str, message: str, session_id: str = None):
         yield f"data: {json.dumps({'type': 'title_update', 'title': new_title, 'session_id': actual_session_id}, ensure_ascii=False)}\n\n"
 
 
+    # 提取用户最新发言，判断是否为确认授权（用于批量修改大于3条的情况）
+    last_user_msg = ""
+    for m in reversed(chat_messages):
+        if m["role"] == "user":
+            last_user_msg = m.get("content", "").strip()
+            break
+            
+    confirmed_words = ["确认", "确定", "是", "修改", "ok", "yes", "y", "继续"]
+    # 如果用户的回复很短，且包含确认词，视为赋予了最高授权
+    is_user_confirmation = len(last_user_msg) < 15 and any(w in last_user_msg.lower() for w in confirmed_words)
+
     loops = 0
+    turn_modification_count = 0
 
     while True:
         loops += 1
@@ -172,10 +184,31 @@ async def chat_stream(username: str, message: str, session_id: str = None):
                 yield f"data: {json.dumps({'type': 'done', 'reply': full_content}, ensure_ascii=False)}\n\n"
             break
 
+        # 预计算本轮大宗修改工具的数量
+        current_batch_mod_count = len([tc for tc in response_tool_calls if tc["function"]["name"].startswith(("update_", "create_", "patch_", "rebuild_"))])
+        block_this_batch = False
+        if (turn_modification_count + current_batch_mod_count) > 3 and not is_user_confirmation:
+            block_this_batch = True
+
         # 依次执行工具调用
         for tool_call in response_tool_calls:
             func_name = tool_call["function"]["name"]
             func_args_str = tool_call["function"]["arguments"]
+            
+            is_modifying_tool = func_name.startswith(("update_", "create_", "patch_", "rebuild_"))
+            
+            if is_modifying_tool and block_this_batch:
+                yield f"data: {json.dumps({'type': 'step', 'func': '🛡️ 批量安全锁', 'args': f'拦截 {func_name}'}, ensure_ascii=False)}\n\n"
+                chat_messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call["id"],
+                    "name": func_name,
+                    "content": f"⚠️ 系统拦截防御：检测到意图批量修改/创建 {current_batch_mod_count + turn_modification_count} 条数据（超过 3 条的防误触阈值）。必须暂停执行！请向用户罗列这些待修改的数据，并明确提示用户必须回复“确认修改”四个字以解封批量写入。拿到授权后，你可以直接再次原样发起全部调用。"
+                })
+                continue
+
+            if is_modifying_tool:
+                turn_modification_count += 1
 
             print(f"⚡ 执行: {func_name}({func_args_str}) [@{username}]")
             # 向前端推送当前正在调用的工具名
