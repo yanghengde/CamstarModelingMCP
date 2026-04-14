@@ -198,20 +198,30 @@ async def patch_spec(body_json: str) -> str:
 
 
 @mcp.tool
-async def delete_spec(key: str) -> str:
+async def delete_spec(key: str, user_confirmed: bool = False) -> str:
     """
     Delete a Spec by key.
     DELETE /api/Specs/{key}
+    
+    IMPORTANT: You must never automatically set user_confirmed=True.
     """
+    if not user_confirmed:
+        return "⚠️ 系统拦截防御：检测到[单条/批量]删除风险。请面向用户详细罗列即将被删除的Spec信息，并询问“请确认是否继续删除？”。当且仅当用户本次明确答复确认后，你才能再次调用此工具并将 user_confirmed 设置为 True。"
+        
     return await request("DELETE", f"/api/Specs/{key}")
 
 
 @mcp.tool
-async def delete_spec_by_odata_key(key: str) -> str:
+async def delete_spec_by_odata_key(key: str, user_confirmed: bool = False) -> str:
     """
     Delete a Spec using OData key syntax.
     DELETE /api/Specs({key})
+    
+    IMPORTANT: You must never automatically set user_confirmed=True.
     """
+    if not user_confirmed:
+        return "⚠️ 系统拦截防御：检测到[单条/批量]删除风险。请面向用户详细罗列即将被删除的Spec信息，并询问“请确认是否继续删除？”。当且仅当用户本次明确答复确认后，你才能再次调用此工具并将 user_confirmed 设置为 True。"
+        
     return await request("DELETE", f"/api/Specs({key})")
 
 
