@@ -13,14 +13,38 @@ from core.http_client import request
 
 
 @mcp.tool
-async def list_workflows() -> str:
+async def list_workflows(
+    filter_expr: Optional[str] = None,
+    top: Optional[int] = None,
+    skip: Optional[int] = None,
+    select: Optional[str] = None,
+    expand: Optional[str] = None,
+    orderby: Optional[str] = None,
+) -> str:
     """
-    List all Workflows.
+    List Workflows with optional OData querying.
     GET /api/Workflows
+    
+    Optional OData Parameters:
+      - filter_expr: example "Name eq 'ABC'"
+      - top: limit number of results
+      - skip: skip number of results
+      - select: fields to return
+      - expand: navigation properties to expand
+      - orderby: order sequence, e.g., "Name desc"
+      
     Returns an array of WorkflowEntity objects with key fields.
     Large responses are automatically trimmed.
     """
-    return await request("GET", "/api/Workflows")
+    params = {}
+    if filter_expr: params["$filter"] = filter_expr
+    if top is not None: params["$top"] = top
+    if skip is not None: params["$skip"] = skip
+    if select: params["$select"] = select
+    if expand: params["$expand"] = expand
+    if orderby: params["$orderby"] = orderby
+    
+    return await request("GET", "/api/Workflows", params=params or None)
 
 
 @mcp.tool
