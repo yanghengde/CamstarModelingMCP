@@ -24,6 +24,7 @@ mcp = FastMCP(
 from tools import specs                # Spec 实体
 from tools import operations           # Operation 实体
 from tools import workflows            # Workflow 实体
+from tools import products             # Product 实体
 
 
 def get_tool_func(name: str):
@@ -31,7 +32,7 @@ def get_tool_func(name: str):
     按函数名查找已注册的工具函数，供 Agent 直接调用。
     新增模块时，将对应 module 加入列表即可。
     """
-    for module in [specs, operations, workflows]:  # 未来在此追加: workflows
+    for module in [specs, operations, workflows, products]:  # 未来在此追加: workflows
         func = getattr(module, name, None)
         if func is not None:
             return func
