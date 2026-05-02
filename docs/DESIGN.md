@@ -643,7 +643,9 @@ user_memories (内存字典)
 | Spec 实体 | 11 | `/api/Specs` |
 | Operation 实体 | 9 | `/api/Operations` |
 | Workflow 实体 | 若干 | `/api/Workflows` |
-| **合计** | **20+** | — |
+| Product 实体 | 10 | `/api/Products` |
+| MfgOrder 实体 | 11 | `/api/MfgOrders` |
+| **合计** | **40+** | — |
 
 **通用参数设计规范**：
 - 所有 list 类工具均支持 OData 参数：`$filter`, `$top`, `$skip`, `$select`, `$expand`, `$orderby`
