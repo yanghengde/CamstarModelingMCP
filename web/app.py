@@ -29,6 +29,10 @@ async def lifespan(app: FastAPI):
 
     print("🚀 Web 服务启动就绪！")
     yield
+    # 应用关闭时，清理 HTTP 连接池，释放网络端口
+    from core.http_client import close_client
+    await close_client()
+
 
 
 def create_app() -> FastAPI:

@@ -2,6 +2,7 @@ import os
 import json
 import time
 from datetime import datetime
+from collections import deque
 from config import ENABLE_PERFORMANCE_LOG
 
 LOGS_DIR = os.path.join("data", "logs")
@@ -44,14 +45,19 @@ def get_perf_logs(limit: int = 500) -> list:
     if not os.path.exists(PERF_LOG_FILE):
         return []
     
+    try:
+        with open(PERF_LOG_FILE, "r", encoding="utf-8") as f:
+            # 使用 deque 在 C 语言层流式读取最后 limit 行，极大减少大文件的内存占用并提升速度
+            last_lines = deque(f, maxlen=limit)
+    except Exception:
+        return []
+
     logs = []
-    with open(PERF_LOG_FILE, "r", encoding="utf-8") as f:
-        # 简单读取并反序列化，如果文件特大会慢，但作为开发期调试够用
-        lines = f.readlines()
-        for line in lines[-limit:]:
-            try:
-                logs.append(json.loads(line.strip()))
-            except:
-                continue
+    for line in last_lines:
+        try:
+            logs.append(json.loads(line.strip()))
+        except Exception:
+            continue
     # 逆序返回，最新的在前面
     return list(reversed(logs))
+

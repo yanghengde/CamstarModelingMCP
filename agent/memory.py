@@ -51,6 +51,13 @@ def save_memory():
             save_session(username, sid)
 
 
+def save_user_session(username: str, session_id: str):
+    """增量保存单个会话及元数据，极大提升性能"""
+    _save_metadata(username)
+    save_session(username, session_id)
+
+
+
 def load_memory() -> dict:
     """初始化加载：从分离的 session 文件夹加载，如果包含旧 memory.json 则尝试热迁移组合"""
     mem = {}

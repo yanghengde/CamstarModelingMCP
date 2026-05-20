@@ -14,19 +14,41 @@ from core.response import smart_response
 logger = logging.getLogger("camstar-mcp")
 
 
+_cached_token: str | None = None
+_client: httpx.AsyncClient | None = None
+
+
 def get_headers() -> dict:
     """Build common request headers with dynamic Bearer auth."""
+    global _cached_token
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
     }
     try:
-        token = generate_camstar_auth_token(CAMSTAR_USERNAME, CAMSTAR_PASSWORD)
-        if token:
-            headers["Authorization"] = f"Bearer {token}"
+        if _cached_token is None:
+            _cached_token = generate_camstar_auth_token(CAMSTAR_USERNAME, CAMSTAR_PASSWORD)
+        if _cached_token:
+            headers["Authorization"] = f"Bearer {_cached_token}"
     except Exception as e:
         logger.error(f"Failed to generate auth token: {e}")
     return headers
+
+
+def get_client() -> httpx.AsyncClient:
+    """Get or initialize the shared global AsyncClient."""
+    global _client
+    if _client is None or _client.is_closed:
+        _client = httpx.AsyncClient(timeout=CAMSTAR_TIMEOUT, verify=False)
+    return _client
+
+
+async def close_client():
+    """Close the shared AsyncClient connection pool."""
+    global _client
+    if _client is not None and not _client.is_closed:
+        await _client.aclose()
+        logger.info("Shared HTTP client connection pool closed.")
 
 
 def build_url(path: str) -> str:
@@ -47,14 +69,14 @@ async def request(method: str, path: str, body: dict | None = None,
     logger.info("%s %s", method.upper(), url)
 
     try:
-        async with httpx.AsyncClient(timeout=CAMSTAR_TIMEOUT, verify=False) as client:
-            resp = await client.request(
-                method,
-                url,
-                headers=headers,
-                json=body,
-                params=params,
-            )
+        client = get_client()
+        resp = await client.request(
+            method,
+            url,
+            headers=headers,
+            json=body,
+            params=params,
+        )
 
         if resp.status_code >= 400:
             return (
@@ -78,3 +100,4 @@ async def request(method: str, path: str, body: dict | None = None,
         return f"❌ Request timed out after {CAMSTAR_TIMEOUT}s: {method.upper()} {url}"
     except Exception as exc:
         return f"❌ Request failed: {repr(exc)}"
+

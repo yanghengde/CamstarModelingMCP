@@ -13,7 +13,7 @@ from config import (
     LLM_API_KEY, LLM_BASE_URL, LLM_MODEL, MAX_TOOL_LOOPS,
     SAFE_CREATE_THRESHOLD, SAFE_UPDATE_THRESHOLD, SAFE_DELETE_THRESHOLD
 )
-from agent.memory import get_user_messages, save_memory, update_session_title, user_memories
+from agent.memory import get_user_messages, save_user_session, update_session_title, user_memories
 from tools import mcp, get_tool_func
 from core.perf_logger import record_perf
 
@@ -76,7 +76,7 @@ async def chat_stream(username: str, message: str, session_id: str = None):
     is_first_message = (len(chat_messages) == 1) # 只有 system prompt
         
     chat_messages.append({"role": "user", "content": message})
-    save_memory()
+    save_user_session(username, actual_session_id)
 
     if is_first_message and actual_session_id != "unknown":
         new_title = await generate_title(message)
@@ -105,7 +105,7 @@ async def chat_stream(username: str, message: str, session_id: str = None):
         if loops > MAX_TOOL_LOOPS:
             reply = f"⚠️ 遇到过多连续的操作，达到预设循环上限 ({MAX_TOOL_LOOPS} 次)，自动中断了当前任务。如需调整，请在 .env 文件中修改 MAX_TOOL_LOOPS 的值。"
             chat_messages.append({"role": "assistant", "content": reply})
-            save_memory()
+            save_user_session(username, actual_session_id)
             yield f"data: {json.dumps({'type': 'done', 'reply': reply}, ensure_ascii=False)}\n\n"
             break
 
@@ -177,7 +177,7 @@ async def chat_stream(username: str, message: str, session_id: str = None):
             msg_dict["tool_calls"] = response_tool_calls
             
         chat_messages.append(msg_dict)
-        save_memory()
+        save_user_session(username, actual_session_id)
 
         # 无工具调用 → 返回最终回答
         if not response_tool_calls:
@@ -260,7 +260,7 @@ async def chat_stream(username: str, message: str, session_id: str = None):
                     "name": func_name,
                     "content": "Action aborted by user/system."
                 })
-                save_memory()
+                save_user_session(username, actual_session_id)
                 raise
             except Exception as e:
                 result = f"Error executing {func_name}: {e}"
@@ -274,5 +274,5 @@ async def chat_stream(username: str, message: str, session_id: str = None):
                 "name": func_name,
                 "content": str(result)
             })
-            save_memory()
+            save_user_session(username, actual_session_id)
 
