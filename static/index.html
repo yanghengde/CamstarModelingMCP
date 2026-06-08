@@ -264,6 +264,19 @@
             align-items: center;
         }
 
+        #uploadBtn {
+            background: #f1f3f4;
+            color: #5f6368;
+            box-shadow: none;
+            border: 1px solid #dadce0;
+        }
+
+        #uploadBtn:hover {
+            background: #e8eaed;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
         input[type="text"] {
             flex-grow: 1;
             padding: 16px 24px;
@@ -362,7 +375,7 @@
         <div class="header">
             <!-- Siemens Text Logo -->
             <div
-                style="font-family: inherit; font-weight: 800; font-size: 26px; letter-spacing: 3px; color: var(--siemens-teal); user-select: none;">
+                 style="font-family: inherit; font-weight: 800; font-size: 26px; letter-spacing: 3px; color: var(--siemens-teal); user-select: none;">
                 SIEMENS</div>
             <h1>Opcenter Modeling Agent</h1>
 
@@ -391,6 +404,12 @@
 
         <!-- Input Area -->
         <div class="input-panel">
+            <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;">
+            <button id="uploadBtn" title="上传 Excel 文件">
+                <svg viewBox="0 0 24 24" style="fill: #5f6368;">
+                    <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-3.31 2.69-6 6-6s6 2.69 6 6v10c0 4.42-3.58 8-8 8s-8-3.58-8-8V4h2v11c0 3.31 2.69 6 6 6s6-2.69 6-6V5c0-2.21-1.79-4-4-4s-4 1.79-4 4v12.5c0 1.1.9 2 2 2s2-.9 2-2V6h2z"></path>
+                </svg>
+            </button>
             <input type="text" id="inputBox" placeholder="输入自然语言指令进行系统操作..." autocomplete="off">
             <button id="sendBtn">
                 <!-- Send Icon SVG -->
@@ -412,6 +431,8 @@
         const sendBtn = document.getElementById('sendBtn');
         const stopBtn = document.getElementById('stopBtn');
         const messagesDiv = document.getElementById('msgs');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileInput = document.getElementById('fileInput');
 
         const typingIndicator = document.createElement('div');
         typingIndicator.className = 'typing';
@@ -664,6 +685,49 @@
         stopBtn.addEventListener('click', () => {
             if (abortController) {
                 abortController.abort();
+            }
+        });
+
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            input.disabled = true;
+            sendBtn.style.display = 'none';
+            stopBtn.style.display = 'flex';
+            typingIndicator.style.display = 'flex';
+            typingIndicator.querySelector('span').textContent = `正在上传文件 ${file.name}...`;
+            scrollToBottom();
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    input.value = `已上传 Excel 文件 [${result.filename}]，本地路径为 [${result.file_path}]。请帮我解析该文件的结构，准备导入为工作流。`;
+                    input.disabled = false;
+                    await handleSend();
+                } else {
+                    alert(`文件上传失败: ${result.message || '未知错误'}`);
+                }
+            } catch (err) {
+                alert(`文件上传请求失败: ${err.message}`);
+            } finally {
+                fileInput.value = '';
+                input.disabled = false;
+                stopBtn.style.display = 'none';
+                sendBtn.style.display = 'flex';
+                typingIndicator.style.display = 'none';
             }
         });
 

@@ -1,11 +1,7 @@
-"""
-API 路由
-=========
-定义所有 FastAPI 路由端点。
-"""
-
 import os
-from fastapi import APIRouter
+import uuid
+import shutil
+from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel
 
@@ -42,11 +38,13 @@ def sessions_endpoint(username: str):
     """获取用户所有会话"""
     return {"sessions": get_sessions(username)}
 
+
 @router.post("/sessions/{username}/new")
 def new_session_endpoint(username: str):
     """创建新会话"""
     session_id = create_session(username)
     return {"session_id": session_id}
+
 
 @router.get("/history/{username}")
 def history_endpoint(username: str, session_id: str = None):
@@ -64,12 +62,14 @@ async def chat_endpoint(req: ChatRequest):
         media_type="text/event-stream"
     )
 
+
 @router.get("/logs")
 def logs_page():
     """返回性能日志管理页面 HTML。"""
     html_path = os.path.join("static", "logs.html")
     with open(html_path, "r", encoding="utf-8") as f:
         return HTMLResponse(f.read())
+
 
 @router.get("/api/logs/data")
 def api_logs_data():
@@ -79,4 +79,25 @@ def api_logs_data():
         
     logs = get_perf_logs(1000)
     return {"status": "enabled", "logs": logs}
+
+
+UPLOAD_DIR = os.path.join("data", "uploads")
+
+
+@router.post("/api/upload")
+async def upload_file(file: UploadFile = File(...)):
+    """接收并暂存上传的文件，返回文件本地路径"""
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    
+    unique_filename = f"{uuid.uuid4().hex}_{file.filename}"
+    file_path = os.path.join(UPLOAD_DIR, unique_filename)
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    return {
+        "success": True,
+        "filename": file.filename,
+        "file_path": file_path.replace("\\", "/")
+    }
 
