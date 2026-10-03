@@ -195,7 +195,18 @@ async def chat_stream(username: str, message: str, session_id: str = None):
             if tc["function"]["name"].startswith(("create_",))
             or tc["function"]["name"] == "container_start"
         ])
-        current_batch_update_count = len([tc for tc in response_tool_calls if tc["function"]["name"].startswith(("update_", "patch_", "rebuild_"))])
+        container_move_tools = {
+            "container_move",
+            "container_move_in",
+            "container_move_out",
+        }
+        current_batch_update_count = len([
+            tc for tc in response_tool_calls
+            if tc["function"]["name"].startswith(
+                ("update_", "patch_", "rebuild_")
+            )
+            or tc["function"]["name"] in container_move_tools
+        ])
         current_batch_delete_count = len([tc for tc in response_tool_calls if tc["function"]["name"].startswith(("delete_",))])
 
         block_creates = (turn_create_count + current_batch_create_count) > SAFE_CREATE_THRESHOLD and not is_user_confirmation
@@ -220,7 +231,8 @@ async def chat_stream(username: str, message: str, session_id: str = None):
                 turn_create_count += 1
                 
             # 修改拦截
-            elif func_name.startswith(("update_", "patch_", "rebuild_")):
+            elif (func_name.startswith(("update_", "patch_", "rebuild_"))
+                  or func_name in container_move_tools):
                 if block_updates:
                     yield f"data: {json.dumps({'type': 'step', 'func': '🛡️ 修改安全锁', 'args': f'拦截 {func_name}'}, ensure_ascii=False)}\n\n"
                     chat_messages.append({

@@ -141,6 +141,9 @@ python main.py
 | 工具 | 方法 | 说明 |
 |---|---|---|
 | `container_start` | POST | 按工单启动 Container，支持显式序列号或自动编号规则 |
+| `container_move` | POST | 通过 MoveStd 将 Container 移动到下一工步 |
+| `container_move_in` | POST | 将 Container 移入当前工步/资源开始处理 |
+| `container_move_out` | POST | 将 Container 移出当前工步并继续流转 |
 
 ### Container 编号参考数据
 
