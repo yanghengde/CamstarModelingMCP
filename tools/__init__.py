@@ -13,8 +13,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 mcp = FastMCP(
     "CamstarModeling",
     instructions=(
-        "MCP Server for Siemens Opcenter (Camstar) Modeling API. "
-        "Provides tools to manage Specs, Operations, Workflows and more."
+        "MCP Server for Siemens Opcenter (Camstar) Modeling and Shopfloor "
+        "APIs. Provides tools to manage modeling entities and start "
+        "manufacturing Containers."
     ),
 )
 
@@ -26,6 +27,7 @@ from tools import operations           # Operation 实体
 from tools import workflows            # Workflow 实体
 from tools import products             # Product 实体
 from tools import mfgorders            # MfgOrder 实体
+from tools import container_start       # Shopfloor Container Start 事务
 from tools import mfglines             # MfgLine 实体
 from tools import producttypes         # ProductType 实体
 from tools import excel_importer       # Excel 导入工具
@@ -36,7 +38,8 @@ def get_tool_func(name: str):
     按函数名查找已注册的工具函数，供 Agent 直接调用。
     新增模块时，将对应 module 加入列表即可。
     """
-    for module in [specs, operations, workflows, products, mfgorders, mfglines, producttypes, excel_importer]:
+    for module in [specs, operations, workflows, products, mfgorders,
+                   container_start, mfglines, producttypes, excel_importer]:
         func = getattr(module, name, None)
         if func is not None:
             return func

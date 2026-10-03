@@ -5,6 +5,7 @@ Camstar Modeling MCP — 统一配置中心
 """
 
 import os
+from urllib.parse import urlsplit, urlunsplit
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,6 +14,23 @@ load_dotenv()
 # Camstar API 配置
 # ---------------------------------------------------------------------------
 CAMSTAR_BASE_URL = os.getenv("CAMSTAR_BASE_URL", "http://localhost/Modeling")
+
+
+def _derive_shopfloor_url(modeling_url: str) -> str:
+    """Derive the sibling Shopfloor API URL from a Modeling API URL."""
+    parsed = urlsplit(modeling_url.rstrip("/"))
+    path_parts = parsed.path.rstrip("/").split("/")
+    if path_parts[-1].casefold() == "modeling":
+        path_parts[-1] = "Shopfloor"
+    else:
+        path_parts.append("Shopfloor")
+    return urlunsplit((parsed.scheme, parsed.netloc, "/".join(path_parts), "", ""))
+
+
+CAMSTAR_SHOPFLOOR_BASE_URL = os.getenv(
+    "CAMSTAR_SHOPFLOOR_BASE_URL",
+    _derive_shopfloor_url(CAMSTAR_BASE_URL),
+)
 CAMSTAR_USERNAME = os.getenv("CAMSTAR_USERNAME", "CamstarAdmin")
 CAMSTAR_PASSWORD = os.getenv("CAMSTAR_PASSWORD", "Cam1star")
 CAMSTAR_TIMEOUT = int(os.getenv("CAMSTAR_TIMEOUT", "30"))

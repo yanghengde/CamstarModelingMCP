@@ -7,7 +7,14 @@
 import logging
 import httpx
 
-from config import CAMSTAR_BASE_URL, CAMSTAR_USERNAME, CAMSTAR_PASSWORD, CAMSTAR_TIMEOUT, MAX_RESPONSE_LENGTH
+from config import (
+    CAMSTAR_BASE_URL,
+    CAMSTAR_PASSWORD,
+    CAMSTAR_SHOPFLOOR_BASE_URL,
+    CAMSTAR_TIMEOUT,
+    CAMSTAR_USERNAME,
+    MAX_RESPONSE_LENGTH,
+)
 from core.auth import generate_camstar_auth_token
 from core.response import smart_response
 
@@ -51,19 +58,20 @@ async def close_client():
         logger.info("Shared HTTP client connection pool closed.")
 
 
-def build_url(path: str) -> str:
+def build_url(path: str, base_url: str = CAMSTAR_BASE_URL) -> str:
     """Construct full URL from a relative API path."""
-    base = CAMSTAR_BASE_URL.rstrip("/")
+    base = base_url.rstrip("/")
     return f"{base}{path}"
 
 
 async def request(method: str, path: str, body: dict | None = None,
-                  params: dict | None = None) -> str:
+                  params: dict | None = None,
+                  base_url: str = CAMSTAR_BASE_URL) -> str:
     """
     Central HTTP request dispatcher.
     Returns the response text after smart truncation, or an error message.
     """
-    url = build_url(path)
+    url = build_url(path, base_url=base_url)
     headers = get_headers()
 
     logger.info("%s %s", method.upper(), url)
@@ -100,4 +108,16 @@ async def request(method: str, path: str, body: dict | None = None,
         return f"❌ Request timed out after {CAMSTAR_TIMEOUT}s: {method.upper()} {url}"
     except Exception as exc:
         return f"❌ Request failed: {repr(exc)}"
+
+
+async def request_shopfloor(method: str, path: str, body: dict | None = None,
+                            params: dict | None = None) -> str:
+    """Send a request to the Camstar Shopfloor API."""
+    return await request(
+        method,
+        path,
+        body=body,
+        params=params,
+        base_url=CAMSTAR_SHOPFLOOR_BASE_URL,
+    )
 

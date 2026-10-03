@@ -190,7 +190,11 @@ async def chat_stream(username: str, message: str, session_id: str = None):
             break
 
         # 预计算本轮大宗修改工具的数量
-        current_batch_create_count = len([tc for tc in response_tool_calls if tc["function"]["name"].startswith(("create_",))])
+        current_batch_create_count = len([
+            tc for tc in response_tool_calls
+            if tc["function"]["name"].startswith(("create_",))
+            or tc["function"]["name"] == "container_start"
+        ])
         current_batch_update_count = len([tc for tc in response_tool_calls if tc["function"]["name"].startswith(("update_", "patch_", "rebuild_"))])
         current_batch_delete_count = len([tc for tc in response_tool_calls if tc["function"]["name"].startswith(("delete_",))])
 
@@ -204,7 +208,8 @@ async def chat_stream(username: str, message: str, session_id: str = None):
             func_args_str = tool_call["function"]["arguments"]
             
             # 创建拦截
-            if func_name.startswith(("create_",)):
+            if (func_name.startswith(("create_",))
+                    or func_name == "container_start"):
                 if block_creates:
                     yield f"data: {json.dumps({'type': 'step', 'func': '🛡️ 创建安全锁', 'args': f'拦截 {func_name}'}, ensure_ascii=False)}\n\n"
                     chat_messages.append({

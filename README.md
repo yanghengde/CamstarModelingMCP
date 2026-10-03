@@ -84,6 +84,7 @@ cp .env.example .env
 
 ```ini
 CAMSTAR_BASE_URL=https://your-camstar-host/Modeling
+CAMSTAR_SHOPFLOOR_BASE_URL=https://your-camstar-host/Shopfloor
 CAMSTAR_USERNAME=CamstarAdmin
 CAMSTAR_PASSWORD=your-password
 
@@ -135,6 +136,12 @@ python main.py
 | `get_operations_count` | GET | 获取总数 |
 | *(+ OData 变体及 RequestSelectionValues)* | — | — |
 
+### Shopfloor ContainerStart（`/api/Start`）
+
+| 工具 | 方法 | 说明 |
+|---|---|---|
+| `container_start` | POST | 按工单启动 Container，支持显式序列号或自动编号规则 |
+
 ---
 
 ## 🛡️ 安全机制
@@ -160,6 +167,7 @@ SAFE_DELETE_THRESHOLD=0    # 任意删除均需先确认（0 = >=1 拦截）
 | 变量 | 默认值 | 说明 |
 |---|---|---|
 | `CAMSTAR_BASE_URL` | `http://localhost/Modeling` | Camstar REST API 根地址 |
+| `CAMSTAR_SHOPFLOOR_BASE_URL` | 从 Modeling URL 推导 | Camstar Shopfloor REST API 根地址 |
 | `CAMSTAR_USERNAME` | `CamstarAdmin` | 登录用户名 |
 | `CAMSTAR_PASSWORD` | `Cam1star` | 登录密码 |
 | `CAMSTAR_TIMEOUT` | `30` | HTTP 超时（秒） |
