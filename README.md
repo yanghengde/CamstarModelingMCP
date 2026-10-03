@@ -142,6 +142,13 @@ python main.py
 |---|---|---|
 | `container_start` | POST | 按工单启动 Container，支持显式序列号或自动编号规则 |
 
+### Container 编号参考数据
+
+| 工具 | 方法 | 说明 |
+|---|---|---|
+| `list_numbering_rules` / `get_numbering_rule` | GET | 查询并校验自动编号规则 |
+| `list_container_levels` / `get_container_level` | GET | 查询 Level 及其默认编号规则 |
+
 ---
 
 ## 🛡️ 安全机制

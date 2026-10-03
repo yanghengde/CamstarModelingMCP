@@ -97,6 +97,9 @@ async def container_start(
       - container_name: Explicit Container/serial number.
       - auto_number_rule_name: Camstar numbering rule used to generate the name.
 
+    Before starting, use get_container_level to validate level_name and
+    get_numbering_rule to validate auto_number_rule_name when applicable.
+
     Optional fields include UOM, workflow, factory, owner, comments, and
     body_json. body_json must be a JSON object and is recursively merged into
     the Start payload using case-insensitive keys.
