@@ -10,13 +10,14 @@ import httpx
 from config import (
     CAMSTAR_BASE_URL,
     CAMSTAR_PASSWORD,
+    CAMSTAR_QUERY_BASE_URL,
     CAMSTAR_SHOPFLOOR_BASE_URL,
     CAMSTAR_TIMEOUT,
     CAMSTAR_USERNAME,
     MAX_RESPONSE_LENGTH,
 )
 from core.auth import generate_camstar_auth_token
-from core.response import smart_response
+from core.response import smart_query_response, smart_response
 
 logger = logging.getLogger("camstar-mcp")
 
@@ -66,7 +67,8 @@ def build_url(path: str, base_url: str = CAMSTAR_BASE_URL) -> str:
 
 async def request(method: str, path: str, body: dict | None = None,
                   params: dict | None = None,
-                  base_url: str = CAMSTAR_BASE_URL) -> str:
+                  base_url: str = CAMSTAR_BASE_URL,
+                  response_formatter=smart_response) -> str:
     """
     Central HTTP request dispatcher.
     Returns the response text after smart truncation, or an error message.
@@ -102,7 +104,7 @@ async def request(method: str, path: str, body: dict | None = None,
         except Exception:
             return resp.text[:MAX_RESPONSE_LENGTH]
 
-        return smart_response(data)
+        return response_formatter(data)
 
     except httpx.TimeoutException:
         return f"❌ Request timed out after {CAMSTAR_TIMEOUT}s: {method.upper()} {url}"
@@ -119,5 +121,18 @@ async def request_shopfloor(method: str, path: str, body: dict | None = None,
         body=body,
         params=params,
         base_url=CAMSTAR_SHOPFLOOR_BASE_URL,
+    )
+
+
+async def request_query(method: str, path: str, body: dict | None = None,
+                        params: dict | None = None) -> str:
+    """Send a request to the Camstar Query API."""
+    return await request(
+        method,
+        path,
+        body=body,
+        params=params,
+        base_url=CAMSTAR_QUERY_BASE_URL,
+        response_formatter=smart_query_response,
     )
 

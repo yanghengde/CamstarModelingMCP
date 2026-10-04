@@ -13,9 +13,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 mcp = FastMCP(
     "CamstarModeling",
     instructions=(
-        "MCP Server for Siemens Opcenter (Camstar) Modeling and Shopfloor "
-        "APIs. Provides tools to manage modeling entities and execute "
-        "manufacturing Container transactions."
+        "MCP Server for Siemens Opcenter (Camstar) Modeling, Shopfloor, and "
+        "Query APIs. Provides tools to manage modeling entities, execute "
+        "manufacturing Container transactions, and run read-only queries."
     ),
 )
 
@@ -32,6 +32,7 @@ from tools import container_moves       # Shopfloor Move/MoveIn/MoveOut 事务
 from tools import container_quality     # Shopfloor ContainerDefect/Rework 事务
 from tools import numbering_rules       # NumberingRule 查询
 from tools import container_levels      # ContainerLevel 查询
+from tools import queries               # Query API 查询
 from tools import mfglines             # MfgLine 实体
 from tools import producttypes         # ProductType 实体
 from tools import excel_importer       # Excel 导入工具
@@ -45,7 +46,7 @@ def get_tool_func(name: str):
     for module in [specs, operations, workflows, products, mfgorders,
                    container_start, container_moves, container_quality,
                    numbering_rules,
-                   container_levels,
+                   container_levels, queries,
                    mfglines, producttypes, excel_importer]:
         func = getattr(module, name, None)
         if func is not None:

@@ -16,20 +16,29 @@ load_dotenv()
 CAMSTAR_BASE_URL = os.getenv("CAMSTAR_BASE_URL", "http://localhost/Modeling")
 
 
-def _derive_shopfloor_url(modeling_url: str) -> str:
-    """Derive the sibling Shopfloor API URL from a Modeling API URL."""
+def _derive_sibling_url(modeling_url: str, service_name: str) -> str:
+    """Derive a sibling Camstar API URL from a Modeling API URL."""
     parsed = urlsplit(modeling_url.rstrip("/"))
     path_parts = parsed.path.rstrip("/").split("/")
     if path_parts[-1].casefold() == "modeling":
-        path_parts[-1] = "Shopfloor"
+        path_parts[-1] = service_name
     else:
-        path_parts.append("Shopfloor")
+        path_parts.append(service_name)
     return urlunsplit((parsed.scheme, parsed.netloc, "/".join(path_parts), "", ""))
+
+
+def _derive_shopfloor_url(modeling_url: str) -> str:
+    """Derive the sibling Shopfloor API URL from a Modeling API URL."""
+    return _derive_sibling_url(modeling_url, "Shopfloor")
 
 
 CAMSTAR_SHOPFLOOR_BASE_URL = os.getenv(
     "CAMSTAR_SHOPFLOOR_BASE_URL",
     _derive_shopfloor_url(CAMSTAR_BASE_URL),
+)
+CAMSTAR_QUERY_BASE_URL = os.getenv(
+    "CAMSTAR_QUERY_BASE_URL",
+    _derive_sibling_url(CAMSTAR_BASE_URL, "Query"),
 )
 CAMSTAR_USERNAME = os.getenv("CAMSTAR_USERNAME", "CamstarAdmin")
 CAMSTAR_PASSWORD = os.getenv("CAMSTAR_PASSWORD", "Cam1star")

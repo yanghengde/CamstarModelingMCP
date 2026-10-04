@@ -154,6 +154,19 @@ python main.py
 | `list_numbering_rules` / `get_numbering_rule` | GET | 查询并校验自动编号规则 |
 | `list_container_levels` / `get_container_level` | GET | 查询 Level 及其默认编号规则 |
 
+### Query API（`/Query/api`）
+
+| 工具 | 方法 | 说明 |
+|---|---|---|
+| `list_query_services` | GET | 从 Query Swagger 动态列出可用 Inquiry 与查询服务 |
+| `get_query_service_schema` | GET | 查询某个 Query CDO 的路径、参数及请求字段 |
+| `execute_query_inquiry` | POST | 执行标准 Inquiry CDO，支持 `$select`、`$expand` 与 `execute=true` |
+| `execute_query_inquiry_event` | POST | 执行 Inquiry CDO 的自定义事件，并纳入修改安全锁 |
+| `request_query_selection_values` | POST | 查询 Inquiry 字段的合法候选值 |
+| `execute_advanced_query` | POST | 执行 Designer 中的系统 Advanced Query |
+| `execute_user_query` | POST | 执行 Modeling UserQueries 中的 User Query |
+| `execute_adhoc_query` | POST | 执行单条只读 SELECT；拒绝写入和多语句查询 |
+
 ---
 
 ## 🛡️ 安全机制
@@ -180,6 +193,7 @@ SAFE_DELETE_THRESHOLD=0    # 任意删除均需先确认（0 = >=1 拦截）
 |---|---|---|
 | `CAMSTAR_BASE_URL` | `http://localhost/Modeling` | Camstar REST API 根地址 |
 | `CAMSTAR_SHOPFLOOR_BASE_URL` | 从 Modeling URL 推导 | Camstar Shopfloor REST API 根地址 |
+| `CAMSTAR_QUERY_BASE_URL` | 从 Modeling URL 推导 | Camstar Query REST API 根地址 |
 | `CAMSTAR_USERNAME` | `CamstarAdmin` | 登录用户名 |
 | `CAMSTAR_PASSWORD` | `Cam1star` | 登录密码 |
 | `CAMSTAR_TIMEOUT` | `30` | HTTP 超时（秒） |

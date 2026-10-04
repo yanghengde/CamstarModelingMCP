@@ -201,6 +201,7 @@ async def chat_stream(username: str, message: str, session_id: str = None):
             "container_move_out",
             "container_defect",
             "rework",
+            "execute_query_inquiry_event",
         }
         current_batch_update_count = len([
             tc for tc in response_tool_calls
