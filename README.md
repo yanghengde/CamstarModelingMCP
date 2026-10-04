@@ -136,7 +136,7 @@ python main.py
 | `get_operations_count` | GET | 获取总数 |
 | *(+ OData 变体及 RequestSelectionValues)* | — | — |
 
-### Shopfloor ContainerStart（`/api/Start`）
+### Shopfloor Container 事务
 
 | 工具 | 方法 | 说明 |
 |---|---|---|
@@ -144,6 +144,8 @@ python main.py
 | `container_move` | POST | 通过 MoveStd 将 Container 移动到下一工步 |
 | `container_move_in` | POST | 将 Container 移入当前工步/资源开始处理 |
 | `container_move_out` | POST | 将 Container 移出当前工步并继续流转 |
+| `container_defect` | POST | 通过 ContainerDefect 记录 Container 缺陷 |
+| `rework` | POST | 通过原始 Rework 服务将 Container 转入返工流程 |
 
 ### Container 编号参考数据
 

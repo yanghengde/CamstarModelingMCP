@@ -195,17 +195,19 @@ async def chat_stream(username: str, message: str, session_id: str = None):
             if tc["function"]["name"].startswith(("create_",))
             or tc["function"]["name"] == "container_start"
         ])
-        container_move_tools = {
+        shopfloor_update_tools = {
             "container_move",
             "container_move_in",
             "container_move_out",
+            "container_defect",
+            "rework",
         }
         current_batch_update_count = len([
             tc for tc in response_tool_calls
             if tc["function"]["name"].startswith(
                 ("update_", "patch_", "rebuild_")
             )
-            or tc["function"]["name"] in container_move_tools
+            or tc["function"]["name"] in shopfloor_update_tools
         ])
         current_batch_delete_count = len([tc for tc in response_tool_calls if tc["function"]["name"].startswith(("delete_",))])
 
@@ -232,7 +234,7 @@ async def chat_stream(username: str, message: str, session_id: str = None):
                 
             # 修改拦截
             elif (func_name.startswith(("update_", "patch_", "rebuild_"))
-                  or func_name in container_move_tools):
+                  or func_name in shopfloor_update_tools):
                 if block_updates:
                     yield f"data: {json.dumps({'type': 'step', 'func': '🛡️ 修改安全锁', 'args': f'拦截 {func_name}'}, ensure_ascii=False)}\n\n"
                     chat_messages.append({
