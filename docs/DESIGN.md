@@ -51,7 +51,7 @@
 | 层次 | 技术 | 版本要求 |
 |---|---|---|
 | Web 框架 | FastAPI + Uvicorn | `>=0.100.0` / `>=0.20.0` |
-| MCP 框架 | FastMCP | `>=2.0.0` |
+| MCP 框架 | FastMCP | `>=4.0.11,<5.0.0` |
 | HTTP 客户端 | httpx (异步) | `>=0.27.0` |
 | LLM SDK | openai (兼容协议) | `>=1.0.0` |
 | 配置管理 | python-dotenv | `>=1.0.0` |
@@ -177,7 +177,7 @@ CamstarModelingMCP/
 ```python
 # 关键逻辑
 app = create_app()          # 调用 web/app.py 工厂方法
-uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=False)
+uvicorn.run("main:app", host="0.0.0.0", port=8030, reload=False)
 ```
 
 - 强制设置 stdout 为 UTF-8 编码（解决 Windows 中文乱码）
@@ -709,30 +709,36 @@ cp .env.example .env
 
 # 3. 启动服务
 python main.py
-# 服务地址: http://127.0.0.1:8000
+# 服务地址: http://127.0.0.1:8030
 
 # 4. 访问界面
-# 聊天主界面: http://127.0.0.1:8000/
-# 性能日志:   http://127.0.0.1:8000/logs
+# 聊天主界面: http://127.0.0.1:8030/
+# 性能日志:   http://127.0.0.1:8030/logs
 ```
 
-### 用作 MCP Server（与 Claude Desktop 集成）
+### 用作 MCP Server（Streamable HTTP）
+
+在 `.env` 中启用独立的 MCP 协议入口：
+
+```ini
+ENABLE_MCP_HTTP=True
+MCP_HTTP_PATH=/mcp
+MCP_API_KEY=replace-with-a-long-random-secret
+MCP_ALLOWED_HOSTS=localhost:*,127.0.0.1:*,[::1]:*
+```
+
+支持远程 MCP 的客户端连接 `http://127.0.0.1:8030/mcp/`，并附带：
 
 ```json
 {
-  "mcpServers": {
-    "camstar-modeling": {
-      "command": "python",
-      "args": ["d:/Deepseek/camstar/CamstarModelingMCP/tools/__init__.py"],
-      "env": {
-        "CAMSTAR_BASE_URL": "https://your-camstar-host/Modeling",
-        "CAMSTAR_USERNAME": "CamstarAdmin",
-        "CAMSTAR_PASSWORD": "your-password"
-      }
-    }
+  "url": "http://127.0.0.1:8030/mcp/",
+  "headers": {
+    "Authorization": "Bearer replace-with-a-long-random-secret"
   }
 }
 ```
+
+`/chat` 的 SSE 是浏览器答案流，不是旧版 MCP HTTP+SSE 传输。MCP 客户端统一使用 `/mcp/` 的 Streamable HTTP。
 
 ---
 

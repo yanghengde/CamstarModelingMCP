@@ -36,6 +36,7 @@ from tools import queries               # Query API 查询
 from tools import mfglines             # MfgLine 实体
 from tools import producttypes         # ProductType 实体
 from tools import excel_importer       # Excel 导入工具
+from tools import system_info          # MCP 服务诊断（无外部副作用）
 
 
 def get_tool_func(name: str):
@@ -47,7 +48,7 @@ def get_tool_func(name: str):
                    container_start, container_moves, container_quality,
                    numbering_rules,
                    container_levels, queries,
-                   mfglines, producttypes, excel_importer]:
+                   mfglines, producttypes, excel_importer, system_info]:
         func = getattr(module, name, None)
         if func is not None:
             return func

@@ -14,6 +14,7 @@
 | **安全卡点防护** | 批量操作阈值拦截 + OTP 一次性密码双重验证，防止误操作 |
 | **可恢复工作流** | LangGraph + SQLite 保存执行检查点，确认后从暂停位置继续 |
 | **受控经验闭环** | 自动聚合脱敏失败候选，人工审核后才注入后续相关任务 |
+| **标准 MCP 接入** | 提供带 Bearer 鉴权的 Streamable HTTP 端点，兼容新旧 MCP 客户端 |
 | **多用户多会话** | 按用户名隔离的持久化历史记忆，支持会话切换 |
 | **性能监控** | JSONL 追踪每次 LLM 推理与工具执行耗时，内置可视化 Dashboard |
 | **兼容任意 LLM** | 支持 DeepSeek / 通义千问 / 智谱 / Ollama / OpenAI 等兼容 OpenAI 协议的模型 |
@@ -99,6 +100,13 @@ LLM_MODEL=deepseek-chat
 AGENT_ENGINE=langgraph
 LANGGRAPH_CHECKPOINT_DB=data/langgraph_checkpoints.sqlite
 EXPERIENCE_DB=data/agent_experience.sqlite
+
+# 对外提供 MCP Streamable HTTP 时启用；必须设置访问令牌
+ENABLE_MCP_HTTP=True
+MCP_HTTP_PATH=/mcp
+MCP_API_KEY=请替换为高强度随机字符串
+# 从局域网访问时加入服务端实际 IP，例如 172.25.23.19:*
+MCP_ALLOWED_HOSTS=localhost:*,127.0.0.1:*,[::1]:*,172.25.23.19:*
 ```
 
 ### 3. 启动服务
@@ -109,8 +117,28 @@ python main.py
 
 服务启动后访问：
 
-- 💬 **聊天界面**：http://127.0.0.1:8000/
-- 📊 **性能日志**：http://127.0.0.1:8000/logs
+- 💬 **聊天界面**：http://127.0.0.1:8030/
+- 📊 **性能日志**：http://127.0.0.1:8030/logs
+- 🔌 **MCP Streamable HTTP**：http://127.0.0.1:8030/mcp/（启用后）
+
+### 外部 MCP 客户端配置
+
+当前实现使用标准 **Streamable HTTP**，不再新建旧式 `/sse` MCP 传输。浏览器聊天使用的 `/chat` SSE 只是文本流，两者互不影响。
+
+支持自定义 HTTP Header 的 MCP 客户端可使用以下通用配置：
+
+```json
+{
+  "url": "http://127.0.0.1:8030/mcp/",
+  "headers": {
+    "Authorization": "Bearer 与 MCP_API_KEY 相同的值"
+  }
+}
+```
+
+局域网客户端还需把服务器 IP 加入 `MCP_ALLOWED_HOSTS`。端点默认关闭；这是因为其中包含创建工单、Start、Move、Rework 等生产写操作，未配置令牌时程序会拒绝启动外部 MCP 服务。
+
+生产环境请在反向代理上启用 HTTPS；Bearer 令牌不应通过明文局域网 HTTP 传输。需要面向多用户或第三方客户端开放时，应进一步换成 OAuth 2.1，而不是共享一个静态令牌。
 
 ---
 
@@ -270,6 +298,10 @@ Browser ──HTTP/SSE──▶ FastAPI (web/)
                     auth / http_client / response
                           │ REST/HTTPS
                    Camstar Modeling API
+
+MCP Client ──Streamable HTTP + Bearer──▶ FastMCP (/mcp/)
+                                             │
+                                        同一组 Tools
 ```
 
 > 详细设计请参阅 [`docs/DESIGN.md`](docs/DESIGN.md)
@@ -279,10 +311,11 @@ Browser ──HTTP/SSE──▶ FastAPI (web/)
 ## 📦 依赖
 
 ```
-fastmcp>=2.0.0
+fastmcp>=4.0.11,<5.0.0
+mcp>=2.3.0,<3.0.0
 httpx>=0.27.0
 python-dotenv>=1.0.0
 openai>=1.0.0
-fastapi>=0.100.0
+fastapi>=0.142.0,<0.143.0
 uvicorn>=0.20.0
 ```

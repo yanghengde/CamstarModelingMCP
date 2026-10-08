@@ -72,6 +72,36 @@ EXPERIENCE_DB = os.getenv(
     os.path.join("data", "agent_experience.sqlite"),
 )
 
+# ---------------------------------------------------------------------------
+# MCP Streamable HTTP transport
+# ---------------------------------------------------------------------------
+# The browser's /chat SSE route is separate from the MCP protocol endpoint.
+# External MCP access is deliberately opt-in because most tools can mutate MES.
+ENABLE_MCP_HTTP = os.getenv("ENABLE_MCP_HTTP", "False").lower() in (
+    "true",
+    "1",
+    "yes",
+)
+MCP_HTTP_PATH = os.getenv("MCP_HTTP_PATH", "/mcp").strip() or "/mcp"
+if not MCP_HTTP_PATH.startswith("/"):
+    MCP_HTTP_PATH = f"/{MCP_HTTP_PATH}"
+MCP_HTTP_PATH = MCP_HTTP_PATH.rstrip("/") or "/mcp"
+MCP_API_KEY = os.getenv("MCP_API_KEY", "").strip()
+
+
+def _csv_env(name: str, default: str) -> list[str]:
+    """Read a comma-separated environment variable into a clean list."""
+    return [value.strip() for value in os.getenv(name, default).split(",") if value.strip()]
+
+
+# FastMCP host/origin protection prevents DNS-rebinding attacks. Add the actual
+# server address explicitly when exposing the endpoint on a LAN.
+MCP_ALLOWED_HOSTS = _csv_env(
+    "MCP_ALLOWED_HOSTS",
+    "localhost:*,127.0.0.1:*,[::1]:*",
+)
+MCP_ALLOWED_ORIGINS = _csv_env("MCP_ALLOWED_ORIGINS", "")
+
 # 安全卡点阈值：当修改行为超过多少条时要求强制确认
 SAFE_CREATE_THRESHOLD = int(os.getenv("SAFE_CREATE_THRESHOLD", "20"))
 SAFE_UPDATE_THRESHOLD = int(os.getenv("SAFE_UPDATE_THRESHOLD", "3"))

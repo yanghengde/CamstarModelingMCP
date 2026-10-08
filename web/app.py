@@ -9,10 +9,20 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from config import AGENT_ENGINE, CAMSTAR_BASE_URL
+from config import (
+    AGENT_ENGINE,
+    CAMSTAR_BASE_URL,
+    ENABLE_MCP_HTTP,
+    MCP_ALLOWED_HOSTS,
+    MCP_ALLOWED_ORIGINS,
+    MCP_API_KEY,
+    MCP_HTTP_PATH,
+)
 from agent.memory import init_memory
 from agent.llm_client import oai_client, openai_tools, register_tools
+from tools import mcp
 from web.routes import router
+from web.mcp_transport import BearerTokenMiddleware
 
 
 @asynccontextmanager
@@ -33,8 +43,15 @@ async def lifespan(app: FastAPI):
         await init_langgraph_runtime(oai_client, openai_tools)
 
     print("[READY] Web 服务启动就绪！")
+    mcp_http_app = getattr(app.state, "mcp_http_app", None)
     try:
-        yield
+        # Mounted Starlette applications do not run their lifespan implicitly.
+        # FastMCP's session/task manager must therefore share the parent lifespan.
+        if mcp_http_app is not None:
+            async with mcp_http_app.router.lifespan_context(mcp_http_app):
+                yield
+        else:
+            yield
     finally:
         if AGENT_ENGINE == "langgraph":
             from agent.langgraph_runtime import close_langgraph_runtime
@@ -61,5 +78,31 @@ def create_app() -> FastAPI:
 
     # 注册路由
     app.include_router(router)
+
+    if ENABLE_MCP_HTTP:
+        if not MCP_API_KEY:
+            raise RuntimeError(
+                "ENABLE_MCP_HTTP=True requires MCP_API_KEY. "
+                "Refusing to expose Camstar write tools without authentication."
+            )
+
+        mcp_http_app = mcp.http_app(
+            path="/",
+            transport="streamable-http",
+            stateless_http=True,
+            json_response=True,
+            allowed_hosts=MCP_ALLOWED_HOSTS,
+            allowed_origins=MCP_ALLOWED_ORIGINS or None,
+        )
+        app.state.mcp_http_app = mcp_http_app
+        app.mount(
+            MCP_HTTP_PATH,
+            BearerTokenMiddleware(mcp_http_app, MCP_API_KEY),
+            name="mcp",
+        )
+        print(f"[MCP] Streamable HTTP endpoint: {MCP_HTTP_PATH}/")
+    else:
+        app.state.mcp_http_app = None
+        print("[MCP] 外部 Streamable HTTP 未启用（ENABLE_MCP_HTTP=False）。")
 
     return app
