@@ -6,6 +6,7 @@ LLM 客户端 & 工具编排
 
 import json
 import asyncio
+import logging
 import time
 from openai import AsyncOpenAI
 
@@ -17,6 +18,8 @@ from config import (
 from agent.memory import get_user_messages, save_user_session, update_session_title, user_memories
 from tools import mcp, get_tool_func
 from core.perf_logger import record_perf
+
+logger = logging.getLogger(__name__)
 
 oai_client = AsyncOpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
 
@@ -300,12 +303,22 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
 
 async def chat_stream(username: str, message: str, session_id: str = None):
     """Dispatch chat requests to the configured execution engine."""
-    if AGENT_ENGINE == "langgraph":
-        from agent.langgraph_runtime import langgraph_chat_stream
+    try:
+        if AGENT_ENGINE == "langgraph":
+            from agent.langgraph_runtime import langgraph_chat_stream
 
-        async for event in langgraph_chat_stream(username, message, session_id):
+            async for event in langgraph_chat_stream(username, message, session_id):
+                yield event
+            return
+
+        async for event in legacy_chat_stream(username, message, session_id):
             yield event
-        return
-
-    async for event in legacy_chat_stream(username, message, session_id):
-        yield event
+    except asyncio.CancelledError:
+        raise
+    except Exception as exc:
+        logger.exception("Chat stream failed for user %s", username)
+        payload = {
+            "type": "error",
+            "message": f"聊天工作流执行失败：{type(exc).__name__}: {exc}",
+        }
+        yield f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"

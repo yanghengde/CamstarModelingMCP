@@ -631,6 +631,14 @@
                     signal: abortController.signal
                 });
 
+                if (!response.ok) {
+                    const details = await response.text();
+                    throw new Error(`HTTP ${response.status}${details ? ': ' + details : ''}`);
+                }
+                if (!response.body) {
+                    throw new Error('服务器未返回可读取的响应流');
+                }
+
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder("utf-8");
                 let buffer = "";
@@ -648,7 +656,12 @@
                     
                     for (let line of lines) {
                         if (line.startsWith('data: ')) {
-                            const data = JSON.parse(line.substring(6));
+                            let data;
+                            try {
+                                data = JSON.parse(line.substring(6));
+                            } catch (parseError) {
+                                throw new Error(`服务器返回了无效的流数据: ${parseError.message}`);
+                            }
                             if (data.type === 'step') {
                                 typingText.innerHTML = `正在调用后台接口: <b>${data.func}</b> ...`;
                                 scrollToBottom();
