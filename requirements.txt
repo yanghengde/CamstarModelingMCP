@@ -13,5 +13,5 @@ openpyxl>=3.1.0
 # 0.6.x stays compatible with the LangChain 0.3 packages used in this environment.
 langgraph>=0.6.11,<0.7.0
 langgraph-checkpoint-sqlite>=2.0.11,<3.0.0
-langchain-core>=0.3.80,<1.0.0
+langchain-core>=0.3.80,<0.3.81
 langsmith>=0.3.45,<0.4.0

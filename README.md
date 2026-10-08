@@ -78,6 +78,12 @@ CamstarModelingMCP/
 pip install -r requirements.txt
 ```
 
+需要运行自动化测试时安装开发依赖：
+
+```bash
+pip install -r requirements-dev.txt
+```
+
 ### 2. 配置环境变量
 
 ```bash
