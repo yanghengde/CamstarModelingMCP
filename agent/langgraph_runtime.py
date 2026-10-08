@@ -29,6 +29,7 @@ from agent.experience import (
     build_runtime_experience_context,
     record_tool_outcome,
 )
+from agent.prompts import USER_FACING_LANGUAGE_RULE
 from agent.safety import (
     MutationCounts,
     approval_prompt,
@@ -137,13 +138,18 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
             state.get("request_message", ""), tool_names
         )
         model_messages = list(state.get("messages", []))
+        language_message = {
+            "role": "system",
+            "content": USER_FACING_LANGUAGE_RULE,
+        }
+        insert_at = 1 if model_messages and model_messages[0].get("role") == "system" else 0
+        model_messages.insert(insert_at, language_message)
         if experience_context:
             context_message = {
                 "role": "system",
                 "content": experience_context,
             }
-            insert_at = 1 if model_messages and model_messages[0].get("role") == "system" else 0
-            model_messages.insert(insert_at, context_message)
+            model_messages.insert(insert_at + 1, context_message)
 
         response_stream = await _client.chat.completions.create(
             model=LLM_MODEL,
