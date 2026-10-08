@@ -1,13 +1,16 @@
 import os
 import uuid
 import shutil
-from fastapi import APIRouter, File, UploadFile
+from typing import Literal
+
+from fastapi import APIRouter, File, Query, UploadFile
 from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel
 
 from config import CAMSTAR_USERNAME, ENABLE_PERFORMANCE_LOG
 from agent.memory import get_user_messages, get_sessions, create_session, set_active_session
 from agent.llm_client import chat_stream
+from agent.experience import get_experience_status, list_candidates
 from core.perf_logger import get_perf_logs
 
 router = APIRouter()
@@ -81,6 +84,21 @@ def api_logs_data():
     return {"status": "enabled", "logs": logs}
 
 
+@router.get("/api/experience/status")
+def experience_status_endpoint():
+    """Return aggregate self-improvement queue status (read-only)."""
+    return get_experience_status()
+
+
+@router.get("/api/experience/candidates")
+def experience_candidates_endpoint(
+    status: Literal["pending", "approved", "rejected", "all"] = "pending",
+    limit: int = Query(default=100, ge=1, le=500),
+):
+    """List sanitized experience candidates for human review (read-only)."""
+    return {"candidates": list_candidates(status=status, limit=limit)}
+
+
 UPLOAD_DIR = os.path.join("data", "uploads")
 
 
@@ -100,4 +118,3 @@ async def upload_file(file: UploadFile = File(...)):
         "filename": file.filename,
         "file_path": file_path.replace("\\", "/")
     }
-

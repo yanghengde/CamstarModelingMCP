@@ -107,8 +107,15 @@ def count_tool_calls(tool_calls: Iterable[dict]) -> MutationCounts:
 def evaluate_mutations(
     completed: MutationCounts,
     pending_tool_calls: Iterable[dict],
+    intended: MutationCounts | None = None,
 ) -> SafetyDecision:
     totals = completed + count_tool_calls(pending_tool_calls)
+    if intended is not None:
+        totals = MutationCounts(
+            creates=max(totals.creates, intended.creates),
+            updates=max(totals.updates, intended.updates),
+            deletes=max(totals.deletes, intended.deletes),
+        )
     categories: list[str] = []
     if totals.creates > SAFE_CREATE_THRESHOLD:
         categories.append("创建")
@@ -117,6 +124,47 @@ def evaluate_mutations(
     if totals.deletes > SAFE_DELETE_THRESHOLD:
         categories.append("删除")
     return SafetyDecision(bool(categories), tuple(categories), totals)
+
+
+def infer_intended_mutations(
+    message: str,
+    pending_tool_calls: Iterable[dict],
+) -> MutationCounts:
+    """Conservatively infer an explicitly stated Container creation count.
+
+    This protects sequential tool planners that emit one Start call at a time:
+    an explicit request for 50 independent Containers must be approved before
+    the first write, not after call 20.
+    """
+    calls = list(pending_tool_calls)
+    if not any(
+        (call.get("function") or {}).get("name") == "container_start"
+        for call in calls
+    ):
+        return MutationCounts()
+
+    normalized = (message or "").casefold()
+    patterns = (
+        r"(?:生成|创建|启动|start)?\s*(\d{1,6})\s*(?:个|条)?\s*(?:独立的?)?\s*(?:container|容器|序列号)",
+        r"(?:container|容器|序列号).*?(\d{1,6})\s*(?:个|条)",
+    )
+    counts = [
+        int(match.group(1))
+        for pattern in patterns
+        for match in re.finditer(pattern, normalized, flags=re.IGNORECASE)
+    ]
+
+    range_match = re.search(
+        r"(?:sn)?(\d{3,})\s*(?:~|～|-|至|到)\s*(?:sn)?(\d{3,})",
+        normalized,
+        flags=re.IGNORECASE,
+    )
+    if range_match:
+        start, end = int(range_match.group(1)), int(range_match.group(2))
+        if end >= start:
+            counts.append(end - start + 1)
+
+    return MutationCounts(creates=max(counts, default=0))
 
 
 def is_explicit_confirmation(text: str) -> bool:

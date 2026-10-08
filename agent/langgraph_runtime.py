@@ -24,12 +24,17 @@ from agent.memory import (
     update_session_title,
     user_memories,
 )
+from agent.experience import (
+    build_runtime_experience_context,
+    record_tool_outcome,
+)
 from agent.safety import (
     MutationCounts,
     approval_prompt,
     classify_tool,
     count_tool_calls,
     evaluate_mutations,
+    infer_intended_mutations,
     is_explicit_confirmation,
     is_explicit_rejection,
 )
@@ -109,9 +114,26 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
 
     started = time.time()
     try:
+        tool_names = {
+            str(message.get("name"))
+            for message in state.get("messages", [])[-8:]
+            if message.get("role") == "tool" and message.get("name")
+        }
+        experience_context = build_runtime_experience_context(
+            state.get("request_message", ""), tool_names
+        )
+        model_messages = list(state.get("messages", []))
+        if experience_context:
+            context_message = {
+                "role": "system",
+                "content": experience_context,
+            }
+            insert_at = 1 if model_messages and model_messages[0].get("role") == "system" else 0
+            model_messages.insert(insert_at, context_message)
+
         response_stream = await _client.chat.completions.create(
             model=LLM_MODEL,
-            messages=state.get("messages", []),
+            messages=model_messages,
             tools=_openai_tools,
             tool_choice="auto",
             stream=True,
@@ -190,7 +212,12 @@ def _policy_node(state: AgentState) -> dict[str, Any]:
     pending = state.get("pending_tool_calls", [])
     if state.get("approval_granted"):
         return {}
-    decision = evaluate_mutations(_completed_counts(state), pending)
+    intended = infer_intended_mutations(
+        state.get("request_message", ""), pending
+    )
+    decision = evaluate_mutations(
+        _completed_counts(state), pending, intended=intended
+    )
     if not decision.requires_approval:
         return {}
 
@@ -242,6 +269,7 @@ async def _execute_tool_node(state: AgentState) -> dict[str, Any]:
     func_args_str = str(function.get("arguments") or "{}")
     writer({"type": "step", "func": func_name, "args": func_args_str})
 
+    func_args: dict[str, Any] = {}
     try:
         func_args = json.loads(func_args_str)
         if not isinstance(func_args, dict):
@@ -272,6 +300,25 @@ async def _execute_tool_node(state: AgentState) -> dict[str, Any]:
                     "engine": "langgraph",
                 },
             )
+
+    try:
+        candidate_id = record_tool_outcome(
+            session_id=state.get("session_id", "unknown"),
+            tool_name=func_name,
+            arguments=func_args,
+            result=result,
+        )
+        if candidate_id is not None:
+            writer(
+                {
+                    "type": "experience_candidate",
+                    "candidate_id": candidate_id,
+                    "tool": func_name,
+                }
+            )
+    except Exception as exc:
+        # Learning telemetry must never change the business transaction result.
+        print(f"[WARN] Failed to record experience candidate: {exc}")
 
     creates = int(state.get("create_count", 0))
     updates = int(state.get("update_count", 0))

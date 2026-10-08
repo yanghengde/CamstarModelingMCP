@@ -67,6 +67,10 @@ LANGGRAPH_CHECKPOINT_DB = os.getenv(
     "LANGGRAPH_CHECKPOINT_DB",
     os.path.join("data", "langgraph_checkpoints.sqlite"),
 )
+EXPERIENCE_DB = os.getenv(
+    "EXPERIENCE_DB",
+    os.path.join("data", "agent_experience.sqlite"),
+)
 
 # 安全卡点阈值：当修改行为超过多少条时要求强制确认
 SAFE_CREATE_THRESHOLD = int(os.getenv("SAFE_CREATE_THRESHOLD", "20"))

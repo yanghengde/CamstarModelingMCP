@@ -20,6 +20,8 @@ class ContainerStartTests(unittest.IsolatedAsyncioTestCase):
                 level_name="Unit",
                 container_name="SN-0001",
                 uom_name="EA",
+                owner_name="PRODUCTION",
+                start_reason_name="NORMAL",
             )
 
         self.assertEqual(result, "ok")
@@ -35,6 +37,8 @@ class ContainerStartTests(unittest.IsolatedAsyncioTestCase):
                     "containerName": "SN-0001",
                     "autoNumber": False,
                     "uom": {"name": "EA"},
+                    "owner": {"name": "PRODUCTION"},
+                    "startReason": {"name": "NORMAL"},
                 }
             },
         )
@@ -52,13 +56,13 @@ class ContainerStartTests(unittest.IsolatedAsyncioTestCase):
                 qty=1,
                 level_name="Unit",
                 auto_number_rule_name="UNIT-SN",
+                owner_name="PRODUCTION",
+                start_reason_name="NORMAL",
             )
 
         details = request_mock.await_args.kwargs["body"]["details"]
         self.assertTrue(details["autoNumber"])
-        self.assertEqual(
-            details["autoNumberRule"], {"name": "UNIT-SN"}
-        )
+        self.assertNotIn("autoNumberRule", details)
         self.assertNotIn("containerName", details)
 
     async def test_workflow_uses_current_status_details(self):
@@ -76,6 +80,8 @@ class ContainerStartTests(unittest.IsolatedAsyncioTestCase):
                 container_name="SN-0003",
                 workflow_name="WF-WM-900A",
                 workflow_revision="A",
+                owner_name="PRODUCTION",
+                start_reason_name="NORMAL",
             )
 
         payload = request_mock.await_args.kwargs["body"]
@@ -92,7 +98,7 @@ class ContainerStartTests(unittest.IsolatedAsyncioTestCase):
             container_start_module, "request_shopfloor", request_mock
         ):
             missing = await container_start_module.container_start(
-                "MO-1", "P-1", "A", 1, "Unit"
+                "MO-1", "P-1", "A", 1, "Unit", "PRODUCTION", "NORMAL"
             )
             duplicate = await container_start_module.container_start(
                 "MO-1",
@@ -100,6 +106,8 @@ class ContainerStartTests(unittest.IsolatedAsyncioTestCase):
                 "A",
                 1,
                 "Unit",
+                "PRODUCTION",
+                "NORMAL",
                 container_name="SN-1",
                 auto_number_rule_name="RULE-1",
             )
@@ -133,6 +141,8 @@ class ContainerStartTests(unittest.IsolatedAsyncioTestCase):
                 qty=1,
                 level_name="Unit",
                 container_name="SN-0002",
+                owner_name="PRODUCTION",
+                start_reason_name="NORMAL",
                 body_json=body_json,
             )
 
@@ -143,6 +153,83 @@ class ContainerStartTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(payload["details"]["qty"], 2)
         self.assertEqual(payload["details"]["product"]["revision"], "B")
         self.assertEqual(payload["comments"], "test")
+
+    async def test_blank_owner_is_rejected_before_write(self):
+        request_mock = AsyncMock(return_value="ok")
+
+        with patch.object(
+            container_start_module, "request_shopfloor", request_mock
+        ):
+            result = await container_start_module.container_start(
+                mfg_order_name="MO-1",
+                product_name="P-1",
+                product_revision="A",
+                qty=1,
+                level_name="Unit",
+                owner_name="",
+                start_reason_name="NORMAL",
+                container_name="SN-1",
+            )
+
+        self.assertIn("Owner is required", result)
+        request_mock.assert_not_awaited()
+
+    async def test_body_json_cannot_force_auto_number_rule_write(self):
+        request_mock = AsyncMock(return_value="ok")
+
+        with patch.object(
+            container_start_module, "request_shopfloor", request_mock
+        ):
+            result = await container_start_module.container_start(
+                mfg_order_name="MO-1",
+                product_name="P-1",
+                product_revision="A",
+                qty=1,
+                level_name="Unit",
+                auto_number_rule_name="RULE-1",
+                owner_name="PRODUCTION",
+                start_reason_name="NORMAL",
+                body_json=json.dumps(
+                    {"details": {"autoNumberRule": {"name": "RULE-1"}}}
+                ),
+            )
+
+        self.assertIn("Do not write details.autoNumberRule", result)
+        request_mock.assert_not_awaited()
+
+    async def test_request_start_selection_values_uses_context(self):
+        request_mock = AsyncMock(return_value="ok")
+
+        with patch.object(
+            container_start_module, "request_shopfloor", request_mock
+        ):
+            result = await (
+                container_start_module.request_container_start_selection_values(
+                    selection_values_expression="Details.StartReason",
+                    mfg_order_name="MO-1",
+                    product_name="P-1",
+                    product_revision="A",
+                    qty=1,
+                    level_name="BOX",
+                    owner_name="PRODUCTION",
+                )
+            )
+
+        self.assertEqual(result, "ok")
+        request_mock.assert_awaited_once_with(
+            "POST",
+            "/api/Start/RequestSelectionValues",
+            body={
+                "details": {
+                    "mfgOrder": {"name": "MO-1"},
+                    "product": {"name": "P-1", "revision": "A"},
+                    "qty": 1,
+                    "level": {"name": "BOX"},
+                    "owner": {"name": "PRODUCTION"},
+                }
+            },
+            params={"selectionValuesExpression": "Details.StartReason"},
+        )
 
 
 if __name__ == "__main__":

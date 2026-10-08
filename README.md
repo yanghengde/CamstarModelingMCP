@@ -13,6 +13,7 @@
 | **流式实时输出** | 基于 SSE 的逐字流式渲染，消除 LLM 阻塞等待 |
 | **安全卡点防护** | 批量操作阈值拦截 + OTP 一次性密码双重验证，防止误操作 |
 | **可恢复工作流** | LangGraph + SQLite 保存执行检查点，确认后从暂停位置继续 |
+| **受控经验闭环** | 自动聚合脱敏失败候选，人工审核后才注入后续相关任务 |
 | **多用户多会话** | 按用户名隔离的持久化历史记忆，支持会话切换 |
 | **性能监控** | JSONL 追踪每次 LLM 推理与工具执行耗时，内置可视化 Dashboard |
 | **兼容任意 LLM** | 支持 DeepSeek / 通义千问 / 智谱 / Ollama / OpenAI 等兼容 OpenAI 协议的模型 |
@@ -97,6 +98,7 @@ LLM_MODEL=deepseek-chat
 
 AGENT_ENGINE=langgraph
 LANGGRAPH_CHECKPOINT_DB=data/langgraph_checkpoints.sqlite
+EXPERIENCE_DB=data/agent_experience.sqlite
 ```
 
 ### 3. 启动服务
@@ -196,6 +198,24 @@ LangGraph 会把待执行工具调用保存在 SQLite 检查点中。系统只�
 
 删除等高风险操作额外受到 OTP 守卫保护：LLM 首次尝试删除时系统自动生成一个内部 OTP，要求用户明确回复"确认删除"后，由 LLM 持 OTP 二次发起才能真正执行删除，且 OTP 一次性消耗防止重放攻击。
 
+### 受控 Self-improvement
+
+工具执行失败会以脱敏、去重的方式进入经验候选库，但不会自动改变 Agent 行为。查看状态和候选：
+
+```bash
+python -m agent.experience list
+python -m agent.experience list --status all
+```
+
+验证解决方案后，由管理员显式批准或拒绝：
+
+```bash
+python -m agent.experience approve 12 --resolution "先通过 Details.Owner SelectionValues 解析 Owner" --evidence "2026-10-08 回归测试通过"
+python -m agent.experience reject 13 --evidence "临时网络故障，不是稳定规则"
+```
+
+只有批准的经验会在相关工具或任务中注入。Container Start 请求还会直接读取项目 Skill 中的 Start contract 和 known failures，使 Codex 经验与 Web Agent 使用同一事实来源。只读状态接口为 `/api/experience/status` 和 `/api/experience/candidates`。
+
 ---
 
 ## ⚙️ 完整环境变量
@@ -215,6 +235,7 @@ LangGraph 会把待执行工具调用保存在 SQLite 检查点中。系统只�
 | `MAX_TOOL_LOOPS` | `15` | 单轮最大工具调用次数 |
 | `AGENT_ENGINE` | `langgraph` | 执行引擎；可设为 `legacy` 回退 |
 | `LANGGRAPH_CHECKPOINT_DB` | `data/langgraph_checkpoints.sqlite` | 工作流检查点数据库 |
+| `EXPERIENCE_DB` | `data/agent_experience.sqlite` | 脱敏经验事件、候选及审核结果数据库 |
 | `ENABLE_PERFORMANCE_LOG` | `True` | 是否开启性能日志 |
 | `SAFE_CREATE_THRESHOLD` | `20` | 批量创建拦截阈值 |
 | `SAFE_UPDATE_THRESHOLD` | `3` | 批量更新拦截阈值 |

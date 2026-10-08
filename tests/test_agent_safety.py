@@ -2,6 +2,7 @@ from agent.safety import (
     MutationCounts,
     count_tool_calls,
     evaluate_mutations,
+    infer_intended_mutations,
     is_explicit_confirmation,
     is_explicit_rejection,
 )
@@ -54,3 +55,24 @@ def test_delete_threshold_blocks_as_configured():
     decision = evaluate_mutations(MutationCounts(), pending)
     assert decision.requires_approval is True
     assert "删除" in decision.categories
+
+
+def test_explicit_container_count_blocks_before_first_write():
+    pending = [_call("container_start")]
+    intended = infer_intended_mutations(
+        "请生成50个独立的container，每个qty为1", pending
+    )
+    decision = evaluate_mutations(
+        MutationCounts(), pending, intended=intended
+    )
+
+    assert intended.creates == 50
+    assert decision.requires_approval is True
+    assert decision.totals.creates == 50
+
+
+def test_serial_range_is_counted_as_intended_creations():
+    intended = infer_intended_mutations(
+        "创建 SN0000001 到 SN0000050", [_call("container_start")]
+    )
+    assert intended.creates == 50

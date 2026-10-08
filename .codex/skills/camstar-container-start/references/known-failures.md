@@ -34,6 +34,8 @@ Use this reference to recognize verified failure patterns. Revalidate environmen
 
 **Resolution:** Do not send `details.autoNumberRule`. Resolve `Details.AutoNumberRule` through `RequestSelectionValues`; if a contextual rule exists, request automatic numbering with `autoNumber=true`. Otherwise use an explicitly approved serial-number pattern or configure the Level outside this workflow.
 
+**Enforcement:** Since 2026-10-08, `container_start` rejects `details.autoNumberRule`, omits it for contextual automatic numbering, and has a regression test for this invariant.
+
 ## AutoNumberRule or ContainerName does not exist on Start
 
 **Symptom:** The server says `AutoNumberRule` or `ContainerName` does not exist on type `shopfloor.Start`.
