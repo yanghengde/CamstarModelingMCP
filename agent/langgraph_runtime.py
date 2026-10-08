@@ -15,6 +15,7 @@ from typing import Any, AsyncIterator, TypedDict
 
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.config import get_stream_writer
+from langgraph.errors import GraphRecursionError
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command, interrupt
 
@@ -38,7 +39,12 @@ from agent.safety import (
     is_explicit_confirmation,
     is_explicit_rejection,
 )
-from config import LANGGRAPH_CHECKPOINT_DB, LLM_MODEL, MAX_TOOL_LOOPS
+from config import (
+    LANGGRAPH_CHECKPOINT_DB,
+    LANGGRAPH_RECURSION_LIMIT,
+    LLM_MODEL,
+    MAX_TOOL_LOOPS,
+)
 from core.perf_logger import record_perf
 from tools import get_tool_func
 
@@ -73,6 +79,14 @@ def _actual_session_id(username: str, session_id: str | None) -> str:
     if session_id and session_id in sessions:
         return session_id
     return user_memories.get(username, {}).get("active_session", "unknown")
+
+
+def _graph_config(username: str, session_id: str) -> dict[str, Any]:
+    """Build one consistent config for state reads, runs, and resumptions."""
+    return {
+        "configurable": {"thread_id": f"{username}:{session_id}"},
+        "recursion_limit": LANGGRAPH_RECURSION_LIMIT,
+    }
 
 
 def _completed_counts(state: AgentState) -> MutationCounts:
@@ -426,9 +440,7 @@ async def langgraph_chat_stream(
     chat_messages = get_user_messages(username, session_id)
     actual_session_id = _actual_session_id(username, session_id)
     is_first_message = len(chat_messages) == 1
-    graph_config = {
-        "configurable": {"thread_id": f"{username}:{actual_session_id}"}
-    }
+    graph_config = _graph_config(username, actual_session_id)
 
     snapshot = await _graph.aget_state(graph_config)
     if _has_interrupt(snapshot):
@@ -501,6 +513,17 @@ async def langgraph_chat_stream(
                 yield event
         except asyncio.CancelledError:
             raise
+        except GraphRecursionError:
+            yield _sse(
+                {
+                    "type": "error",
+                    "message": (
+                        "任务连续推理次数超过安全上限，已停止执行。"
+                        "请缩小查询范围后重试。"
+                    ),
+                }
+            )
+            return
         except Exception as exc:
             yield _sse({"type": "error", "message": f"工作流执行失败: {exc}"})
             return

@@ -267,6 +267,7 @@ python -m agent.experience reject 13 --evidence "临时网络故障，不是稳�
 | `LLM_BASE_URL` | `https://api.deepseek.com/v1` | LLM 接口地址 |
 | `LLM_MODEL` | `deepseek-chat` | 模型名称 |
 | `MAX_TOOL_LOOPS` | `15` | 单轮最大工具调用次数 |
+| `LANGGRAPH_RECURSION_LIMIT` | `MAX_TOOL_LOOPS * 6 + 10` | LangGraph 单次请求的节点步数上限 |
 | `AGENT_ENGINE` | `langgraph` | 执行引擎；可设为 `legacy` 回退 |
 | `LANGGRAPH_CHECKPOINT_DB` | `data/langgraph_checkpoints.sqlite` | 工作流检查点数据库 |
 | `EXPERIENCE_DB` | `data/agent_experience.sqlite` | 脱敏经验事件、候选及审核结果数据库 |

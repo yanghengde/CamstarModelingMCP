@@ -58,6 +58,13 @@ LLM_MODEL = os.getenv("LLM_MODEL", "deepseek-chat")
 # Agent 配置
 # ---------------------------------------------------------------------------
 MAX_TOOL_LOOPS = int(os.getenv("MAX_TOOL_LOOPS", "15"))
+# A graph turn traverses multiple nodes (agent, policy, and one node per tool),
+# so this must be higher than MAX_TOOL_LOOPS. The agent loop guard remains the
+# primary protection against runaway reasoning.
+LANGGRAPH_RECURSION_LIMIT = max(
+    25,
+    int(os.getenv("LANGGRAPH_RECURSION_LIMIT", str(MAX_TOOL_LOOPS * 6 + 10))),
+)
 MEMORY_FILE = os.path.join("data", "memory.json")
 SESSIONS_DIR = os.path.join("data", "sessions")
 
