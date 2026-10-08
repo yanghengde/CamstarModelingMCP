@@ -20,10 +20,10 @@ from tools import get_tool_func
 
 
 async def main():
-    print("🤖 正在初始化 Camstar MCP Agent (CLI)...")
+    print("[START] 正在初始化 Camstar MCP Agent (CLI)...")
 
     if not CAMSTAR_BASE_URL or CAMSTAR_BASE_URL == "http://localhost/Modeling":
-        print("⚠️ 未找到 CAMSTAR_BASE_URL，请确保 .env 文件配置正确")
+        print("[WARN] 未找到 CAMSTAR_BASE_URL，请确保 .env 文件配置正确")
         return
 
     client = AsyncOpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
@@ -31,9 +31,9 @@ async def main():
     # 注册 MCP 工具
     await register_tools()
 
-    print(f"\n✅ 成功加载了 {len(openai_tools)} 个 Camstar 建模能力 (MCP Tools)。\n")
+    print(f"\n[OK] 成功加载了 {len(openai_tools)} 个 Camstar 建模能力 (MCP Tools)。\n")
     print("=" * 60)
-    print("🗣️ 欢迎使用 Camstar AI 助手！你可以问我类似于：")
+    print("欢迎使用 Camstar AI 助手！你可以问我类似于：")
     print(" - '当前系统里有多少个 Spec？'")
     print(" - '帮我查一下名叫 Incoming Inspection 的 Spec'")
     print(" - '创建一个叫 TEST-001，版本号为1的Spec'")
@@ -68,21 +68,21 @@ async def main():
                     tool_choice="auto"
                 )
             except Exception as e:
-                print(f"❌ 请求 LLM 失败: {e}")
+                print(f"[ERROR] 请求 LLM 失败: {e}")
                 break
 
             response_message = response.choices[0].message
             messages.append(response_message)
 
             if not response_message.tool_calls:
-                print(f"\n🤖 助手: {response_message.content}")
+                print(f"\n助手: {response_message.content}")
                 break
 
             for tool_call in response_message.tool_calls:
                 func_name = tool_call.function.name
                 func_args_str = tool_call.function.arguments
 
-                print(f"\n⚡ 正在执行操作: {func_name}({func_args_str}) ...")
+                print(f"\n[RUN] 正在执行操作: {func_name}({func_args_str}) ...")
 
                 try:
                     func_args = json.loads(func_args_str)
@@ -98,7 +98,7 @@ async def main():
                 except Exception as e:
                     result = f"Error executing {func_name}: {e}"
 
-                print("✔️ 执行完毕。正在分析结果...\n")
+                print("[OK] 执行完毕。正在分析结果...\n")
 
                 messages.append({
                     "role": "tool",

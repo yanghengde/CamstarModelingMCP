@@ -11,7 +11,8 @@ from openai import AsyncOpenAI
 
 from config import (
     LLM_API_KEY, LLM_BASE_URL, LLM_MODEL, MAX_TOOL_LOOPS,
-    SAFE_CREATE_THRESHOLD, SAFE_UPDATE_THRESHOLD, SAFE_DELETE_THRESHOLD
+    SAFE_CREATE_THRESHOLD, SAFE_UPDATE_THRESHOLD, SAFE_DELETE_THRESHOLD,
+    AGENT_ENGINE,
 )
 from agent.memory import get_user_messages, save_user_session, update_session_title, user_memories
 from tools import mcp, get_tool_func
@@ -41,7 +42,7 @@ async def register_tools():
                 "parameters": t.parameters
             }
         })
-    print(f"✅ 成功加载了 {len(openai_tools)} 个 Camstar MCP Tools。")
+    print(f"[OK] 成功加载了 {len(openai_tools)} 个 Camstar MCP Tools。")
     return openai_tools
 
 async def generate_title(message: str) -> str:
@@ -61,7 +62,7 @@ async def generate_title(message: str) -> str:
         return "新对话"
 
 
-async def chat_stream(username: str, message: str, session_id: str = None):
+async def legacy_chat_stream(username: str, message: str, session_id: str = None):
     """
     SSE 流式聊天生成器。
     每执行一步工具调用都会向前端推送进度事件。
@@ -159,7 +160,7 @@ async def chat_stream(username: str, message: str, session_id: str = None):
             llm_duration = time.time() - llm_start_time
             record_perf("LLM_Inference", llm_duration, username, actual_session_id, {"model": LLM_MODEL, "prompt": message, "streamed": True})
         except asyncio.CancelledError:
-            print(f"⚠️ [中止] 用户取消了请求 [@{username}]")
+            print(f"[WARN] [中止] 用户取消了请求 [@{username}]")
             raise
         except Exception as e:
             reply = f"❌ 请求 LLM ({LLM_MODEL}) 失败: {e}"
@@ -256,7 +257,7 @@ async def chat_stream(username: str, message: str, session_id: str = None):
                     continue
                 turn_delete_count += 1
 
-            print(f"⚡ 执行: {func_name}({func_args_str}) [@{username}]")
+            print(f"[RUN] 执行: {func_name}({func_args_str}) [@{username}]")
             # 向前端推送当前正在调用的工具名
             yield f"data: {json.dumps({'type': 'step', 'func': func_name, 'args': func_args_str}, ensure_ascii=False)}\n\n"
 
@@ -273,7 +274,7 @@ async def chat_stream(username: str, message: str, session_id: str = None):
                 else:
                     result = await tool_func(**func_args)
             except asyncio.CancelledError:
-                print(f"⚠️ [中止] 用户在执行工具 {func_name} 时取消了请求")
+                print(f"[WARN] [中止] 用户在执行工具 {func_name} 时取消了请求")
                 chat_messages.append({
                     "role": "tool",
                     "tool_call_id": tool_call["id"],
@@ -296,3 +297,15 @@ async def chat_stream(username: str, message: str, session_id: str = None):
             })
             save_user_session(username, actual_session_id)
 
+
+async def chat_stream(username: str, message: str, session_id: str = None):
+    """Dispatch chat requests to the configured execution engine."""
+    if AGENT_ENGINE == "langgraph":
+        from agent.langgraph_runtime import langgraph_chat_stream
+
+        async for event in langgraph_chat_stream(username, message, session_id):
+            yield event
+        return
+
+    async for event in legacy_chat_stream(username, message, session_id):
+        yield event

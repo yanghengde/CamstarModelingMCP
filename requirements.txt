@@ -1,4 +1,5 @@
 fastmcp>=2.0.0
+sse-starlette>=2.4.1,<3.0.0
 httpx>=0.27.0
 python-dotenv>=1.0.0
 openai>=1.0.0
@@ -7,3 +8,8 @@ uvicorn>=0.20.0
 python-multipart>=0.0.9
 pandas>=2.0.0
 openpyxl>=3.1.0
+# 0.6.x stays compatible with the LangChain 0.3 packages used in this environment.
+langgraph>=0.6.11,<0.7.0
+langgraph-checkpoint-sqlite>=2.0.11,<3.0.0
+langchain-core>=0.3.80,<1.0.0
+langsmith>=0.3.45,<0.4.0

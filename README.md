@@ -1,6 +1,6 @@
 # Camstar Modeling MCP Agent
 
-> 基于 **FastMCP + FastAPI + LLM** 的 Siemens Opcenter (Camstar) MES 建模 AI 助手。  
+> 基于 **FastMCP + FastAPI + LangGraph + LLM** 的 Siemens Opcenter (Camstar) MES 建模 AI 助手。
 > 将 Camstar Modeling REST API 封装为 MCP 工具，通过自然语言对话操控 Spec、Operation、Workflow 等建模实体。
 
 ---
@@ -12,6 +12,7 @@
 | **自然语言建模** | 用对话方式创建/查询/更新/删除 Spec、Operation、Workflow |
 | **流式实时输出** | 基于 SSE 的逐字流式渲染，消除 LLM 阻塞等待 |
 | **安全卡点防护** | 批量操作阈值拦截 + OTP 一次性密码双重验证，防止误操作 |
+| **可恢复工作流** | LangGraph + SQLite 保存执行检查点，确认后从暂停位置继续 |
 | **多用户多会话** | 按用户名隔离的持久化历史记忆，支持会话切换 |
 | **性能监控** | JSONL 追踪每次 LLM 推理与工具执行耗时，内置可视化 Dashboard |
 | **兼容任意 LLM** | 支持 DeepSeek / 通义千问 / 智谱 / Ollama / OpenAI 等兼容 OpenAI 协议的模型 |
@@ -41,7 +42,9 @@ CamstarModelingMCP/
 │   └── security.py      # OTP 验证守卫
 │
 ├── agent/               # 智能体层
-│   ├── llm_client.py    # LLM 调用 + 工具编排 + 安全拦截
+│   ├── llm_client.py    # LLM 客户端 + 新旧执行引擎分发
+│   ├── langgraph_runtime.py # 可恢复的 Agent 状态图
+│   ├── safety.py        # 可测试的工具分类与确认策略
 │   ├── memory.py        # 多用户多会话记忆管理
 │   ├── prompts.py       # System Prompt
 │   └── cli.py           # 命令行调试界面
@@ -91,6 +94,9 @@ CAMSTAR_PASSWORD=your-password
 LLM_API_KEY=sk-your-api-key
 LLM_BASE_URL=https://api.deepseek.com/v1
 LLM_MODEL=deepseek-chat
+
+AGENT_ENGINE=langgraph
+LANGGRAPH_CHECKPOINT_DB=data/langgraph_checkpoints.sqlite
 ```
 
 ### 3. 启动服务
@@ -181,6 +187,11 @@ SAFE_UPDATE_THRESHOLD=3    # 批量更新 > 3 条时暂停
 SAFE_DELETE_THRESHOLD=0    # 任意删除均需先确认（0 = >=1 拦截）
 ```
 
+LangGraph 会把待执行工具调用保存在 SQLite 检查点中。系统只接受“确认创建”、
+“确认修改”、“确认删除”等明确授权；“不是”“不要创建”“取消执行”不会误触发。
+确认后会从暂停位置继续，不要求 LLM 重新生成工具参数。紧急回退时可设置
+`AGENT_ENGINE=legacy` 并重启服务。
+
 ### OTP 单次密码验证
 
 删除等高风险操作额外受到 OTP 守卫保护：LLM 首次尝试删除时系统自动生成一个内部 OTP，要求用户明确回复"确认删除"后，由 LLM 持 OTP 二次发起才能真正执行删除，且 OTP 一次性消耗防止重放攻击。
@@ -202,6 +213,8 @@ SAFE_DELETE_THRESHOLD=0    # 任意删除均需先确认（0 = >=1 拦截）
 | `LLM_BASE_URL` | `https://api.deepseek.com/v1` | LLM 接口地址 |
 | `LLM_MODEL` | `deepseek-chat` | 模型名称 |
 | `MAX_TOOL_LOOPS` | `15` | 单轮最大工具调用次数 |
+| `AGENT_ENGINE` | `langgraph` | 执行引擎；可设为 `legacy` 回退 |
+| `LANGGRAPH_CHECKPOINT_DB` | `data/langgraph_checkpoints.sqlite` | 工作流检查点数据库 |
 | `ENABLE_PERFORMANCE_LOG` | `True` | 是否开启性能日志 |
 | `SAFE_CREATE_THRESHOLD` | `20` | 批量创建拦截阈值 |
 | `SAFE_UPDATE_THRESHOLD` | `3` | 批量更新拦截阈值 |

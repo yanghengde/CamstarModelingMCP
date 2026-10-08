@@ -61,6 +61,13 @@ MAX_TOOL_LOOPS = int(os.getenv("MAX_TOOL_LOOPS", "15"))
 MEMORY_FILE = os.path.join("data", "memory.json")
 SESSIONS_DIR = os.path.join("data", "sessions")
 
+# Agent execution engine.  Keep "legacy" as a rollback option during rollout.
+AGENT_ENGINE = os.getenv("AGENT_ENGINE", "langgraph").strip().lower()
+LANGGRAPH_CHECKPOINT_DB = os.getenv(
+    "LANGGRAPH_CHECKPOINT_DB",
+    os.path.join("data", "langgraph_checkpoints.sqlite"),
+)
+
 # 安全卡点阈值：当修改行为超过多少条时要求强制确认
 SAFE_CREATE_THRESHOLD = int(os.getenv("SAFE_CREATE_THRESHOLD", "20"))
 SAFE_UPDATE_THRESHOLD = int(os.getenv("SAFE_UPDATE_THRESHOLD", "3"))
