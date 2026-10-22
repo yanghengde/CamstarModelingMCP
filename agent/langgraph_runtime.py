@@ -29,7 +29,7 @@ from agent.experience import (
     build_runtime_experience_context,
     record_tool_outcome,
 )
-from agent.prompts import USER_FACING_LANGUAGE_RULE
+from agent.prompts import USER_FACING_LANGUAGE_RULE, QUERY_EFFICIENCY_RULE
 from agent.safety import (
     MutationCounts,
     approval_prompt,
@@ -45,6 +45,7 @@ from config import (
     LANGGRAPH_RECURSION_LIMIT,
     LLM_MODEL,
     MAX_TOOL_LOOPS,
+    MAX_READ_FAILURES,
 )
 from core.perf_logger import record_perf
 from tools import get_tool_func
@@ -63,6 +64,7 @@ class AgentState(TypedDict, total=False):
     pending_tool_calls: list[dict[str, Any]]
     final_reply: str
     stop_reason: str
+    read_failures: int
 
 
 _client: Any = None
@@ -140,7 +142,7 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
         model_messages = list(state.get("messages", []))
         language_message = {
             "role": "system",
-            "content": USER_FACING_LANGUAGE_RULE,
+            "content": USER_FACING_LANGUAGE_RULE + "\n" + QUERY_EFFICIENCY_RULE,
         }
         insert_at = 1 if model_messages and model_messages[0].get("role") == "system" else 0
         model_messages.insert(insert_at, language_message)
@@ -151,11 +153,15 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
             }
             model_messages.insert(insert_at + 1, context_message)
 
+        exhausted = int(state.get("read_failures", 0)) >= MAX_READ_FAILURES
+        if exhausted:
+            model_messages.append({"role": "system", "content":
+                "本轮查询连续失败，停止调用工具。请立即用中文总结已取得的数据和失败原因，不得声称查询完整或成功。"})
         response_stream = await _client.chat.completions.create(
             model=LLM_MODEL,
             messages=model_messages,
             tools=_openai_tools,
-            tool_choice="auto",
+            tool_choice="none" if exhausted else "auto",
             stream=True,
         )
 
@@ -205,7 +211,7 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
         },
     )
 
-    ordered_calls = [tool_calls[index] for index in sorted(tool_calls)]
+    ordered_calls = [] if exhausted else [tool_calls[index] for index in sorted(tool_calls)]
     assistant_message: dict[str, Any] = {"role": "assistant"}
     if full_content:
         assistant_message["content"] = full_content
@@ -302,6 +308,9 @@ async def _execute_tool_node(state: AgentState) -> dict[str, Any]:
             tool_func = get_tool_func(func_name)
             if tool_func is None:
                 result = f"Error: tool '{func_name}' not found"
+            elif (func_name.startswith(("get_", "list_"))
+                  and int(state.get("read_failures", 0)) >= MAX_READ_FAILURES):
+                result = "Error: query failure limit reached; return the available results."
             else:
                 result = await tool_func(**func_args)
         except asyncio.CancelledError:
@@ -358,12 +367,17 @@ async def _execute_tool_node(state: AgentState) -> dict[str, Any]:
         "name": func_name,
         "content": str(result),
     }
+    read_failures = int(state.get("read_failures", 0))
+    if func_name.startswith(("get_", "list_")):
+        failed = str(result).startswith(("❌", "Error"))
+        read_failures = read_failures + 1 if failed else 0
     return {
         "messages": state.get("messages", []) + [tool_message],
         "pending_tool_calls": pending,
         "create_count": creates,
         "update_count": updates,
         "delete_count": deletes,
+        "read_failures": read_failures,
     }
 
 
@@ -513,6 +527,7 @@ async def langgraph_chat_stream(
             "pending_tool_calls": [],
             "final_reply": "",
             "stop_reason": "",
+            "read_failures": 0,
         }
         try:
             async for event in _stream_graph(initial_state, graph_config):

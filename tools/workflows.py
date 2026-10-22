@@ -50,9 +50,10 @@ async def list_workflows(
 @mcp.tool
 async def get_workflow(key: str) -> str:
     """
-    Get a single Workflow by its key (instanceID or name:revision).
+    Get a single Workflow using the InstanceID returned by list_workflows.
+    Do not concatenate name:revision: some servers treat it as a literal name.
     GET /api/Workflows/{key}
-    Returns the full WorkflowEntity object.
+    Returns Workflow fields; empty Steps-Expanded does not prove no steps exist.
     """
     return await request("GET", f"/api/Workflows/{key}")
 

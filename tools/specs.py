@@ -49,7 +49,8 @@ async def list_specs(
 @mcp.tool
 async def get_spec(key: str) -> str:
     """
-    Get a single Spec by its key (instanceID or name:revision).
+    Get a single Spec using the InstanceID returned by list_specs.
+    Prefer InstanceID; name:revision is not supported by every server.
     GET /api/Specs/{key}
     Returns the full SpecEntity object.
     """

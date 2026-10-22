@@ -208,7 +208,7 @@ async def list_query_services(name_filter: Optional[str] = None) -> str:
             indent=2,
         )
     except Exception as exc:
-        return f"❌ Failed to discover Query services: {exc}"
+        return f"❌ Failed to discover Query services at {CAMSTAR_QUERY_BASE_URL}: {type(exc).__name__}: {exc}. Do not retry discovery in this turn."
 
 
 @mcp.tool

@@ -1,0 +1,4536 @@
+
+=== PDF PAGE 1 ===
+Opcenter™  Execution Core
+Technical Reference: REST API
+Release2510+Rev.1
+
+
+=== PDF PAGE 2 ===
+Notices
+© Siemens 2025
+This documentation and all materials related to the software are confidential and proprietary to Siemens 
+Industry Software Inc. The contents of this document are copyrighted and cannot be reproduced in any 
+form without the written permission of Siemens Industry Software Inc.  The information contained in this 
+document is subject to change without notice.  Siemens Industry Software Inc. disclaims all liability for any 
+consequence arising from the use of this material.
+EXCEPT AS EXPRESSLY PROVIDED IN YOUR LICENSE AGREEMENT, SIEMENS INDUSTRY SOFTWARE INC.  
+MAKES NO WARRANTIES, EXPRESSED OR IMPLIED, OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR 
+PURPOSE REGARDING LICENSED PROGRAMS, RELATED DOCUMENTATION, OR MARKETING MATERIALS.
+The list of relevant Siemens trademarks can be found here. Other trademarks belong to their respective 
+owners.
+Document History
+Technical Reference: WCF Services
+October 2025
+Printed in the U.S.
+
+=== PDF PAGE 3 ===
+Release2510+Rev.1 TechnicalReference:RESTAPI iii
+Contents 
+Contents
+About This Guide vii
+Description vii
+Audience vii
+Conventions Used vii
+How This Guide Is Organized viii
+Related Publications ix
+Contacting Technical Support ix
+Security Information x
+Summary of Technical Changes x
+Chapter 1: REST API Overview 1-1
+Introduction 1-1
+Benefits and Operational Overview of REST API 1-2
+Benefits of Using REST API 1-2
+API Service Operational Overview 1-2
+Installation and Configuration Steps 1-4
+Enabling Logs in the Appsettings.json File 1-7
+Cross-Origin Resource Sharing (CORS) Overview 1-8
+Examples – Postman Collections 1-9
+Authentication 1-10
+Making the User Credentials Structure Base64-Encoded and Setting it as the Authorization 
+Header in the HTTP Request 1-11
+Authenticating with SSO SAML using Azure AD in Conjunction with REST API 1-13
+Services Overview 1-15
+How to Locate the Services in Designer 1-15
+Base URL for API Services 1-16
+JSON Payloads 1-17
+Scalar String Fields 1-17
+Scalar Number Fields 1-18
+
+=== PDF PAGE 4 ===
+Contents
+iv TechnicalReference:RESTAPI Release2510+Rev.1
+Scalar Boolean Fields 1-19
+NDO Fields 1-19
+RDO Fields 1-20
+Lists 1-21
+Reference Objects 1-21
+@odata.type 1-23
+Specifying Selection Value, Perform Event,  Advanced Perform Event, and Upload or Download 
+Requests 1-30
+Using Selection of Values for a Field or Field Expression 1-30
+Requesting Selection Values for Multiple Fields 1-33
+Requesting Selection Values to Return Information in the Selection Value Node 1-35
+Using the PerformEvent Endpoint 1-41
+Using the AdvancedPerformEvent Endpoint 1-46
+Getting Data for Inherited Subtypes 1-52
+Applying the Action Attribute to a Property 1-53
+Applying the List Item Action Attribute to a List Item in Shopfloor 1-55
+Using Filter Tags with REST API 1-57
+Method 1: Using Both filterTags and filterTagAccess 1-58
+Method 2: Using applyFilterTags 1-59
+Using DisableCommit and DebugRequest 1-60
+Enabling the Logs 1-60
+DisableCommit 1-60
+DebugRequest 1-60
+Using Swagger 1-62
+Endpoint Considerations 1-63
+Chapter 2: Modeling APIs 2-1
+Introduction 2-1
+Request Methods and URL Formats 2-2
+CRUD Modeling API Overview 2-4
+POST 2-4
+GET 2-6
+PATCH 2-11
+
+=== PDF PAGE 5 ===
+Contents
+PUT 2-12
+DELETE 2-20
+Modeling API Endpoints Overview 2-23
+Create Documents: Multipart Upload of Files 2-27
+Query Parameters 2-31
+Modeling API Examples 2-39
+OData Example 2-39
+OpenAPI Example 2-44
+Modeling Transaction Example Information 2-49
+Modeling Object Name Considerations 2-49
+Opcenter Connect MOM Transaction Example Information 2-50
+Chapter 3: Shop Floor APIs 3-1
+Introduction 3-1
+Request Methods and URL Formats 3-2
+Shop Floor API Overview 3-3
+DocAttachmentsTxn: Downloading a Document Attachment to the Client 3-7
+Shop Floor Transaction Example Information 3-9
+Resource Transaction Example Information 3-10
+Change Management Transaction Example Information 3-11
+Chapter 4: Query APIs 4-1
+Introduction 4-1
+Request Methods and URL Formats 4-2
+Query API Overview 4-3
+Inquiry 4-3
+Advanced Query 4-4
+User Query 4-5
+Ad hoc Query 4-5
+Query Transaction Example Information 4-6
+Chapter 5: Labels APIs 5-1
+Introduction 5-1
+Request Methods and URL Formats 5-2
+Release2510+Rev.1 TechnicalReference:RESTAPI v
+
+=== PDF PAGE 6 ===
+Contents
+vi TechnicalReference:RESTAPI Release2510+Rev.1
+Labels Transaction Example Information 5-3
+Appendix A: Considerations and Error Responses A-1
+Introduction A-1
+Considerations When Using REST API A-2
+Required Fields: Portal and Designer A-2
+Decimal Formats A-4
+Error Responses A-5
+Examples of Error Messages A-5
+Translating Error Responses A-5
+Appendix B: Executing a Manufacturing Order B-1
+Introduction B-1
+Example of Executing a Manufacturing Order B-2
+Sample JSON File for Creating the Components Needed for a Manufacturing Order B-2
+Index Index-1
+
+=== PDF PAGE 7 ===
+About This Guide
+Description 
+The Technical Reference: REST API describes the REST APIs provided with the Siemens Opcenter Execution 
+Medical Device and Diagnostics (Opcenter EX MDD) and Siemens Opcenter Execution Core (Opcenter 
+EX CR) products. REST APIs provide an easy-to-use Web API abstraction layer for executing transactions 
+supported by the Application Server. REST APIs enable you to execute transactions more efficiently than if 
+using WCF services.
+Audience
+This guide is intended for: 
+• System administrators, network administrators, and network managers with extensive experience 
+in Windows administration responsible for installing and configuring Opcenter EX CR.
+• Opcenter EX CR administrators responsible for extending  objects and generating schema 
+definitions using the Designer.
+• Programmers proficient in Visual Studio.NET or any language for developing Web applications or 
+Windows applications that use REST APIs.
+• Technical personnel responsible for implementing Opcenter EX CR and its modules.
+Conventions Used
+For Code Samples
+Code samples are provided according to the development platform supported by the product. This guide 
+uses the following font convention to depict programming code:
+ 
+' Delete the service
+Set Assoc = Nothing
+ServLink.RemoveService("AService")
+Important:Siemens provides sample code as is without warranty of any kind, either express or 
+implied, including but not limited to the implied warranties of merchantability and/or 
+fitness for a particular purpose.
+Release2510+Rev.1 TechnicalReference:RESTAPI vii
+
+=== PDF PAGE 8 ===
+AboutThisGuide
+Because of the limitation of the physical page, a line of code meant to occupy one line in the program 
+wraps to the next line in the documentation. If this occurs, the wrapped lines are indented. For example:
+ 
+Set Assoc = Nothing ServLink.RemoveService("AService");
+Set Assoc = New ServLink.AddService
+For Specific Information Types
+This guide uses these formatting conventions.
+Convention Definition Example
+Blue underlined text Indicates a hyperlink, and applies 
+only to URLs and e-mail addresses
+www.siemens.com
+Bold font Indicates icon names, buttons, 
+field names, and specific user 
+entries
+Click Associate on the toolbar.
+Enter a value in the Item Caption field.
+Italic font Indicates a document title; also 
+indicates the result of a step in a 
+procedure
+Refer to the Opcenter Execution 
+Medical Device and Diagnostics 
+Modeling User Guide for information. 
+Click New. The Workflow page 
+appears.  
+Important: Indicates that the omission or result of a certain action can cause minor 
+errors, but does not necessarily cause data loss and might require 
+repeating a procedure or changing settings
+Note: Indicates relevant information that reinforces an idea and is not critical to 
+any action that you must perform
+Documentation Release Number
+The plus sign (+) in the documentation release number indicates the document is compatible with 
+software Release 2510 and later releases. If the content of the document is updated for a subsequent main 
+release such as Release 2604 or 2610, the documentation release number will be updated.
+How This Guide Is Organized
+This guide is organized as follows:
+Chapter Contents
+Chapter 1, REST API 
+Overview
+Provides an overview of REST API including benefits and operational 
+overview.
+Chapter 2, Modeling APIs Provides Modeling request methods and URL formats and a detailed 
+overview of the verbs the Modeling APIs support and examples of their 
+typical usage.
+viii TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 9 ===
+AboutThisGuide
+Chapter Contents
+Chapter 3, Shop Floor APIs Provides Shop Floor request methods and URL formats and an overview.
+Chapter 4, Query APIs Provides Query request methods and URL formats and an overview.
+Chapter 5, Labels APIs Provides Labels request methods and URL formats.
+Appendix A, Considerations 
+and Error Responses
+Provides information on some points to consider when using REST API 
+and some error codes the Application Server may return in the body of 
+the response.
+Appendix B, Executing a 
+Manufacturing Order
+Provides an example of the detailed, sample JSON used for creating the 
+components needed for a manufacturing order.
+Related Publications
+This guide is part of the Opcenter Execution Core documentation set.  Refer to these Siemens publications 
+to supplement information found in this guide:
+• Opcenter Execution Core Designer User Guide
+• Opcenter Execution Core Installation Guide
+• Opcenter Execution Core Modeling User Guide
+• Opcenter Execution Core System Administration Guide
+• Opcenter Execution Core Technical Reference: WCF Services
+Contact your Siemens representative for the latest publications, or download them from the Siemens 
+technical support website at Support Center.
+Many examples of Modeling, Shop Floor, Query, and Label transactions  are available as JSON collections 
+on Support Center in the Downloads section for the main release. Refer to these collections for examples 
+of POST, GET, PUT, PATCH, and DELETE requests.
+Contacting Technical Support
+Contact Product Support via Support Center for assistance or to report any problems. Have your SoldTo 
+number available. Your SoldTo number is included in the file that contains your serial number.
+Website:
+https://support.sw.siemens.com
+Phone:
+United States or Canada: +1 (800) 955-0000 or +1 (714) 952-5444
+Outside the United States and Canada: Contact your local support office.
+Release2510+Rev.1 TechnicalReference:RESTAPI ix
+
+=== PDF PAGE 10 ===
+AboutThisGuide
+Security Information
+Siemens provides products and solutions with industrial security functions that support the secure 
+operation of plants, systems, machines and networks.
+In order to protect plants, systems, machines and networks against cyber threats, it is necessary to 
+implement – and continuously maintain – a holistic, state-of-the-art industrial security concept. Siemens’ 
+products and solutions constitute one element of such a concept.
+Customers are responsible for preventing unauthorized access to their plants, systems, machines and 
+networks. Such systems, machines and components should only be connected to an enterprise network or 
+the internet if and to the extent such a connection is necessary and only when appropriate security 
+measures (e.g. firewalls and/or network segmentation) are in place.
+For additional information on industrial security measures that may be implemented, please visit 
+https://www.siemens.com/industrialsecurity.
+Siemens’ products and solutions undergo continuous development to make them more secure. Siemens 
+strongly recommends that product updates are applied as soon as they are available and that the latest 
+product versions are used. Use of product versions that are no longer supported, and failure to apply the 
+latest updates may increase customer’s exposure to cyber threats.
+To stay informed about product updates, subscribe to the Siemens Industrial Security RSS Feed under 
+https://www.siemens.com/industrialsecurity.
+Summary of Technical Changes
+These tables summarize the change in technical content from one  revision to another.
+Release 2510+ Rev. 1
+This table summarizes the changes in technical content from Release 2504+ Rev. 1 to Release 2510+ 
+Rev. 1.
+Changes in this revision: Release 2510+ Rev. 1 Revised chapter or 
+pages
+Updated note related to users that are using a different domain than the 
+default domain.
+Page 1-7
+Updated procedure in "How to Authenticate with SSO SAML using Azure 
+AD in Conjunction with REST API."
+Page 1-13
+Added important note to "Specifying Selection Value, Perform Event,  
+Advanced Perform Event, and Upload or Download Requests" about the 
+new RequestSelectionValues endpoint.
+Page 1-30
+Added "Requesting Selection Values to Return Information in the Selection 
+Value Node."
+Pages 1-35 to 1-41
+Updated all information in "Using the AdvancedPerformEvent Endpoint." Pages 1-46 to 1-52
+x TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 11 ===
+Chapter 1: REST API Overview
+Introduction
+REST APIs  used in the application are built on the Representational State Transfer Application Programming 
+Interface design. REST APIs provide an easy-to-use Web API abstraction layer for executing transactions 
+supported by the Application Server. This abstraction provides simplified and selective object 
+representation and method invocation. OpenAPI and OData schemas and metadata provide readable 
+definitions and navigation of the API. The API is  generated from the object model and is customizable. 
+These API sets provide a modern alternative to the existing WCF services, enabling you to perform 
+transactions through REST API rather than using WCF. The API sets are designed to be easier to develop 
+and manage programmatic and automated interactions with Opcenter EX MDD or Opcenter EX CR. They 
+expose endpoints for executing Application Server transactions that are defined and exposed in the 
+metadata, both default and custom, or third-party. Files needed for REST are provided as part of the 
+Opcenter EX MDD or Opcenter EX CR installation.
+In this Chapter
+This chapter contains these  topics:
+• Benefits and Operational Overview of REST API
+• Installation and Configuration Steps
+• Authentication
+• Services Overview
+• Base URL for API Services
+• JSON Payloads
+• Specifying Selection Value, Perform Event,  Advanced Perform Event, and Upload or Download 
+Requests
+• Using DisableCommit and DebugRequest
+• Using Swagger
+• Endpoint Considerations
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-1
+
+=== PDF PAGE 12 ===
+Chapter1:RESTAPIOverview
+Benefits and Operational Overview of REST API
+REST APIs provide a Web API abstraction layer for executing transactions supported by the Application 
+Server. REST APIs enable you to execute transactions more efficiently than if using WCF services. When 
+using REST APIs, HTTP/HTTPS requests to the Application Server are performed asynchronously. 
+Benefits of Using REST API
+Using REST APIs provides these benefits:
+• Uses standard conventions for exposing endpoints, representing data, etc.
+• Keeps backend complexity hidden by abstracting services.
+• Uses a simple, compact payload resulting in faster transmission and serialization times.
+• Provides readable definitions and navigation of the API by using OpenAPI and OData schemas and 
+metadata.
+• Uses HTTP methods (GET, PUT, POST, DELETE.) to access and use data as part of the REST 
+architecture, making the intent standardized and easy to understand.
+• Uses the HTTP protocol for API security, making managing and integrating authentication and 
+authorization simple. Secure communication through TLS/SSL is inherited from HTTP.
+API Service Operational Overview
+Each API service follows the same basic configuration and operational design. The services are hosted in 
+separate Web applications mapped under the Default Web site.
+Specifically, these are the paths:
+• /modeling/api/
+• /shopfloor/api/
+• /query/api/
+• /labels/api/
+They are configured to run in their own IIS application pools.
+Refer to the Opcenter Execution Medical Device and Diagnostics System Administration Guide or the 
+Opcenter Execution Core System Administration Guide for information on stopping and starting the 
+services.
+Upon start-up, the services retrieve the configured metadata for the CDO services and entities that they 
+will expose. The services also   generate REST and/or OData metadata. Additionally, they generate the 
+associated endpoint handlers for the exposed services. This is similar to the process used to produce the 
+WCF services. However, the REST API services use only the subset of runtime metadata needed for the set 
+of services they will handle. They also execute this  in a way that allows for  no-downtime database update 
+(DBUpdate) scenarios.
+1-2 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 13 ===
+Chapter1:RESTAPIOverview
+Like the WCF services, the REST API services provide a pass-through mechanism to execute transactions in 
+the Application Server. They use JSON-formatted payload. The definitions of request and response payload 
+entities and service URLs are provided in OpenAPI- and OData metadata-formatted documents.
+In the Swagger UI, the JSON documentation link for each endpoint is located right below the endpoint 
+title. This provides a detailed definition of the endpoint including request and response structures. The 
+JSON documentation is particularly useful if the Swagger schema fails to load due to a large model 
+schema.
+To  access the Swagger.json file directly, use the following URL:
+https://{{server}}/{{projectName}}/swagger/EndpointName/swagger.json
+Authentication is passed through to the Application Server as it is with the WCF Services. However, for the 
+REST APIs, authentication is done in the authorization header using a simple base64-encoded JSON 
+structure of the  user's credentials.  Refer to "Authentication" for more information.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-3
+
+=== PDF PAGE 14 ===
+Chapter1:RESTAPIOverview
+Installation and Configuration Steps
+The installation and configuration processes needed to use the REST APIs follow:
+1. Download the latest supported version of the .NET 8.x Hosting Bundle, which is the .NET Runtime 
+and the ASP.NET Core Runtime combined, from the Microsoft website.
+Refer to the Release Matrix on Siemens Support Center for information on the supported version.
+2. Install the current version of Opcenter EX MDD or Opcenter EX CR. The REST APIs are installed by 
+default when you install Opcenter EX MDD or Opcenter EX CR. A node labeled Application Server 
+REST APIs is contained in the  Opcenter Execution MDD Setup Selection or Opcenter Execution 
+Core Setup Selection dialog box that appears when you install the application. These APIs are 
+listed as available components:
+• Modeling API Service
+• Shopfloor API Service
+• Query API Service
+• Labels API Service
+Note: Ensure that the Modeling API service is installed on the same server as the application 
+and remains in that location.
+The check box for each service is selected by default as shown in this image.
+Refer to the  Opcenter Execution Medical Device and Diagnostics Installation Guide or the Opcen-
+ter Execution Core Installation Guide for information.
+1-4 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 15 ===
+Chapter1:RESTAPIOverview
+This table lists the default installation path, application pool name, and IIS application name for 
+each API service.
+API Service Installation Path Application 
+Pool Name
+IIS 
+Application 
+Name
+Modeling API 
+Service
+C:\Program Files 
+(x86)\Camstar\AppServerApi\Modeling
+Modeling Modeling
+Shopfloor API 
+Service
+C:\Program Files 
+(x86)\Camstar\AppServerApi\Shopfloor
+Shopfloor Shopfloor
+Query API 
+Service
+C:\Program Files 
+(x86)\Camstar\AppServerApi\Query
+Query Query
+Labels API 
+Service
+C:\Program Files 
+(x86)\Camstar\AppServerApi\Labels
+Labels Labels
+Note: Each of the folders listed in the table contains an appsettings.json file. Each of these 
+files has to be configured with a valid username and password. You can enter these 
+credentials in Management Studio and then have Management Studio copy the 
+credentials to each appsettings.json file. Alternatively, you can manually enter your 
+username and an encrypted password in each appsettings.json file. (These settings are 
+configured in the next step.)
+3. Specify your REST API username and password in Management Studio, and have Management 
+Studio encrypt your password and then pass the user name and encrypted password to each of 
+the appsettings.json files:
+a. Click Start >  Opcenter Execution MDD >  Management Studio. The Management Studio 
+window appears.
+Or
+Click Start >  Opcenter Execution Core >  Management Studio. The Management Studio 
+window appears.
+Refer to the  Opcenter Execution Medical Device and Diagnostics System Administration 
+Guide or the Opcenter Execution Core System Administration  Guide for information on Man-
+agement Studio. 
+b. Expand the Configuration folder in the Sites tree and select the Configuration node. The site 
+configuration information appears in the right pane.
+c. Click the REST API tab.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-5
+
+=== PDF PAGE 16 ===
+Chapter1:RESTAPIOverview
+d. Enter the UserName and Password to use with REST API.
+e. Click Save. Management Studio encrypts the password you entered, and then passes the 
+username and encrypted password to each of the appsettings.json files. Management Stu-
+dio then displays a success message.
+This is an example of a portion of an appsettings.json file with a sample UserName and 
+encrypted Password, and IsEncrypted set to true :
+"SystemCredentials": {
+"UserName": "CamstarAdmin", 
+"Password": "d1e1dbea3b146f4c3fdad1fb8539053df88cb96fa408fb1f", 
+"IsEncrypted": true
+}
+This is an example of a portion of an appsettings.json file that shows the default settings for 
+UseStaticAssembly (True) and RegenerateAssembly (False):
+"UpdateOptions": {
+"IsTestMode": false
+},
+"GenerationOptions": {
+"UseStaticAssembly": true,
+"AssemblyName": "asm.dll",
+"EdmModelFile": "edmModel.xml",
+"SwaggerDocName": "RuntimeSummaries.xml"
+"RegenerateAssembly": false
+"CommandTimeout": 300
+},
+1-6 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 17 ===
+Chapter1:RESTAPIOverview
+Note: The  parameter UseStaticAssembly indicates that the application uses static DLLs for 
+the Modeling, Shopfloor, and Query APIs to  enhance performance and decrease the 
+amount of time it takes to load the APIs initially. The parameters UseStaticAssembly 
+and RegenerateAssembly are not included in the app.setting.json file for the Labels 
+API.
+Note: The CommandTimeOut parameter is configurable and is set to a default value of 
+300 seconds. 
+Refer to the Opcenter Execution Medical Device and Diagnostics System Administration Guide or the  
+Opcenter Execution Core System Administration Guide for information on generating REST API services 
+when creating or updating database tables.
+Note: If the user configured in Management Studio in the REST API configuration tab is using a dif-
+ferent domain than the default domain, then the user should add a domain in the Domain field 
+on the Employee modeling page. If the user is using a local account, then the user can add "." 
+in the Domain field.
+Enabling Logs in the Appsettings.json File
+This table outlines the logs available in the REST API configuration (appsettings.json).
+Log Parameter Name Log Level Description Behavior
+TransactionLogsEnabled Transaction  Logs Logs detailed 
+information about 
+individual API 
+transactions including 
+timestamps, and 
+request and response 
+data. Useful for 
+tracking execution 
+steps and debugging 
+at the REST API 
+request level.
+If set to true, txt log 
+files will be created in 
+the specified 
+directory, recording 
+all transactions 
+(success and 
+exception).
+ErrorLogsEnabled Error Transaction 
+Logs
+Logs transaction data 
+for failed API requests 
+only.  Enabled by 
+default.  
+If set to true 
+(default), an “…_
+Exception.”txt log file 
+will be created, 
+recording only failed 
+requests.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-7
+
+=== PDF PAGE 18 ===
+Chapter1:RESTAPIOverview
+Log Parameter Name Log Level Description Behavior
+LogsEnabled XML Logs Creates XML logs of 
+processed data that 
+have been 
+successfully sent to 
+the application server 
+and its responses.
+If set to true, two 
+XML files are created 
+in the specified 
+directory for each 
+processed request: 
+one for the outgoing 
+XML request and one 
+for the incoming XML 
+response.
+LogsPath Log Path 
+Configuration
+Specifies the directory 
+in which log files are 
+stored.
+Determines the folder 
+where log files for all 
+enabled logging 
+levels are saved.
+This is an example of default logs configuration in the appsettings.json file of each REST API project:
+"Logs": {
+"TransactionLogsEnabled": false,
+"ErrorLogsEnabled": true,
+"LogsEnabled": false,
+"LogsPath": "C:\\Temp\\"
+}
+Note: Error Transaction Logs are enabled by default. To  disable all logging in the REST API completely, 
+set ErrorLogsEnabled to false.
+Refer to the Opcenter Execution Medical Device and Diagnostics System Administration Guide 
+or the Opcenter Execution Core System Administration Guide for information on how to enable 
+or disable all logging in the REST API using Management Studio.
+Cross-Origin Resource Sharing (CORS) Overview
+CORS is a mechanism defined by the Fetch API Specification that allows REST API to specify which origins 
+are permitted to access its resources. This is essential for web security because browsers block requests 
+from different origins by default for security reasons.
+Only requests from origins you specify (for example, https://example.com) are allowed to access the API. If 
+you try to access the API from a different origin, the request is denied due to the CORS policy. If an 
+application from an unapproved origin attempts to access the API, it receives a CORS error response. This 
+prevents unauthorized domains from using your API.
+You can specify origins on the CORS tab in the Management Studio Configuration pane. When you click 
+Save, the application updates the appsettings.json file for each REST API service (Modeling, Shopfloor, 
+Query, and Labels). The application writes the information to the AllowedOrigins section:
+"AllowedOrigins": [
+"https://example.com"
+]
+1-8 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 19 ===
+Chapter1:RESTAPIOverview
+Note: If you have manually entered information in the AllowedOrigins section, it will be overwritten 
+by any origins you specify in Management Studio. Refer to the Opcenter Execution Medical 
+Device and Diagnostics System Administration Guide or the Opcenter Execution Core System 
+Administration Guide for information on setting origins on the CORS tab in Management Stu-
+dio.
+From a web application hosted at https://example.com, a GET request to https://{server}/modeling, for 
+example, succeeds if you have specified the origin in the allowed list (whitelist) on the CORS tab. A request 
+from an unauthorized origin, such as https://unauthorized.com, is blocked by default according to the 
+CORS policy.
+Examples – Postman Collections
+When sending requests using REST API, the body must be in valid JSON format.  Postman is a collaboration 
+platform for API development that enables you to send requests in JSON format. 
+Many examples of Modeling, Shop Floor, Query, and Label transactions  are available as JSON collections 
+on Support Center in the Downloads section for the main release. Refer to these collections for examples 
+of POST, GET, PUT, PATCH, and DELETE requests.
+Refer to https://www.postman.com for information on creating collections and organizing your API 
+requests in the Postman app.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-9
+
+=== PDF PAGE 20 ===
+Chapter1:RESTAPIOverview
+Authentication
+When making a request to one of the APIs, you must include an Authorization HTTP header that contains a 
+Bearer token.  Authentication is based on user credentials. User credentials consist of a user name and a 
+password or session ID. The user credentials are submitted using the Authorization HTTP header as a 
+Bearer token with the credentials structure encoded as a base64 string. The token contains the credentials 
+needed to authenticate to the Application Server. 
+Note: Refer to "Authenticating with SSO SAML using Azure AD in Conjunction with REST API" if you 
+access the Portal using the single sign-on (SSO) method of user authentication with the Secur-
+ity Assertion Markup Language (SAML) and you want to execute transactions using REST API.
+Username, Password, TimeZone, and Encryption
+This is an example of the JSON structure for the user credentials if specifying user name and password:
+{
+"username": "UserName",
+"Password": {
+"value": "UserPassword",
+"isEncrypted": false
+},
+"TimeZone":"-0500EST"
+}
+Replace UserName with your user name and UserPassword with your  password.
+You can replace the TimeZone  value with your local TimeZone in Server Code format. Setting TimeZone  is 
+optional. Refer to the list of valid TimeZone values in the TimeZones section of the \Program Files 
+(x86)\Camstar\Camstar Portal\User\Settings.xml file. The application server uses the GMT TimeZone if you 
+provide TimeZone in an incorrect format.
+Note: Previous releases of the application used utcoffset to specify local time. The utcoffset para-
+meter is still supported, but TimeZone is the preferred parameter. If you specify both utcoffset 
+and TimeZone, the value specified with TimeZone takes precedence. If neither parameter is spe-
+cified, the value from the server hosting the Modeling API is used.
+IsEncrypted is optional, and the default setting is false. Set isEncrypted to true if you are using an 
+encrypted password. Refer to "Installation and Configuration Steps" for information.
+Session ID
+Alternatively, you can use a session ID instead of a password. You can obtain a session ID  using the 
+Camstar Security Services, either directly or through the InSite XML Client library. 
+This is an example of the JSON structure for the user credentials if specifying user name and session ID:
+{
+"username": "UserName1",
+"SessionId": {
+1-10 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 21 ===
+Chapter1:RESTAPIOverview
+"value": "038f7bf6-e272-41d2-b90c-6a40ecd449c7",
+"isEncrypted": false
+},
+"TimeZone":"-0500EST"
+}
+Refer to  Support Center to access the REST API Postman collections, including 
+CamstarSecurityServices/AuthenticationService.svc. You can create a POST request (specifying your 
+domain name, user name, and password) to obtain and specify the session ID.
+This image shows an example of the information received from CamstarSecurityServices including session 
+ID. 
+You can enter the session ID in the credentials created for the authentication token instead of using a 
+password.
+Making the User Credentials Structure Base64-Encoded and Setting it as the 
+Authorization Header in the HTTP Request
+Follow these steps to make the user credentials structure base64-encoded and set it as the authorization 
+header in the HTTP request:
+1. Make the user credentials structure base64-encoded using an open source converter such as the 
+following:
+https://codebeautify.org/json-to-base64-converter
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-11
+
+=== PDF PAGE 22 ===
+Chapter1:RESTAPIOverview
+This image shows an example of the conversion of JSON  to base64 format.
+Note: The base64 string shown in this example is the encoded version for the sample user 
+credentials structure. You need to create your own base64 string for your credentials. 
+2. Set the base64 output as the Authorization header in the HTTP request, prefixing it with "Bearer". 
+You can complete this step using the Postman app, for example:
+a. Open the Postman app.
+b. Create a new collection.
+c. Select Bearer Token in the Type list.
+d. Insert the base64 output as the Token.
+This image shows an example of setting the Bearer token in Postman.
+Note: The token shown in the image is an example. You must insert the base64 string for 
+your credentials.
+1-12 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 23 ===
+Chapter1:RESTAPIOverview
+Note: Selecting to inherit authorization from the parent enables requests inside the collection 
+to use the same authorization that you have specified at the collection-level. You can 
+set authorization at the request-level if needed.
+Authenticating with SSO SAML using Azure AD in Conjunction with REST API
+Using SSO authentication, you can securely authenticate and access multiple Siemens on-premise or 
+cloud-based applications by logging into any of the applications. The single sign-on approach provides a 
+single identity and access management solution across the full ecosystem of Siemens applications and 
+services. You can authenticate via the SAML adapter using an option provided by the Azure Active 
+Directory (AD) application.
+How to Authenticate with SSO SAML using Azure AD in Conjunction with REST API
+Follow these steps to authenticate with SSO SAML using Azure AD in conjunction with REST API:
+1. Ensure that  SSO SAML is configured by following the directions in the "White Paper - SSO: 
+Configuring the SAML Adapter for using Azure AD" on Support Center.
+2. Update SessionExpireTime values:
+a. Navigate to  C:\Program Files (x86)\Camstar\Camstar Portal and set SessionExpireTime = 20 
+in the web.config file.
+b. Navigate to to C:\Program Files (x86)\Camstar\SSO\IDPAgent and set SessionExpireTime = 
+20 in the appsettings.json file.
+c. Run IISReset.
+3. Capture the login cookie:
+a. Open Chrome Developer Tools >  Network tab and enable Preserve log.
+or
+Open Edge Developer Tools >  Network tab and enable Preserve log
+b. Click Use Single Sign On (SSO) and log in.
+c. Find the request to 
+"https://{server}/CamstarPortal/Default.aspx?mode=classic&theme=Horizon".
+d. Collect the login cookie as shown in the bottom right corner of this image.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-13
+
+=== PDF PAGE 24 ===
+Chapter1:RESTAPIOverview
+4. Add cookies in Postman (or another HTTP client): 
+a. Add cookie samlToken with the value from the previous step.
+b. Add cookie userDetails with base64-encoded email address of the logged-in employee.
+5. Add your TimeZone in the Bearer token (base64-encoded).
+Refer to"Username, Password, TimeZone, and Encryption" for information.
+6. Make the REST API call.
+1-14 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 25 ===
+Chapter1:RESTAPIOverview
+Services Overview
+REST API services  expose the selected Designer services via a virtual directory in order to allow various 
+clients on the network to communicate with the Application Server and execute transactions and retrieve 
+data. Refer to the Opcenter Execution Medical Device and Diagnostics Designer User Guide or the 
+Opcenter Execution Core Designer User Guide for information on viewing services.
+How to Locate the Services in Designer
+Follow these steps to locate the services in Designer:
+1. Open Designer.
+2. Log on using the following valid values:
+• User name
+• Password
+• Metadata database name
+• Site Information database name
+The Designer application opens.
+3. Click CDOs. A list of CDOs and tabs containing additional information appears.
+4. Enter the first few characters of the CDO name in the filter field above the selection tree. A list of 
+objects containing the characters displays.
+5. Locate and select the CDO you want from the list. The application expands the selection tree, 
+highlights the selected CDO, and displays the related CDO Definition window.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-15
+
+=== PDF PAGE 26 ===
+Chapter1:RESTAPIOverview
+Base URL for API Services
+When you issue requests to the APIs, use this base URL format:
+https://< servername> /< service> /api
+In this URL, servername refers to the name or IP address of the Application Server.
+Service refers to one of the API services:
+• Modeling
+• Shopfloor
+• Query
+• Labels
+Each URL you send is considered a request while the data returned to you is called a response. A success 
+message appears if the Application Server successfully returns data requested by the call. An error 
+message appears if the request fails and data is not returned. For example, the status message 200 OK in 
+the Postman app indicates success. The status message 400 Bad Request in Postman indicates an error is 
+preventing the Application Server from returning the data. Typical causes of this error include referencing 
+field names that do not exist, typographical errors, or if the Content-Type header is either not present or is 
+not set to application/json.
+ 
+1-16 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 27 ===
+Chapter1:RESTAPIOverview
+JSON Payloads
+When sending requests using REST API, the body must be in valid JSON format.
+Example:
+{
+"Name": "BOM001",
+"Status": 1,
+"Revision": "1",
+"Description": "Sample",
+"MaterialList": [
+{
+"QtyRequired": 3.0,
+"IssueControl": 3,
+"Product": {
+"Name": "Component_1",
+"Revision": "1"
+},
+"UOM": {
+"Name": "EA"
+}
+}
+]
+}
+Note: When specifying a file path in the JSON payload, use two backslashes to separate folders; for 
+example:
+"FilePath": "C:\\ProgramData\\Camstar\\Camstar Portal\\CamstarUploads"
+Scalar String Fields
+Scalar string fields are simple JSON properties such as Name, Revision and Description. These properties 
+and their values are enclosed within quotation marks:
+{
+"Name": "BOM001",
+"Status": 1,
+"Revision": "1",
+"Description": "Sample",
+.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-17
+
+=== PDF PAGE 28 ===
+Chapter1:RESTAPIOverview
+.
+.
+}
+JSON dates use ISO 8601 format to encode date fields as string. To represent date fields in standard 
+format, you can use:
+• Date: Represented as YYYY-MM-DD, where YYYY stands for the year, MM for the month, and DD 
+for the day:
+"PlannedDate": "2023-01-20"
+• Date and Time: Represented as YYYY-MM-DDTHH:mm:ss.sss, where T serves as the delimiter 
+between date and time, HH:mm:ss.ss.sss represents hours, minutes, seconds, and milliseconds:
+"PlannedDate": "2023-01-20T01:01:01.001"
+"PlannedDate": "2023-01-20T01:01:01"
+• Time Zone Offset: The Edm.DateTimeOffset type represented as ±HH:mm or Z are also 
+supported. However, all time zone offsets provided in the payload are ignored. TimeZone  can 
+only be configured using the bearer token:
+"PlannedDate": "2023-01-20T00:00:00Z"
+"PlannedDate": "2023-01-20T00:00:00-05:00"
+Note: In the examples above, REST API sends the raw "2023-01-20T00:00:00" date without adjusting 
+according to the shown time zones "Z" and "-05:00."
+Note: Date/time offsets in REST API transactions use the  TimeZone value configured in the bearer 
+token needed to authenticate to the Application Server. Refer to "Authentication" for inform-
+ation.
+Scalar Number Fields
+Scalar number fields are simple JSON properties such as Status, QtyRequired, and IssueControl. The values 
+for these properties are not enclosed in quotation marks:
+{
+"Name": "BOM001",
+"Status": 1,
+"Revision": "1",
+"Description": "Sample",
+"MaterialList": [
+{
+"QtyRequired": 3.0,
+"IssueControl": 3,
+"Product": {
+"Name": "Component_1",
+"Revision": "1"
+1-18 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 29 ===
+Chapter1:RESTAPIOverview
+},
+"UOM": {
+"Name": "EA"
+}
+}
+]
+}
+Scalar Boolean Fields
+Scalar Boolean fields are  simple JSON properties such as useRoR. The value for this property is not enclosed 
+in quotation marks:
+{
+"Name": "BOM006",
+"Status": 1,
+"Revision": "1",
+"Description": "Sample",
+"MaterialList": [
+{
+"QtyRequired": 3.0,
+"IssueControl": 3,
+"Product": {
+"Name": "Component_1",
+"Revision":"1",
+"useRoR": true
+},
+"UOM": {
+"Name": "EA"
+}
+}
+]
+}
+NDO Fields
+NDO fields such as UOM are complex properties with a Name sub-property:
+{
+"Name": "BOM001",
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-19
+
+=== PDF PAGE 30 ===
+Chapter1:RESTAPIOverview
+"Status": 1,
+"Revision": "1",
+"Description": "Sample",
+"MaterialList": [
+{
+"QtyRequired": 3.0,
+"IssueControl": 3,
+"Product": {
+"Name": "Component_1",
+"Revision": "1"
+},
+"UOM": {
+"Name": "EA"
+}
+}
+]
+}
+RDO Fields
+RDO fields such as Product are complex properties with a Name, Revision, and useRoR sub-properties:
+{
+"Name": "BOM006",
+"Status": 1,
+"Revision": "1",
+"Description": "Sample",
+"MaterialList": [
+{
+"QtyRequired": 3.0,
+"IssueControl": 3,
+"Product": {
+"Name": "Component_1",
+"Revision":"1",
+"useRoR": true
+},
+"UOM": {
+"Name": "EA"
+1-20 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 31 ===
+Chapter1:RESTAPIOverview
+}
+}
+]
+}
+Lists
+Enclose lists such as Locations within brackets and enclose each list item within  braces. Separate each list 
+item with a comma:
+{
+"Name": "Acme Factory 001",
+"Description": "Acme's Flagship Factory",
+"Enterprise":     "Acme",
+"Locations": [
+ 
+{
+"Name": "Receiving",
+"Description": "",
+"Status": 1
+},
+{
+"Name": "FG Inventory",
+"Description": "Finished Goods Inventory",
+"Status": 1
+}
+ ]
+}
+Reference Objects
+In the API, some object properties are represented as reference types (Ref) instead of their actual types 
+specified in Designer. These reference objects contain only a minimal set of properties such as the 
+following:
+• InstanceId
+• Name
+• Revision (if applicable)
+You can specify all reference objects in the JSON  payload using the @odata.type and CDOTypeName 
+properties as shown in this example:
+"owner": {
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-21
+
+=== PDF PAGE 32 ===
+Chapter1:RESTAPIOverview
+"@odata.type": "#shopfloor.NamedObjectRef",
+"cdoTypeName": "Owner",
+"name": "Owner1"
+}
+You can use the @odata.type to provide the full type name of the referenced object in compliance with 
+OData metadata standards. Refer to "@odata.type" for information on how to correctly specify the 
+@odata.type.
+The CDOTypeName property provides additional context by indicating the specific business type of the 
+referenced object, helping the system correctly interpret and process the reference.
+Using the CDOTypeName Property in Reference Objects
+The CDOTypeName property is present in all objects inherited from BaseObjectRef, including the 
+following:
+• ContainerRef
+• NamedObjectRef
+• NamedSubentityRef
+• RevisionedObjectRef
+• SubentityRef
+In cases where business logic requires an explicit type declaration, you must include CDOTypeName in the 
+request. This ensures that the server correctly interprets the object type and applies the appropriate logic. 
+In all other cases, CDOTypeName is an optional property.
+How to Determine the Correct CDOTypeName using OData Metadata
+All reference objects contain an OriginalType attribute in the OData metadata schema, which indicates the 
+original type specified in Designer. This attribute helps identify the real type of a property and its possible 
+descendants, which can be used as valid values for CDOTypeName.
+You can access OData metadata  using the following URL pattern:
+https://{server}/{apiService}/api/odata/$metadata
+1-22 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 33 ===
+Chapter1:RESTAPIOverview
+This image shows an example of finding the OriginalType information for all RefObjects  in the metadata:
+If the OriginalType in the OData metadata directly corresponds to a specific object type 
+(OriginalType="Owner", OriginalType="MFGOrder" ), it is clear that the reference object is an Owner. An 
+additional type specification in the payload is not necessary.
+However, when the OriginalType is a more generic base type (< Property Name="TrackableObject" 
+Type="shopfloor.BaseObjectRef" p4:OriginalType="BaseObject"/> ), the system does not inherently know 
+the specific type of the referenced object. In such cases, you must include the CDOTypeName field in the 
+payload to define the object's type  explicitly, ensuring correct processing.
+In this example, the TrackableObject property is represented as BaseObjectRef in the API, but its original 
+type in Designer is BaseObject. This means that possible values for CDOTypeName should be selected from 
+the descendants of BaseObject.
+In the JSON payload, the CDOTypeName value should contain the object to run the service for as shown in 
+this example:
+"TrackableObject": {
+"@odata.type": "#shopfloor.NamedObjectRef",
+"CDOTypeName": "ChangePackage",
+"Name": "{{PackageName3}}"
+}
+Note: CDOTypeName is a string field and it is not case-sensitive.
+@odata.type
+The “@odata.type” annotation is used to specify the type of an object in a payload. It helps the server 
+understand the nature of the data being sent.
+Usage
+For Reference Objects (optional): When working with reference objects, @odata.type specifies the 
+reference type—enabling a link to a specific object type.
+Note: Specifying @odata.type for reference objects is not always required. However, in some cases, it 
+may be necessary depending on the OData implementation.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-23
+
+=== PDF PAGE 34 ===
+Chapter1:RESTAPIOverview
+Important:Specifying @odata.type may improve performance because it allows the OData service 
+to directly understand the entity type being processed. This is an important performance 
+consideration.
+Supported Reference Models include the following:
+• BaseObjectRef
+• NamedObjectRef
+• RevisionedObjectRef
+• SubentityRef
+• NamedSubentityRef
+• ContainerRef
+For Specific Property Types: @odata.type is required when working with inherited subtypes. If there are 
+inherited (child) types under a base (parent) property type, you must explicitly specify the @odata.type to 
+convey the exact object type accurately.         
+To specify the correct @odata.type for an object, you can use Swagger or the $metadata endpoint. Refer 
+to "             Using Swagger" for information.
+How to Specify @odata.type Using Swagger
+Each reference object in Swagger's schema has its reference type. This image shows an example of the 
+Spec endpoint schema with various property types in Swagger.
+"ChangeHistoryChanges" is a specific type assigned to the "ChangeHistory" property, when "ContainerRef," 
+"NamedObjectRef," and "RevisionedObjectRef" are the examples of reference object types.
+1-24 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 35 ===
+Chapter1:RESTAPIOverview
+To specify the @odata.type in a JSON payload, use the following syntax:
+{
+"@odata.type": "#namespace.TypeName"
+}
+As namespaces use:
+#modeling.TypeName – for Modeling API
+#shopfloor.TypeName – for Shopfloor API
+#inquiry.TypeName – for Query API
+Example for Modeling API:
+This image shows a JSON payload example of properties with @odata.type, based on the Swagger Spec 
+schema.         
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-25
+
+=== PDF PAGE 36 ===
+Chapter1:RESTAPIOverview
+Example for Shopfloor API:
+This image shows an example of the Start endpoint schema in Swagger.
+This is the same property in JSON payload with @odata.type.
+1-26 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 37 ===
+Chapter1:RESTAPIOverview
+Example for Query API:
+This image shows an example of the ApprovalCycleInquiry endpoint schema in Swagger.
+The same properties in JSON payload include the @odata.type.
+Swagger Limitation
+Swagger has a limitation when exposing inherited subtypes under a base property type. If there are 
+inherited (child) types under a base (parent) property type, the Swagger schema only includes the base 
+type.
+Use Designer or OData metadata to find the exact inherited type for your property. In cases such as these, 
+including the @odata.type annotation for the inherited type is necessary for successful request execution.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-27
+
+=== PDF PAGE 38 ===
+Chapter1:RESTAPIOverview
+Refer to "How to Specify @odata.type Using Metadata" for information on how to determine the 
+appropriate @odata.type for inherited properties.
+How to Specify @odata.type Using Metadata
+The example in this section uses the task types that can be contained in the task list. You should parse 
+each task’s type. The example examines how  the @odata.type for the Transaction task and  its nested 
+property TransactionPage in the Tasks list was determined.
+Follow these steps to identify the @odata.type for Transaction task and its nested properties:
+1. Download https://< servername> /Modeling/api/$metadata.
+2. Search for TaskListEntity.
+This image shows an example of TaskListEntity in the metadata.
+3. Scroll down to the Tasks navigation property within TaskListEntity.
+This image shows an example of the Tasks navigation property with mod-
+eling.TaskItemChanges as the  list type.
+4. Search for modeling.TaskItemChanges throughout the $metadata. 
+1-28 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 39 ===
+Chapter1:RESTAPIOverview
+This image shows an example of the results for each task type.
+5. Send a request to add the appropriate @odata.type for Transaction task and for its nested 
+property TransactionPage in the Tasks list.
+Also, refer to the Opcenter Execution Core Using Swagger to Create REST API Calls white paper 
+for information on retrieving the structure of the data model using OData metadata if you cannot 
+load the REST API schema in Swagger.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-29
+
+=== PDF PAGE 40 ===
+Chapter1:RESTAPIOverview
+Specifying Selection Value, Perform Event,  Advanced 
+Perform Event, and Upload or Download Requests
+APIs use requests and responses. When an API requests information, it receives a response. The endpoint 
+specifies the Application Sever transaction  for the service. Selection values, PerformEvent, and 
+AdvancedPerformEvent can be used in endpoints for Modeling, Shopfloor, and Query APIs. These types of 
+requests use a specific structure.
+Important:Beginning with Release 2510, the primary method for requesting selection values is by 
+using the RequestSelectionValues endpoint. Refer to "Requesting Selection Values to 
+Return Information in the Selection Value Node" for information. The GetListValuesFor 
+endpoint discussed below is still supported, but is no longer the preferred method.
+Using Selection of Values for a Field or Field Expression
+Selection value requests enable you to see a list of values available for a field. 
+Refer to "Requesting Selection Values for Multiple Fields" if you want to request multiple fields or field 
+expressions in one call. 
+Note: You can use Designer to check if Selection Values are enabled for the field.
+If you want to request a selection of values, perform a PUT using the appropriate URL with the 
+GetListValuesFor(FieldName) endpoint and add the payload in JSON format. GetListValuesFor is not case- 
+sensitive. FieldName is an actual field’s name without quotation marks. Instead of specifying FieldName, 
+you can specify FieldExpression separated by a decimal without spaces.
+Note: You cannot send a PUT request with a payload of "none." If your logic does not require a pay-
+load, add an empty JSON object '{}'.
+Note: In the Modeling API, you should use CRUD modeling URL for 'GetListValuesFor()':
+/modeling/api/< plural form of CDOname> /GetListValuesFor(FieldName).
+Example: 
+This example returns a list of Operations that could be assigned to a Spec:
+PUT request to https://<servername>/Modeling/API/Specs/GetListValuesFor(Operation)
+JSON Payload:
+{}
+The status message "200 OK" and the list appear if the request is successful.
+Example: 
+This is an example of getting values for field expression:
+PUT request to https://<servername>/Shopfloor/API/Export/GetListValuesFor
+(Details.ObjectTypeName)
+1-30 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 41 ===
+Chapter1:RESTAPIOverview
+JSON Payload:
+{
+"Details": [
+{}
+]
+}
+The status message "200 OK" and the list appear if the request is successful.
+Example:
+You may have a need to get selection values for field expressions in which the child field belongs to a 
+different CDO type than the parent field. In this case, you can specify the URL with the field expression.  In 
+the JSON payload, you can create an object of the type for which you want to request a value.
+For example, you want to get the list of available Transaction Pages that could be assigned only to the Task 
+with the TransactionItemChanges type in the Tasks list. In this example, the Tasks list items have a parent  
+TaskItemChanges type. Therefore, to get a list of values that could be selected as Transaction Page via 
+REST API, you can enter a PUT request such as this:
+PUT request to https://<servername>/Modeling/API/TaskLists/GetListValuesFor
+(Tasks.TransactionPage)
+JSON Payload:
+{
+"Tasks": [
+{
+"@odata.type": "#modeling.TransactionItemChanges"
+}
+]
+}
+Note: Only one inherited subtype can be added in the payload.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-31
+
+=== PDF PAGE 42 ===
+Chapter1:RESTAPIOverview
+This image shows an example of the body of the response.
+Example: 
+There are paging options available for Selection Values called  startRow and rowSetSize. In REST API 
+requests, you can use  parameters called $skip and $top.
+For example, if you need to retrieve a list of 20  BillTypes, starting from the 41st value, you can enter a PUT 
+request such as this:
+PUT request to https://<servername>/Modeling/API/BOMs/GetListValuesFor
+(BillType)?$skip=40&$top=20
+JSON Payload:
+{}
+The status message "200 OK" and the list appear if the request is successful. The XML request contains 
+these rows:
+<__startRow><![CDATA[41]]></__startRow>
+<__rowSetSize><![CDATA[20]]></__rowSetSize>
+Filtering Selection Values Using the NameFilter Query Parameter
+You can filter selection values using REST API by specifying the NameFilter as a query parameter in the URL 
+with the API.
+Examples:
+Specifying a request with a parameter such as the following returns only the field with the specified 
+pattern:
+/GetListValuesFor(Field)?NameFilter=FilterPattern 
+1-32 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 43 ===
+Chapter1:RESTAPIOverview
+You can specify a percent sign (%) wildcard with the NameFilter parameter to search for characters within 
+the field. However, because the percent sign ( % ) serves as the indicator for URL-encoded characters, you 
+must pass a percent-encoded representation of it (%25).
+This example returns all existing fields with a Name that starts with the "A" letter.
+/GetListValuesFor(Field)?NameFilter=A%25 
+This example returns all existing fields with a Name that ends in the "A" letter.
+/GetListValuesFor(Field)?NameFilter=%25A
+This example returns all existing fields with a Name that contains an "A" letter anywhere in the Name.
+/GetListValuesFor(Field)?NameFilter=%25A%25 
+Note: Encode in URL-encoded format any names that contain special characters.
+This image shows an example of getting all levels for which Name starts with  the "L" letter available to 
+start a container.
+Note: Filtering on multiple fields or field expressions is not supported.
+Requesting Selection Values for Multiple Fields
+You can request multiple fields or field expressions in one call. To make this type of request,  use the same 
+request construction and rules for a single field—perform a PUT using the appropriate URL with the 
+GetListValuesFor(FieldName) endpoint and add the payload in JSON format. However, to request multiple 
+fields, you must  separate each field with a comma (without a space):
+/GetListValuesFor(Field1,Field2,Field3)
+Example:
+This is an example of getting values for multiple fields:
+PUT request to https://<servername>/Modeling/api/MfGOrders/
+GetListValuesFor(BillOfProcess,Product)
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-33
+
+=== PDF PAGE 44 ===
+Chapter1:RESTAPIOverview
+JSON Payload:
+{}
+The status message "200 OK" and the "ObjectChanges.BillOfProcess," "ObjectChanges.Product" lists appear 
+if the request is successful.
+In Modeling, responses always contain "ObjectChanges." before your field name or field expression as 
+shown in this image.
+Example:
+This is an example of getting values for multiple field expressions and the Factory field under the Start 
+CDO:         
+PUT request to https://<servername>/Shopfloor/api/Start/
+GetListValuesFor(Details.Owner,CurrentStatusDetails.Workflow,Factory)
+JSON Payload:
+{}
+1-34 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 45 ===
+Chapter1:RESTAPIOverview
+The status message "200 OK" and the "Details.Owner," "CurrentStatusDetails.Workflow,"  "Factory" lists 
+appear if the request is successful  as shown in this image.
+Note: You cannot use multiple selection values to get fields under different inherited subtypes. If you 
+specified a child CDO type such as TransactionItemChanges (see "Example:") in the payload, 
+you will receive an error trying to get fields that belonged to "ComputationItemChanges."
+Note: The $skip and $top parameters cannot be specified for multiple selection values.
+Requesting Selection Values to Return Information in the Selection Value Node
+You can use the RequestSelectionValues endpoint to return information in the selection value node. It 
+supports the same functionality as other selection value requests, but also provides an extended response 
+structure.
+Endpoint:
+. . ./api/<CDOname>/RequestSelectionValues
+Request Format:
+URLs:
+.../Modeling/api/<plural form of CDOname>/RequestSelectionValues
+.../Shopfloor/api/<CDOname>/RequestSelectionValues
+.../Query/api/<CDOname>/RequestSelectionValues
+Method: POST
+Headers:
+Content-Type: application/json
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-35
+
+=== PDF PAGE 46 ===
+Chapter1:RESTAPIOverview
+Authorization: Bearer <token>
+Body:
+The request body is an optional JSON object providing contextual data that reflects relevant parts 
+of the model, enabling the backend logic to accurately process the selection values expression.
+Query Parameters:
+selectionValuesExpression (required, string):
+Custom parameter to specify the field or field expression. The field expression should be sep-
+arated by a period (.) without spaces. To request multiple values in one request, separate each 
+value with a comma (,)—without spaces.
+$top:
+Parameter to set the rowSetSize value.
+$skip:
+Parameter to set the startRow value.
+NameFilter:
+Custom parameter to filter the record set based on a specified value.
+Response:
+Status Code: 200 OK
+Headers:
+Content-Type: application/json
+Body:
+The response body is a JSON object containing data determined by the selection values logic, 
+with these fields:
+• RecordCount: The total count of all available records for the field, regardless of 
+pagination.
+• RowCount: The number of records returned in the current SelectionValuesEx array, 
+reflecting the applied $top and/or $skip parameters.
+• SelectionValuesEx: An array containing the actual selection values based on the logic.
+1-36 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 47 ===
+Chapter1:RESTAPIOverview
+Example:
+This image shows an example of getting a list of available ERPBOMs for MFGOrder.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-37
+
+=== PDF PAGE 48 ===
+Chapter1:RESTAPIOverview
+Example:
+These images show an example of getting selection values expression for multiple values of  Start.
+1-38 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 49 ===
+Chapter1:RESTAPIOverview
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-39
+
+=== PDF PAGE 50 ===
+Chapter1:RESTAPIOverview
+1-40 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 51 ===
+Chapter1:RESTAPIOverview
+Example:
+This image shows an example of returning the default value and a list of available Workstation values 
+for ExecuteTask.
+Using the PerformEvent Endpoint
+PerformEvent requests are used to execute a custom event for any CDO. This type of request is supported 
+in Modeling, Shopfloor and Query APIs. This section contains content for each API.
+A custom event refers to any event assigned to a CDO. You can locate the list of assigned events in the 
+Events table of a specific CDO using Designer, or you can use Swagger. Refer to the  Opcenter Execution 
+Core Using Swagger to Create REST API Calls white paper.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-41
+
+=== PDF PAGE 52 ===
+Chapter1:RESTAPIOverview
+This image shows an example of an XML request with the ResolveParametricData event assigned to the 
+CompleteMaintenance CDO:
+Modeling API
+If you want to send a custom event in the Modeling API, use a POST method in the PerformEvent endpoint:
+https://{{server}}/modeling/api/<CDOname>Maint/PerformEvent?
+$select=requestedData&$expand=requestedData
+Note: In Modeling API PerformEvent requests, you can only send to the MaintObject CDOs.
+To specify the ObjectToChange, use the following URL format:
+https://{{server}}/modeling/api/<CDOname>Maint/
+<ObjectToChangeName>/PerformEvent?$select=requestedData&$expand=requestedData
+Note: You can use InstanceId enclosed in single quotation marks (')  in the URL above instead of 
+ObjectToChangeName.
+If ObjectToChange is a revisioned object, specify the revision or useROR parameter in the URL:
+https://{{server}}/modeling/api/<CDOname>Maint/<ObjectToChangeName>/
+PerformEvent?useror=true&$select=requestedData&$expand=requestedData
+Refer to "Query Parameters" for information on using "revision"and "useRor" parameters.
+The JSON payload has the following structure in Modeling API:
+{
+"data": {},
+"event": {
+"eventName": "string",
+"parameters": [
+{
+1-42 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 53 ===
+Chapter1:RESTAPIOverview
+"name": "string",
+"value": "string"
+}
+]
+}
+}
+All parameters are optional. You can include only the particular parameters from this structure based on 
+the logic and requirements of the event.
+Example:
+This is an example of executing SaveAsRev event for BOM1:
+POST request to https://<servername>/Modeling/api/BOMMaint/BOM1/PerformEvent
+?revision=1&$select=CompletionMsg
+JSON Payload:
+{
+"Data": {
+"ObjectChanges": {
+"Name": "BOM1",
+"Revision": "Copy of Rev 1",
+"IsRevOfRcd": false
+}
+},
+"Event": {
+"EventName": "SaveAsRev"
+}
+}
+The status message "200 OK" and the "CompletionMsg": "New BOM revision \"BOM1 (Copy of Rev 1)\" 
+added on..." appears.
+Shopfloor API
+If you want to send a custom event in the Shopfloor API, use a POST method in the PerformEvent 
+endpoint:
+https://{{server}}/shopfloor/api/<CDOname>/PerformEvent?
+$select=requestedData&$expand=requestedData
+The JSON payload has this structure for the Shopfloor API:
+{
+"inputData": {},
+"event": {
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-43
+
+=== PDF PAGE 54 ===
+Chapter1:RESTAPIOverview
+"eventName": "string",
+"parameters": [
+{
+"name": "string",
+"value": "string"
+}
+]
+}
+}
+All parameters are optional. You may include only the particular parameters from this structure based on 
+the logic and requirements of the event.
+Example:
+This is an example of executing a LoadESigDetails event for the MoveIn CDO:
+POST request to https://<servername>/Shopfloor/api/MoveIn/
+PerformEvent?$expand=ESigDetails,ESigProcessTimerDetails,ESigRequirement
+JSON Payload:
+{
+"InputData": {
+"Container": {
+"Name": "Container1"
+}
+},
+"Event": {
+"EventName": "LoadESigDetails",
+"Parameters": [
+{
+"Name": "ESigMaintAction",
+"Value": "0"
+}
+]
+}
+}
+The status message "200 OK" and the value list appear if the request is successful.
+The logic of some Events requires an < __execute />  node. The < __execute />  node is part of the service 
+request and is typically placed after the input data, but before the request data.
+1-44 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 55 ===
+Chapter1:RESTAPIOverview
+This image shows an example of an XML request with the < __execute />  node.
+In the Shopfloor API, use an "execute=true" parameter in the URL with PerformEvent to add the execution 
+node. The execute parameter is optional and is set to false by default.
+This image shows an example of using the execute parameter with PerformEvent.
+Query API
+The Perform Events structure used in Query APIs is different from that used with Modeling and Shopfloor 
+APIs. To perform the event, select a POST method and enter "eventName=ActualEventName" after a 
+question mark in the endpoint.  Payload is in JSON format and depends only on the Inquiry CDO. There is 
+no strong structure in JSON payload. If your transaction logic does not require payload, add curly braces in 
+JSON format.
+Note: The parameter eventName is not case-sensitive, but it should be written as one word. After the 
+eventName parameter, specify the equal sign and then the actual event name as in Designer 
+without quotation marks. There are no spaces between eventName and the equal sign and the 
+ActualEventName.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-45
+
+=== PDF PAGE 56 ===
+Chapter1:RESTAPIOverview
+Using the AdvancedPerformEvent Endpoint
+The AdvancedPerformEvent endpoint is a custom REST API endpoint available within the Modeling and 
+Shopfloor namespaces. It offers powerful capabilities for orchestrating sequential custom events and 
+managing staged data inputs within a single API call.
+While this endpoint can be used for a wide range of scenarios, it is particularly suited for use cases 
+involving multiple inputs, a sequence of events, or staged data input in which the output of one operation 
+feeds into the next.
+Although the endpoint's name suggests event performance, none of the JSON properties within the 
+request body are strictly required. This means the endpoint offers significant flexibility:
+• It can be used to simply trigger an Execute call without performing any specific events (that is, 
+without firstEvent or secondEvent objects).
+• If you omit the Execute path segment  from the URL, the endpoint can be used to retrieve data 
+from a CDO based on the provided beforeEventData or afterEventData—without triggering any 
+events or operations.
+JSON for Interaction, XML for Data Model
+You primarily interact with this endpoint using JSON payloads. However, it is important to understand that 
+the API's underlying data model and server-side processing are based on XML structures. The XML 
+examples provided in this section illustrate the definitive internal data model, providing deep insight into:
+• The precise data elements, their relationships, and structural constraints.
+• How your JSON payload is interpreted and translated for server-side processing.
+• The full capabilities and limitations of the API.
+1-46 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 57 ===
+Chapter1:RESTAPIOverview
+This image shows an example of the internal XML request structure for a mom_Sync event. This XML 
+represents the definitive data model that your JSON payload is translated into for server-side processing.
+Understanding the Internal XML Structure
+A description of the internal XML structure follows:
+• The root element < SERVICE_serviceType="ProductMaint">  defines the overall service context. The 
+_serviceType attribute corresponds to the _CDOname in the API URL (for example, ProductMaint, 
+DocumentMaint).
+• < inputData>  acts as a container for all input parameters that are not specific to a single event. 
+This is where general data such as CIOAdapterName, CIOMessageId, and data from your JSON 
+beforeEventData or afterEventData (if not event-specific) are placed.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-47
+
+=== PDF PAGE 58 ===
+Chapter1:RESTAPIOverview
+• < perform>  blocks represent individual event executions. The order of these blocks dictates the 
+sequence of operations. Each < perform>  block contains an < eventName>  and its associated 
+parameters.
+The AdvancedPerformEvent is supported in the Modeling and Shopfloor APIs. To send an 
+AdvancedPerformEvent, use the following.
+Endpoints:
+1. Standard .../api/<CDOname>/AdvancedPerformEvent
+2. Execute .../api/<CDOname>/Execute/AdvancedPerformEvent
+Note: The < _execute />  node is an internal XML construct. When using the JSON API, specifying the 
+Execute path segment in the URL (for example, .../Execute/AdvancedPerformEvent) implicitly 
+triggers the generation of this node in the internal XML request, signaling that the enclosed 
+operations should be performed.
+Request Format:
+URLs:
+.../Modeling/api/<CDOname>Maint/Execute/AdvancedPerformEvent
+.../Modeling/api/<CDOname>Maint/AdvancedPerformEvent
+.../Shopfloor/api/<CDOname>/Execute/AdvancedPerformEvent
+.../Shopfloor/api/<CDOname>/AdvancedPerformEvent
+Method: POST
+Headers:
+Content-Type: application/json
+Authorization: Bearer <token>
+Body:
+{
+"beforeEventData": {
+// Optional: Data or object context required before the firstEvent executes.
+// This data is translated into the < inputData>  section of the internal XML and is always placed 
+before the first < perform>  node.
+// Example: { "objectToChange": { "name": "...", "revision": "..." } }
+},
+"firstEvent": {
+// Optional: The first event to execute. If omitted, no first event will be performed.
+"eventName": "string", // Required if firstEvent object is present: The name of the first event (e.g., 
+"Sync," "Load").
+"parameters": [ // Optional: Array of parameters specific to the firstEvent.
+{ "name": "string", "value": "any" }
+// These map to child elements within the < perform>  node.
+1-48 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 59 ===
+Chapter1:RESTAPIOverview
+]
+// This entire firstEvent object corresponds to the first < perform>  node in the XML.
+// Its data is always processed as the first event.
+},
+"afterEventData": {
+// Optional: Data or object context required for the secondEvent, potentially including outputs or 
+state changes from the firstEvent.
+// This data is translated into the < inputData>  section of the internal XML.
+// Its position in the XML relative to 'secondEvent' matches its order in the JSON.
+},
+"secondEvent": {
+// Optional: The second event to execute. If omitted, no second event will be performed.
+"eventName": "string", // Required if secondEvent object is present: The name of the second event 
+(e.g., "DownloadFile").
+"parameters": [ // Optional: Array of parameters specific to the secondEvent.
+{ "name": "string", "value": "any" } // These map to child elements within the < perform>  node.
+]
+// This entire secondEvent object corresponds to the second < perform>  node in the XML.
+// Its position in the XML relative to 'afterEventData' matches its order in the JSON.
+}
+}
+JSON to Internal XML Mapping Rules and Processing Order
+Information on mapping rules and processing order follows:
+1. Fixed XML Generation Order for Initial Data and First Event.
+If present in the JSON payload, the beforeEventData and the data from the firstEvent object are 
+system-defined to be translated into the XML request as the initial input elements, appearing 
+before the first < perform>  block. This ensures a consistent starting state for the initial operation.
+2. Flexible XML Generation Order for Subsequent Data and Second Event.
+Conversely, if present, the afterEventData and secondEvent JSON objects are translated into the 
+XML in the exact order they are specified within your JSON payload. This enables you to  control 
+the sequence of staged data inputs and subsequent event executions precisely.
+Query Parameters: Used to specify the structure and content of the API's JSON response, which is mapped 
+from the internal XML's < __requestData>  section. Their use may be required or optional depending on the 
+specific event logic and desired output.
+$select   to specify which fields or properties of the response object should be included in the API's JSON 
+response.
+$expand to include related entities or nested objects in the response.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-49
+
+=== PDF PAGE 60 ===
+Chapter1:RESTAPIOverview
+Response upon successful execution, the API will return:
+Status Code: 200 OK
+Headers:
+Content-Type: application/json
+Body:
+The response body format depends on the logic of event.
+Error Handling:
+In case of an error, the API will return an appropriate HTTP status code (for example, 400 Bad Request, 
+500 Internal Server Error). The JSON response body will contain details about the error, translated 
+from the internal XML error structure.
+The following considerations apply specifically when using the AdvancedPerformEvent endpoint within 
+the Modeling namespace:
+• Target CDO Types: This endpoint is specifically designed for operations on CDOs that are of 
+ObjectMaint type. Examples include ProductMaint, DocumentMaint, etc. The _CDOname in the 
+URL for example, ProductMaint in .../ProductMaint/Execute/AdvancedPerformEvent) specifies the 
+target CDO type.
+• ObjectToChange Placement: The ObjectToChange property, which identifies the specific object 
+being acted upon (for example, a part, a document), must not be specified in the URL. Instead, it 
+must be included within your JSON request body—specifically within either the beforeEventData 
+or afterEventData section. This depends on which event (first or second) requires it as input. This 
+ensures proper translation into the internal XML structure.
+Example 1:
+This is an example of executing the mom_Sync event for Product. This example demonstrates how a JSON 
+payload is used to execute the mom_Sync event for ProductMaint. The structure of this JSON payload, 
+when processed by the API, generates the internal XML request shown in the "Using the 
+AdvancedPerformEvent Endpoint" introduction on page 1-47.
+POST request to https://<servename>/Modeling/api/ProductMaint/Execute/
+AdvancedPerformEvent?$select=CompletionMsg,TxnDateGMT,CIOOutboundAsResponse
+JSON Payload:
+{
+"beforeEventData": {
+"cioAdapterName": "momapiadapter",
+"cioTagData": "...",
+"cioMessageId": "a1111aa-11ab-111a-ab1c-b12121a1111a",
+"syncName": "Part100",
+"syncRevision": "A",
+"objectChanges": {
+"name": "Part100",
+"revision": "A"
+1-50 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 61 ===
+Chapter1:RESTAPIOverview
+},
+"momBasePlmUid": "111104141410bbaa123456789",
+"momPlmUid": "111104141410bbaa1234567891",
+"cioRequestDataExps": [
+"CompletionMsg",
+"TxnDateGMT"
+],
+"cioIsSync": true
+},
+"firstEvent": {
+"eventName": "Sync"
+},
+"afterEventData": {
+"ObjectChanges": {
+"name": "Part100",
+"revision": "A",
+"description": "Product",
+"productType": {
+"name": "Component"
+},
+"tcReleaseStatus": "TC_Released",
+"momPlmUid": "111104141410bbaa1234567891"
+}
+}
+}
+The status message "200 OK" and the success message "CompletionMsg" appear if the request is 
+successful.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-51
+
+=== PDF PAGE 62 ===
+Chapter1:RESTAPIOverview
+Example 2 - for AdvancedPerformEvent with two events:
+This example illustrates sending a transaction via the REST API to perform two sequential events: Load and 
+DownloadFile, for DocumentMaint. Note that the afterEventData and secondEvent are processed in the 
+exact order they are specified in the JSON payload, demonstrating the flexible ordering for subsequent 
+data and events.
+Getting Data for Inherited Subtypes
+You can specify requested data in the URL using $select and $expand queries.
+A parent object with its own specific type could have inherited properties with other types. If you want to 
+get an inherited property with a specific type, you must request it by specific type:
+$expand(or $select)=Namespace.SpecificType/ProperyName
+Where:
+• Namespace – modeling, shopfloor, inquiry
+• SpecificType – the specific type of requested CDO
+•  PropertyName – requested field name that belongs to  the specific type
+Example:
+TaskList CDO has a Tasks list with TaskItemChanges type, but the list items of the Tasks list can be of three 
+different subtypes: TransactionItemChanges, InstructionItemChanges, ComputationItemChanges.
+1-52 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 63 ===
+Chapter1:RESTAPIOverview
+This example gets the TransactionPage value of the TransactionItemChanges type:
+GET request to https://<servername>/Modeling/api/TaskLists/
+TheName?useROR=true&$select=Name&$expand=Tasks
+($select=modeling.TransactionItemChanges/TransactionPage)
+The status message “200 OK”  and the TransactionPage value appear if the request is successful.
+Applying the Action Attribute to a Property
+The Action attribute can be applied to a property to indicate a specific operation. The only current 
+supported value is "create," which is used to indicate the creation of a property.
+The Action attribute is represented in XML format as follows:
+<PropertyName __action="create"
+This image shows an example of the XML request with action="create" specified for RemovalDetail.
+The Action attribute is represented as a separate key using the “@< PropertyName> _action” format in 
+JSON. The structure includes both the action key and the property data.
+JSON Payload:
+{
+"@{propertyName}_action": "create",
+"{propertyName}": {
+"prop": "value"
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-53
+
+=== PDF PAGE 64 ===
+Chapter1:RESTAPIOverview
+}
+}
+Example:
+This image shows an example of the request and response body to return a list of Removal Reasons that 
+can be used for Component Remove.
+Note: This functionality is supported in Modeling and Shopfloor API for the following endpoints:
+• …/AdvancedPerformEvent
+• .../GetListValuesFor()
+Note: Refer to "Using the AdvancedPerformEvent Endpoint" and" Using Selection of Values 
+for a Field or Field Expression" for information on using the endpoints  listed above.
+Note: The specific business logic conditions under which the Action attribute is required vary. Spe-
+cifying this parameter is required for the RemovalDetail property assigned to the 
+1-54 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 65 ===
+Chapter1:RESTAPIOverview
+ComponentRemove CDO. Refer to the JSON collections on Support Center in the Downloads 
+section for examples on how to specify the payload for ComponentRemove.
+Applying the List Item Action Attribute to a List Item in Shopfloor
+You can apply the list item Action attribute  to a list item to indicate a specific operation.
+The list item Action attribute is represented as follows in XML format:
+<__listItem __listItmeAction="value">
+Possible values for the list item Action attribute follow:
+• add
+• change
+• delete
+• none
+If you specify listItemAction="none", this attribute will not be applied.
+In JSON, the list item Action attribute is represented as a separate key using the "@listItemAction" format.
+JSON Payload:
+{
+"List": [
+{
+"@listItemAction": "change",
+"@index": 2, //optional
+"{propertyName}": {
+"prop": "value"
+}
+}
+]
+}
+You can also specify the index of a list item by providing a special key "@index".
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-55
+
+=== PDF PAGE 66 ===
+Chapter1:RESTAPIOverview
+Example:
+This image shows an example of the request and response body for the Component Remove transaction.
+In this example,  list item Action attribute is set to "change" for the first list item in the service Details 
+collection.
+1-56 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 67 ===
+Chapter1:RESTAPIOverview
+Using Filter Tags with REST API
+Filter Tags enable you to configure the visibility of instances for employees, based on the assigned Filter 
+Tag Access.
+When assigning filter tags to an employee,  specify the instance IDs of the required filter tags in the 
+filterTags property. You can then set one of the following values in the filterTagAccess property:
+Value Name Description
+3 All Instances Enables the employee to view all 
+instances regardless of the filter tag 
+status.
+2 Tagged and Untagged Enables the employee to view 
+instances with filter tags assigned 
+to them and instances that are not 
+tagged. This is the default setting 
+for new employee objects.
+1 Tagged Only Enables the employee to view only 
+instances associated with the filter 
+tags assigned to them.
+Note: The filterTags property is a string. To assign multiple filter tags to an employee, list the 
+InstanceId of the existing tags, separated by commas.
+This image shows an example  of how to specify three filter tags with "Tagged Only" access for Employee1.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-57
+
+=== PDF PAGE 68 ===
+Chapter1:RESTAPIOverview
+This image shows the Selection Values request to retrieve the list of available Filter Tag Accesses.
+This image shows the XML requests for applied filter tags to an employee.
+To apply filter tags using REST API, you need to specify the query parameters in the request URL. You can 
+use one of two methods for applying filter tags.
+Method 1: Using Both filterTags and filterTagAccess
+Example:
+GET request to https://<servername>/modeling/api/Examples?filterTags=00123,
+00456&filterTagAccess=2
+This request will filter examples based on the tags with IDs "00123" and "00456," using the access level "2" 
+(Tagged and Untagged).
+This method allows filter tags to be applied to all HTTP methods in REST API projects. It is assumed that the 
+data regarding the assigned filter tags for an employee is pre-fetched once during the login stage and then 
+passed using these two parameters. To obtain information about which filter tags are assigned to the 
+employee, you can use a request for this employee or the FilterTagInquiry.
+1-58 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 69 ===
+Chapter1:RESTAPIOverview
+Method 2: Using applyFilterTags
+This boolean parameter determines whether filter tags should be applied to the request.
+Example:
+GET request to https://<servername>/modeling/api/Examples?applyFilterTags=true
+When using applyFilterTags, the system will pre-fetch data from the EmployeeMaint service regarding the 
+filter tags before sending the request. This may increase the response time of the request.
+Note: If none of the filter tag parameters (either filterTags  and filterTagAccess, or applyFilterTags) are 
+not provided, the request ignores any filter tags set for the employee in Modeling.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-59
+
+=== PDF PAGE 70 ===
+Chapter1:RESTAPIOverview
+Using DisableCommit and DebugRequest
+You can run the logic for a transaction, but not commit the transaction by using DisableCommit. If you 
+want to add debugging information to a response, you can use DebugRequest. You must also enable the 
+REST API logs if using DebugRequest.
+Enabling the Logs
+Refer to "Enabling Logs in the Appsettings.json File" for information.
+DisableCommit
+You must add a DisableCommit request header with a value of true if you want to use this feature.
+Example:
+Populate the Headers table with the following:
+| KEY          | VALUE |
+| DisableCommit| true    |
+DebugRequest
+You must add a DebugRequest request header with a value of true if you want to use this feature. 
+Example:
+Populate the Headers table with the following:
+| KEY          | VALUE |
+| DebugRequest             | true    | 
+1-60 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 71 ===
+Chapter1:RESTAPIOverview
+This image shows an example of an XML response log containing DebugRequest.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-61
+
+=== PDF PAGE 72 ===
+Chapter1:RESTAPIOverview
+Using Swagger
+You can use Swagger to get the appropriate schema for creating REST API calls. You have access to 
+Swagger by default when installing REST API.
+Navigate to your browser on the same server where Opcenter Execution Medical Device and Diagnostics or 
+Opcenter Execution Core is installed and enter a URL in this format to access Swagger:
+https://{{server}}/{{projectName}}/swagger/index.html
+The information returned is based on the end point for the following projects:
+• Modeling
+• Shopfloor
+• Query
+You can access each API by  typing the project name. This is an example of the Modeling Swagger URL:
+https://server2202.test.tstl/Modeling/swagger/index.html
+There are two items available for each CDO when you select a definition using Swagger.
+Format Example Use
+< plural form of the CDO name> BOMs CRUD operations information
+< CDO name> Maint BOMMaint Non-CRUD operations information
+Note: CRUD refers to create, read, update, and delete.
+You can find required fields by searching for the word "Required" in the Schema section in Swagger.
+Refer to Support Center for a white paper on using Swagger with the Opcenter Execution Core REST APIs.
+Refer to https://swagger.io/docs/ for Swagger documentation.
+1-62 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 73 ===
+Chapter1:RESTAPIOverview
+Endpoint Considerations
+If you need to understand which endpoint to call when creating a specific customized solution, you can 
+take these steps:
+• Run the transaction via the Portal
+• Capture the XML log file
+• Convert it to JSON
+For example, if you want to create an EProcedure with a Move In task, you need to call the MoveIn 
+endpoint. You cannot simply execute the Move In task (ExecuteTask) from the EProcedure—the MoveIn 
+will not be executed. Running the transaction in the Portal and then converting the XML to JSON will 
+provide information on the endpoint that needs to be called.
+You can also use Swagger or the provided Postman collections on Support Center in the Downloads 
+section for the main release for supported endpoints and schemas.
+Release2510+Rev.1 TechnicalReference:RESTAPI 1-63
+
+=== PDF PAGE 74 ===
+
+
+=== PDF PAGE 75 ===
+Chapter 2: Modeling APIs
+Introduction
+Modeling APIs enable you to issue requests to the Application Server to create, retrieve, update, or delete 
+instance data on demand.
+In this Chapter
+This chapter contains these  topics:
+• Request Methods and URL Formats
+• CRUD Modeling API Overview
+• Modeling API Examples
+• Modeling Transaction Example Information
+• Opcenter Connect MOM Transaction Example Information
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-1
+
+=== PDF PAGE 76 ===
+Chapter2:ModelingAPIs
+Request Methods and URL Formats
+There are two types of URLs you can use for basic requests for the Modeling API:
+• CRUD (Create, Read, Update, and Delete) URL
+• Maint URL (non-CRUD)
+Refer to "CRUD Modeling API Overview" for introductory information on and simple examples of using 
+Modeling APIs with CRUD operations. Refer to "Modeling Transaction Example Information" for detailed 
+examples.
+Maint URL
+Non-CRUD operations can be used to perform events. You can use the Maint URL for PerformEvent and 
+AdvancedPerformEvent. 
+Examples:
+Get all modeling entities:
+GET request to /modeling/api/<plural form of CDOname>/
+Get modeling entity by ID:
+GET request to /modeling/api/<plural form of CDOname>/<instanceID> or 
+/modeling/api/<plural form of CDOname>('instanceID')
+Get modeling entity by name:
+GET request to /modeling/api/<plural form of CDOname>/<name> or /modeling/api/<plural form 
+of CDOname>('name')
+Create modeling entity:
+POST request to /modeling/api/<plural form of CDOname>
+Perform an event on a modeling entity:
+POST request to /modeling/api/<CDOname>Maint/<name>/modeling.PerformEvent
+POST request to /modeling/api/<CDOname>Maint/'<instanceID>'/modeling.PerformEvent
+Perform an advanced event on a modeling entity using the standard format:
+POST request to /modeling/api/<CDOname>Maint/AdvancedPerformEvent
+Perform an advanced event on a modeling entity using the Execute format:
+POST request to /modeling/api/<CDOname>Maint/Execute/AdvancedPerformEvent
+Note: If you specify the optional "Execute," the "< __execute /> " node will be added to the XML 
+request.
+Update modeling entity by ID:
+PUT request to /modeling/api/<plural form of CDOname>/<instanceID> or 
+/modeling/api/<plural form of CDOname>('instanceID')
+2-2 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 77 ===
+Chapter2:ModelingAPIs
+Update modeling entity by name:
+PUT request to /modeling/api/<plural form of CDOname>/<name> or /modeling/api/<plural form 
+of CDOname>('name')
+Create new modeling entity revision:
+PATCH request to /modeling/api/<plural form of CDOname>
+Delete modeling entity by ID:
+DELETE request to /modeling/api/<plural form of CDOname>/<instanceID> or 
+/modeling/api/<plural form of CDOname>('instanceID')
+Delete modeling entity by name:
+DELETE request to /modeling/api/<plural form of CDOname>/<name> or /modeling/api/<plural 
+form of CDOname>('name')
+Delete all modeling entity revisions by ID:
+DELETE request to /modeling/api/<plural form of CDOname>/deleteallrevisions('instanceID')
+Delete all modeling entity revisions by name:
+DELETE request to /modeling/api/<plural form of CDOname>/deleteallrevisions('name')
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-3
+
+=== PDF PAGE 78 ===
+Chapter2:ModelingAPIs
+CRUD Modeling API Overview
+Modeling APIs enable you to issue requests to the Application Server to perform modeling transactions on 
+demand. CRUD represents the essential actions for managing data in the Modeling API: Create, Read, 
+Update, and Delete.
+This table lists the HTTP methods the Modeling APIs support and their typical usage.
+HTTP Method Usage
+POST Add modeling objects.
+GET Retrieve modeling information; for example, the details of a 
+specific spec.
+PUT Update modeling objects.
+PATCH Create a revision of a modeling object.
+DELETE Remove modeling objects.
+Note: You can specify query parameters when using the Modeling API. Refer to "Query Parameters" 
+for information.
+The plural form of CDO names are used in CRUD  operations. This is the process used to construct the name 
+of Modeling CRUD URLs:
+• Take the CDO name, for example: BOMMaint, OrderStatusMaint, FactoryMaint, 
+YourSettingsMaint.
+• Remove Maint from the end.
+• Build the plural form by adding "s," "es," or changing "y" to "ies." For example, BOM becomes 
+BOMs, OrderStatus becomes OrderStatuses, Factory becomes Factories, YourSettings becomes 
+YourSettingses.
+• Use:
+• /modeling/api/BOMs
+• /modelimg/api/OrderStatuses
+• /modeling/api/Factories
+• /modeling/api/YourSettingses
+Detailed descriptions and examples for each HTTP method follow.
+POST
+The POST method is used to create a new object in the Modeling API. When you make a POST request, it 
+sends data to the Application Server to create a new object. 
+Endpoint:
+/modeling/api/<plural form of CDOname>
+2-4 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 79 ===
+Chapter2:ModelingAPIs
+Request Format:
+URL:
+/modeling/api/<plural form of CDOname>
+Method: POST
+Headers:
+Content-Type: application/json
+Authorization: Bearer <token>
+Body:
+The request body should contain a JSON object with the necessary fields for creating the object. 
+Refer to "JSON Payloads" for information on the JSON body content.
+Query Parameters: (Optional)
+$select
+$expand
+Refer to "Receiving Extra Data for CDO Fields Using the $select or $expand Parameters" for inform-
+ation on using the parameters.
+Response:
+Status Code: 200 OK
+Headers:
+Content-Type: application/json
+Body:
+The response body typically includes the 'value' with App Server CompletionMsg.
+Example: 
+This example creates a new factory:
+POST request to https://<servername>/modeling/api/factories
+JSON Payload:
+{
+"Name": "Acme Factory 001",
+"Description": "Acme's Flagship Factory",
+"Locations": [
+{
+"Name": "Receiving",
+"Description": "",
+"Status": 1
+},
+{
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-5
+
+=== PDF PAGE 80 ===
+Chapter2:ModelingAPIs
+"Name": "FG Inventory",
+"Description": "Finished Goods Inventory",
+"Status": 1
+}
+]
+}
+A success message and a response like the following appear if the request is successful:
+{
+"@odata.context": "https://<servername>/modeling/api/$metadata#Edm.String",
+"value": "Factory \"Acme Factory 001\" added on 3/25/2022 8:20:20 AM"
+}
+GET
+If you want to retrieve the details of all the modeling objects of a certain type, perform a GET on the 
+appropriate modeling URL root. 
+Note: Query parameters are frequently used in a GET request to limit or order the data returned  by 
+the request.  You enter query parameters after a question mark in the endpoint. Refer to "Query 
+Parameters" for information.
+The GET method in Modeling API supports two primary operations:
+• GET a list of ALL objects.
+• GET of specific object.
+GET a List of All Objects
+Endpoint:
+/modeling/api/<plural form of CDOname>
+Request Format:
+URL:
+/modeling/api/<plural form of CDOname>
+Method: GET
+Headers:
+Authorization: Bearer <token>
+Query Parameters: (Optional)
+$select
+$expand
+$count (boolean)
+$skip
+2-6 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 81 ===
+Chapter2:ModelingAPIs
+$top
+$orderby
+$filter
+ApplyFilterTag (boolean)
+filterTags and filterTagAccess (integer)
+Refer to "Query Parameters" for information on using the query parameters and "Using Filter Tags 
+with REST API" for information on filter tags.
+Response:
+Status Code: 200 OK
+Headers:
+Content-Type: application/json
+Body:
+The response body contains "value" array of the requested object.
+Example: 
+This example gets a list of the factories and the properties of each:
+GET request to https://<servername>/modeling/api/factories
+Response, truncated for readability:
+{
+"@odata.context": "https://<servername>/modeling/api/$metadata#Factories",
+"value": [
+{
+"AllowLineSettingsOverride": null,
+"DisplayGeneralMessage": null,
+"GeneralMessage": null,
+"isChangeJobStatusAutomatically": null,
+"isDisableReportingSummary": null,
+"isEnableCarrierTracking": null,
+"isLocalSchedulingEnabled": null,
+"isMaterialManageEnabled": null,
+"isPreactorEnabled": null,
+"isValidateMaterialQueueQty": null,
+"MaxTimeSinceMsgsRetrieved": null,
+"mdTeamTrackingTransactions": [],
+"Name": "Acme",
+"RecipePattern": null,
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-7
+
+=== PDF PAGE 82 ===
+Chapter2:ModelingAPIs
+"ReportHeading": null,
+"RequireLocation": null,
+"RetentionDays": null,
+"AssociatedPackages": null,
+"AttachAsRORProxy": [],
+"CDOTypeId": null,
+"ChangeCount": null,
+"Description": "TestBOM",
+"DisplayName": null,
+"FilterTags": null,
+"IconId": null,
+"InstanceID": "0004e280000000fd",
+"InstanceLocked": null,
+"isAttachImage": null,
+"IsFrozen": false,
+"NextValue": null,
+"Notes": null,
+"UseROR": [],
+"UseRORProxy": []
+},
+{
+"AllowLineSettingsOverride": null,
+Note: When you send a request to get all objects (in the format GET request to /modeling/api/< plural 
+form of CDOname> /), you will receive values only for the following fields, depending on 
+whether you are getting a named data object or a revisioned object:
+For Named Data Objects . . . * For Revisioned Objects . . . *
+Name Name
+InstanceID InstanceID
+Description Revision
+IsFrozen IsRevOfRcd
+ Status 
+ Description
+  IsFrozen
+2-8 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 83 ===
+Chapter2:ModelingAPIs
+* Change History field values can also be returned, but only if Change History has been extended 
+in the format GET request to /modeling/api/< plural form of CDOname> /?$expand=
+ChangeHistory.
+The values for all other fields are returned as null, even if you have assigned values to the remain-
+ing fields and you added $select or $expand queries. To get values for other fields, request mod-
+eling  entities by Name or InstanceID. 
+Get a Specific Object
+Endpoint:
+/modeling/api/<plural form of CDOname>/{key}
+/modeling/api/<plural form of CDOname>('{key}')
+Note: The {key} parameter can be specified for InstanceId or Name.
+Request Format:
+URL:
+/modeling/api/<plural form of CDOname>/{key}
+Method: GET
+Headers:
+Authorization: Bearer <token>
+Query Parameters: (Optional)
+$select
+$expand
+revision (string): required to retrieve details of object that is not Revision of 
+Record.
+useROR (boolean)
+Refer to "Query Parameters" for information on using the query parameters.
+Response:
+Status Code: 200 OK
+Headers:
+Content-Type: application/json
+DataVersion: indicates the current version of the requested object.
+Body:
+The response body contains the details of the of requested object.
+Example:
+This example retrieves the details of a specific modeling object by performing a GET on the appropriate 
+modeling URL and providing the name of the object:
+GET request to https://<servername>/modeling/api/factories/Acme
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-9
+
+=== PDF PAGE 84 ===
+Chapter2:ModelingAPIs
+Response:
+{
+"@odata.context": "https://<servername>/modeling/api/$metadata#Factories/$entity",
+"AllowLineSettingsOverride": false,
+"DisplayGeneralMessage": false,
+"GeneralMessage": null,
+"isChangeJobStatusAutomatically": false,
+"isDisableReportingSummary": true,
+"isEnableCarrierTracking": false,
+"isLocalSchedulingEnabled": false,
+"isMaterialManageEnabled": false,
+"isPreactorEnabled": false,
+"isValidateMaterialQueueQty": false,
+"MaxTimeSinceMsgsRetrieved": null,
+"mdTeamTrackingTransactions": [],
+"Name": "Acme",
+"RecipePattern": null,
+"ReportHeading": null,
+"RequireLocation": false,
+"RetentionDays": null,
+"AssociatedPackages": 0,
+"AttachAsRORProxy": [],
+"CDOTypeId": 5600,
+"ChangeCount": null,
+"Description": "TestBOM",
+"DisplayName": null,
+"FilterTags": null,
+"IconId": null,
+"InstanceID": "0004e280000000fd",
+"InstanceLocked": false,
+"isAttachImage": false,
+"IsFrozen": false,
+"NextValue": null,
+"Notes": null,
+"UseROR": [],
+2-10 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 85 ===
+Chapter2:ModelingAPIs
+"UseRORProxy": []
+}
+Example:
+This example retrieves the details of a specific revisioned modeling object by performing a GET on the 
+appropriate modeling URL and providing the name of the object and revision (or useROR=true) as a query 
+parameter:
+GET request to https://<servername>/modeling/api/BOMs/BOM001?revision=1
+PATCH
+In the Modeling API, you can use the PATCH method to create a new revision of an existing object.
+Endpoint:
+/modeling/api/<plural form of CDOname>
+Request Format:
+URL:
+/modeling/api/<plural form of CDOname>
+Method: PATCH
+Headers:
+Content-Type: application/json
+Authorization: Bearer <token>
+Body:
+The request body should contain a JSON object with the same Name value as the Revision of Record 
+and new value for Revision. The other fields may be included optionally based on your requirements.
+Response:
+Status Code: 200 OK
+Headers:
+Content-Type: application/json
+Body:
+The response body typically includes the 'value' with App Server CompletionMsg.
+Example: 
+This example creates a new revision for the TestBOM5 modeling object:
+PATCH request to https://<servername>/modeling/api/BOMs
+JSON Payload:
+{
+"Name": "TestBOM5",
+"Revision": "2",
+"Description": "TestBOM revision 2"
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-11
+
+=== PDF PAGE 86 ===
+Chapter2:ModelingAPIs
+}
+Response:
+{
+"@odata.context": "https://<servername>/modeling/api/$metadata#Edm.String",
+"value": "New BOM revision \"TestBOM5 (2)\" added on 3/30/2022 8:19:26 AM"
+}
+PUT
+The PUT method is used to update an existing modeling object. This method modifies the specified in 
+request body fields of an object. Send the PUT request  only with fields that you want to update.
+Endpoint:
+/modeling/api/<plural form of CDOname>/{key}
+/modeling/api/<plural form of CDOname>('{key}')
+Note: The {key} parameter can be specified for InstanceId or Name.
+Request Format:
+URL:   /modeling/api/<plural form of CDOname>/{key}
+Method: PUT
+Headers:
+Content-Type: application/json
+Authorization: Bearer <token>
+Body:
+The request body should contain a JSON object with fields that need to be updated. Fields not 
+included in the request body will remain unchanged. Refer to "JSON Payloads" for information on the 
+JSON body content.
+To remove a property from an modeling object, set it to null.
+JSON Payload:
+{
+"stringField": null,
+"numberField": null,
+"booleanField": false,
+"jsonObject": null
+}
+Query Parameters:
+$select
+$expand
+revision (string): required to update an object that is not Revision of Record.
+2-12 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 87 ===
+Chapter2:ModelingAPIs
+useROR (boolean)
+sync (boolean)
+dataVersion (integer)
+Refer to "Receiving Extra Data for CDO Fields Using the $select or $expand Parameters" for information on 
+using the parameters and "Query Parameters" for information on using the query parameters.
+Response:
+Status Code: 200 OK
+Headers:
+Content-Type: application/json
+Body:
+The response body typically includes the 'value' with App Server CompletionMsg.
+Example: 
+This example updates the description for the BOM001 modeling object, Revision 2:
+PUT request to https://<servername>/modeling/api/BOMs/BOM001?Revision=2
+JSON Payload:
+{"Description": “This is a new Description"}
+Working with List Arrays
+When working with lists (arrays) in the Modeling API, it is essential to adhere to specific rules to ensure 
+proper updating and maintenance of list items. The following guidelines detail how to manage and modify 
+list items:
+1. Order and Indexing
+Lists are ordered and indexed, meaning each list item must be specified in the request body 
+exactly as it exists in the database. The order of list items is crucial and must be preserved during 
+updates.
+For example, if you want to update a list that contains 50 rows, you can add all 50 list items to 
+the body of the PUT request.
+Note: An error message such as "Not all array elements have been passed in \"TheList\"" is 
+returned if you do not add all list items, or if you add them in the incorrect order.
+2. Property Specification
+For each list item, all specified fields must be included. If a property is specified for one list item, it 
+must be included for all list items to avoid unintended removal or resetting.
+If a field such as Name is configured to have a unique value, you cannot have two list items in the 
+array with the same Name. You cannot simply change the Name field of one list item and assign 
+this value to the Name field of another list item within a single PUT request. You must first send a 
+PUT request to change the value of the Name field for the first list item. Then, in a separate 
+request, you can assign this value to the Name field of another list item.
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-13
+
+=== PDF PAGE 88 ===
+Chapter2:ModelingAPIs
+3. Adding New Items
+A new list item is appended to the end of the list, and its index will be the current length of the 
+array minus one.
+4. Removing Items
+To remove a list item, specify an empty JSON object '{}' for the item:
+JSON Payload:
+"TheList": [
+{},
+{
+"ListItemNumber": 2,
+"Control":"Advanced"
+},
+......
+{
+"ListItemNumber": 50,
+"Control":"Advanced"
+}
+]
+Note: You cannot delete an entire list by providing an empty array '[]'. To delete an entire list, 
+specify an empty JSON object '{}' for all list items.
+There is another method for working with lists that is especially convenient when a list contains many 
+items, but updates are required  for only one item or a few. You can add a wrapper list with the prefix
+ “-Expanded” to the payload. Inside this list, you can specify particular items using the Key and Index 
+parameters. Refer to the next section for information.
+Working with a Particular Item from a List
+In Modeling, you can modify lists using Key or Index. This image shows an example of an XML request that 
+updates the item named NegSpec 4 from the Steps list using the key parameter.
+2-14 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 89 ===
+Chapter2:ModelingAPIs
+You can modify list items by sending the List property with the suffix "-Expanded" to reproduce the same 
+request via the Modeling API. The "Expanded" list is an original list's wrapper created only to update list 
+items using supported parameters in REST API. Each list in the Modeling API has its "Expanded" duplicate—
+“{List}-Expanded”. Each Modeling class contains "{List}" and wrapped "{List}-Expanded."
+"{List}-Expanded" has these properties: Key, Index, Value.
+Key and Index have supported parameters that can identify the list item or describe the updates expected 
+for it.
+This table describes the supported parameters.
+Parameter Description
+Index Item’s order number in the list. The first item index is zero (0). The last item 
+index is length - 1.
+Key Named Object—the Name or InstanceId* of the list’s item.
+ListItemAction:AddUsed to add a new item to the list. All list items are added to the end of the list.
+Value Has a type of "{List}" item. Value contains all the same properties as the original 
+list. In Value, you can add all data that should be updated for this list item.
+Note: You can specify Key or Index, but not both in the same list.
+Note: Refer to "Specifying Selection Value, Perform Event,  Advanced Perform Event, and Upload or 
+Download Requests" and "Working with the List Object by using listAction"  for information on 
+handling lists.
+Note: You cannot use both the original list and "Expanded" in a single payload.
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-15
+
+=== PDF PAGE 90 ===
+Chapter2:ModelingAPIs
+If you are updating or deleting list items, the request takes the following form.
+For example, if you want to update a list item from MaterialList, you must  provide an expanded list 
+wrapper with the Key or Index parameter and then wrap all properties of this list item in the Value 
+parameter.
+2-16 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 91 ===
+Chapter2:ModelingAPIs
+This image shows an example of updating a MaterialList using Index and Value.
+.
+If you want to delete a list item, you can use a similar format except that you must provide an empty 
+Value.
+This image shows an example of deleting a list item using Index and Value.
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-17
+
+=== PDF PAGE 92 ===
+Chapter2:ModelingAPIs
+To add a new list item for MaterialList, you must use the ListItemAction parameter.
+This image shows an exampe of adding a list item using ListItemAction and Value.
+If you want to work with multiple list items, you must provide new parameters for each list item.
+This image shows an example of adding multiple list items using the  ListItemAction parameter.
+2-18 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 93 ===
+Chapter2:ModelingAPIs
+This image shows an example of updating multiple list items using the Key parameter.
+Working with the List Object by using listAction
+Using the listAction method enables you to set a "change" or "replace" attribute for a list object. If you set 
+the "change" flag, new items are appended to the list. If you set the "replace" flag, the current list of items 
+is cleared before new items are added.
+This image shows the XML with the "replace" listAction set.
+In the JSON payload structure, the "listAction" is supported within "{List}-Expanded" lists. "@TheListName_
+listAction" is a string representing the action to be applied to the list.
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-19
+
+=== PDF PAGE 94 ===
+Chapter2:ModelingAPIs
+Add the "@TheListName_listAction" property before the "{List}-Expanded" in JSON payload as shown in this 
+example.
+This image shows an example of setting a "replace" attribute for the "MaterialList" object.
+DELETE
+The DELETE method is used to remove an existing object from the Modeling API. The DELETE method is 
+used differently for RDOs (Revisioned Data Objects)  and NDOs (Named Data Objects).
+2-20 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 95 ===
+Chapter2:ModelingAPIs
+DELETE NDO
+Endpoint:
+/modeling/api/<plural form of CDOname>/{key}
+/modeling/api/<plural form of CDOname>('{key}')
+Note: The {key} parameter can be specified for InstanceId or Name.
+Request Format:
+URL:
+/modeling/api/<plural form of CDOname>/{key}
+Method: DELETE
+Headers:
+Authorization: Bearer <token>
+Response:
+Status Code: 200 OK
+Headers:
+Content-Type: application/json
+Body:
+The response body typically includes the 'value' with App Server CompletionMsg.
+Example:
+This example deletes the factory Acme001:
+DELETE request to https://<servername>/modeling/api/factories/Acme001
+Response:
+{
+"@odata.context": "https://<servername>/modeling/api/$metadata#Edm.String",
+"value": "Factory \"Acme001\" deleted on 3/30/2022 10:37:47 AM"
+}
+DELETE RDO (Revision of Record with all revisions of the object)
+Endpoint:
+/modeling/api/<plural form of CDOname>/DeleteAllRevisions('{key}')
+Note: The {key} parameter can be specified for InstanceId or Name.
+Request Format:
+URL:
+/modeling/api/<plural form of CDOname>/DeleteAllRevisions('{key}')
+Method: DELETE
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-21
+
+=== PDF PAGE 96 ===
+Chapter2:ModelingAPIs
+Headers:
+Authorization: Bearer <token>
+Response:
+Status Code: 200 OK
+Headers:
+Content-Type: application/json
+Body:
+The response body typically includes the 'value' with App Server CompletionMsg.
+Example:
+This example deletes all revisions of BOM1:
+DELETE request to https://<servername>/modeling/api/BOMs/DeleteAllRevisions('BOM1')
+Response:
+{
+"@odata.context": "https://<servername>/modeling/api/$metadata#Edm.String",
+"value": "All revisions for BOM \"BOM1\" deleted on 3/30/2022 1:28:27 PM"
+}
+DELETE RDO (Revision if it not Revision of Record)
+Endpoint:
+/modeling/api/<plural form of CDOname>/{key}
+/modeling/api/<plural form of CDOname>('{key}')
+Note: The {key} parameter can be specified for InstanceId or Name.
+Request Format:
+URL:
+/modeling/api/<plural form of CDOname>/{key}
+Method: DELETE
+Headers:
+Authorization: Bearer <token>
+Query Parameters:
+revision (string) : required if the Name of the object is used as 'key'.
+Refer to  "Examples: Revision and useROR" for information on using the revision parameter.
+Response:
+Status Code: 200 OK
+Headers:
+Content-Type: application/json
+2-22 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 97 ===
+Chapter2:ModelingAPIs
+Body:
+The response body typically includes the 'value' with App Server CompletionMsg.
+Example:
+This example deletes revision  "2" of BOM2:
+DELETE request to https://<servername>/modeling/api/BOMs//BOM2?revision=2
+Response:
+{
+"@odata.context": "https://<servername>/modeling/api/$metadata#Edm.String", 
+"value": "BOM \"BOM2 (2)\" deleted on 3/30/2022 1:28:27 PM"
+}
+Modeling API Endpoints Overview
+You can use the Upload endpoint to upload a file or files. The Download endpoint enables you to view a 
+document's content. 
+Upload
+You can use the Upload endpoint to upload a file or files from a local environment to the CamstarUploads 
+folder on the server. After uploading the file, its will be available for DocumentMaint functions that are 
+used for attachments.
+Endpoint:
+/modeling/api/Upload
+Request Format:
+URL:
+/modeling/api/Upload
+Method: POST
+Headers:
+Content-Type: multipart/form-data
+Authorization: Bearer <token>
+Body: The request body should be in form-data format with "type": "file"
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-23
+
+=== PDF PAGE 98 ===
+Chapter2:ModelingAPIs
+This image shows an example of a correct request body for the Upload endpoint in Postman.
+Response:
+Status Code: 200 OK
+Body: txt message "File was uploaded successfully"
+Description: The request was successful, and the file or files were uploaded to the CamstarUploads folder. 
+The selected file appears in the CamstarUploads folder on the server (C:\ProgramData\Camstar\Camstar 
+Portal\CamstarUploads).
+Example:
+This image shows an example of successful files uploading.
+Status Code: 400 Bad Request
+Body: json error message
+Description: One or all files failed to upload. If form-data includes several files, only the problematic file 
+will be rejected. Files that do not cause a conflict willbe uploaded successfully.
+2-24 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 99 ===
+Chapter2:ModelingAPIs
+Example:
+This image shows an example of an error response.
+Download
+You can use the Upload endpoint to upload a file or files from local environment to the CamstarUploads 
+folder on the server. After uploading the file, its will be available for DocumentMaint functions that used 
+for attachments.
+Endpoint:
+/modeling/api/Download
+Request Format:
+URL:
+/modeling/api/Download/{documentName}
+/modeling/api/Download/{documentName}/{revision}
+Method: GET
+Headers:
+Authorization: Bearer <token>
+Response:
+Status Code: 200 OK
+Headers:
+Content-Type: Specifies the media type of the file.
+Content-Disposition: Indicates that the response should be treated as a downloadable attach-
+ment.
+Body: The file content is returned as a binary stream.
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-25
+
+=== PDF PAGE 100 ===
+Chapter2:ModelingAPIs
+Example:
+This image shows an example of successful downloading of the txt file attached to the Text1 document 
+revision of record.
+This image shows an example of successful downloading of the file attached to the XML document with 
+second revision.
+Specifying Download for DocumentMaint Subclasses
+You can use the Download endpoint to receive a stream for the DocumentMaint services such as 
+isImageMaint, RecipeMaint, and ReportTemplateMaint.
+Endpoint:
+/modeling/api/Download/Service/{serviceName}
+Request Format for subclasses:
+URLs:
+/modeling/api/Download/Service/isImageMaint/{imageName}
+2-26 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 101 ===
+Chapter2:ModelingAPIs
+/modeling/api/ Download/Service/isImageMaint /{imageName}/{revision}
+/modeling/api/Download/Service/RecipeMaint/{recipeName}
+/modeling/api/ Download/Service/RecipeMaint/{recipeName }/{revision}
+/modeling/api/Download/Service/ReportTemplateMaint/{reportTemplateName}
+/modeling/api/Download/Service/ReportTemplateMaint/{reportTemplateName}/{revision}
+Method: GET
+Headers:
+Authorization: Bearer <token>
+Response:
+Status Code: 200 OK
+Headers:
+Content-Type: Specifies the media type of the file.
+Content-Disposition: Indicates that the response should be treated as a downloadable attach-
+ment.
+Body: the file content is returned as a binary stream.
+This image shows an example of successful downloading of the file attached to the API_Image  image with 
+2 revision.
+Create Documents: Multipart Upload of Files
+The CreateDocuments endpoint enables the multipart upload of a file or files to the Documents on the 
+server. By default, each document created retains the name of the uploaded file, and the document 
+revision is automatically set to "1."
+Multipart Upload of Files for DocumentMaint
+You can use the CreateDocuments endpoint to upload files to DocumentMaint.
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-27
+
+=== PDF PAGE 102 ===
+Chapter2:ModelingAPIs
+Endpoint:
+/modeling/api/CreateDocuments
+Request Format:
+URL:
+/modeling/api/CreateDocuments
+Method: POST
+Headers: 
+Content-Type: multipart/form-data
+Authorization: Bearer <token>
+Body:
+The request body should be in form-data format with "key": "Documents" and "type": "file"
+Example:
+This image shows an example of a correct request body for the CreateDocuments endpoint in Postman.
+Response:
+Status Code: 200 OK
+Description: The request was successful, and the document(s) were created.
+Status Code: 207 Multi-Status
+Description: Partial success. This code indicates that some documents were successfully created, 
+while others encountered errors. The response provides details on the status of each file in the 
+request.
+Status Code: 400 Bad Request
+Description: All files failed to upload due to logical error.
+2-28 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 103 ===
+Chapter2:ModelingAPIs
+Response Body Format:
+The response body is formatted as an array [], where each element describes the status of an 
+individual document upload attempt as “statusCode” and “message.”
+Response Body Examples:
+This image shows an example of successful multipart uploading.
+This image shows an example of partial success in which one document has been successfully 
+added, but the second failed due to a logical error.
+This image shows an example in which no documents could be loaded due to a logical error.
+Note: The 400 Bad Request status may also occur due to issues such as incorrect data format 
+or missing file content. In these cases, a detailed REST API error message is provided.
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-29
+
+=== PDF PAGE 104 ===
+Chapter2:ModelingAPIs
+This image shows a detailed message when an "Incorrect" key was used instead of "Documents" 
+for form-data:
+Multipart Upload of Files for DocumentMaint Subclasses
+You can use the CreateDocuments endpoint to upload files to DocumentMaint subclasses such as 
+isImageMaint, RecipeMaint, and ReportTemplateMaint.
+Request Format for Subclasses:
+URLs:
+/modeling/api/CreateDocuments/Service/isImageMaint
+/modeling/api/CreateDocuments/Service/RecipeMaint
+/modeling/api/CreateDocuments/Service/ReportTemplateMaint
+Method: POST
+Headers:
+Content-Type: multipart/form-data
+Authorization: Bearer <token>
+Body:
+The request body should be in form-data format with "key": "Documents" and "type": "file".
+Response:
+The same response codes and formats apply as for the parent DocumentMaint class.
+ 
+ 
+2-30 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 105 ===
+Chapter2:ModelingAPIs
+Example:
+This image shows an example of using the CreateDocuments endpoint for a multipart upload.
+Query Parameters
+You can use query parameters to determine what data is returned by the request. You enter query 
+parameters after a question mark in the endpoint. Supported query parameters include the Revision and 
+useROR parameters that you can use when working with revisioned objects, and Sync which enables you 
+to update an existing modeling object or create a new one if one does not exist. Additionally, $count, 
+$expand, $select, $skip, $top, $orderby, and $filter are supported parameters. 
+Examples: Revision and useROR
+There are two query parameters available for managing revisioned objects.
+Revision enables you to specify a specific revision. The revision parameter is required to perform a CRUD 
+operation on an object that is not a revision of a record when the object name is used in the URL. 
+This example returns revision 1 for BOM001:
+GET request to https://<servername>/modeling/api/BOMs/BOM001?revision=1
+The useROR parameter enables you to specify the revision of record by setting the parameter to true. This 
+example returns the revision of record  for BOM001:
+GET request to https://<servername>/modeling/api/BOMs/BOM001?useROR=true
+Note: The parameter useRor is optional. If you do not specify revision or useRor, the requests will 
+default to performing an object with the revision of the record.
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-31
+
+=== PDF PAGE 106 ===
+Chapter2:ModelingAPIs
+Example: Sync
+Using the Sync=true parameter in a PUT method with the CRUD URL helps you to simply execute the 
+"Maintenance_SyncRDO" clf. This function attempts to resolve the ObjectToChange using the SyncName 
+field. If the instance is resolved, the Load method is called. Otherwise, the New method is called.
+To enable the Sync method via REST API, use the following:
+• PUT method
+• CRUD URL with Name of the object
+• The "revision" parameter for ROs
+• The "sync=true" parameter
+This example specifies the Sync parameter for BOM002, revision=1:
+PUT request to https://<servername>/modeling/api/BOMs/BOM002?revision=1&sync=true
+JSON Payload:
+{
+"name": "BOM002",
+"revision": "1",
+"description": "Updated with description and bill type",
+"billType": {
+"name": "Bill Type 2"
+}
+}
+This request will update BOM002 or create it if it does not exist.
+Note: The Name and (for RO) Revision of the object should be specified both in the URL and in the 
+JSON  payload.
+• The InstanceId cannot be used with Sync.
+• The useRor parameter is also not applicable when sync=true.
+Example: $count
+You can get the number of records returned by using the $count query parameter when retrieving  all the 
+entities (for example, number of factories):
+GET request to https://<servername>/modeling/api/Factories?$count=true
+Response, truncated for readability:
+{
+"@odata.context": "https://<servername>/modeling/api/$metadata#Factories",
+"@odata.count": 6,
+"value": [
+{
+2-32 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 107 ===
+Chapter2:ModelingAPIs
+"AllowLineSettingsOverride": null,
+"DisplayGeneralMessage": null,
+"GeneralMessage": null,
+Example: $expand
+Use the $expand query parameter  to add related, embedded information for the object to the response. 
+This example demonstrates a GET request: 
+GET request to https://<servername>/modeling/api/Boms/BOM1?useROR=true
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-33
+
+=== PDF PAGE 108 ===
+Chapter2:ModelingAPIs
+This image shows that the default response for the specific BOM object does not include MaterialList as a 
+Navigation Property.
+However, including the $expand parameter in the query string of the request enables you to get the 
+subentity list:
+GET request to https://<servername>/modeling/api/Boms/BOM1?useROR=true&
+$expand=MaterialList
+2-34 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 109 ===
+Chapter2:ModelingAPIs
+The expected response with $expand=MaterialList contains MaterialList with all list items and base fields 
+such as Name, InstanceId, Revision. Other fields not selected (such as BillType) are considered null.
+Use $expand=* to include all nested properties and retrieve comprehensive information about the 
+requested data.
+In Modeling API  the basic usage of the $expand parameter is a part of the requested data with $select for 
+GET requests:
+/modeling/api/<plural form of CDOname>/
+{key}?$select=Property1,Property2&$expand=NavigationProperty
+You can also use the $expand parameter  recursively to specify nested properties:
+/modeling/api/<plural form of CDOname>/
+{key}?$select=SomeProperty&$expand=NavigationProperty1
+($select=Property1,Property2;$expand=NavigationProperty2($expand=NavigationProperty3))
+Note: If you attempt to expand a property of a referenced object that does not have a strong own-
+ership relationship with the CDO being queried, OData support will be disabled. As a result, the 
+response body will not include the OData context (@odata.context).
+Example: $select
+Use the $select query parameter when performing a GET to return some fields rather than returning all 
+properties. This example returns the name and description for the factory Acme:
+GET request to   https://<servername>/modeling/api/Factories/Acme?$select=Name,Description
+Response:
+{
+"@odata.context": "https://<servername>/modeling/api/$metadata#Factories
+(Name,Description)/$entity",
+"Name": "Acme",
+"Description": "TestBOM"
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-35
+
+=== PDF PAGE 110 ===
+Chapter2:ModelingAPIs
+}
+This allows you to limit the data set returned for objects to only the necessary fields.
+You can specify the $select parameter in combination with $expand.
+Note: In OData queries, you cannot nest the $expand parameter  within the $select parameter.
+Example: $skip
+Use the $skip query parameter when performing a GET to set the number of items to skip at the start of a 
+collection. The API returns only the items after the specified number have been skipped. This example 
+returns BOMs, beginning with the fourth in the collection:
+GET request to https://<servername>/modeling/api/BOMs?$skip=3
+Example: $top
+Use the $top parameter to limit the number of records returned in the response.  For example, $top=5 
+would return only the first 5 records from the result set. This parameter can be used for paginating results 
+or for retrieving a subset of records from a larger data set. This example returns the first three BOMs:
+GET request to https://<servername>/modeling/api/BOMs?$top=3
+Example: $orderby
+Use the $orderby query parameter to specify the sort order of the items returned. To sort the results in 
+ascending or descending order, specify either asc or desc after the field name, separated by a space. 
+This example returns the revisions of record in the BOMs collection, sorted by name in ascending order:
+GET request to https://<servername>/modeling/api/BOMs?useROR=true&$orderby=Name asc
+This example returns the revisions of record in the BOMs collection, sorted by name in descending order:
+GET request to https://<servername>/modeling/api/BOMs?useROR=true&$orderby=Name desc
+Example: $filter
+Use the $filter query parameter to get a subset of a collection, limiting the results returned.
+This example returns the details of BOM001, revision 1:
+GET request to https://<servername>/modeling/api/BOMs?$filter=Name eq 'BOM001' and 
+Revision eq '1'
+Note: The $filter query parameter may not perform as expected when the record count exceeds the 
+MaxRowsetSize limit. For larger datasets, consider using the NameFilter parameter, which fil-
+ters records by name at the App Server level before retrieval via REST API. This method enables 
+more efficient data processing and retrieval.
+This example returns all BOMs with the name BOM001:
+GET request to https://<servername>/modeling/api/BOMs?NameFilter=BOM001
+Refer to "Filtering Selection Values Using the NameFilter Query Parameter" for information on how to 
+specify the "NameFilter" parameter.
+2-36 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 111 ===
+Chapter2:ModelingAPIs
+Example: filterTagAccess
+Use the filterTagAccess request parameter to specify the session filter value allowUntaggedInstances.
+This example returns BOM modeling object instances for which Filter Tag has been set:
+GET request to https://<servername>/modeling/api/BOMs?filterTagAccess=3
+Receiving Extra Data for CDO Fields Using the $select or $expand Parameters
+You can receive extra data for a CDO’s fields in the response when you use the  POST or PUT methods with 
+the Modeling API. To receive this extended response, specify the CDO's fields in the URL using the $select 
+and $expand parameters.
+Example:
+This image shows an example of executing a PUT request to update the BOM with additional requested 
+data for the "Name," "Revision," "Description," and "Isfrozen" fields. The response contains not only a 
+message about the successful update of the BOM in the value section, but also all the requested fields in 
+the data section.
+Note: When you request a property with a null value, it will not appear in the response body.
+Note: This method of data retrieval can cause the initial property types (integer, boolean) to be lost, 
+as the data is returned in string format.
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-37
+
+=== PDF PAGE 112 ===
+Chapter2:ModelingAPIs
+Example: DataVersion
+The dataVersion parameter helps prevent conflicts when multiple users modify the same object. When 
+included in a PUT request, the API checks whether the provided dataVersion matches the latest version of 
+the object:
+PUT request to https://<servername>/modeling/api/BOMs/01110000000012a?dataVersion=1
+If the dataVersion is outdated, the update is rejected with the following error message:
+"The object ChangeHistory with instance id '00000000000012a' has been modified by someone else.  
+Please redo your changes.”
+To get the current dataVersion, send the GET a specific object request so that the latest dataVersion is 
+returned in the response headers.
+This image shows the DataVersion in the response headers for the GET specific BOM request.
+If dataVersion is not included in the PUT request, the REST API processes the update without version 
+validation.
+Note: The dataVersion parameter is not applied if you set sync=true.
+2-38 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 113 ===
+Chapter2:ModelingAPIs
+Modeling API Examples
+Samples of metadata from the Modeling API follow. OData and OpenAPI examples are provided.
+OData Example
+This is a Modeling API OData example, truncated for readability:
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+<edmx:DataServices>
+<Schema Namespace="modeling" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+<EntityType Name="EmployeeEntity">
+<Key>
+<PropertyRef Name="InstanceID"/>
+</Key>
+<Property Name="FullName" Type="Edm.String" customAttribute:CdoId="3690" 
+customAttribute:FieldId="3456" customAttribute:Workspace="csi" cus-
+tomAttribute:Inherited="false" customAttribute:Flags="None" cus-
+tomAttribute:Annotations="Full name of employee. This is useful in 
+identifying the employee especially if login names are abbreviated."/>
+<Property Name="IsFrozen" Type="Edm.Boolean" customAttribute:CdoId="3690" 
+customAttribute:FieldId="26066" customAttribute:Workspace="csi" cus-
+tomAttribute:Inherited="true" customAttribute:Flags="ReadOnly" cus-
+tomAttribute:Annotations="Determines if changes are allowed to this 
+instance (or any of its revisions)"/>
+<Property Name="IconId" Type="Edm.Int32" customAttribute:CdoId="3690" cus-
+tomAttribute:FieldId="26065" customAttribute:Workspace="csi" cus-
+tomAttribute:Inherited="true" customAttribute:Flags="None" 
+customAttribute:Annotations="Identifier for the icon associated with this 
+Base Entity"/>
+<Property Name="Description" Type="Edm.String" customAttribute:CdoId="3690" 
+customAttribute:FieldId="26064" customAttribute:Workspace="csi" cus-
+tomAttribute:Inherited="true" customAttribute:Flags="None" cus-
+tomAttribute:Annotations="Description of this entity. Defaults to the name 
+of this entity if not specified"/>
+<Property Name="ChangeCount" Type="Edm.Int32" customAttribute:CdoId="3690" 
+customAttribute:FieldId="26062" customAttribute:Workspace="csi" cus-
+tomAttribute:Inherited="true" customAttribute:Flags="ReadOnly" cus-
+tomAttribute:Annotations="System field used to ensure data integrity when 
+multiple users concurrently modify the same object."/>
+<Property Name="DisplayName" Type="Edm.String" customAttribute:CdoId="3690" 
+customAttribute:FieldId="26060" customAttribute:Workspace="csi" cus-
+tomAttribute:Inherited="true" customAttribute:Flags="ReadOnly" cus-
+tomAttribute:Annotations="DisplayName is the field generally used to 
+/*
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-39
+
+=== PDF PAGE 114 ===
+Chapter2:ModelingAPIs
+*/
+represent an object in a user interface, especially when the user interface 
+needs to represent an object with just one data element. For example, to 
+represent a revisioned object one would ordinarily need to show both the 
+name and the revision of the object. The display name will include enough 
+necessary elements to represent the object--in the example of a revisioned
+object it will include both the name and the revision, with a separator 
+character. This is especially useful when viewing objects in combo boxes 
+and other one-column lists, the display name should be used. DisplayName is 
+usually a non-persistent field."/>
+<Property Name="InstanceID" Type="Edm.String" Nullable="false" cus-
+tomAttribute:CdoId="3690" customAttribute:FieldId="26058" cus-
+tomAttribute:Workspace="csi" customAttribute:Inherited="true" 
+customAttribute:Flags="ReadOnly" customAttribute:Annotations="Unique ID for 
+an instance of this object, generated by the system."/>
+<Property Name="InstanceLocked" Type="Edm.Boolean" cus-
+tomAttribute:CdoId="3690" customAttribute:FieldId="26056" cus-
+tomAttribute:Workspace="csi" customAttribute:Inherited="true" 
+customAttribute:Flags="None" customAttribute:Annotations="Determines if the 
+instance is locked by Change Management"/>
+<Property Name="AttachAsRORProxy" Type="Collection(Edm.Boolean)" cus-
+tomAttribute:CdoId="3690" customAttribute:FieldId="26054" cus-
+tomAttribute:Workspace="csi" customAttribute:Inherited="true" 
+customAttribute:Flags="None" customAttribute:Annotations="Proxy list needed 
+to request Attach as ROR value from Doc Attach history"/>
+<Property Name="UseRORProxy" Type="Collection(Edm.Boolean)" cus-
+tomAttribute:CdoId="3690" customAttribute:FieldId="26053" cus-
+tomAttribute:Workspace="csi" customAttribute:Inherited="true" 
+customAttribute:Flags="None" customAttribute:Annotations="Proxy list needed 
+to request Use ROR value from Doc Attach history"/>
+<Property Name="UseROR" Type="Collection(Edm.Boolean)" cus-
+tomAttribute:CdoId="3690" customAttribute:FieldId="26052" cus-
+tomAttribute:Workspace="csi" customAttribute:Inherited="true" 
+customAttribute:Flags="None" customAttribute:Annotations="Proxy list needed 
+to request Use ROR value from Doc Attach history"/>
+<Property Name="FilterTags" Type="Edm.String" customAttribute:CdoId="3690" 
+customAttribute:FieldId="26049" customAttribute:Workspace="csi" cus-
+tomAttribute:Inherited="true" customAttribute:Flags="None" cus-
+tomAttribute:Annotations="FilterTags"/>
+<Property Name="AssociatedPackages" Type="Edm.Int32" cus-
+tomAttribute:CdoId="3690" customAttribute:FieldId="26046" cus-
+tomAttribute:Workspace="csi" customAttribute:Inherited="true" 
+customAttribute:Flags="None" customAttribute:Annotations="Count of Asso-
+ciated Packages"/>
+<Property Name="Notes" Type="Edm.String" customAttribute:CdoId="3690" cus-
+tomAttribute:FieldId="26044" customAttribute:Workspace="csi" 
+/*
+2-40 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 115 ===
+Chapter2:ModelingAPIs
+*/
+customAttribute:Inherited="true" customAttribute:Flags="None" cus-
+tomAttribute:Annotations="Notations and comments associated with this 
+object."/>
+<Property Name="DocManagerPassword" Type="Edm.String" cus-
+tomAttribute:CdoId="3690" customAttribute:FieldId="25852" cus-
+tomAttribute:Workspace="csi" customAttribute:Inherited="false" 
+customAttribute:Flags="Encrypted" customAttribute:Annotations="Password the 
+employee uses to access an external document repository (such as Team 
+Center) to open external documents."/>
+<Property Name="DocManagerUser" Type="Edm.String" cus-
+tomAttribute:CdoId="3690" customAttribute:FieldId="25850" cus-
+tomAttribute:Workspace="csi" customAttribute:Inherited="false" 
+customAttribute:Flags="None" customAttribute:Annotations="User Name the 
+employee uses to access an external document repository (such as Team 
+Center) to open external documents."/>
+<Property Name="EmailAddress" Type="Edm.String" cus-
+tomAttribute:CdoId="3690" customAttribute:FieldId="13136" cus-
+tomAttribute:Workspace="csi" customAttribute:Inherited="false" 
+customAttribute:Flags="None" customAttribute:Annotations="Employee E-mail 
+Address"/>
+<Property Name="Name" Type="Edm.String" customAttribute:CdoId="3690" cus-
+tomAttribute:FieldId="9160" customAttribute:Workspace="csi" cus-
+tomAttribute:Inherited="true" customAttribute:Flags="Required" 
+customAttribute:Annotations="Unique name for this instance"/>
+<Property Name="DomainName" Type="Edm.String" customAttribute:CdoId="3690" 
+customAttribute:FieldId="7818" customAttribute:Workspace="csi" cus-
+tomAttribute:Inherited="false" customAttribute:Flags="None" cus-
+tomAttribute:Annotations="Domain is used for authentication of this 
+employee. Optional."/>
+<Property Name="AllowOverrideOfSessionValues" Type="Edm.Boolean" cus-
+tomAttribute:CdoId="3690" customAttribute:FieldId="7336" cus-
+tomAttribute:Workspace="csi" customAttribute:Inherited="false" 
+customAttribute:Flags="None" customAttribute:Annotations="Specifies whether 
+the user is allowed to override default SessionValues"/>
+<Property Name="ModelerAccess" Type="Edm.Boolean" cus-
+tomAttribute:CdoId="3690" customAttribute:FieldId="6752" cus-
+tomAttribute:Workspace="csi" customAttribute:Inherited="false" 
+customAttribute:Flags="None" customAttribute:Annotations="Indicate whether 
+or not an employee is allowed to open up Modeler."/>
+<Property Name="CanLogin" Type="Edm.Boolean" customAttribute:CdoId="3690" 
+customAttribute:FieldId="3458" customAttribute:Workspace="csi" cus-
+tomAttribute:Inherited="false" customAttribute:Flags="None" cus-
+tomAttribute:Annotations="Can this employee log in"/>
+<Property Name="UserComment" Type="Edm.String" customAttribute:CdoId="3690" 
+customAttribute:FieldId="3457" customAttribute:Workspace="csi" cus-
+tomAttribute:Inherited="false" customAttribute:Flags="None" 
+/*
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-41
+
+=== PDF PAGE 116 ===
+Chapter2:ModelingAPIs
+*/
+customAttribute:Annotations="An extra description field"/>
+<Property Name="DataVersion" Type="Edm.Int32"/>
+...
+<NavigationProperty Name="AttachDocumentDetails" Type="Collection(mod-
+eling.AttachDocumentDetails)" customAttribute:CdoId="3690" cus-
+tomAttribute:FieldId="26051" customAttribute:Workspace="csi" 
+customAttribute:Inherited="true" customAttribute:Flags="ReadOnly" cus-
+tomAttribute:Annotations="The details used to display the attached doc-
+uments."/>
+<NavigationProperty Name="EscalationRecipients" Type="Collection(mod-
+eling.Employee)" customAttribute:CdoId="3690" cus-
+tomAttribute:FieldId="24969" customAttribute:Workspace="csi" 
+customAttribute:Inherited="false" customAttribute:Flags="None" cus-
+tomAttribute:Annotations="An Employee is a person that can login to InSite, 
+perform transactions, and/or be credited with work. The Employees must have 
+a Windows NT account. Once defined, the user will then appear in the user 
+list within the Modeler Security window. In this way the Employee defin-
+ition feeds directly into the Modeler Security. The Employee definitions 
+also allow for other options for each user such as the factory associate 
+with the user and the language that will be used. Persons that will get 
+credited with work by being entered in the employee field on a transaction, 
+must exist as InSite employees, but are not required to exist as Windows 
+user accounts."/>
+<NavigationProperty Name="Roles" Type="Collection(mod-
+eling.EmployeeRoleEntity)" customAttribute:CdoId="3690" cus-
+tomAttribute:FieldId="15268" customAttribute:Workspace="csi" 
+customAttribute:Inherited="false" customAttribute:Flags="None" cus-
+tomAttribute:Annotations="Employee's Role membership in an Organizational 
+context"/>
+...
+</EntityType>
+<EntityContainer Name="Container">
+<EntitySet Name="Employees" EntityType="modeling.EmployeeEntity">
+<NavigationPropertyBinding Path="AttachDocumentDetails" Tar-
+get="AttachDocumentDetailsSubEntities" />
+<NavigationPropertyBinding Path="EscalationRecipients" Tar-
+get="EmployeeSubEntities" />
+<NavigationPropertyBinding Path="Roles" Tar-
+get="EmployeeRoleChangesSubEntities" />
+<NavigationPropertyBinding Path="UserDefinedOpList" Tar-
+get="OperationSubEntities" />
+<NavigationPropertyBinding Path="UserDefinedWFList" Tar-
+get="WorkflowSubEntities" />
+/*
+2-42 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 117 ===
+Chapter2:ModelingAPIs
+*/
+</EntitySet>
+</EntityContainer>
+</Schema>
+</edmx:DataServices>
+</edmx:Edmx>
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-43
+
+=== PDF PAGE 118 ===
+Chapter2:ModelingAPIs
+OpenAPI Example
+This is a Modeling API OpenAPI example, truncated for readability:
+{
+"openapi": "3.0.1",
+"info": {
+"title": "modeling",
+"version": "v1"
+},
+…
+"paths": {
+"/Employees": {
+"get": {
+"tags": [
+"Employees"
+],
+"operationId": "Employees",
+"responses": {
+"200": {
+"description": "Success",
+"content": {
+"application/json;odata.metadata=minimal;odata.streaming=true": 
+{
+"schema": {
+"type": "array",
+"items": {
+"$ref": "#/components/schemas/EmployeeEntity"
+}
+}
+},
+…
+"EmployeeEntity": {
+"type": "object",
+"properties": {
+"userDefinedDecimal": {
+/*
+2-44 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 119 ===
+Chapter2:ModelingAPIs
+*/
+"type": "number",
+"description": "CdoId: 3590; FieldId: 694157380; Workspace: 100; Flags: 
+Exposed; Annotations: Generic Decimal.   The decimal data type is a fixed point 
+type, an exact numeric value as opposed to an approximate numeric type like 
+float or real.   It is defined by a precision and scale.   The precision p refers 
+to the overall number of digits both to the left and right of the decimal 
+point.   The scale s refers to the number of digits to the right of the decimal 
+point, also referred to as fractional component.",
+"format": "double",
+"nullable": true
+},
+"userDefinedFloatList": {
+"type": "array",
+"items": {
+"type": "number",
+"format": "float"
+},
+"description": "CdoId: 3590; FieldId: 694157381; Workspace: 100; Flags: 
+Exposed; Annotations: Generic Float",
+"nullable": true
+},
+"userDefinedFixed": {
+"type": "number",
+"description": "CdoId: 3590; FieldId: 694157382; Workspace: 100; Flags: 
+Exposed; Annotations: Generic Fixed.   The fixed data type is used to store a 
+fixed point number as a floating point number in the database.   A floating point 
+value is an approximation of a fixed point value.   Note that a \"Decimal\" type 
+is available and should be used to store an exact numeric value with defined 
+precision and scale.",
+"format": "double",
+"nullable": true
+},
+"userDefinedFixedList": {
+"type": "array",
+"items": {
+"type": "number",
+"format": "double"
+/*
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-45
+
+=== PDF PAGE 120 ===
+Chapter2:ModelingAPIs
+*/
+},
+"description": "CdoId: 3590; FieldId: 694157383; Workspace: 100; Flags: 
+Exposed; Annotations: Generic Fixed.   The fixed data type is used to store a 
+fixed point number as a floating point number in the database.   A floating point 
+value is an approximation of a fixed point value.   Note that a \"Decimal\" type 
+is available and should be used to store an exact numeric value with defined 
+precision and scale.",
+"nullable": true
+},
+"userDefinedDecimalList": {
+"type": "array",
+"items": {
+"type": "number",
+"format": "double"
+},
+"description": "CdoId: 3590; FieldId: 694157384; Workspace: 100; Flags: 
+Exposed; Annotations: Generic Decimal.   The decimal data type is a fixed point 
+type, an exact numeric value as opposed to an approximate numeric type like 
+float or real.   It is defined by a precision and scale.   The precision p refers 
+to the overall number of digits both to the left and right of the decimal
+point.   The scale s refers to the number of digits to the right of the decimal 
+point, also referred to as fractional component.",
+"nullable": true
+},
+"userDefinedTimestamp": {
+"type": "string",
+"description": "CdoId: 3590; FieldId: 694157385; Workspace: 100; Flags: 
+Exposed; Annotations: Generic TimeStamp",
+"format": "date-time",
+"nullable": true
+},
+"userDefinedDataType": {
+"type": "integer",
+"description": "CdoId: 3590; FieldId: 694157386; Workspace: 100; Flags: 
+Exposed; Annotations: The Insite data type.\r\n1\tInteger
+\r\n2\tFloat\r\n3\tFixed\r\n4\tString\r\n5\tOb-
+ject\r\n6\tTimeStamp\r\n7\tBoolean\r\n9\tDecimal",
+/*
+2-46 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 121 ===
+Chapter2:ModelingAPIs
+*/
+"format": "int32",
+"nullable": true
+},
+"userDefinedDurationList": {
+"type": "array",
+"items": {
+"type": "number",
+"format": "float"
+},
+"description": "CdoId: 3590; FieldId: 694157387; Workspace: 100; Flags: 
+Exposed; Annotations: Time as a duration",
+"nullable": true
+},
+"userDefinedDuration": {
+"type": "number",
+"description": "CdoId: 3590; FieldId: 694157388; Workspace: 100; Flags: 
+Exposed; Annotations: Time as a duration",
+"format": "float",
+"nullable": true
+},
+"userDefinedWFList": {
+"type": "array",
+"items": {
+"$ref": "#/components/schemas/Workflow"
+},
+"description": "CdoId: 3590; FieldId: 694157389; Workspace: 100; Flags:
+Exposed; Annotations: A Workflow defines the route and processing required for
+a manufacturing process, and is the primary driving object of the InSite fact-
+ory model. When a Container is created (started) it references a Workflow (and 
+a Step within that Workflow). The default Workflow for the Start transaction is 
+the Workflow referenced in the Product definition. \r\n\r\nA Workflow is a col-
+lection of Steps that are linked by Paths and ReworkPaths. Steps reference 
+either other Workflows or Specs, and a Spec references an Operation.   Note that 
+the definition of Step, Spec, and Operation controls the processing details at 
+any individual point in the workflow.",
+"nullable": true
+/*
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-47
+
+=== PDF PAGE 122 ===
+Chapter2:ModelingAPIs
+*/
+},
+"userDefinedStringList": {
+"type": "array",
+"items": {
+"type": "string"
+},
+"description": "CdoId: 3590; FieldId: 694157390; Workspace: 100; Flags: 
+Exposed; Annotations: User Def String List",
+"nullable": true
+},
+"userDefinedString": {
+"type": "string",
+"description": "CdoId: 3590; FieldId: 694157391; Workspace: 100; Flags: 
+Exposed; Annotations: User Def String",
+"nullable": true
+},
+"userDefinedOperation": {
+"$ref": "#/components/schemas/Operation"
+},
+"userDefinedWorkflow": {
+"$ref": "#/components/schemas/Workflow"
+},
+…
+2-48 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 123 ===
+Chapter2:ModelingAPIs
+Modeling Transaction Example Information
+Numerous examples of Modeling transactions are available as JSON collections on Support Center in the 
+Downloads section for the main release. Refer to these collections for examples of POST, GET, PUT, PATCH, 
+and DELETE requests.
+Note: Some parameters can be null in the body of the responses to requests to the APIs of the 
+Modeling API Service. You can use the Query API Service to send a request with a user 
+query to retrieve the necessary parameter. Refer to "Query Transaction Example 
+Information" for information.
+Modeling Object Name Considerations
+Consider the following when naming modeling objects:
+• If the name of a modeling object contains the "?" character, you must encode the name using URL 
+encoding rules to use these types of names in the URL. For example, a modeling object named 
+Doc? is URL encoded as Doc%3F.
+This image shows an example of getting a document named Doc?.
+• Do not use a "/" character in modeling object names. You can successfully post an object 
+containing a "/" in the name, but getting an object containing a "/" does not return the expected 
+results.
+Release2510+Rev.1 TechnicalReference:RESTAPI 2-49
+
+=== PDF PAGE 124 ===
+Chapter2:ModelingAPIs
+Opcenter Connect MOM Transaction Example 
+Information
+Several examples of Opcenter Connect MOM transactions are available in a JSON collection on Support 
+Center in the Downloads section for the main release. Examples include calling the MOMCopyRev event 
+using PerformEvent or AdvancedPerformEvent, checking the last updated revision of the product to be 
+copied, and more.
+2-50 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 125 ===
+Chapter 3: Shop Floor APIs
+Introduction
+Shop Floor APIs enable you to issue requests to the Application Server to perform container transactions 
+on demand.
+In this Chapter
+This chapter contains these  topics:
+• Request Methods and URL Formats
+• Shop Floor API Overview
+• Shop Floor Transaction Example Information
+• Resource Transaction Example Information
+• Change Management Transaction Example Information
+Release2510+Rev.1 TechnicalReference:RESTAPI 3-1
+
+=== PDF PAGE 126 ===
+Chapter3:ShopFloorAPIs
+Request Methods and URL Formats
+The URL formats for basic requests for the Shop Floor API follow. Refer to the "Shop Floor API Overview" for 
+introductory information on and simple examples of Shop Floor APIs. Refer to "Shop Floor Transaction 
+Example Information" for detailed examples. 
+Execute shop floor operation:
+POST request to /shopfloor/api/<CDOname>
+Execute  shop floor operation without the < __execute />  node:
+POST request to /shopfloor/api/<CDOname>?execute=false
+Get list values for the CDO:
+PUT request to /shopfloor/api/<CDOname>/GetListValuesFor(FieldExpression)
+Refer to "Change Management Transaction Example Information" for an example of using a field 
+expression with selection values.
+Perform an event on a shop floor transaction:
+POST request to /shopfloor/api/<CDOname>/PerformEvent
+or
+POST request to /shopfloor/api/<CDOname>/shopfloor.PerformEvent
+Perform an advanced event on a shop floor transaction using the standard format:
+POST request to /shopfloor/api/<CDOname>/AdvancedPerformEvent
+Perform an advanced event on a shop floor transaction using the "Execute" format:
+POST request to /shopfloor/api/<CDOname>/Execute/AdvancedPerformEvent
+Note: If you specify the optional "Execute," the "< __execute /> " node will be added to the XML 
+request.
+3-2 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 127 ===
+Chapter3:ShopFloorAPIs
+Shop Floor API Overview
+Shop Floor APIs enable you to issue requests to the Application Server to perform container transactions 
+on demand.
+Shop Floor requests use the POST and PUT verbs to perform these transactions. The JSON you specify 
+when posting transactions is similar to the JSON used with  modeling requests.
+Example:
+This example executes a Start transaction:
+POST request to https://<servername>/Shopfloor/api/Start
+JSON Payload:
+{
+"Details": {
+"AttachAsROR": false,
+"AttachmentIsROR": false,
+"AutoNumber": false,
+"Qty": 5,
+"ContainerName": "111A12",
+"IsContainer": true,
+"UOM": {
+"Name": "Each"
+},
+"Owner": {
+"Name": "Owner1"
+},
+"StartReason": {
+"Name": "Start1"
+},
+"Level": {
+"Name": "Batch"
+},
+"Product": {
+"Name": "Anchovy",
+"UseRor": true
+},
+"SamplingRequired": false,
+"ExpirationDate": "2022-12-03T03:00:00Z"
+Release2510+Rev.1 TechnicalReference:RESTAPI 3-3
+
+=== PDF PAGE 128 ===
+Chapter3:ShopFloorAPIs
+},
+"CurrentStatusDetails": {
+"Workflow": {
+"Name": "Standard",
+"UseRor": true
+},
+"Location": {
+"Name": "Bathroom"
+},
+"Resource": {
+"Name": "C1"
+}
+},
+"Factory": {
+"Name": "HQ"
+}
+}
+Example:
+This example gets the task list defined for a container:
+PUT request to https://<servername>/shopfloor/api/ExecuteTask/GetListValuesFor(TaskList)
+JSON Payload:
+{   "Container" :{
+"name" : "{{container1}}"
+}
+}
+Receiving Extra Data for CDO Fields Using the $select or $expand Parameters 
+You can receive extra data for a CDO’s fields in the response when you use the  POST method with the 
+Shop Floor API. To receive this extended response, specify the CDO's fields in the URL using the $select and 
+$expand parameters.
+3-4 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 129 ===
+Chapter3:ShopFloorAPIs
+Examples:
+This image shows an example of receiving the container name in a separate node when executing the 
+Start CDO.
+Release2510+Rev.1 TechnicalReference:RESTAPI 3-5
+
+=== PDF PAGE 130 ===
+Chapter3:ShopFloorAPIs
+This image shows an example of receiving the child container data in the response when executing the 
+Start CDO.
+Excluding the < __execute/>  Node When Sending a Request to a CDO
+Requests to a shop floor CDO contain the < __execute />  node by default  as shown in this example.
+Add the "execute=false" parameter to the URL if your transaction logic requires sending the request 
+without the "< __execute /> " node:
+POST request to https://<servername>/Shopfloor/api/Start?execute=false
+This XML request will be sent.
+3-6 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 131 ===
+Chapter3:ShopFloorAPIs
+DocAttachmentsTxn: Downloading a Document Attachment to the Client
+DocAttachmentsTxn is a Shopfloor service that facilitates uploading and downloading document 
+attachments on an object.
+The DocAttachmentsTxn/Download endpoint is part of the DocAttachmentsTxn service and enables you to  
+download a document attachment to the client using the Shopfloor API.
+Endpoint: /shopfloor/api/DocAttachmentsTxn/Download
+Request Format:
+URL:   /shopfloor/api/DocAttachmentsTxn/Download
+Method: POST
+Headers:
+Content-Type: application/json
+Authorization: Bearer <token>
+Body: The request body should contain the following JSON Payload structure:
+ 
+{
+"attachments": {
+"InstanceId": ""
+},
+"docDetail": {
+"action": 0,
+"name": "",
+"version": ""
+}
+}
+This table describes the fields.
+Field Description
+attachments JSON object containing information about the document's attachment.
+InstanceIdString format. Unique identifier for the document attachment, generated by the 
+system.
+Note: InstanceId must be populated with the correct attachment ID when 
+sending the payload.
+docDetail JSON object containing details about the document.
+Release2510+Rev.1 TechnicalReference:RESTAPI 3-7
+
+=== PDF PAGE 132 ===
+Chapter3:ShopFloorAPIs
+Field Description
+action Enumeration for the Document Attachments, where:
+0 = Download
+1 = Upload
+2 = Delete
+3 = Update
+Note: The required value for the Download endpoint is 0.
+name This field must accurately specify the name of the document.
+version This field must accurately specify the version of the document.
+Response:
+Status Code: 200 OK
+Headers:
+Content-Type: <mime-type of the file>
+Content-Disposition: attachment; filename="filename.ext"
+Body: The response body contains the binary data of the file.
+Example:
+This is an example of a request to download an attachment for version 01 of a document named "Event 
+File" with an InstanceId of 12345abcde.
+{
+"attachments": {
+"InstanceId": "12345abcde"
+},
+"docDetail": {
+"action": 0,
+"name": "Event File",
+"version": "01"
+}
+}
+A status message "200 OK"  and the binary data of the file appear in the response if the request is 
+successful.
+3-8 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 133 ===
+Chapter3:ShopFloorAPIs
+Shop Floor Transaction Example Information
+Numerous examples of Shop Floor transactions are available as JSON collections on Support Center in the 
+Downloads section for the main release. Refer to these collections for examples of POST and PUT requests.
+Release2510+Rev.1 TechnicalReference:RESTAPI 3-9
+
+=== PDF PAGE 134 ===
+Chapter3:ShopFloorAPIs
+Resource Transaction Example Information
+Several examples of Resource transactions are available in the Resource Transaction Examples collection 
+on Support Center in the Downloads section for the main release. Refer to this collection for examples of 
+requests.
+3-10 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 135 ===
+Chapter3:ShopFloorAPIs
+Change Management Transaction Example Information
+Several examples of Change Management transactions are available in the Change Management Examples 
+collection on Support Center in the Downloads section for the main release. Refer to this collection for 
+examples of requests.
+Release2510+Rev.1 TechnicalReference:RESTAPI 3-11
+
+=== PDF PAGE 136 ===
+
+
+=== PDF PAGE 137 ===
+Chapter 4: Query APIs
+Introduction
+Query APIs enable you to do the following:
+• Execute a CDO.
+• Execute a custom event for any CDO that is inherited from the Inquiry CDO.
+• Request selection of values for a field in a CDO.
+• Test an existing advanced query with new parameters.
+• Test an ad hoc query.
+• Test a user query.
+Refer to the  Opcenter Execution Medical Device and Diagnostics Designer User Guide or the Opcenter 
+Execution Core Designer User Guide for information on CDOs, events, fields, and advanced queries. Refer 
+to the  Opcenter Execution Medical Device and Diagnostics Modeling User Guide or the Opcenter 
+Execution Core Modeling User Guide for information on user queries.
+In this Chapter
+This chapter contains these  topics:
+• Request Methods and URL Formats
+• Query API Overview
+• Query Transaction Example Information
+Release2510+Rev.1 TechnicalReference:RESTAPI 4-1
+
+=== PDF PAGE 138 ===
+Chapter4:QueryAPIs
+Request Methods and URL Formats
+The URL formats for basic requests for the Query API follow. Refer to the "Query API Overview" for 
+introductory information on and simple examples of Query APIs. Refer to "Query Transaction Example 
+Information" for detailed examples.
+Execute an Inquiry CDO:
+POST request to /query/api/<CDOname>
+Execute an Inquiry CDO with the < __execute />  node:
+POST request to /query/api/<CDOname>?execute=true
+Execute a custom event for a CDO inherited from the Inquiry CDO:
+POST request to /query/api/<CDOname>?eventname=<eventname>
+Request selection of values for a field in a CDO:
+PUT request to /query/api/<CDOname>/GetListValuesFor(fieldname)
+Test an existing advanced query with new parameters:
+POST request to /query/api/AdvancedQuery/<advancedqueryname>
+Test an adhoc query:
+POST request to /query/api/Adhoc
+Test a user query:
+POST request to /query/api/AdvancedQuery/<userqueryname>
+4-2 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 139 ===
+Chapter4:QueryAPIs
+Query API Overview
+The Query APIs enable you to execute standard queries, ad hoc queries, and advanced Designer queries. 
+This table lists the verbs the Query APIs support and their typical usage.
+Verb Usage
+POST Execute queries and perform custom events.
+PUT Request selection of values for a field or field expression.
+Inquiry
+If you want to execute an Inquiry CDO, perform a POST using the appropriate URL. Add the payload in 
+JSON format if it is needed for the Inquiry CDO. Use $select and $expand parameters to specify requested 
+data.
+Example:
+This example returns retrieve permissions for the Employee:
+POST request to https://<servername>/query/api/
+PermissionInquiry?$select=ExternalPermissionList&$expand=ExternalPermissionList
+JSON Payload:
+{
+"Employee": {
+"Name": "Camstaradmin"
+}
+}
+The status message “200 OK”  and the ExternalPermissionList list appear if the request is successful.
+Including the < __execute/>  Node When Requesting Data for an Inquiry
+The logic of the Application Server sometimes requires the < __execute/>   node  to be returned in the data 
+for an inquiry as shown in this example.
+Release2510+Rev.1 TechnicalReference:RESTAPI 4-3
+
+=== PDF PAGE 140 ===
+Chapter4:QueryAPIs
+Add the "execute=true" parameter to the URL to include the < __execute/>  node:
+POST request to https://<servername>/query/api/SomeInquiry?execute=true
+Example: 
+This example returns IssueDetails for the ComponentIssueInquiry when less than the required quantity is 
+issued:
+POST request to https://<servername>/query/api/ComponentIssueInquiry
+?execute=true&$select=CompletionMsg,Container,Product,Qty,UOM,Qty2,UOM2&$expand=
+IssueDetails
+JSON Payload:
+{
+"ObjectName": "Container1",
+"ParentContainer": {
+"Name": "theParentContainer "
+}
+}
+The status message “200 OK” and the IssueDetails appear if the request is successful.
+Advanced Query
+To execute an existing advanced query, perform a POST using the appropriate URL with the 
+AdvancedQuery endpoint and the advanced query name. The payload is in JSON format.  The advanced 
+query payload structure consists of the queryType string value and the parameters list. In the parameters 
+list, you can specify name and value for each parameter if necessary.
+Note: To check the existing  advanced query list, open Designer-Queries-AdvancedQuery.
+Example:
+This example runs the GetEmployeesByRole advanced Designer query:
+POST request to   https://<servername>/query/api/AdvancedQuery/GetEmployeesByRole
+JSON Payload:
+{
+"queryType": "system",
+"parameters":[
+{
+"name": "Role",
+"value": "InstanceID_of_the_Role"
+}
+]
+}
+The status message “200 OK” and the list appear if the request is successful.
+4-4 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 141 ===
+Chapter4:QueryAPIs
+User Query
+You could create your own query using /Modeling/API/UserQueries with custom queryText and parameters.
+If you want to execute an existing user query, perform a POST using the appropriate URL with the 
+AdvancedQuery endpoint and the created query name. The payload is in JSON format.  The user query’s 
+payload structure consists of the queryType string value and parameters list. You must specify user query 
+type. The user query type must be in  lowercase text.  In the parameters list , you can specify name and 
+value for each parameter if necessary.
+Example:
+This example runs the MyQuery1 user query. MyQuery1 was created with the same text and parameters as 
+the GetEmployeesByRole advanced query:
+POST request to   https://<servername>/query/api/AdvancedQuery/MyQuery1
+JSON Payload:
+{
+"queryType": "user",
+"parameters":[
+{
+"name": "Role",
+"value": "InstanceID_of_the_Role"
+}
+]
+}
+The status message “200 OK” and the list appear if the request is successful.
+Ad hoc Query
+Using an ad hoc query provides the ability to send custom query text and parameters.
+To execute an ad hoc query, perform a POST using the appropriate URL with the Adhoc endpoint. The 
+payload is in JSON format.  The ad hoc queries payload structure consists of queryText and parameters.  The 
+queryText should contain query text with valid logic and syntax.  You can specify parameters with name 
+and value if necessary.
+Example:
+This example runs an ad hoc query without parameters:
+POST request to https://<servername>/query/api/AdHoc
+JSON Payload:
+The body text contains the query text and any parameters:
+{
+"queryText": "SELECT ContainerId,ContainerName FROM Container"
+}
+The status message “200 OK” and the list appear if the request is successful.
+Release2510+Rev.1 TechnicalReference:RESTAPI 4-5
+
+=== PDF PAGE 142 ===
+Chapter4:QueryAPIs
+Query Transaction Example Information
+Several examples of Query transactions are available in the Query Examples collection on Support Center 
+in the Downloads section for the main release. Refer to this collection for examples of requests.
+4-6 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 143 ===
+Chapter 5: Labels APIs
+Introduction
+Labels APIs enable you to get information about user labels. Refer to the  Opcenter Execution Medical 
+Device and Diagnostics Modeling User Guide or the Opcenter Execution Core Modeling User Guide for 
+information on user labels.
+In this Chapter
+This chapter contains these  topics:
+• Request Methods and URL Formats
+• Labels Transaction Example Information
+Release2510+Rev.1 TechnicalReference:RESTAPI 5-1
+
+=== PDF PAGE 144 ===
+Chapter5:LabelsAPIs
+Request Methods and URL Formats
+Labels requests follow.
+Get a label by name:
+GET request to /labels/api/GetLabels?Name=<labelname>
+Get a label by ID:
+GET request to /labels/api/GetLabels?Id=<labelid>
+Get labels by names and/or IDs:
+POST request to /labels/api/GetLabels
+5-2 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 145 ===
+Chapter5:LabelsAPIs
+Labels Transaction Example Information
+Several examples of Labels transactions are available in the Labels Examples collection on Support Center 
+in the Downloads section for the main release. Refer to this collection for examples of requests.
+Release2510+Rev.1 TechnicalReference:RESTAPI 5-3
+
+=== PDF PAGE 146 ===
+
+
+=== PDF PAGE 147 ===
+Appendix A: Considerations and 
+Error Responses
+Introduction
+This section addresses some points to consider when using REST API and some error codes the Application 
+Server may return in the body of the response.
+In this Appendix
+This appendix contains these  topics:
+• Considerations When Using REST API
+• Error Responses
+Release2510+Rev.1 TechnicalReference:RESTAPI A-1
+
+=== PDF PAGE 148 ===
+AppendixA:ConsiderationsandErrorResponses
+Considerations When Using REST API
+There are several points to consider when using REST API.
+Required Fields: Portal and Designer
+There are several versions of some Portal pages. Some versions may have one or more required fields on 
+the pages, but those same fields are not required on other versions of the page. The Documents pop-up  
+for the Document Set modeling object is an example. This image shows an example of the Documents 
+pop-up.
+A-2 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 149 ===
+AppendixA:ConsiderationsandErrorResponses
+If you view the CDO DocumentSetMaint> ObjectChanges> DocumentEntries> Name field properties in 
+Designer, the property for the field is set to Not Required because it is not required for all versions of the 
+page. 
+Using REST API, you could create a Document Set without the Name value for DocumentEntries. This 
+image shows an example of the request and response, and the resulting Document Set page.
+Release2510+Rev.1 TechnicalReference:RESTAPI A-3
+
+=== PDF PAGE 150 ===
+AppendixA:ConsiderationsandErrorResponses
+This result may be unexpected, but it does not affect your use of the Portal.
+Decimal Formats
+Decimal values  per REST API standards use a decimal point as the decimal separator (for example, 99.99). 
+You need to pass numbers in REST API  using only the decimal point as the decimal separator. The comma 
+is  used as a decimal separator in some regions, but if you try to pass numbers using the 99,99 format, 
+REST API will fail because REST API uses the comma as a delimiter.
+For example, if you are using a comma as the decimal separator in the Portal, REST API shows decimal 
+values correctly, but only if you pass the decimal values  per REST API standards (that is, 99.99, not  99,99). 
+Therefore, if you pass 99.99 using REST API into the Portal and the Portal is configured to use a comma as 
+the decimal separator, the number displays as expected (99,99).
+A-4 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 151 ===
+AppendixA:ConsiderationsandErrorResponses
+Error Responses
+In case of an error, the Application Server returns an error code in the body of the response. The 
+Application Server does not return error codes in these cases:
+• If the request was invalid.
+• If an error occurred before submitting the request to the Application Server.
+Examples of Error Messages
+Siemens uses HTTP status codes to indicate whether REST API requests have been successfully completed. 
+This table contains examples of client error messages you may encounter and provides  recommendations 
+on how to troubleshoot each error. These types of error messages are preceded by the error code 400.
+Error  message How to troubleshoot it
+The property < property name>  does not exist on 
+type < entity name> . Make sure to only use 
+property names that are defined by the type.
+Check the name of the property and update it to a 
+name appropriate for the type.
+A supported MIME type could not be found. Ensure that you use a correct MIME type. In 
+headers, the Content-Type key should be set to 
+the application/json value.
+Cannot find nested property < object name>  on 
+the resource type < resource type> .
+Ensure that you use a correct nested property for 
+an object.
+The property < property name>  with type 
+< reference object>  does not contain the property 
+< property name> . Make sure to only use property 
+names that are defined by the type.
+Ensure that you use a correct property for a 
+reference object.
+A type named < resource type>  could not be 
+resolved by the model. When a model is available, 
+each type must resolve to a valid type.
+Ensure that you only use valid types during 
+transaction.
+An unexpected instance annotation name 
+< instance annotation name>  was found when 
+reading from the JSON reader. In OData, instance 
+annotation names must start with @.
+Ensure that you provide a correct instance name 
+annotation for the property type.
+When using the expanded list functionality, users 
+need to specify either index or key value.
+Ensure that you specify either key or index, but 
+not both in the same request.
+Translating Error Responses
+You can use dictionaries to translate error responses. Refer to the  Opcenter Execution Medical Device and 
+Diagnostics Modeling User Guide or the Opcenter Execution Core Modeling User Guide for information on 
+dictionaries.
+These steps describe how to translate an error response that was received in the body of the response in 
+the Postman app:
+1. Add ?language=< dictionaryname>  to the URL.
+Release2510+Rev.1 TechnicalReference:RESTAPI A-5
+
+=== PDF PAGE 152 ===
+AppendixA:ConsiderationsandErrorResponses
+2. If the ?language= variable is preceded by another variable containing the "?" character, replace 
+this character with the "&" character in the ?language= variable as shown on the image below.
+3. Replace < dictionaryname>  with the name of the dictionary you want to use.
+4. If the dictionary that you want to use was populated with the labels from a CSV file or was 
+updated in the Portal, restart the services.
+Note: Refer to the Opcenter Execution Medical Device and Diagnostics System Administration 
+Guide or the Opcenter Execution Core System Administration Guide for information on 
+how to restart the services.
+5. Click Save and then click Send.
+Status appears: "200 OK.”
+The body of the response is the error response translated according to the selected dictionary.
+This image shows an example of the error response translated in the Postman app.
+A-6 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 153 ===
+Appendix B: Executing a 
+Manufacturing Order
+Introduction
+This section includes detailed, sample JSON for creating the components needed for a manufacturing 
+order.
+In this Appendix
+This appendix contains this topic:
+• Example of Executing a Manufacturing Order
+Release2510+Rev.1 TechnicalReference:RESTAPI B-1
+
+=== PDF PAGE 154 ===
+AppendixB:ExecutingaManufacturingOrder
+Example of Executing a Manufacturing Order
+You typically must  have the following modeling objects defined to complete a manufacturing order in 
+Opcenter Execution Medical Device and Diagnostics or Opcenter Execution Core:
+• Product
+• Operation
+• Spec
+• ERP BOM
+• Bill of Process
+The example in this section illustrates the steps needed to create and define each of these components in  
+the correct order. 
+Sample JSON File for Creating the Components Needed for a Manufacturing Order
+This is the sample JSON file:
+{
+"item": [
+{
+"name": "Create Product",
+"event": [
+{
+"listen": "prerequest",
+"script": {
+"exec": [
+"\r",
+"function getRandomInt(min, max) {\r",
+"   min = Math.ceil(min);\r",
+"   max = Math.floor(max);\r",
+"   return Math.floor(Math.random() * (max - min)) + min;\r",
+"}\r",
+"let suffix = getRandomInt(0, 1000000);\r",
+"pm.variables.set(\"productName\",\"ProductTest\"+ suffix);\r",
+""
+],
+"type": "text/javascript"
+}
+},
+B-2 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 155 ===
+AppendixB:ExecutingaManufacturingOrder
+{
+"listen": "test",
+"script": {
+"exec": [
+"// Assertion on status code\r",
+"pm.test(\"Verifying that new Modeling object can be added\", 
+function () {\r",
+"       let response = pm.response.json(); \r",
+"   pm.response.to.have.status(200);\r",
+"   console.log(pm.variables.get(\"productName\"));\r",
+"   pm.expect(response.value).to.contain(\"Product \\\"\"+p-
+m.variables.get(\"productName\")+\" (1)*\\\" added on \");\r",
+"   \r",
+"});"
+],
+"type": "text/javascript"
+}
+}
+],
+"request": {
+"method": "POST",
+"header": [],
+"body": {
+"mode": "raw",
+"raw": "{\r\n       \"Name\": \"{{productName}}\",\r\n       \"Revision\": 
+\"1\",\r\n       \"Status\": \"1\",\r\n       \"ProductType\": {\r\n               \"Name\": 
+\"WIP\"\r\n       },\r\n       \"Workflow\": {\r\n               \"Name\": \"Standard\",\r\n               \"Re-
+vision\": \"1\"\r\n       },\r\n       \"Description\": \"TestProduct\"\r\n}",
+"options": {
+"raw": {
+"language": "json"
+}
+}
+},
+"url": {
+"raw": "{{url}}/Products",
+"host": [
+Release2510+Rev.1 TechnicalReference:RESTAPI B-3
+
+=== PDF PAGE 156 ===
+AppendixB:ExecutingaManufacturingOrder
+"{{url}}"
+],
+"path": [
+"Products"
+]
+}
+},
+"response": []
+},
+{
+"name": "Create Operation",
+"event": [
+{
+"listen": "prerequest",
+"script": {
+"exec": [
+"\r",
+"function getRandomInt(min, max) {\r",
+"   min = Math.ceil(min);\r",
+"   max = Math.floor(max);\r",
+"   return Math.floor(Math.random() * (max - min)) + min;\r",
+"}\r",
+"let suffix = getRandomInt(0, 1000000);\r",
+"pm.variables.set(\"operationName\",\"OperationTest\"+ suf-
+fix);\r",
+""
+],
+"type": "text/javascript"
+}
+},
+{
+"listen": "test",
+"script": {
+"exec": [
+"// Assertion on status code\r",
+B-4 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 157 ===
+AppendixB:ExecutingaManufacturingOrder
+"pm.test(\"Verifying that new Modeling object can be added\", 
+function () {\r",
+"       let response = pm.response.json(); \r",
+"   pm.response.to.have.status(200);\r",
+"   console.log(pm.variables.get(\"operationName\"));\r",
+"   pm.expect(response.value).to.contain(\"Operation \\\"\"+p-
+m.variables.get(\"operationName\")+\"\\\" added on \");\r",
+"   \r",
+"});\r",
+""
+],
+"type": "text/javascript"
+}
+}
+],
+"request": {
+"method": "POST",
+"header": [],
+"body": {
+"mode": "raw",
+"raw": "{\r\n       \"Name\": \"{{operationName}}\",\r\n       \"Thru-
+putReportingLevel\": {\r\n               \"Name\": \"Batch\"\r\n       }\r\n}",
+"options": {
+"raw": {
+"language": "json"
+}
+}
+},
+"url": {
+"raw": "{{url}}/Operations",
+"host": [
+"{{url}}"
+],
+"path": [
+"Operations"
+]
+Release2510+Rev.1 TechnicalReference:RESTAPI B-5
+
+=== PDF PAGE 158 ===
+AppendixB:ExecutingaManufacturingOrder
+}
+},
+"response": []
+},
+{
+"name": "Create Spec",
+"event": [
+{
+"listen": "prerequest",
+"script": {
+"exec": [
+"\r",
+"function getRandomInt(min, max) {\r",
+"   min = Math.ceil(min);\r",
+"   max = Math.floor(max);\r",
+"   return Math.floor(Math.random() * (max - min)) + min;\r",
+"}\r",
+"let suffix = getRandomInt(0, 1000000);\r",
+"pm.variables.set(\"specName\",\"TestSpec\"+ suffix);\r",
+""
+],
+"type": "text/javascript"
+}
+},
+{
+"listen": "test",
+"script": {
+"exec": [
+"// Assertion on status code\r",
+"pm.test(\"Verifying that new Modeling object can be added\", 
+function () {\r",
+"       let response = pm.response.json(); \r",
+"   pm.response.to.have.status(200);\r",
+"   console.log(pm.variables.get(\"specName\"));\r",
+B-6 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 159 ===
+AppendixB:ExecutingaManufacturingOrder
+"   pm.expect(response.value).to.contain(\"Spec \\\"\"+p-
+m.variables.get(\"specName\")+\" (1)*\\\" added on \");\r",
+"   \r",
+"});"
+],
+"type": "text/javascript"
+}
+}
+],
+"request": {
+"method": "POST",
+"header": [],
+"body": {
+"mode": "raw",
+"raw": "{\r\n       \"Name\": \"{{specName}}\",\r\n       \"Revision\": \"1\",\r\n       
+\"Operation\": {\r\n               \"Name\": \"{{operationName}}\"\r\n       },\r\n       \"De-
+scription\": \"TestSpec\"\r\n}",
+"options": {
+"raw": {
+"language": "json"
+}
+}
+},
+"url": {
+"raw": "{{url}}/Specs",
+"host": [
+"{{url}}"
+],
+"path": [
+"Specs"
+]
+}
+},
+"response": []
+},
+{
+Release2510+Rev.1 TechnicalReference:RESTAPI B-7
+
+=== PDF PAGE 160 ===
+AppendixB:ExecutingaManufacturingOrder
+"name": "Create ERPBOM",
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"// Assertion on status code\r",
+"pm.test(\"Verifying that new BOM can be added\", function () 
+{\r",
+"       let response = pm.response.json(); \r",
+"   console.log(pm.variables.get(\"erpbomName\"));\r",
+"   pm.expect(response.value).to.contain(\"ERP BOM \\\"\"+p-
+m.variables.get(\"erpbomName\")+\" (1)*\\\" added on \");\r",
+"   pm.response.to.have.status(200);\r",
+"});"
+],
+"type": "text/javascript"
+}
+},
+{
+"listen": "prerequest",
+"script": {
+"exec": [
+"// generate random int for bomname\r",
+"function getRandomInt(min, max) {\r",
+"   min = Math.ceil(min);\r",
+"   max = Math.floor(max);\r",
+"   return Math.floor(Math.random() * (max - min)) + min;\r",
+"}\r",
+"let bomsuffix = getRandomInt(0, 1000000);\r",
+"pm.variables.set(\"erpbomName\",\"TestERPBOM\"+ bomsuffix);\r",
+""
+],
+"type": "text/javascript"
+}
+}
+B-8 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 161 ===
+AppendixB:ExecutingaManufacturingOrder
+],
+"request": {
+"method": "POST",
+"header": [],
+"body": {
+"mode": "raw",
+"raw": "{\r\n       \"Name\": \"{{erpbomName}}\",\r\n       \"Status\": 1,\r\n       \"Re-
+vision\": \"1\"\r\n}",
+"options": {
+"raw": {
+"language": "json"
+}
+}
+},
+"url": {
+"raw": "{{url}}/ERPBOMs",
+"host": [
+"{{url}}"
+],
+"path": [
+"ERPBOMs"
+]
+}
+},
+"response": []
+},
+{
+"name": "Create Bill of   Process",
+"event": [
+{
+"listen": "prerequest",
+"script": {
+"exec": [
+"// generate random int for bomname\r",
+"function getRandomInt(min, max) {\r",
+Release2510+Rev.1 TechnicalReference:RESTAPI B-9
+
+=== PDF PAGE 162 ===
+AppendixB:ExecutingaManufacturingOrder
+"   min = Math.ceil(min);\r",
+"   max = Math.floor(max);\r",
+"   return Math.floor(Math.random() * (max - min)) + min;\r",
+"}\r",
+"let suffix = getRandomInt(0, 1000000);\r",
+"pm.variables.set(\"billofprocessName\",\"TestBillofProcess\"+ 
+suffix);\r",
+""
+],
+"type": "text/javascript"
+}
+},
+{
+"listen": "test",
+"script": {
+"exec": [
+"// Assertion on status code\r",
+"pm.test(\"Verifying that new BillofP can be added\", function 
+() {\r",
+"       let response = pm.response.json(); \r",
+"       pm.response.to.have.status(200);\r",
+" pm.expect(response.value).to.contain(\"Bill Of Process 
+\\\"\"+pm.variables.get(\"billofprocessName\")+\" (1)*\\\" added 
+on \");\r",
+"   \r",
+"});\r",
+"//Bill of Process \"TestBillofProcess266672\" (1)* added on"
+],
+"type": "text/javascript"
+}
+}
+],
+"request": {
+"method": "POST",
+"header": [],
+"body": {
+B-10 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 163 ===
+AppendixB:ExecutingaManufacturingOrder
+"mode": "raw",
+"raw": "{\r\n       \"Name\": \"{{billofprocessName}}\",\r\n       \"Revision\": 
+\"1\",\r\n       \"BillOfProcessOverrides\": [\r\n               {\r\n                       \"@odata.type\": 
+\"modeling.BillOfProcessOverrideChanges\",\r\n                       \"Spec\": {\r\n                               
+\"Name\": \"{{specName}}\",\r\n                               \"Revision\": \"1\"\r\n                       },\r\n                       
+\"Name\": \"1\"\r\n               }\r\n       ]\r\n}",
+"options": {
+"raw": {
+"language": "json"
+}
+}
+},
+"url": {
+"raw": "{{url}}/Billofprocesses",
+"host": [
+"{{url}}"
+],
+"path": [
+"Billofprocesses"
+]
+}
+},
+"response": []
+},
+{
+"name": "Create MFG Order",
+"event": [
+{
+"listen": "prerequest",
+"script": {
+"exec": [
+"// generate random int for bomname\r",
+"function getRandomInt(min, max) {\r",
+"   min = Math.ceil(min);\r",
+"   max = Math.floor(max);\r",
+"   return Math.floor(Math.random() * (max - min)) + min;\r",
+Release2510+Rev.1 TechnicalReference:RESTAPI B-11
+
+=== PDF PAGE 164 ===
+AppendixB:ExecutingaManufacturingOrder
+"}\r",
+"let suffix = getRandomInt(0, 1000000);\r",
+"pm.variables.set(\"mfgorderName\",\"TestMFGOrder\"+ suf-
+fix);\r",
+""
+],
+"type": "text/javascript"
+}
+},
+{
+"listen": "test",
+"script": {
+"exec": [
+"// Assertion on status code\r",
+"pm.test(\"Verifying that new MFG Order can be added\", function 
+() {\r",
+"       let response = pm.response.json(); \r",
+"   console.log(pm.variables.get(\"mfgorderName\"));\r",
+"   pm.expect(response.value).to.contain(\"Mfg Order \\\"\"+p-
+m.variables.get(\"mfgorderName\")+\"\\\" added on \");\r",
+"   pm.response.to.have.status(200);\r",
+"});"
+],
+"type": "text/javascript"
+}
+}
+],
+"request": {
+"method": "POST",
+"header": [],
+"body": {
+"mode": "raw",
+"raw": "{\r\n       \"Name\": \"{{mfgorderName}}\",\r\n       \"Description\": 
+\"This is for demoing the Rest API Mfg Order Creation \",\r\n       
+\"Product\": {\r\n               \"Name\": \"{{productName}}\",\r\n               \"Revision\": 
+\"1\"\r\n       },\r\n       \"Qty\": \"10\",\r\n       \"UOM\": {\r\n               \"Name\": 
+\"Each\"\r\n       },\r\n       \"Qty2\": \"10\",\r\n       \"BillOfProcess\": {\r\n               
+B-12 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 165 ===
+AppendixB:ExecutingaManufacturingOrder
+\"Name\": \"{{billofprocessName}}\",\r\n               \"Revision\": \"1\"\r\n       },\r\n       
+\"ERPBOM\": {\r\n               \"Name\": \"{{erpbomName}}\",\r\n               \"Re-
+vision\":\"1\"\r\n       },\r\n       \"MaterialList\": [\r\n               {\r\n                       \"Product\": 
+{\r\n                               \"Name\": \"{{productName}}\",\r\n                               \"UseROR\": true\r\n                       },\r\n                       
+\"IssueControl\": 1,\r\n                       \"QtyRequired\": 10\r\n               }\r\n       ]\r\n}",
+"options": {
+"raw": {
+"language": "json"
+}
+}
+},
+"url": {
+"raw": "{{url}}/MFGOrders",
+"host": [
+"{{url}}"
+],
+"path": [
+"MFGOrders"
+]
+}
+},
+"response": []
+}
+],
+"auth": {
+"type": "bearer",
+"bearer": [
+{
+"key": "token",
+"value": "ewo-
+gICJVc2VyTmFtZSI6ICJDYW1zdGFyQWRtaW4iLAo-
+gICJTZXNz-
+aW9uSUQiOiB7CiAgICAiVmFs-
+dWUiOiAiYjY4YjFkNzgtYzg4OC00NWNlLWI3YzYtMDFkN2UzNzA1Yjc1IgogIH0KfQoK",
+"type": "string"
+}
+]
+},
+Release2510+Rev.1 TechnicalReference:RESTAPI B-13
+
+=== PDF PAGE 166 ===
+AppendixB:ExecutingaManufacturingOrder
+"event": [
+{
+"listen": "prerequest",
+"script": {
+"type": "text/javascript",
+"exec": [
+""
+]
+}
+},
+{
+"listen": "test",
+"script": {
+"type": "text/javascript",
+"exec": [
+""
+]
+}
+}
+],
+"variable": [
+{
+"key": "url",
+"value": "https://<servername>/modeling/api/"
+}
+]
+}
+Note: For use in this example, you can save the JSON file listed above to your desktop. Specify your 
+own credentials and server name.
+ 
+B-14 TechnicalReference:RESTAPI Release2510+Rev.1
+
+=== PDF PAGE 167 ===
+Release2510+Rev.1 TechnicalReference:RESTAPI Index-1
+Index
+@
+@odata.type  1-23
+< 
+< __execute/>   node
+Application Server  4-3
+A
+AdvancedPerformEvent  1-46
+API services  1-4
+configuration  1-2
+application pool name  1-4
+appsettings.json file  1-5
+audience requirements  vii
+authentication  1-3, 1-10
+authorization  1-3, 1-10
+B
+benefits of REST API  1-2
+C
+Change Management transaction examples  3-11
+considerations
+for REST API  A-2
+D
+document attachment
+Shopfloor API  3-7
+download
+document attachment  3-7
+E
+encryption of password  1-5
+endpoints  1-30, 1-63
+error responses  A-5
+example
+Change Management transactions  3-11
+manufacturing order  B-2
+Modeling transactions  2-49, 2-50, B-2
+resource transactions  3-10
+Shop Floor transactions  3-9
+F
+filter tags  1-57
+I
+IIS application name  1-4
+installation  1-4
+J
+JSON  B-2
+JSON payloads  1-17
+L
+Labels APIs  5-1
+Labels transaction examples  5-3
+M
+manufacturing order example  B-2
+Modeling API examples  2-39
+Modeling APIs  2-1
+overview  2-39
+Modeling OData example  2-39
+Modeling OpenAPI example  2-44
+Modeling transaction examples  2-49, B-2
+O
+OData example  2-39
+Opcenter Connect MOM transaction examples  2-50
+OpenAPI example  2-44
+
+=== PDF PAGE 168 ===
+Index
+Index-2 TechnicalReference:RESTAPI Release2510+Rev.1
+overview
+API service operational overview  1-2
+Overview of Modeling REST API  2-1
+Overview of REST API  1-1
+Overview of Shop Floor REST API  3-1
+P
+password  1-10
+payloads
+JSON  1-17
+PerformEvent  1-41
+Q
+Query APIs  4-1
+overview  4-3
+query parameters  2-31
+Query transaction examples  4-6
+R
+Request methods and URL formats
+Labels  5-2
+Modeling  2-2
+Query  4-2
+Shop Floor  3-2
+RequestSelectionValues  1-35
+required fields
+Portal and Designer  A-2
+Resource transaction examples  3-10
+REST API Overview  1-1
+REST API Services locating in Designer  1-15
+S
+security information  x
+selection values  1-30
+session ID  1-10
+Shop Floor APIs  3-1
+overview  3-3
+Shop Floor transaction examples  3-9
+T
+technical changes to this manual  x
+technical support  ix
+U
+URL for API services  1-16
+user name  1-10
+user name and password  1-5
+V
+verbs  2-4, 4-3
+
+=== PDF PAGE 169 ===
+
+
+=== PDF PAGE 170 ===
+Headquarters
+Granite Park One
+5800 Granite Parkway
+Suite 600
+Plano, TX 75024
+USA
++1 972 987 3000
+ 
+Office(s)
+13024 Ballantyne Corporate Place
+Suite 300
+Charlotte, NC 28277
+USA
++1 704 227 6600
+SiemensIndustrySoftware
+ 
+About Siemens Digital Industries Software
+Siemens Digital Industries Software helps organizations 
+of all sizes digitally transform using software, hardware 
+and services from the Siemens Xcelerator business 
+platform. Siemens' software and the comprehensive 
+digital twin enable companies to optimize their design, 
+engineering and manufacturing processes to turn 
+today's ideas into the sustainable products of the 
+future. From chips to entire systems, from product to 
+process, across all industries. Siemens Digital Industries 
+Software – Accelerating transformation.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+© Siemens 2025
+A list of relevant Siemens trademarks can be found here. 
+Other trademarks belong to their respective owners.
