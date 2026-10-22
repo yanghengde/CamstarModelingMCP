@@ -52,6 +52,10 @@ function setView(next, update = true) {
     }
     closeNavigation();
 }
+function updateSessionDivider() {
+    document.querySelector('.recent-heading')?.classList.toggle('is-scrolled', $('sessionListUI').scrollTop > 0);
+}
+$('sessionListUI').addEventListener('scroll', updateSessionDivider, {passive: true});
 function renderSessions() {
     $('sessionListUI').replaceChildren(); $('recordList').replaceChildren();
     const matches = matchingRecords();
@@ -87,6 +91,7 @@ function renderSessions() {
     if (!sessions.length) { $('sessionListUI').textContent = '还没有历史对话'; $('recordList').textContent = '开始一次对话，记录将显示在这里。'; }
     else if (!matches.length) $('recordList').textContent = '没有找到匹配的记录';
     $('recordLoadStatus').textContent = matches.length ? `已显示 ${Math.min(recordLimit, matches.length)} / ${matches.length} 条` + (recordLimit < matches.length ? '，向下滚动加载更多' : '，已显示全部') : '';
+    updateSessionDivider();
 }
 document.addEventListener('input', event => {
     if (event.target.id !== 'recordSearch') return;
@@ -244,7 +249,14 @@ $('guideToggle').onclick = () => { $('modelingGuide').hidden = !$('modelingGuide
 $('menuToggle').onclick = () => { const open = document.body.classList.toggle('sidebar-open'); $('menuToggle').setAttribute('aria-expanded',String(open)); };
 $('sidebarBackdrop').onclick = closeNavigation;
 document.addEventListener('keydown',event => { if (event.key === 'Escape') closeNavigation(); });
-$('msgs').onclick = event => { const card = event.target.closest('[data-prompt]'); if (card && !busy) { $('inputBox').value = card.dataset.prompt; $('inputBox').focus(); } };
+$('msgs').onclick = event => {
+    if (event.target.closest('[data-capabilities]') && !busy && initialized) {
+        send('你具备哪些能力？请根据实际能力目录简要介绍，并说明尚不支持的内容。');
+        return;
+    }
+    const card = event.target.closest('[data-prompt]');
+    if (card && !busy) { $('inputBox').value = card.dataset.prompt; $('inputBox').focus(); }
+};
 async function initialize() {
     setBusy(true); setView(view,false);
     try { const config = await api('/config'); username = config.username; $('username').textContent = username; $('connectionText').textContent = config.agent_engine === 'langgraph' ? 'LangGraph 已连接' : '传统执行引擎'; $('connection').classList.add('connected'); await refreshSessions(); if (!sessionId) { await newSession(); await refreshSessions(); } await loadHistory(); initialized = true; }

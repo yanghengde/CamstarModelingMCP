@@ -311,3 +311,13 @@
 @supports not (scrollbar-gutter: stable) {
     .messages, .records { overflow-y: scroll; }
 }
+
+/* Scroll boundary under the fixed recent-conversations heading. */
+.recent-heading { position: relative; }
+.recent-heading::after { content: ''; position: absolute; left: -12px; right: calc(-12px - var(--sidebar-inset, 16px)); bottom: -11px; height: 1px; background: #dce0e4; opacity: 0; pointer-events: none; }
+.recent-heading.is-scrolled::after { opacity: 1; }
+
+.welcome-minimal { text-align: center; padding: clamp(64px, 15vh, 150px) 0 48px; }
+.welcome-minimal h2 { font-size: clamp(23px, 2.2vw, 28px); font-weight: 500; line-height: 1.5; letter-spacing: 0; color: #292b2e; }
+.capability-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; padding: 8px 12px; border-radius: 8px; color: #777a80; font-size: 13px; }
+.capability-link:hover { background: #f5f5f5; color: #292b2e; }
