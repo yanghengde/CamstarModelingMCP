@@ -20,6 +20,7 @@ ROUTING_INSTRUCTION = (
     "工具按任务领域加载。缺少所需工具时先调用 load_tool_group，选择 workflow/spec/operation/"
     "product/mfgorder/container/reference/query/excel；下一轮会获得该组定义。查询优先只读；"
     "需要修改时 include_writes=true。工具加载不代表获得业务写入授权。"
+    "产品完整工艺链优先 get_product_process；复杂 Workflow 分支、返工和子流程优先 get_workflow_structure。"
     "对象关联详情优先 get_spec_details/get_product_details/get_operation_details/get_mfgorder_details；"
     "容器状态/历史优先 get_container_details/get_container_history；工单前后置过程任务用 get_mfgorder_execution。"
     "检查 complete/pages/warnings，不把空字段当作未配置，不把前后置过程进度当成生产完成数量。"

@@ -105,7 +105,7 @@ async def _read_steps(workflow_id: str) -> dict:
             "step_type": item.get("StepType"), "sequence": item.get("Sequence"),
             "is_first_step": item.get("IsFirstStep"), "is_last_step": item.get("IsLastStep"),
             "spec": _ref(item.get("Spec")), "operation": _ref(item.get("Operation")),
-            "subworkflow": _ref(item.get("Workflow")),
+            "subworkflow": _ref(item.get("SubWorkflow")),
             "default_path": _ref(item.get("DefaultPath")),
             "paths": [{"name": p.get("Name"), "is_default": p.get("IsDefaultPath"),
                        "from_step": _ref(p.get("FromStep")), "to_step": _ref(p.get("ToStep"))}

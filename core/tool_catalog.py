@@ -9,6 +9,8 @@ class ToolPolicy:
     always_confirm: bool = False
 
 TOOL_POLICIES = {
+    "get_workflow_structure": ToolPolicy("workflow"),
+    "get_product_process": ToolPolicy("product"),
     "load_tool_group": ToolPolicy("system"),
     "get_spec_details": ToolPolicy("spec"),
     "get_product_details": ToolPolicy("product"),

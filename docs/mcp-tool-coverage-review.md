@@ -1,5 +1,7 @@
 # MCP 工具覆盖与加载评估
 
+> 此文为最初 107 工具审查快照，不代表当前未完成清单。按需加载与基础详情已实施，见 [工具加载说明](tool-loading-and-details.md)。后续新增高级工艺结构、产品工艺链和历史兜底查询，当前 117 工具；最新验收与剩余样本限制见 [高优先级增强](process-context-enhancement.md)。
+
 检查日期：2026-10-22。范围：当前代码注册表、现有 Swagger，以及配置环境的 Modeling、Shopfloor、Query 实时 Swagger 和 Modeling `$metadata`。本次未新增业务工具、未执行候选业务事务。
 
 ## 结论
