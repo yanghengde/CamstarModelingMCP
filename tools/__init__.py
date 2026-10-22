@@ -25,6 +25,7 @@ mcp = FastMCP(
 from tools import specs                # Spec 实体
 from tools import operations           # Operation 实体
 from tools import workflows            # Workflow 实体
+from tools import workflow_steps        # Workflow 步骤与路径只读查询
 from tools import products             # Product 实体
 from tools import mfgorders            # MfgOrder 实体
 from tools import container_start       # Shopfloor Container Start 事务
@@ -44,7 +45,7 @@ def get_tool_func(name: str):
     按函数名查找已注册的工具函数，供 Agent 直接调用。
     新增模块时，将对应 module 加入列表即可。
     """
-    for module in [specs, operations, workflows, products, mfgorders,
+    for module in [specs, operations, workflows, workflow_steps, products, mfgorders,
                    container_start, container_moves, container_quality,
                    numbering_rules,
                    container_levels, queries,
