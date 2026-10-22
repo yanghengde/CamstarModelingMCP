@@ -7,7 +7,7 @@ from fastapi import APIRouter, File, Query, UploadFile
 from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel
 
-from config import CAMSTAR_USERNAME, ENABLE_PERFORMANCE_LOG
+from config import CAMSTAR_USERNAME, ENABLE_PERFORMANCE_LOG, AGENT_ENGINE
 from agent.memory import get_user_messages, get_sessions, create_session, set_active_session
 from agent.llm_client import chat_stream
 from agent.experience import get_experience_status, list_candidates
@@ -23,6 +23,7 @@ class ChatRequest(BaseModel):
 
 
 @router.get("/")
+@router.get("/records")
 def index():
     """返回主页 HTML。"""
     html_path = os.path.join("static", "index.html")
@@ -33,7 +34,16 @@ def index():
 @router.get("/config")
 def config_endpoint():
     """返回前端所需的配置（如当前绑定用户名）。"""
-    return {"username": CAMSTAR_USERNAME}
+    return {"username": CAMSTAR_USERNAME, "agent_engine": AGENT_ENGINE}
+
+
+@router.get("/workflow/{username}/{session_id}")
+async def workflow_endpoint(username: str, session_id: str):
+    """Read checkpoint state without creating a session or executing tools."""
+    if AGENT_ENGINE != "langgraph":
+        return {"engine": AGENT_ENGINE, "status": "unavailable"}
+    from agent.langgraph_runtime import get_workflow_status
+    return await get_workflow_status(username, session_id)
 
 
 @router.get("/sessions/{username}")

@@ -77,6 +77,7 @@ def create_app() -> FastAPI:
         app.mount("/svg", StaticFiles(directory=svg_dir), name="svg")
 
     # 注册路由
+    app.mount("/static", StaticFiles(directory="static"), name="static")
     app.include_router(router)
 
     if ENABLE_MCP_HTTP:

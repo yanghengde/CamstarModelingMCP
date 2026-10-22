@@ -422,6 +422,27 @@ async def close_langgraph_runtime() -> None:
     _checkpointer_cm = None
 
 
+async def get_workflow_status(username: str, session_id: str) -> dict[str, Any]:
+    """Expose only UI-safe checkpoint metadata, never prompts or tool arguments."""
+    result: dict[str, Any] = {"engine": "langgraph", "status": "idle"}
+    if session_id not in user_memories.get(username, {}).get("sessions", {}):
+        return result
+    if _graph is None:
+        return {**result, "status": "unavailable"}
+    snapshot = await _graph.aget_state(_graph_config(username, session_id))
+    approval = _first_interrupt_value(snapshot)
+    if approval is not None:
+        return {**result, "status": "approval_required", "approval": approval}
+    if snapshot.values:
+        reason = snapshot.values.get("stop_reason", "")
+        # A checkpoint with pending nodes does not prove a live worker exists.
+        result["status"] = "incomplete" if snapshot.next else {
+            "complete": "complete", "cancelled": "cancelled",
+            "loop_limit": "limited",
+        }.get(reason, "idle")
+    return result
+
+
 async def _stream_graph(
     graph_input: AgentState | Command,
     graph_config: dict[str, Any],
