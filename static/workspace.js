@@ -7,7 +7,12 @@ let busy = false, controller = null, pendingApproval = false, initialized = fals
 let view = location.pathname === '/records' ? 'records' : 'chat';
 let recordLimit = 30;
 function startedSessions() {
-    return sessions.filter(session => session.has_messages);
+    return sessions.filter(session => {
+        if (typeof session.has_messages === 'boolean') return session.has_messages;
+        // Older running servers do not expose message metadata yet.
+        // Their untouched drafts have an automatically numbered title.
+        return !/^新对话 \d+$/.test(session.title || '');
+    });
 }
 function matchingRecords() {
     const query = $('recordSearch').value.trim().toLocaleLowerCase();
@@ -183,7 +188,7 @@ async function send(explicitText) {
         if (!sessionId) { await newSession(); await refreshSessions(); }
         appendMessage('user', text + (file ? `\n附件：${file.filename}` : ''));
         const currentSession = sessions.find(session => session.id === sessionId);
-        if (currentSession && !currentSession.has_messages) {
+        if (currentSession && !startedSessions().some(session => session.id === sessionId)) {
             currentSession.has_messages = true;
             currentSession.title = text.slice(0, 30) || file?.filename || '新对话';
             renderSessions();
