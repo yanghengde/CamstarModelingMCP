@@ -141,7 +141,11 @@ def get_sessions(username: str) -> list:
     sessions = user_memories[username].get("sessions", {})
     # 按时间或自然序号直接吐出列表信息
     return sorted(
-        [{"id": k, "title": v.get("title", "会话"), "updated_at": v.get("updated_at", 0)}
+        [{"id": k, "title": v.get("title", "会话"), "updated_at": v.get("updated_at", 0),
+          "has_messages": any(
+              message.get("role") in ("user", "assistant") and bool(message.get("content"))
+              for message in v.get("messages", [])
+          )}
          for k, v in sessions.items()],
         key=lambda item: (item["updated_at"], item["id"]),
     )

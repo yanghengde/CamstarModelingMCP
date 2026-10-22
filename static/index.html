@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f8fa"><title>Opcenter · 制造工作台</title>
-<link rel="icon" href="/static/svg/manufacturing-assistant.svg?v=2"><link rel="stylesheet" href="/static/workspace.css?v=20261022-minimal-welcome">
+<link rel="icon" href="/static/svg/manufacturing-assistant.svg?v=2"><link rel="stylesheet" href="/static/workspace.css?v=20261022-new-chat">
 <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script><script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js"></script>
 </head><body>
 <button class="sidebar-backdrop" id="sidebarBackdrop" aria-label="关闭导航"></button>
 <div class="app-shell"><aside class="sidebar" aria-label="工作台导航">
 <a class="brand" href="/"><img class="brand-mark" src="/static/svg/manufacturing-assistant.svg?v=2" alt="制造助手"><div><div class="brand-name">Opcenter</div><div class="brand-subtitle">MANUFACTURING WORKSPACE</div></div></a>
-<button class="new-chat" id="newChatTopBtn">＋ 新建对话</button>
+<button class="new-chat new-chat-entry" id="newChatTopBtn" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H7a4 4 0 0 0-4 4v10a4 4 0 0 0 4 4h10a4 4 0 0 0 4-4v-5"/><path d="m16 3-8 8-1 4 4-1 8-8a2.12 2.12 0 0 0-3-3Z"/></svg><span>新建对话</span></button>
 <nav class="nav"><a class="nav-item active" id="chatNav" href="/">◈　制造助手</a><a class="nav-item" id="recordsNav" href="/records">▤　操作记录</a><a class="nav-item" href="/logs">☷　运行日志</a></nav>
 <div class="recent-heading">最近对话</div><div class="session-list" id="sessionListUI"></div>
 <div class="sidebar-footer"><div class="user-profile"><span class="avatar">M</span><div><div class="user-name" id="username">正在连接</div></div><span class="siemens">SIEMENS</span></div></div></aside>
@@ -20,4 +20,4 @@
 <aside class="guide" id="modelingGuide" hidden><div class="guide-title">从需求到建模数据</div><p class="guide-intro">描述业务对象、实例名称和需要修改的内容。</p><ol><li><strong>查询现有数据</strong><p>先确认对象类型、实例名称与当前配置。</p></li><li><strong>明确操作范围</strong><p>说明创建或修改的字段，也可上传 Excel 或 CSV。</p></li><li><strong>确认待执行操作</strong><p>触发确认时，核对影响范围，再确认执行或取消。</p></li><li><strong>检查执行结果</strong><p>查看回复与运行日志，必要时重新查询核验。</p></li></ol><div class="guide-note">停止接收回答不会撤销已经完成的操作。刷新页面后可重新查看待确认状态。</div></aside></div></main></div>
 <div id="notice" role="alert" hidden></div>
 <template id="welcomeTemplate"><section class="welcome welcome-minimal"><h2>有什么可以帮你？</h2><button type="button" class="capability-link" data-capabilities>查看支持的能力 <span aria-hidden="true">→</span></button></section></template>
-<script src="/static/workspace.js?v=20261022-minimal-welcome"></script></body></html>
+<script src="/static/workspace.js?v=20261022-hide-empty-sessions"></script></body></html>

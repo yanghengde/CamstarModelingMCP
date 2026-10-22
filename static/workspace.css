@@ -34,6 +34,9 @@
         .brand-subtitle { color: var(--secondary); font-size: 11px; margin-top: 3px; letter-spacing: .8px; }
         .new-chat { display: flex; justify-content: center; align-items: center; gap: 8px; height: 38px; border: 1px solid #d8dde2; border-radius: 7px; background: white; margin: 29px 4px 24px; font-size: 13px; font-weight: 550; box-shadow: 0 1px 2px #18202a04; }
         .new-chat:hover { border-color: #aabbb6; background: #fcfefd; }
+        .new-chat-entry { justify-content: flex-start; gap: 10px; flex-shrink: 0; padding: 10px 12px; margin: 29px 0 24px; height: 40px; border: 0; background: transparent; color: #45474b; font-size: 14px; font-weight: 400; box-shadow: none; text-align: left; }
+        .new-chat-entry:hover:not(:disabled) { background: #e8ecef; }
+        .new-chat-entry:disabled { background: transparent; }
         .nav { display: grid; gap: 5px; }
         .nav-item { display: flex; gap: 11px; align-items: center; border-radius: 7px; padding: 10px 12px; font-size: 13px; text-align: left; color: var(--secondary); }
         .nav-item:hover { background: #e8ecef; }

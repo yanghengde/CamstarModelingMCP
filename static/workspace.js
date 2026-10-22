@@ -6,9 +6,12 @@ let username = '', sessionId = null, sessions = [], attachment = null;
 let busy = false, controller = null, pendingApproval = false, initialized = false;
 let view = location.pathname === '/records' ? 'records' : 'chat';
 let recordLimit = 30;
+function startedSessions() {
+    return sessions.filter(session => session.has_messages);
+}
 function matchingRecords() {
     const query = $('recordSearch').value.trim().toLocaleLowerCase();
-    return sessions.filter(session => (session.title || '未命名对话').toLocaleLowerCase().includes(query));
+    return startedSessions().filter(session => (session.title || '未命名对话').toLocaleLowerCase().includes(query));
 }
 const statusLabels = {idle:'准备就绪', complete:'任务已完成', cancelled:'待确认操作已取消', limited:'已达到执行上限', incomplete:'上次流程尚未完成，请核对执行结果后继续', unavailable:'流程状态暂不可用', approval_required:'等待确认操作'};
 async function api(url, options) {
@@ -61,7 +64,9 @@ function renderSessions() {
     const matches = matchingRecords();
     const visibleIds = new Set(matches.slice(0, recordLimit).map(session => session.id));
     let lastDay = null;
-    for (const [index, session] of sessions.entries()) {
+    const started = startedSessions();
+    document.querySelector('.recent-heading').hidden = !started.length;
+    for (const [index, session] of started.entries()) {
         const targets = [];
         if (index < 30) targets.push('sessionListUI');
         if (visibleIds.has(session.id)) targets.push('recordList');
@@ -88,7 +93,7 @@ function renderSessions() {
             $(target).append(button);
         }
     }
-    if (!sessions.length) { $('sessionListUI').textContent = '还没有历史对话'; $('recordList').textContent = '开始一次对话，记录将显示在这里。'; }
+    if (!started.length) { $('recordList').textContent = '开始一次对话，记录将显示在这里。'; }
     else if (!matches.length) $('recordList').textContent = '没有找到匹配的记录';
     $('recordLoadStatus').textContent = matches.length ? `已显示 ${Math.min(recordLimit, matches.length)} / ${matches.length} 条` + (recordLimit < matches.length ? '，向下滚动加载更多' : '，已显示全部') : '';
     updateSessionDivider();
@@ -177,6 +182,12 @@ async function send(explicitText) {
     try {
         if (!sessionId) { await newSession(); await refreshSessions(); }
         appendMessage('user', text + (file ? `\n附件：${file.filename}` : ''));
+        const currentSession = sessions.find(session => session.id === sessionId);
+        if (currentSession && !currentSession.has_messages) {
+            currentSession.has_messages = true;
+            currentSession.title = text.slice(0, 30) || file?.filename || '新对话';
+            renderSessions();
+        }
         started = performance.now(); work = createWorkSummary('Working…');
         timer = setInterval(() => { work.summary.textContent = `Working for ${Math.floor((performance.now() - started) / 1000)}s`; }, 1000);
         $('inputBox').value = ''; clearAttachment(); $('approvalCard').hidden = true; status('正在分析需求…');
