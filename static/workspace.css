@@ -207,7 +207,7 @@
 .session-list, .messages { scrollbar-color: #d4d4d4 transparent; }
 .session-list:hover, .messages:hover { scrollbar-color: #bdbdbd transparent; }
 @supports selector(::-webkit-scrollbar) {
-    *, .session-list, .messages { scrollbar-width: auto; scrollbar-color: auto; }
+    *, *:hover, .session-list, .session-list:hover, .messages, .messages:hover { scrollbar-width: auto; scrollbar-color: auto; }
     *::-webkit-scrollbar { width: 8px; height: 8px; }
     *::-webkit-scrollbar-track { background: transparent; }
     *::-webkit-scrollbar-thumb { background: #d4d4d4; border: 1px solid transparent; background-clip: padding-box; border-radius: 999px; }
@@ -303,3 +303,11 @@
 .work-summary[open] summary::after { transform: rotate(90deg); }
 .work-summary summary:focus-visible { outline: 2px solid #777; outline-offset: 4px; }
 .work-steps { padding: 14px 0 3px; font-size: 12px; line-height: 1.9; color: #737780; }
+
+/* Reserve scroll space and keep native/custom modes identical on hover. */
+.messages, .records, .session-list, .log-list, .main-content, .guide, .composer-area {
+    scrollbar-gutter: stable;
+}
+@supports not (scrollbar-gutter: stable) {
+    .messages, .records { overflow-y: scroll; }
+}

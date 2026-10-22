@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f8fa"><title>Opcenter · 制造工作台</title>
-<link rel="icon" href="/static/svg/manufacturing-assistant.svg?v=2"><link rel="stylesheet" href="/static/workspace.css?v=20261022-work-summary">
+<link rel="icon" href="/static/svg/manufacturing-assistant.svg?v=2"><link rel="stylesheet" href="/static/workspace.css?v=20261022-stable-scroll">
 <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script><script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js"></script>
 </head><body>
 <button class="sidebar-backdrop" id="sidebarBackdrop" aria-label="关闭导航"></button>
@@ -10,7 +10,7 @@
 <nav class="nav"><a class="nav-item active" id="chatNav" href="/">◈　制造助手</a><a class="nav-item" id="recordsNav" href="/records">▤　操作记录</a><a class="nav-item" href="/logs">☷　运行日志</a></nav>
 <div class="recent-heading">最近对话</div><div class="session-list" id="sessionListUI"></div>
 <div class="sidebar-footer"><div class="user-profile"><span class="avatar">M</span><div><div class="user-name" id="username">正在连接</div></div><span class="siemens">SIEMENS</span></div></div></aside>
-<main class="workspace"><header class="topbar"><div class="breadcrumbs"><button class="menu-toggle" id="menuToggle" aria-label="展开导航" aria-expanded="false">☰</button><span>工作台</span><span>›</span><h1 id="pageTitle">制造助手</h1></div><div class="top-actions"><div class="connection" id="connection" role="status" hidden><span class="status-dot"></span><span id="connectionText">正在连接</span></div><button class="guide-toggle" id="guideToggle" aria-expanded="false" aria-controls="modelingGuide">建模指南</button></div></header>
+<main class="workspace"><header class="topbar"><div class="breadcrumbs"><button class="menu-toggle" id="menuToggle" aria-label="展开导航" aria-expanded="false">☰</button><span>工作台</span><span>›</span><h1 id="pageTitle">制造助手</h1></div><div class="top-actions"><div class="connection" id="connection" role="status" hidden><span class="status-dot"></span><span id="connectionText">正在连接</span></div><button class="guide-toggle" id="guideToggle" hidden aria-expanded="false" aria-controls="modelingGuide">建模指南</button></div></header>
 <div class="content-layout"><section class="chat-column" id="chatColumn"><div class="messages" id="msgs" aria-label="对话内容"></div>
 <div class="composer-area"><div id="workflowStatus" class="sr-only" role="status">准备就绪</div><section id="approvalCard" class="approval" hidden aria-label="操作确认"><strong>操作等待确认</strong><p id="approvalText"></p><button id="approveBtn">确认执行</button><button id="rejectBtn" class="secondary">取消操作</button></section>
 <form class="composer" id="composerForm"><input type="file" id="fileInput" accept=".xlsx,.xls,.csv" hidden><div id="attachmentArea" class="attachment-chip" hidden><span id="attachmentName"></span><button type="button" id="removeAttachmentBtn" aria-label="移除附件">×</button></div>
