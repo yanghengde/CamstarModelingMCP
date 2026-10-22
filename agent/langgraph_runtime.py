@@ -49,6 +49,7 @@ from config import (
 )
 from core.perf_logger import record_perf
 from tools import get_tool_func
+from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCTION
 
 
 class AgentState(TypedDict, total=False):
@@ -142,7 +143,7 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
         model_messages = list(state.get("messages", []))
         language_message = {
             "role": "system",
-            "content": USER_FACING_LANGUAGE_RULE + "\n" + QUERY_EFFICIENCY_RULE,
+            "content": USER_FACING_LANGUAGE_RULE + "\n" + QUERY_EFFICIENCY_RULE + "\n" + ROUTING_INSTRUCTION,
         }
         insert_at = 1 if model_messages and model_messages[0].get("role") == "system" else 0
         model_messages.insert(insert_at, language_message)
@@ -157,10 +158,11 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
         if exhausted:
             model_messages.append({"role": "system", "content":
                 "本轮查询连续失败，停止调用工具。请立即用中文总结已取得的数据和失败原因，不得声称查询完整或成功。"})
+        selected_tools = select_tools(_openai_tools, model_messages)
         response_stream = await _client.chat.completions.create(
             model=LLM_MODEL,
             messages=model_messages,
-            tools=_openai_tools,
+            tools=selected_tools,
             tool_choice="none" if exhausted else "auto",
             stream=True,
         )
@@ -207,6 +209,7 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
             "model": LLM_MODEL,
             "prompt": state.get("request_message", ""),
             "streamed": True,
+            **selection_metrics(selected_tools, len(_openai_tools)),
             "engine": "langgraph",
         },
     )
@@ -370,6 +373,12 @@ async def _execute_tool_node(state: AgentState) -> dict[str, Any]:
     read_failures = int(state.get("read_failures", 0))
     if func_name.startswith(("get_", "list_")):
         failed = str(result).startswith(("❌", "Error"))
+        if not failed:
+            try:
+                parsed_result = json.loads(result)
+                failed = isinstance(parsed_result, dict) and bool(parsed_result.get("error"))
+            except (TypeError, ValueError):
+                pass
         read_failures = read_failures + 1 if failed else 0
     return {
         "messages": state.get("messages", []) + [tool_message],

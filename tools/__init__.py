@@ -7,6 +7,7 @@ MCP 工具注册中心
 
 import logging
 from fastmcp import FastMCP
+from core.tool_catalog import TOOL_POLICIES
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
@@ -37,6 +38,7 @@ from tools import queries               # Query API 查询
 from tools import mfglines             # MfgLine 实体
 from tools import producttypes         # ProductType 实体
 from tools import excel_importer       # Excel 导入工具
+from tools import modeling_details, container_inquiry, tool_discovery
 from tools import system_info          # MCP 服务诊断（无外部副作用）
 
 
@@ -45,7 +47,9 @@ def get_tool_func(name: str):
     按函数名查找已注册的工具函数，供 Agent 直接调用。
     新增模块时，将对应 module 加入列表即可。
     """
-    for module in [specs, operations, workflows, workflow_steps, products, mfgorders,
+    if name not in TOOL_POLICIES:
+        return None
+    for module in [modeling_details, container_inquiry, tool_discovery, specs, operations, workflows, workflow_steps, products, mfgorders,
                    container_start, container_moves, container_quality,
                    numbering_rules,
                    container_levels, queries,

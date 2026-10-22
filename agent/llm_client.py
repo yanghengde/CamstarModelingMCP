@@ -17,6 +17,9 @@ from config import (
 )
 from agent.memory import get_user_messages, save_user_session, update_session_title, user_memories
 from tools import mcp, get_tool_func
+from core.tool_catalog import TOOL_POLICIES
+from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCTION
+from agent.safety import MutationCounts, count_tool_calls, evaluate_mutations, approval_prompt, is_explicit_confirmation
 from core.perf_logger import record_perf
 
 logger = logging.getLogger(__name__)
@@ -40,6 +43,8 @@ async def register_tools():
 
     mcp_tools = await mcp.list_tools()
     for t in mcp_tools:
+        if t.name not in TOOL_POLICIES or get_tool_func(t.name) is None:
+            raise RuntimeError(f"Tool lacks explicit policy or callable: {t.name}")
         openai_tools.append({
             "type": "function",
             "function": {
@@ -86,9 +91,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             last_user_msg = m.get("content", "").strip()
             break
             
-    confirmed_words = ["确认", "确定", "是", "修改", "ok", "yes", "y", "继续"]
-    # 如果用户的回复很短，且包含确认词，视为赋予了最高授权
-    is_user_confirmation = len(last_user_msg) < 20 and any(w in last_user_msg.lower() for w in confirmed_words)
+    is_user_confirmation = is_explicit_confirmation(last_user_msg)
 
     loops = 0
     turn_create_count = 0
@@ -106,10 +109,13 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
 
         try:
             llm_start_time = time.time()
+            selected_tools = select_tools(openai_tools, chat_messages)
+            model_messages = list(chat_messages)
+            model_messages.insert(1, {"role": "system", "content": ROUTING_INSTRUCTION})
             response_stream = await oai_client.chat.completions.create(
                 model=LLM_MODEL,
-                messages=chat_messages,
-                tools=openai_tools,
+                messages=model_messages,
+                tools=selected_tools,
                 tool_choice="auto",
                 stream=True
             )
@@ -152,7 +158,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
                                 tool_calls_dict[idx]["function"]["arguments"] += tc.function.arguments
 
             llm_duration = time.time() - llm_start_time
-            record_perf("LLM_Inference", llm_duration, username, actual_session_id, {"model": LLM_MODEL, "prompt": message, "streamed": True})
+            record_perf("LLM_Inference", llm_duration, username, actual_session_id, {"model": LLM_MODEL, "prompt": message, "streamed": True, **selection_metrics(selected_tools, len(openai_tools))})
         except asyncio.CancelledError:
             print(f"[WARN] [中止] 用户取消了请求 [@{username}]")
             raise
@@ -184,72 +190,21 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
                 yield f"data: {json.dumps({'type': 'done', 'reply': full_content}, ensure_ascii=False)}\n\n"
             break
 
-        # 预计算本轮大宗修改工具的数量
-        current_batch_create_count = len([
-            tc for tc in response_tool_calls
-            if tc["function"]["name"].startswith(("create_",))
-            or tc["function"]["name"] == "container_start"
-        ])
-        shopfloor_update_tools = {
-            "container_move",
-            "container_move_in",
-            "container_move_out",
-            "container_defect",
-            "rework",
-            "execute_query_inquiry_event",
-        }
-        current_batch_update_count = len([
-            tc for tc in response_tool_calls
-            if tc["function"]["name"].startswith(
-                ("update_", "patch_", "rebuild_")
-            )
-            or tc["function"]["name"] in shopfloor_update_tools
-        ])
-        current_batch_delete_count = len([tc for tc in response_tool_calls if tc["function"]["name"].startswith(("delete_",))])
-
-        block_creates = (turn_create_count + current_batch_create_count) > SAFE_CREATE_THRESHOLD and not is_user_confirmation
-        block_updates = (turn_update_count + current_batch_update_count) > SAFE_UPDATE_THRESHOLD and not is_user_confirmation
-        block_deletes = (turn_delete_count + current_batch_delete_count) > SAFE_DELETE_THRESHOLD and not is_user_confirmation
-
-        # 依次执行工具调用
+        decision = evaluate_mutations(
+            MutationCounts(turn_create_count, turn_update_count, turn_delete_count),
+            response_tool_calls,
+        )
         for tool_call in response_tool_calls:
             func_name = tool_call["function"]["name"]
             func_args_str = tool_call["function"]["arguments"]
-            
-            # 创建拦截
-            if (func_name.startswith(("create_",))
-                    or func_name == "container_start"):
-                if block_creates:
-                    yield f"data: {json.dumps({'type': 'step', 'func': '🛡️ 创建安全锁', 'args': f'拦截 {func_name}'}, ensure_ascii=False)}\n\n"
-                    chat_messages.append({
-                        "role": "tool", "tool_call_id": tool_call["id"], "name": func_name,
-                        "content": f"⚠️ 系统拦截防御：检测到单轮意图创建达 {current_batch_create_count + turn_create_count} 条数据（超过 {SAFE_CREATE_THRESHOLD} 条配置参数）。必须暂停！请向用户罗列待修改的数据，并提示用户必须回复“确认删除/确认修改/确认创建”等词汇以解封。拿到授权后，可全部重新发起。"
-                    })
-                    continue
-                turn_create_count += 1
-                
-            # 修改拦截
-            elif (func_name.startswith(("update_", "patch_", "rebuild_"))
-                  or func_name in shopfloor_update_tools):
-                if block_updates:
-                    yield f"data: {json.dumps({'type': 'step', 'func': '🛡️ 修改安全锁', 'args': f'拦截 {func_name}'}, ensure_ascii=False)}\n\n"
-                    chat_messages.append({
-                        "role": "tool", "tool_call_id": tool_call["id"], "name": func_name,
-                        "content": f"⚠️ 系统拦截防御：检测到单轮意图修改/更新达 {current_batch_update_count + turn_update_count} 条数据（超过 {SAFE_UPDATE_THRESHOLD} 条配置参数）。必须暂停！请向用户罗列待修改的数据，并提示用户必须回复“确认修改/确认”等词汇以解封。拿到授权后，可全部重新发起。"
-                    })
-                    continue
-                turn_update_count += 1
-                
-            # 删除拦截
-            elif func_name.startswith(("delete_",)):
-                if block_deletes:
-                    yield f"data: {json.dumps({'type': 'step', 'func': '🛡️ 删除安全锁', 'args': f'拦截高危操作 {func_name}'}, ensure_ascii=False)}\n\n"
-                    chat_messages.append({
-                        "role": "tool", "tool_call_id": tool_call["id"], "name": func_name,
-                        "content": f"⚠️ 系统拦截防御：检测到单轮意图删除达 {current_batch_delete_count + turn_delete_count} 条数据（超过 {SAFE_DELETE_THRESHOLD} 条配置参数）。安全起见必须暂停执行！请向用户详细罗列明确这些【将被永久删除】的数据特征，并提示用户回复“确认删除”等词汇以解封。明确授权后才能重试发送。"
-                    })
-                    continue
-                turn_delete_count += 1
+            if decision.requires_approval and not is_user_confirmation:
+                chat_messages.append({"role": "tool", "tool_call_id": tool_call["id"],
+                                      "name": func_name, "content": approval_prompt(decision)})
+                continue
+            amount = count_tool_calls([tool_call])
+            turn_create_count += amount.creates
+            turn_update_count += amount.updates
+            turn_delete_count += amount.deletes
 
             print(f"[RUN] 执行: {func_name}({func_args_str}) [@{username}]")
             # 向前端推送当前正在调用的工具名

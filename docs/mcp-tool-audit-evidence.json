@@ -1,0 +1,1794 @@
+{
+  "endpoints": [
+    {
+      "service": "Modeling",
+      "name": "MfgOrders",
+      "paths": [
+        {
+          "path": "/api/MfgOrders",
+          "methods": [
+            "get",
+            "post"
+          ]
+        },
+        {
+          "path": "/api/MfgOrders/$count",
+          "methods": [
+            "get"
+          ]
+        },
+        {
+          "path": "/api/MfgOrders({key})",
+          "methods": [
+            "get",
+            "put",
+            "delete"
+          ]
+        },
+        {
+          "path": "/api/MfgOrders/{key}",
+          "methods": [
+            "get",
+            "put",
+            "delete"
+          ]
+        },
+        {
+          "path": "/api/MfgOrders/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Modeling",
+      "name": "Operations",
+      "paths": [
+        {
+          "path": "/api/Operations",
+          "methods": [
+            "get",
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Operations/$count",
+          "methods": [
+            "get"
+          ]
+        },
+        {
+          "path": "/api/Operations({key})",
+          "methods": [
+            "get",
+            "put",
+            "delete"
+          ]
+        },
+        {
+          "path": "/api/Operations/{key}",
+          "methods": [
+            "get",
+            "put",
+            "delete"
+          ]
+        },
+        {
+          "path": "/api/Operations/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Modeling",
+      "name": "Products",
+      "paths": [
+        {
+          "path": "/api/Products({key})",
+          "methods": [
+            "get",
+            "put",
+            "delete"
+          ]
+        },
+        {
+          "path": "/api/Products/{key}",
+          "methods": [
+            "get",
+            "put",
+            "delete"
+          ]
+        },
+        {
+          "path": "/api/Products",
+          "methods": [
+            "get",
+            "patch",
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Products/$count",
+          "methods": [
+            "get"
+          ]
+        },
+        {
+          "path": "/api/Products/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Modeling",
+      "name": "Specs",
+      "paths": [
+        {
+          "path": "/api/Specs({key})",
+          "methods": [
+            "get",
+            "put",
+            "delete"
+          ]
+        },
+        {
+          "path": "/api/Specs/{key}",
+          "methods": [
+            "get",
+            "put",
+            "delete"
+          ]
+        },
+        {
+          "path": "/api/Specs",
+          "methods": [
+            "get",
+            "patch",
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Specs/$count",
+          "methods": [
+            "get"
+          ]
+        },
+        {
+          "path": "/api/Specs/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Modeling",
+      "name": "Workflows",
+      "paths": [
+        {
+          "path": "/api/Workflows({key})",
+          "methods": [
+            "get",
+            "put",
+            "delete"
+          ]
+        },
+        {
+          "path": "/api/Workflows/{key}",
+          "methods": [
+            "get",
+            "put",
+            "delete"
+          ]
+        },
+        {
+          "path": "/api/Workflows",
+          "methods": [
+            "get",
+            "patch",
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Workflows/$count",
+          "methods": [
+            "get"
+          ]
+        },
+        {
+          "path": "/api/Workflows/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Shopfloor",
+      "name": "Associate",
+      "paths": [
+        {
+          "path": "/api/Associate",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Associate/PerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Associate({key})/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Associate/{key}/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Associate/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Associate/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Associate({key})",
+          "methods": [
+            "put"
+          ]
+        },
+        {
+          "path": "/api/Associate/{key}",
+          "methods": [
+            "put"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Shopfloor",
+      "name": "ChangeQty",
+      "paths": [
+        {
+          "path": "/api/ChangeQty",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ChangeQty/PerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ChangeQty({key})/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ChangeQty/{key}/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ChangeQty/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ChangeQty/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ChangeQty({key})",
+          "methods": [
+            "put"
+          ]
+        },
+        {
+          "path": "/api/ChangeQty/{key}",
+          "methods": [
+            "put"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Shopfloor",
+      "name": "Close",
+      "paths": [
+        {
+          "path": "/api/Close",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Close/PerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Close({key})/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Close/{key}/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Close/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Close/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Close({key})",
+          "methods": [
+            "put"
+          ]
+        },
+        {
+          "path": "/api/Close/{key}",
+          "methods": [
+            "put"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Shopfloor",
+      "name": "CollectData",
+      "paths": [
+        {
+          "path": "/api/CollectData",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/CollectData/PerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/CollectData({key})/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/CollectData/{key}/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/CollectData/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/CollectData/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/CollectData({key})",
+          "methods": [
+            "put"
+          ]
+        },
+        {
+          "path": "/api/CollectData/{key}",
+          "methods": [
+            "put"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Shopfloor",
+      "name": "Combine",
+      "paths": [
+        {
+          "path": "/api/Combine",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Combine/PerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Combine({key})/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Combine/{key}/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Combine/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Combine/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Combine({key})",
+          "methods": [
+            "put"
+          ]
+        },
+        {
+          "path": "/api/Combine/{key}",
+          "methods": [
+            "put"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Shopfloor",
+      "name": "ComponentIssue",
+      "paths": [
+        {
+          "path": "/api/ComponentIssue",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ComponentIssue/PerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ComponentIssue({key})/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ComponentIssue/{key}/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ComponentIssue/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ComponentIssue/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ComponentIssue({key})",
+          "methods": [
+            "put"
+          ]
+        },
+        {
+          "path": "/api/ComponentIssue/{key}",
+          "methods": [
+            "put"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Shopfloor",
+      "name": "ContainerMaint",
+      "paths": [
+        {
+          "path": "/api/ContainerMaint",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ContainerMaint/PerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ContainerMaint({key})/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ContainerMaint/{key}/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ContainerMaint/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ContainerMaint/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ContainerMaint({key})",
+          "methods": [
+            "put"
+          ]
+        },
+        {
+          "path": "/api/ContainerMaint/{key}",
+          "methods": [
+            "put"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Shopfloor",
+      "name": "Disassociate",
+      "paths": [
+        {
+          "path": "/api/Disassociate",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Disassociate/PerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Disassociate({key})/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Disassociate/{key}/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Disassociate/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Disassociate/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Disassociate({key})",
+          "methods": [
+            "put"
+          ]
+        },
+        {
+          "path": "/api/Disassociate/{key}",
+          "methods": [
+            "put"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Shopfloor",
+      "name": "Hold",
+      "paths": [
+        {
+          "path": "/api/Hold",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Hold/PerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Hold({key})/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Hold/{key}/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Hold/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Hold/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Hold({key})",
+          "methods": [
+            "put"
+          ]
+        },
+        {
+          "path": "/api/Hold/{key}",
+          "methods": [
+            "put"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Shopfloor",
+      "name": "MoveNonStd",
+      "paths": [
+        {
+          "path": "/api/MoveNonStd",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/MoveNonStd/PerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/MoveNonStd({key})/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/MoveNonStd/{key}/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/MoveNonStd/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/MoveNonStd/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/MoveNonStd({key})",
+          "methods": [
+            "put"
+          ]
+        },
+        {
+          "path": "/api/MoveNonStd/{key}",
+          "methods": [
+            "put"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Shopfloor",
+      "name": "Release",
+      "paths": [
+        {
+          "path": "/api/Release",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Release/PerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Release({key})/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Release/{key}/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Release/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Release/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Release({key})",
+          "methods": [
+            "put"
+          ]
+        },
+        {
+          "path": "/api/Release/{key}",
+          "methods": [
+            "put"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Shopfloor",
+      "name": "Split",
+      "paths": [
+        {
+          "path": "/api/Split",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Split/PerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Split({key})/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Split/{key}/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Split/AdvancedPerformEvent",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Split/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/Split({key})",
+          "methods": [
+            "put"
+          ]
+        },
+        {
+          "path": "/api/Split/{key}",
+          "methods": [
+            "put"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Query",
+      "name": "ContainerHistoryInquiry",
+      "paths": [
+        {
+          "path": "/api/ContainerHistoryInquiry",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ContainerHistoryInquiry/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ContainerHistoryInquiry({key})",
+          "methods": [
+            "put"
+          ]
+        },
+        {
+          "path": "/api/ContainerHistoryInquiry/{key}",
+          "methods": [
+            "put"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Query",
+      "name": "ContainerInfoInquiry",
+      "paths": [
+        {
+          "path": "/api/ContainerInfoInquiry",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ContainerInfoInquiry/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ContainerInfoInquiry({key})",
+          "methods": [
+            "put"
+          ]
+        },
+        {
+          "path": "/api/ContainerInfoInquiry/{key}",
+          "methods": [
+            "put"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Query",
+      "name": "MfgOrderInquiry",
+      "paths": [
+        {
+          "path": "/api/MfgOrderInquiry",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/MfgOrderInquiry/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/MfgOrderInquiry({key})",
+          "methods": [
+            "put"
+          ]
+        },
+        {
+          "path": "/api/MfgOrderInquiry/{key}",
+          "methods": [
+            "put"
+          ]
+        }
+      ]
+    },
+    {
+      "service": "Query",
+      "name": "ViewContainerStatus",
+      "paths": [
+        {
+          "path": "/api/ViewContainerStatus",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ViewContainerStatus/RequestSelectionValues",
+          "methods": [
+            "post"
+          ]
+        },
+        {
+          "path": "/api/ViewContainerStatus({key})",
+          "methods": [
+            "put"
+          ]
+        },
+        {
+          "path": "/api/ViewContainerStatus/{key}",
+          "methods": [
+            "put"
+          ]
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "ProductEntity": {
+      "navigation": [
+        {
+          "name": "Attributes",
+          "type": "Collection(modeling.UserAttributeChanges)"
+        },
+        {
+          "name": "AttachDocumentDetails",
+          "type": "Collection(modeling.AttachDocumentDetails)"
+        },
+        {
+          "name": "ChangeHistory",
+          "type": "modeling.ChangeHistoryChanges"
+        },
+        {
+          "name": "WIPMsgDefMgr",
+          "type": "modeling.WIPMsgEntity"
+        }
+      ],
+      "references": [
+        {
+          "name": "Base",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "BillOfProcess",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "BOM",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "ContainerNumberingRule",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "Customer",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "DocumentSet",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "ERPBOM",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "ERPRoute",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "FEFOOverrideESigRequirement",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "isImage",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "ObjectToChange",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "OtherProductRevisions",
+          "type": "Collection(modeling.RevisionedObjectRef)"
+        },
+        {
+          "name": "OtherProductRevisions-Expanded",
+          "type": "Collection(modeling.ExpandedListItem_1OfRevisionedObjectRef)"
+        },
+        {
+          "name": "ProductFamily",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "ProductType",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "ResolvedBOM",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "SamplingPlan",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "SamplingPlanResolved",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "SlitProduct",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "StdStartUOM",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "StdStartUOM2",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "Substitutes",
+          "type": "Collection(modeling.RevisionedObjectRef)"
+        },
+        {
+          "name": "Substitutes-Expanded",
+          "type": "Collection(modeling.ExpandedListItem_1OfRevisionedObjectRef)"
+        },
+        {
+          "name": "TrainingReqGroup",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "VendorInquiry",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "VendorItems",
+          "type": "Collection(modeling.NamedSubentityRef)"
+        },
+        {
+          "name": "VendorItems-Expanded",
+          "type": "Collection(modeling.ExpandedListItem_1OfNamedSubentityRef)"
+        },
+        {
+          "name": "VendorItemsInquiry",
+          "type": "Collection(modeling.NamedSubentityRef)"
+        },
+        {
+          "name": "VendorItemsInquiry-Expanded",
+          "type": "Collection(modeling.ExpandedListItem_1OfNamedSubentityRef)"
+        },
+        {
+          "name": "Workflow",
+          "type": "modeling.RevisionedObjectRef"
+        }
+      ]
+    },
+    "MfgOrderEntity": {
+      "navigation": [
+        {
+          "name": "Attributes",
+          "type": "Collection(modeling.UserAttributeChanges)"
+        },
+        {
+          "name": "MaterialList",
+          "type": "Collection(modeling.MfgOrderMaterialListItmChanges)"
+        },
+        {
+          "name": "MaterialList_Tmp",
+          "type": "Collection(modeling.MfgOrderMaterialListItmChanges)"
+        },
+        {
+          "name": "MfgOrderExecutedTask",
+          "type": "Collection(modeling.MfgOrderExecutedTaskChanges)"
+        },
+        {
+          "name": "MfgOrderExecutedTaskList",
+          "type": "Collection(modeling.MfgOrderExecutedTaskListChanges)"
+        },
+        {
+          "name": "WIPMsgDefMgr",
+          "type": "modeling.WIPMsgEntity"
+        },
+        {
+          "name": "AttachDocumentDetails",
+          "type": "Collection(modeling.AttachDocumentDetails)"
+        },
+        {
+          "name": "ChangeHistory",
+          "type": "modeling.ChangeHistoryChanges"
+        }
+      ],
+      "references": [
+        {
+          "name": "BeginProduct",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "BillOfProcess",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "ContainerNumberingRule",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "DefaultProductType",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "ERPBOM",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "ERPRoute",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "MatchingProds",
+          "type": "Collection(modeling.RevisionedObjectRef)"
+        },
+        {
+          "name": "MatchingProds-Expanded",
+          "type": "Collection(modeling.ExpandedListItem_1OfRevisionedObjectRef)"
+        },
+        {
+          "name": "ObjectToChange",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "OrderStatus",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "OrderType",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "PostProductionProcedure",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "PreProductionProcedure",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "Priority",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "Product",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "ReportingFactory",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "UOM",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "UOM2",
+          "type": "modeling.NamedObjectRef"
+        }
+      ]
+    },
+    "OperationEntity": {
+      "navigation": [
+        {
+          "name": "DisallowedTxnItem",
+          "type": "modeling.DisallowedTxnsChanges"
+        },
+        {
+          "name": "DisallowedTxns",
+          "type": "Collection(modeling.DisallowedTxnsChanges)"
+        },
+        {
+          "name": "SchedulingDetail",
+          "type": "modeling.OperationSchedulingDetailChanges"
+        },
+        {
+          "name": "WIPMsgDefMgr",
+          "type": "modeling.WIPMsgEntity"
+        },
+        {
+          "name": "AttachDocumentDetails",
+          "type": "Collection(modeling.AttachDocumentDetails)"
+        },
+        {
+          "name": "ChangeHistory",
+          "type": "modeling.ChangeHistoryChanges"
+        }
+      ],
+      "references": [
+        {
+          "name": "ActionsMenu",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "AutoAdjustReason",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "BonusReasons",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "BuyReasons",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "ComponentDefectReasons",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "ContainerDefectReasons",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "DefaultRollupReason",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "DispatchRule",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "LocalReworkReasons",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "LossReasons",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "ObjectToChange",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "PrintQueue",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "QtyAdjustReasons",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "ReworkReasons",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "SellReasons",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "ShipmentDestinations",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "ShippingReasons",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "ThruputReportingLevel",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "TrainingReqGroup",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "WorkCenter",
+          "type": "modeling.NamedObjectRef"
+        }
+      ]
+    },
+    "StepChanges": {
+      "navigation": [
+        {
+          "name": "Paths",
+          "type": "Collection(modeling.MovePathChanges)"
+        },
+        {
+          "name": "PathSelectors",
+          "type": "Collection(modeling.MovePathSelectorChanges)"
+        },
+        {
+          "name": "ReworkPaths",
+          "type": "Collection(modeling.ReworkPathChanges)"
+        },
+        {
+          "name": "ReworkPathSelectors",
+          "type": "Collection(modeling.ReworkPathSelectorChanges)"
+        },
+        {
+          "name": "SchedulingDetail",
+          "type": "modeling.StepSchedulingDetailChanges"
+        }
+      ],
+      "references": [
+        {
+          "name": "ActivityPaths",
+          "type": "Collection(modeling.NamedSubentityRef)"
+        },
+        {
+          "name": "ActivityPaths-Expanded",
+          "type": "Collection(modeling.ExpandedListItem_1OfNamedSubentityRef)"
+        },
+        {
+          "name": "ActivityPathSelectors",
+          "type": "Collection(modeling.SubentityRef)"
+        },
+        {
+          "name": "ActivityPathSelectors-Expanded",
+          "type": "Collection(modeling.ExpandedListItem_1OfSubentityRef)"
+        },
+        {
+          "name": "DefaultPath",
+          "type": "modeling.NamedSubentityRef"
+        },
+        {
+          "name": "RouteStep",
+          "type": "modeling.NamedSubentityRef"
+        },
+        {
+          "name": "SchedulingRouteStep",
+          "type": "modeling.NamedSubentityRef"
+        }
+      ]
+    },
+    "WorkflowEntity": {
+      "navigation": [
+        {
+          "name": "Gates",
+          "type": "Collection(modeling.GateChanges)"
+        },
+        {
+          "name": "Steps",
+          "type": "Collection(modeling.StepChanges)"
+        },
+        {
+          "name": "AttachDocumentDetails",
+          "type": "Collection(modeling.AttachDocumentDetails)"
+        },
+        {
+          "name": "ChangeHistory",
+          "type": "modeling.ChangeHistoryChanges"
+        },
+        {
+          "name": "WIPMsgDefMgr",
+          "type": "modeling.WIPMsgEntity"
+        }
+      ],
+      "references": [
+        {
+          "name": "Base",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "ERPRoute",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "FirstStep",
+          "type": "modeling.NamedSubentityRef"
+        },
+        {
+          "name": "ObjectToChange",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "SchedulingRoute",
+          "type": "modeling.RevisionedObjectRef"
+        }
+      ]
+    },
+    "SpecEntity": {
+      "navigation": [
+        {
+          "name": "AssociateActionTxnMap",
+          "type": "Collection(modeling.AssociateActionTxnMapChanges)"
+        },
+        {
+          "name": "ContainerAutoHoldReqTxnMap",
+          "type": "Collection(modeling.ContAutoHoldReqTxnMapChanges)"
+        },
+        {
+          "name": "EndTimerTxnMap",
+          "type": "Collection(modeling.EndTimerTxnMapChanges)"
+        },
+        {
+          "name": "ESigTxnMap",
+          "type": "Collection(modeling.ContainerESigTxnMapChanges)"
+        },
+        {
+          "name": "LabelTxnMap",
+          "type": "Collection(modeling.ContainerLabelMapChanges)"
+        },
+        {
+          "name": "SchedulingDetail",
+          "type": "modeling.SpecSchedulingDetailChanges"
+        },
+        {
+          "name": "StartTimerTxnMap",
+          "type": "Collection(modeling.StartTimerTxnMapChanges)"
+        },
+        {
+          "name": "TxnMap",
+          "type": "Collection(modeling.TxnMapChanges)"
+        },
+        {
+          "name": "TxnMapItem",
+          "type": "modeling.TxnMapChanges"
+        },
+        {
+          "name": "BPSpecBizRuleTxnMap",
+          "type": "Collection(modeling.BPSpecBizRuleTxnMapChanges)"
+        },
+        {
+          "name": "AttachDocumentDetails",
+          "type": "Collection(modeling.AttachDocumentDetails)"
+        },
+        {
+          "name": "ChangeHistory",
+          "type": "modeling.ChangeHistoryChanges"
+        },
+        {
+          "name": "WIPMsgDefMgr",
+          "type": "modeling.WIPMsgEntity"
+        }
+      ],
+      "references": [
+        {
+          "name": "Base",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "BillOfProcessAssignments",
+          "type": "Collection(modeling.RevisionedObjectRef)"
+        },
+        {
+          "name": "BillOfProcessAssignments-Expanded",
+          "type": "Collection(modeling.ExpandedListItem_1OfRevisionedObjectRef)"
+        },
+        {
+          "name": "DocumentSet",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "ElectronicProcedure",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "ObjectToChange",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "Operation",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "RecipeFile",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "ResourceGroup",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "Setup",
+          "type": "modeling.RevisionedObjectRef"
+        },
+        {
+          "name": "TrainingReqGroup",
+          "type": "modeling.NamedObjectRef"
+        }
+      ]
+    },
+    "SpecStepChanges": {
+      "navigation": [],
+      "references": [
+        {
+          "name": "Operation",
+          "type": "modeling.NamedObjectRef"
+        },
+        {
+          "name": "Spec",
+          "type": "modeling.RevisionedObjectRef"
+        }
+      ]
+    }
+  },
+  "checked_on": "2026-10-22",
+  "verification_scope": "Read-only Swagger and OData metadata inspection; candidate business transactions were not executed.",
+  "catalogs": [
+    {
+      "service": "Modeling",
+      "group_count": 586,
+      "relevant_groups": [
+        "ActivitySpecMaint",
+        "ActivitySpecs",
+        "ActivityWorkflowMaint",
+        "ActivityWorkflows",
+        "BOMMaint",
+        "BOMs",
+        "BusinessProcessSpecMaint",
+        "BusinessProcessSpecs",
+        "BusinessProcessWorkflowMaint",
+        "BusinessProcessWorkflows",
+        "ChangeMgtSpecMaint",
+        "ChangeMgtSpecs",
+        "ChangeMgtWorkflowMaint",
+        "ChangeMgtWorkflows",
+        "ContainerAutoHoldReqMaint",
+        "ContainerAutoHoldReqs",
+        "ContainerDefectReasonMaint",
+        "ContainerDefectReasons",
+        "ContainerGroupMaint",
+        "ContainerGroups",
+        "ContainerLevelMaint",
+        "ContainerLevels",
+        "DataCollectionDefMaint",
+        "DataCollectionDefs",
+        "DataPointCollectionDefMaint",
+        "DataPointCollectionDefs",
+        "DispatchRuleMaint",
+        "DispatchRules",
+        "ERPBOMMaint",
+        "ERPBOMs",
+        "HistoryViewMaint",
+        "HistoryViews",
+        "HoldReasonMaint",
+        "HoldReasons",
+        "InspectionLevelMaint",
+        "InspectionLevels",
+        "LocalReworkReasonGroupMaint",
+        "LocalReworkReasonGroups",
+        "LocalReworkReasonMaint",
+        "LocalReworkReasons",
+        "MfgOrderMaint",
+        "MfgOrderProcedureMaint",
+        "MfgOrderProcedures",
+        "MfgOrders",
+        "MfgOrderTaskListMaint",
+        "MfgOrderTaskLists",
+        "MfgOrderTaskStatuses",
+        "MfgOrderTaskStatusMaint",
+        "OperationMaint",
+        "Operations",
+        "ProductFamilies",
+        "ProductFamilyMaint",
+        "ProductionProcesses",
+        "ProductionProcessMaint",
+        "ProductMaint",
+        "Products",
+        "ProductTypeMaint",
+        "ProductTypes",
+        "QtyAdjustReasonGroupMaint",
+        "QtyAdjustReasonGroups",
+        "QtyAdjustReasonMaint",
+        "QtyAdjustReasons",
+        "ReleaseReasonMaint",
+        "ReleaseReasons",
+        "RemoveDifferenceReasonMaint",
+        "RemoveDifferenceReasons",
+        "ResourceBOMMaint",
+        "ResourceBOMs",
+        "ResourceFamilies",
+        "ResourceFamilyMaint",
+        "ResourceGroupMaint",
+        "ResourceGroups",
+        "ResourceLayoutMaint",
+        "ResourceLayouts",
+        "ResourceMaint",
+        "ResourceMaintReqMaint",
+        "ResourceMaterialPartMaint",
+        "ResourceMaterialParts",
+        "Resources",
+        "ResourceStatusCodeMaint",
+        "ResourceStatusCodes",
+        "ResourceStatusModelMaint",
+        "ResourceStatusModels",
+        "ResourceStatusReasonMaint",
+        "ResourceStatusReasons",
+        "ResourceTypeMaint",
+        "ResourceTypes",
+        "ReworkReasonGroupMaint",
+        "ReworkReasonGroups",
+        "ReworkReasonMaint",
+        "ReworkReasons",
+        "ScrapReasonMaint",
+        "ScrapReasons",
+        "SpecMaint",
+        "Specs",
+        "StartReasonMaint",
+        "StartReasons",
+        "TriageSpecMaint",
+        "TriageSpecs",
+        "UserDataCollectionDefMaint",
+        "UserDataCollectionDefs",
+        "WIPMsgMaint",
+        "WorkflowMaint",
+        "Workflows"
+      ]
+    },
+    {
+      "service": "Shopfloor",
+      "group_count": 249,
+      "relevant_groups": [
+        "ActivityComplete",
+        "ActivityStart",
+        "Associate",
+        "AutoHold",
+        "BatchStart",
+        "BPMoveNonStd",
+        "BPMoveStd",
+        "BPMoveTxn",
+        "BPStartTxn",
+        "ChangeQty",
+        "ChgContainerAttribute",
+        "Close",
+        "CloseCPStatus",
+        "CloseCPStatuses",
+        "CloseQualityObject",
+        "Closes",
+        "CollectData",
+        "CollectDataPoints",
+        "CollectLotSamplingData",
+        "CollectResourceData",
+        "CollectSamplingData",
+        "Combine",
+        "CompleteActivity",
+        "CompleteActivityDisposition",
+        "CompleteActivityInvestigation",
+        "CompleteMaintenance",
+        "CompleteProcessObject",
+        "CompleteRiskAssessment",
+        "ComponentRemove",
+        "ContainerAttrMaint",
+        "ContainerDefect",
+        "ContainerMaint",
+        "ContainerRename",
+        "ContainerStatusChange",
+        "ContainerStatusChanges",
+        "ContainersTxn",
+        "ContainerTxn",
+        "ContainerTxnRev",
+        "CreateProductionEvent",
+        "DBAssociate",
+        "DBClose",
+        "DBDisassociate",
+        "DBRenameContainers",
+        "DBStart",
+        "DBStartSimple",
+        "Disassociate",
+        "EmptyMaterialContainer",
+        "ExecuteMfgOrdertask",
+        "ExecuteProductionProcess",
+        "GroupStart",
+        "HistoryViewTxn",
+        "Hold",
+        "HoldManagementTxn",
+        "Holds",
+        "HoldStatusTxn",
+        "HoldStatusTxns",
+        "HVComponentRemove",
+        "HVResourceSetup",
+        "JobComplete",
+        "MaterialContainerStart",
+        "MfgOperation",
+        "MfgOrderTxn",
+        "MoveIn",
+        "MoveNonStd",
+        "MoveNonStdChangePkg",
+        "MoveNonStds",
+        "MoveOut",
+        "MoveStd",
+        "MoveStdChangePkg",
+        "MoveTxn",
+        "MoveTxns",
+        "MoveWithThruput",
+        "NCRClose",
+        "NCRCloseQuality",
+        "PartRequestComplete",
+        "PartScrap",
+        "PrintContainerLabel",
+        "Release",
+        "Releases",
+        "RemoteStart",
+        "RenameContainers",
+        "ReprintContainerLabel",
+        "ResourceActivation",
+        "ResourceSetup",
+        "ResourceSetupTransition",
+        "ResourceThruput",
+        "ResourceTxn",
+        "ResourceTxnRev",
+        "Rework",
+        "SerializePrimaryQty",
+        "SerializeSecondaryQty",
+        "Split",
+        "Start",
+        "StartChangePkg",
+        "TransferRework",
+        "UnitStart"
+      ]
+    },
+    {
+      "service": "Query",
+      "group_count": 61,
+      "relevant_groups": [
+        "ContainerHistoryInquiry",
+        "ContainerInfoInquiry",
+        "ContainerInquiry",
+        "ContentChangeHistoryInquiry",
+        "EligibleContainersInquiry",
+        "MfgOrderInquiry",
+        "NCRHistoryInquiry",
+        "ProductionEventInquiry",
+        "QualityObjectHistoryInquiry",
+        "ResourceAuditTrailInquiry",
+        "ViewContainer",
+        "ViewContainerStatus",
+        "WIPMessageEntityInquiry"
+      ]
+    }
+  ]
+}

@@ -18,15 +18,7 @@ from config import (
 )
 
 
-CREATE_TOOL_NAMES = {"container_start"}
-UPDATE_TOOL_NAMES = {
-    "container_move",
-    "container_move_in",
-    "container_move_out",
-    "container_defect",
-    "rework",
-    "execute_query_inquiry_event",
-}
+from core.tool_catalog import TOOL_POLICIES
 
 
 @dataclass(frozen=True)
@@ -59,13 +51,10 @@ class SafetyDecision:
 
 def classify_tool(name: str) -> str | None:
     """Return the mutation category for a tool, or ``None`` if read-only."""
-    if name.startswith("create_") or name in CREATE_TOOL_NAMES:
-        return "create"
-    if name.startswith(("update_", "patch_", "rebuild_")) or name in UPDATE_TOOL_NAMES:
-        return "update"
-    if name.startswith("delete_"):
-        return "delete"
-    return None
+    policy = TOOL_POLICIES.get(name)
+    if policy is None:
+        return "unknown"
+    return None if policy.effect == "read" else policy.effect
 
 
 def _argument_item_count(arguments: str) -> int:
@@ -109,6 +98,7 @@ def evaluate_mutations(
     pending_tool_calls: Iterable[dict],
     intended: MutationCounts | None = None,
 ) -> SafetyDecision:
+    pending_tool_calls = list(pending_tool_calls)
     totals = completed + count_tool_calls(pending_tool_calls)
     if intended is not None:
         totals = MutationCounts(
@@ -123,6 +113,10 @@ def evaluate_mutations(
         categories.append("修改")
     if totals.deletes > SAFE_DELETE_THRESHOLD:
         categories.append("删除")
+    if any(TOOL_POLICIES.get((call.get("function") or {}).get("name", ""))
+           and TOOL_POLICIES[(call.get("function") or {})["name"]].always_confirm
+           for call in pending_tool_calls):
+        categories.append("批量导入/路线重建（影响数量需核对）")
     return SafetyDecision(bool(categories), tuple(categories), totals)
 
 
@@ -223,7 +217,8 @@ def approval_prompt(decision: SafetyDecision) -> str:
     return (
         f"⚠️ 安全确认：当前任务累计涉及 {totals.creates} 条创建、"
         f"{totals.updates} 条修改、{totals.deletes} 条删除，"
-        f"其中“{actions}”已超过安全阈值。操作已暂停且尚未继续执行。\n\n"
+        f"其中“{actions}”需要确认。操作已暂停且尚未继续执行。\n"
+        "数量是工具调用的估计影响量；批量导入或重建需另行核对完整范围。\n\n"
         "请回复明确指令（例如“确认创建”“确认修改”或“确认删除”）继续，"
         "或回复“取消执行”。"
     )

@@ -1,0 +1,73 @@
+"""Select model-visible tools without reducing the server's MCP inventory."""
+import json
+import re
+
+from core.tool_catalog import TOOL_POLICIES
+
+GROUP_TERMS = {
+    "workflow": r"workflow|工艺|路线|step|步骤|路径|分支|返工",
+    "spec": r"spec|规格|工艺|工序",
+    "operation": r"operation|工序|工作中心",
+    "product": r"product|产品|bom|物料清单",
+    "mfgorder": r"mfgorder|工单|订单|生产进度",
+    "container": r"container|容器|序列号|批次|在制|过站|移站|进站|出站|开工|挂起|释放|返工|不良",
+    "reference": r"编号|层级|产线|产品类型|numbering|level|mfgline|producttype",
+    "query": r"query|inquiry|sql|历史|状态|进度|在制|追溯",
+    "excel": r"excel|csv|表格|附件|导入|上传",
+}
+WRITE_TERMS = re.compile(r"创建|新建|新增|修改|更新|删除|重建|导入|启动|开工|移站|过站|进站|出站|返工|不良|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
+ROUTING_INSTRUCTION = (
+    "工具按任务领域加载。缺少所需工具时先调用 load_tool_group，选择 workflow/spec/operation/"
+    "product/mfgorder/container/reference/query/excel；下一轮会获得该组定义。查询优先只读；"
+    "需要修改时 include_writes=true。工具加载不代表获得业务写入授权。"
+    "对象关联详情优先 get_spec_details/get_product_details/get_operation_details/get_mfgorder_details；"
+    "容器状态/历史优先 get_container_details/get_container_history；工单前后置过程任务用 get_mfgorder_execution。"
+    "检查 complete/pages/warnings，不把空字段当作未配置，不把前后置过程进度当成生产完成数量。"
+)
+
+
+def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
+    users = [str(m.get("content", "")) for m in messages if m.get("role") == "user"][-3:]
+    context = "\n".join(users).lower()
+    groups = {group for group, pattern in GROUP_TERMS.items() if re.search(pattern, context)}
+    if "product" in groups and "workflow" in groups:
+        groups.update({"spec", "operation"})
+    if "container" in groups and WRITE_TERMS.search(context):
+        groups.add("reference")
+    if "container" in groups and not re.search(r"query|inquiry|sql", context):
+        groups.discard("query")
+    if "excel" in groups:
+        groups.add("workflow")
+    write_groups = set(groups) if WRITE_TERMS.search(context) else set()
+    # Only successful requests in this user turn activate extra groups.
+    start = max((i for i, m in enumerate(messages) if m.get("role") == "user"), default=0)
+    for message in messages[start:]:
+        if message.get("role") == "tool" and message.get("name") == "load_tool_group":
+            try:
+                data = json.loads(message.get("content", ""))
+                group = data.get("group")
+                if data.get("loaded") and group in GROUP_TERMS:
+                    groups.add(group)
+                    if data.get("include_writes") is True:
+                        write_groups.add(group)
+            except (ValueError, TypeError, AttributeError):
+                pass
+    # Small discovery set when intent is ambiguous; the model can expand it.
+    base = {"load_tool_group", "get_mcp_server_status"}
+    if not groups:
+        base.update({"list_workflows", "list_specs", "list_products", "list_mfgorders"})
+    selected = []
+    for tool in all_tools:
+        name = tool["function"]["name"]
+        policy = TOOL_POLICIES.get(name)
+        if not policy or not policy.default_visible:
+            continue
+        if name in base or (policy.group in groups and (policy.effect == "read" or policy.group in write_groups)):
+            selected.append(tool)
+    return selected
+
+
+def selection_metrics(selected: list[dict], total: int) -> dict:
+    return {"available_tool_count": total, "selected_tool_count": len(selected),
+            "tool_schema_chars": len(json.dumps(selected, ensure_ascii=False)),
+            "selected_tools": [t["function"]["name"] for t in selected]}
