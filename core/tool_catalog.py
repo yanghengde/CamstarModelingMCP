@@ -9,6 +9,10 @@ class ToolPolicy:
     always_confirm: bool = False
 
 TOOL_POLICIES = {
+    "preview_workflow_import": ToolPolicy("excel"),
+    "get_workflow_import_plan": ToolPolicy("excel"),
+    "execute_workflow_import_plan": ToolPolicy("excel", "update", True, True),
+    "get_mfgorder_progress": ToolPolicy("mfgorder"),
     "get_workflow_structure": ToolPolicy("workflow"),
     "get_product_process": ToolPolicy("product"),
     "load_tool_group": ToolPolicy("system"),

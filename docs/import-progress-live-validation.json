@@ -1,0 +1,55 @@
+{
+  "preview_executable": true,
+  "preview_errors": null,
+  "business_writes_executed": false,
+  "progress": {
+    "error": null,
+    "order": {
+      "Name": "MO-100076435",
+      "InstanceID": "0006548000000002",
+      "Product": {
+        "InstanceId": "00062c8000000002",
+        "CDOTypeName": "Product",
+        "Name": "WM-900A",
+        "Revision": "A",
+        "UseROR": null
+      },
+      "Qty": 80.0,
+      "Status": null,
+      "UOM": null
+    },
+    "page": {
+      "offset": 0,
+      "limit": 2,
+      "has_more": true,
+      "next_offset": 2,
+      "total_count": null
+    },
+    "distribution": [
+      {
+        "workflow": "WF-WM-900A",
+        "revision": "A",
+        "step": "SP-PACKING-001",
+        "container_count": 1
+      },
+      {
+        "workflow": "WF-WM-900A",
+        "revision": "A",
+        "step": "SP-STAMPING-001",
+        "container_count": 1
+      }
+    ],
+    "containers": [
+      {
+        "name": "BOX-0001",
+        "error": null,
+        "history_count": 3
+      },
+      {
+        "name": "BOX-0002",
+        "error": null,
+        "history_count": 1
+      }
+    ]
+  }
+}

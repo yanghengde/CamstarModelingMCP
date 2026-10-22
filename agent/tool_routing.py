@@ -17,6 +17,7 @@ GROUP_TERMS = {
 }
 WRITE_TERMS = re.compile(r"创建|新建|新增|修改|更新|删除|重建|导入|启动|开工|移站|过站|进站|出站|返工|不良|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
 ROUTING_INSTRUCTION = (
+    "Excel 批量导入先 preview_workflow_import，向用户展示逐行结果及重建风险，确认后执行同一 plan_id/plan_digest。工单现场进度优先 get_mfgorder_progress。"
     "工具按任务领域加载。缺少所需工具时先调用 load_tool_group，选择 workflow/spec/operation/"
     "product/mfgorder/container/reference/query/excel；下一轮会获得该组定义。查询优先只读；"
     "需要修改时 include_writes=true。工具加载不代表获得业务写入授权。"
