@@ -31,7 +31,7 @@ async def _inquiry(service: str, body: dict, fields: list[str] | None = None,
         fields = ["ContainerInfo", "CurrentSpec", "CurrentRouteStep"]
     raw = await request("POST", f"/api/{service}", body=body,
                         base_url=CAMSTAR_QUERY_BASE_URL, params=params,
-                        response_formatter=raw_json)
+                        response_formatter=raw_json, retry_read_only=True)
     return read_envelope(raw, service, limit=limit, page_fields=fields)
 
 
@@ -108,7 +108,7 @@ async def _mainline_history(ref, name, instance_id, start_row, limit):
              f"FROM HistoryMainline WHERE ContainerId = '{identifier}' "
              f"ORDER BY TxnDate DESC, HistoryMainlineId DESC OFFSET {start_row - 1} ROWS FETCH NEXT {limit + 1} ROWS ONLY")
     raw = await request("POST", "/api/AdHoc", base_url=CAMSTAR_QUERY_BASE_URL,
-                        body={"queryText": query}, response_formatter=raw_json)
+                        body={"queryText": query}, response_formatter=raw_json, retry_read_only=True)
     try:
         rows = json.loads(raw)
     except (ValueError, TypeError):
@@ -134,7 +134,7 @@ async def get_mfgorder_execution(mfgorder_name: str, info_depth: int = 1, offset
         return "Error: order name required; info_depth=1..4, offset>=0, limit=1..100."
     raw = await request("POST", "/api/MfgOrderInquiry", base_url=CAMSTAR_QUERY_BASE_URL,
                         body={"mfgOrder": {"name": mfgorder_name.strip()}, "infoDepth": info_depth},
-                        params={"execute": "true", "$expand": "MfgOrderInfos"}, response_formatter=raw_json)
+                        params={"execute": "true", "$expand": "MfgOrderInfos"}, response_formatter=raw_json, retry_read_only=True)
     # Verified server business code; not an absent order or zero production.
     try:
         error = json.loads(raw.split("Response: ", 1)[-1])

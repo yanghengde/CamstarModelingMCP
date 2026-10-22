@@ -1,0 +1,394 @@
+{
+  "method": "single-sample scoped checks; not end-to-end answer accuracy or latency guarantee",
+  "cases": [
+    {
+      "case": "container",
+      "query_seconds": 0.429,
+      "scoped_success": true,
+      "details": {
+        "complete": true
+      },
+      "expected_tool_available": true,
+      "available_tool_count": 122,
+      "selected_tool_count": 6,
+      "tool_schema_chars": 4659,
+      "selected_tools": [
+        "request_container_start_selection_values",
+        "get_container_details",
+        "get_container_history",
+        "load_tool_group",
+        "get_container_trace",
+        "get_mcp_server_status"
+      ],
+      "selection_probe": [
+        {
+          "mode": "selected",
+          "seconds": 2.379,
+          "chosen_tools": [
+            "get_container_details"
+          ],
+          "expected_selected": true,
+          "usage": {
+            "completion_tokens": 72,
+            "prompt_tokens": 1640,
+            "total_tokens": 1712,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 0,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 1408
+            },
+            "prompt_cache_hit_tokens": 1408,
+            "prompt_cache_miss_tokens": 232
+          }
+        },
+        {
+          "mode": "all",
+          "seconds": 1.406,
+          "chosen_tools": [
+            "get_container_details"
+          ],
+          "expected_selected": true,
+          "usage": {
+            "completion_tokens": 72,
+            "prompt_tokens": 21822,
+            "total_tokens": 21894,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 0,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 21632
+            },
+            "prompt_cache_hit_tokens": 21632,
+            "prompt_cache_miss_tokens": 190
+          }
+        }
+      ]
+    },
+    {
+      "case": "trace",
+      "query_seconds": 0.215,
+      "scoped_success": true,
+      "details": {
+        "complete": false,
+        "requested_sections_complete": true,
+        "sections": {
+          "current_family": {
+            "rows": [
+              {
+                "ContainerId": "0004108000000002",
+                "ContainerName": "BOX-0001",
+                "ParentContainerId": "",
+                "SplitFromId": ""
+              }
+            ],
+            "page_complete": true,
+            "has_more": false,
+            "next_offset": null,
+            "offset": 0,
+            "returned_count": 1
+          },
+          "splits": {
+            "rows": [],
+            "page_complete": true,
+            "has_more": false,
+            "next_offset": null,
+            "offset": 0,
+            "returned_count": 0
+          },
+          "combines": {
+            "rows": [],
+            "page_complete": true,
+            "has_more": false,
+            "next_offset": null,
+            "offset": 0,
+            "returned_count": 0
+          },
+          "parent_history": {
+            "rows": [],
+            "page_complete": true,
+            "has_more": false,
+            "next_offset": null,
+            "offset": 0,
+            "returned_count": 0
+          },
+          "rework": {
+            "rows": [],
+            "page_complete": true,
+            "has_more": false,
+            "next_offset": null,
+            "offset": 0,
+            "returned_count": 0
+          },
+          "cross_references": {
+            "rows": [
+              {
+                "HistoryCrossRefId": "000a3c8000000002",
+                "HistoryId": "0004108000000002",
+                "TrackingId": "0004108000000002",
+                "CrossRefType": "0",
+                "StartTxnId": "400000000000cd42",
+                "EndTxnId": "7fffffffffffffff"
+              }
+            ],
+            "page_complete": true,
+            "has_more": false,
+            "next_offset": null,
+            "offset": 0,
+            "returned_count": 1
+          }
+        }
+      },
+      "expected_tool_available": true,
+      "available_tool_count": 122,
+      "selected_tool_count": 6,
+      "tool_schema_chars": 4659,
+      "selected_tools": [
+        "request_container_start_selection_values",
+        "get_container_details",
+        "get_container_history",
+        "load_tool_group",
+        "get_container_trace",
+        "get_mcp_server_status"
+      ],
+      "selection_probe": [
+        {
+          "mode": "selected",
+          "seconds": 1.932,
+          "chosen_tools": [
+            "get_container_trace"
+          ],
+          "expected_selected": true,
+          "usage": {
+            "completion_tokens": 152,
+            "prompt_tokens": 1647,
+            "total_tokens": 1799,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 52,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 1408
+            },
+            "prompt_cache_hit_tokens": 1408,
+            "prompt_cache_miss_tokens": 239
+          }
+        },
+        {
+          "mode": "all",
+          "seconds": 1.8,
+          "chosen_tools": [
+            "get_container_trace"
+          ],
+          "expected_selected": true,
+          "usage": {
+            "completion_tokens": 122,
+            "prompt_tokens": 21829,
+            "total_tokens": 21951,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 18,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 21632
+            },
+            "prompt_cache_hit_tokens": 21632,
+            "prompt_cache_miss_tokens": 197
+          }
+        }
+      ]
+    },
+    {
+      "case": "product",
+      "query_seconds": 1.724,
+      "scoped_success": true,
+      "details": {
+        "complete": true
+      },
+      "expected_tool_available": true,
+      "available_tool_count": 122,
+      "selected_tool_count": 25,
+      "tool_schema_chars": 14979,
+      "selected_tools": [
+        "list_specs",
+        "get_spec",
+        "get_specs_count",
+        "request_selection_values",
+        "list_operations",
+        "get_operation",
+        "get_operations_count",
+        "request_operation_selection_values",
+        "list_workflows",
+        "get_workflow",
+        "get_workflows_count",
+        "request_workflow_selection_values",
+        "list_workflow_steps",
+        "get_workflow_step",
+        "list_products",
+        "get_product",
+        "get_products_count",
+        "request_product_selection_values",
+        "get_spec_details",
+        "get_product_details",
+        "get_operation_details",
+        "load_tool_group",
+        "get_workflow_structure",
+        "get_product_process",
+        "get_mcp_server_status"
+      ],
+      "selection_probe": [
+        {
+          "mode": "selected",
+          "seconds": 1.069,
+          "chosen_tools": [
+            "get_product_process"
+          ],
+          "expected_selected": true,
+          "usage": {
+            "completion_tokens": 88,
+            "prompt_tokens": 4239,
+            "total_tokens": 4327,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 25,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 4096
+            },
+            "prompt_cache_hit_tokens": 4096,
+            "prompt_cache_miss_tokens": 143
+          }
+        },
+        {
+          "mode": "all",
+          "seconds": 1.511,
+          "chosen_tools": [
+            "get_product_process"
+          ],
+          "expected_selected": true,
+          "usage": {
+            "completion_tokens": 88,
+            "prompt_tokens": 21828,
+            "total_tokens": 21916,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 25,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 21632
+            },
+            "prompt_cache_hit_tokens": 21632,
+            "prompt_cache_miss_tokens": 196
+          }
+        }
+      ]
+    },
+    {
+      "case": "order",
+      "query_seconds": 0.522,
+      "scoped_success": true,
+      "details": {
+        "complete": false,
+        "page": {
+          "offset": 0,
+          "limit": 2,
+          "has_more": true,
+          "next_offset": 2,
+          "total_count": null
+        }
+      },
+      "expected_tool_available": true,
+      "available_tool_count": 122,
+      "selected_tool_count": 13,
+      "tool_schema_chars": 8981,
+      "selected_tools": [
+        "list_mfgorders",
+        "get_mfgorder",
+        "get_mfgorders_count",
+        "request_mfgorder_selection_values",
+        "request_container_start_selection_values",
+        "get_mfgorder_details",
+        "get_container_details",
+        "get_container_history",
+        "get_mfgorder_execution",
+        "load_tool_group",
+        "get_container_trace",
+        "get_mfgorder_progress",
+        "get_mcp_server_status"
+      ],
+      "selection_probe": [
+        {
+          "mode": "selected",
+          "seconds": 1.314,
+          "chosen_tools": [
+            "get_mfgorder_progress"
+          ],
+          "expected_selected": true,
+          "usage": {
+            "completion_tokens": 107,
+            "prompt_tokens": 2737,
+            "total_tokens": 2844,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 25,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 2560
+            },
+            "prompt_cache_hit_tokens": 2560,
+            "prompt_cache_miss_tokens": 177
+          }
+        },
+        {
+          "mode": "all",
+          "seconds": 1.604,
+          "chosen_tools": [
+            "get_mfgorder_progress"
+          ],
+          "expected_selected": true,
+          "usage": {
+            "completion_tokens": 107,
+            "prompt_tokens": 21824,
+            "total_tokens": 21931,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 25,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 21632
+            },
+            "prompt_cache_hit_tokens": 21632,
+            "prompt_cache_miss_tokens": 192
+          }
+        }
+      ]
+    }
+  ],
+  "scoped_success_rate": 1.0
+}

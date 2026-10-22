@@ -5,6 +5,8 @@
 """
 
 import logging
+import asyncio
+import time
 import httpx
 
 from config import (
@@ -68,7 +70,7 @@ def build_url(path: str, base_url: str = CAMSTAR_BASE_URL) -> str:
 async def request(method: str, path: str, body: dict | None = None,
                   params: dict | None = None,
                   base_url: str = CAMSTAR_BASE_URL,
-                  response_formatter=smart_response) -> str:
+                  response_formatter=smart_response, retry_read_only: bool = False) -> str:
     """
     Central HTTP request dispatcher.
     Returns the response text after smart truncation, or an error message.
@@ -80,13 +82,22 @@ async def request(method: str, path: str, body: dict | None = None,
 
     try:
         client = get_client()
-        resp = await client.request(
-            method,
-            url,
-            headers=headers,
-            json=body,
-            params=params,
-        )
+        # Never retry a mutation or an arbitrary Query event automatically.
+        attempts = 2 if method.upper() == "GET" or retry_read_only else 1
+        deadline = time.monotonic() + CAMSTAR_TIMEOUT
+        for attempt in range(attempts):
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise asyncio.TimeoutError()
+            try:
+                resp = await asyncio.wait_for(client.request(
+                    method, url, headers=headers, json=body, params=params), timeout=remaining)
+                if resp.status_code not in {429, 502, 503, 504} or attempt + 1 == attempts:
+                    break
+            except (httpx.ConnectError, httpx.RemoteProtocolError):
+                if attempt + 1 == attempts:
+                    raise
+            await asyncio.sleep(min(0.25, max(0, deadline - time.monotonic())))
 
         if resp.status_code >= 400:
             return (
@@ -106,7 +117,7 @@ async def request(method: str, path: str, body: dict | None = None,
 
         return response_formatter(data)
 
-    except httpx.TimeoutException:
+    except (httpx.TimeoutException, asyncio.TimeoutError):
         return f"❌ Request timed out after {CAMSTAR_TIMEOUT}s: {method.upper()} {url}"
     except Exception as exc:
         return f"❌ Request failed: {repr(exc)}"

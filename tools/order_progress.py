@@ -26,7 +26,7 @@ async def get_mfgorder_progress(mfgorder_name: str, offset: int = 0, limit: int 
         result["order"] = {k: order.get(k) for k in ("Name", "InstanceID", "Product", "Qty", "Status", "UOM")}
         query = ("SELECT ContainerId, ContainerName FROM Container "
                  f"WHERE MfgOrderId = '{identifier}' ORDER BY ContainerId OFFSET {offset} ROWS FETCH NEXT {limit + 1} ROWS ONLY")
-        raw = await request("POST", "/api/AdHoc", base_url=CAMSTAR_QUERY_BASE_URL, body={"queryText": query}, response_formatter=raw_json)
+        raw = await request("POST", "/api/AdHoc", base_url=CAMSTAR_QUERY_BASE_URL, body={"queryText": query}, response_formatter=raw_json, retry_read_only=True)
         try:
             rows = json.loads(raw)
         except ValueError:

@@ -10,13 +10,14 @@ GROUP_TERMS = {
     "operation": r"operation|工序|工作中心",
     "product": r"product|产品|bom|物料清单",
     "mfgorder": r"mfgorder|工单|订单|生产进度",
-    "container": r"container|容器|序列号|批次|在制|过站|移站|进站|出站|开工|挂起|释放|返工|不良",
+    "container": r"container|容器|追溯|父子|拆分|合并|序列号|批次|在制|过站|移站|进站|出站|开工|挂起|释放|返工|不良",
     "reference": r"编号|层级|产线|产品类型|numbering|level|mfgline|producttype",
     "query": r"query|inquiry|sql|历史|状态|进度|在制|追溯",
     "excel": r"excel|csv|表格|附件|导入|上传",
 }
 WRITE_TERMS = re.compile(r"创建|新建|新增|修改|更新|删除|重建|导入|启动|开工|移站|过站|进站|出站|返工|不良|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
 ROUTING_INSTRUCTION = (
+    "容器父子、拆分合并、返工关联用 get_container_trace；检查各 section 的 error/has_more，只对当前读取范围下结论。"
     "Excel 批量导入先 preview_workflow_import，向用户展示逐行结果及重建风险，确认后执行同一 plan_id/plan_digest。工单现场进度优先 get_mfgorder_progress。"
     "工具按任务领域加载。缺少所需工具时先调用 load_tool_group，选择 workflow/spec/operation/"
     "product/mfgorder/container/reference/query/excel；下一轮会获得该组定义。查询优先只读；"
@@ -44,7 +45,13 @@ def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
                 context = previous.lower() + "\n" + current
                 break
     wants_write = bool(WRITE_TERMS.search(current))
+    if re.search(r"查询|查看|追溯|了解|有哪些|历史", current) and not re.search(
+        r"执行|创建|新建|新增|修改|更新|删除|重建|导入|启动|开工|请将|请把|帮我把|create|update|delete|patch|import", current, re.I
+    ):
+        wants_write = False
     groups = {group for group, pattern in GROUP_TERMS.items() if re.search(pattern, context)}
+    if "container" in groups and not wants_write and not re.search(r"workflow|工艺|路线|step|步骤|分支|路径", context):
+        groups.discard("workflow")
     if "product" in groups and "workflow" in groups:
         groups.update({"spec", "operation"})
     if "container" in groups and wants_write:
