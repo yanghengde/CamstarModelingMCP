@@ -9,6 +9,7 @@ class ToolPolicy:
     always_confirm: bool = False
 
 TOOL_POLICIES = {
+    "get_capabilities": ToolPolicy("system"),
     "list_production_reasons": ToolPolicy("reference"),
     "hold_container": ToolPolicy("container", "update", True, True),
     "release_container": ToolPolicy("container", "update", True, True),

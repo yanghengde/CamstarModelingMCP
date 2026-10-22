@@ -17,6 +17,7 @@ GROUP_TERMS = {
 }
 WRITE_TERMS = re.compile(r"创建|新建|新增|修改|更新|删除|重建|导入|启动|开工|移站|过站|进站|出站|返工|不良|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
 ROUTING_INSTRUCTION = (
+    "用户询问能力、支持的功能或工具参数时，先调用 get_capabilities，据实际目录回答；按 group 查询领域，按 tool_name 查询参数。不得把 registered 说成现场已验收，不得推荐 disabled 工具。"
     "建模完整性检查用 check_modeling_integrity，版本比较用 compare_modeling_versions，线性路线模板复制先 preview_workflow_copy，再确认同一计划执行；不支持的复杂配置不能降级丢弃。"
     "以最新用户问题为当前任务，历史消息仅用于解析省略的对象和上下文；明确切换领域后，不继续执行旧问题或加载旧领域。"
     "连续追问历史时优先查询历史，已有明确容器名称即可使用历史工具，不必重复查询当前状态。"
@@ -89,7 +90,7 @@ def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
             except (ValueError, TypeError, AttributeError):
                 pass
     # Small discovery set when intent is ambiguous; the model can expand it.
-    base = {"load_tool_group", "get_mcp_server_status"}
+    base = {"get_capabilities", "load_tool_group", "get_mcp_server_status"}
     if not groups:
         base.update({"list_workflows", "list_specs", "list_products", "list_mfgorders"})
     selected = []
