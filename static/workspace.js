@@ -118,6 +118,14 @@ function appendMessage(role, text) {
     wrapper.append(bubble); $('msgs').append(wrapper); scrollBottom(); return bubble;
 }
 function scrollBottom() { $('msgs').scrollTop = $('msgs').scrollHeight; }
+function createWorkSummary(label) {
+    const details = document.createElement('details'); details.className = 'work-summary';
+    const summary = document.createElement('summary'); summary.textContent = label;
+    const steps = document.createElement('div'); steps.className = 'work-steps';
+    steps.textContent = '正在处理请求…';
+    details.append(summary, steps); $('msgs').append(details);
+    return {summary, steps};
+}
 async function refreshWorkflow() {
     if (!sessionId) return;
     const data = await api(`/workflow/${encodeURIComponent(username)}/${encodeURIComponent(sessionId)}`);
@@ -129,9 +137,13 @@ async function refreshWorkflow() {
 async function loadHistory() {
     const data = await api(`/history/${encodeURIComponent(username)}?session_id=${encodeURIComponent(sessionId)}`);
     $('msgs').replaceChildren();
+    let needsSummary = false;
     for (const message of data.messages || []) {
-        if (message.role === 'user') appendMessage('user', message.content || '');
-        else if (message.role === 'assistant' && message.content) appendMessage('agent', message.content);
+        if (message.role === 'user') { appendMessage('user', message.content || ''); needsSummary = true; }
+        else if (message.role === 'assistant' && message.content) {
+            if (needsSummary) { createWorkSummary('执行记录').steps.textContent = '此历史对话未记录页面耗时，详细过程可在运行日志中查看。'; needsSummary = false; }
+            appendMessage('agent', message.content);
+        }
     }
     if (!$('msgs').children.length) $('msgs').append($('welcomeTemplate').content.cloneNode(true));
     await refreshWorkflow();
@@ -156,9 +168,12 @@ async function send(explicitText) {
     const message = file ? `${text}\n\n(已附带上传文件 [${file.filename}]，本地路径: [${file.file_path}])` : text;
     controller = new AbortController(); setBusy(true); setView('chat'); $('notice').hidden = true;
     let outcome = 'complete', streamBubble = null, streamText = '';
+    let work = null, timer = null, started = 0;
     try {
         if (!sessionId) { await newSession(); await refreshSessions(); }
         appendMessage('user', text + (file ? `\n附件：${file.filename}` : ''));
+        started = performance.now(); work = createWorkSummary('Working…');
+        timer = setInterval(() => { work.summary.textContent = `Working for ${Math.floor((performance.now() - started) / 1000)}s`; }, 1000);
         $('inputBox').value = ''; clearAttachment(); $('approvalCard').hidden = true; status('正在分析需求…');
         const response = await fetch('/chat', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username,session_id:sessionId,message}), signal:controller.signal});
         if (!response.ok || !response.body) throw new Error(`聊天请求失败（${response.status}）`);
@@ -167,7 +182,11 @@ async function send(explicitText) {
         function event(line) {
             if (!line.startsWith('data:')) return;
             const data = JSON.parse(line.slice(5).trim());
-            if (data.type === 'step') status(`正在执行：${data.func || '工具调用'}`);
+            if (data.type === 'step') {
+                status(`正在执行：${data.func || '工具调用'}`);
+                if (work.steps.textContent === '正在处理请求…') work.steps.textContent = '';
+                const step = document.createElement('div'); step.textContent = data.func || '工具调用'; work.steps.append(step);
+            }
             else if (data.type === 'stream_start') { streamBubble = appendMessage('agent',''); streamText = ''; status('正在生成回复…'); }
             else if (data.type === 'stream_chunk') { if (!streamBubble) streamBubble = appendMessage('agent',''); streamText += data.content || ''; renderMarkdown(streamBubble,streamText); scrollBottom(); }
             else if (data.type === 'stream_end') streamBubble = null;
@@ -184,6 +203,12 @@ async function send(explicitText) {
         outcome = error.name === 'AbortError' ? 'stopped' : 'error';
         appendMessage('agent', outcome === 'stopped' ? '已停止接收回答。已完成的操作不会撤销，请查询结果后再继续。' : error.message);
     } finally {
+        clearInterval(timer);
+        if (work) {
+            const seconds = Math.max(1, Math.round((performance.now() - started) / 1000));
+            work.summary.textContent = `${outcome === 'complete' ? 'Worked' : outcome === 'stopped' ? 'Stopped after' : 'Failed after'} ${outcome === 'complete' ? 'for ' : ''}${seconds}s`;
+            if (work.steps.textContent === '正在处理请求…') work.steps.textContent = outcome === 'complete' ? '回复生成完成，未记录工具调用。' : '请求已结束，请检查回复中的说明。';
+        }
         try { await refreshSessions(); await refreshWorkflow(); } catch (error) { notice(`状态刷新失败：${error.message}`); }
         if (outcome === 'error') status('执行出现错误，请检查回复与运行日志');
         if (outcome === 'stopped') status('已停止接收回答，请核对实际执行结果');

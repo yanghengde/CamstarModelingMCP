@@ -262,6 +262,44 @@
 .brand > div { min-width: 0; }
 .brand-subtitle { font-size: 8px; letter-spacing: .4px; }
 
-/* Official Siemens favicon, sourced from https://www.siemens.com/_static/favicon.svg */
-.brand-mark { background: transparent; border-radius: 0; object-fit: contain; }
-.agent-wrapper::before { content: ''; background: url('/static/svg/siemens-official.svg') center / contain no-repeat; border-radius: 0; }
+/* Custom S mark with a slate rounded background. */
+.brand-mark { width: 34px; height: 34px; padding: 0; background: transparent; border: 0; border-radius: 10px; object-fit: contain; box-shadow: none; }
+.agent-wrapper::before { content: ''; width: 26px; height: 26px; background: url('/static/svg/manufacturing-assistant.svg?v=2') center / contain no-repeat; border: 0; border-radius: 8px; }
+
+/* Document-like conversation layout inspired by the supplied Codex reference. */
+.chat-column { background: #fff; }
+.messages { padding: 36px max(28px, calc((100% - 820px) / 2)); }
+.msg-wrapper { margin-bottom: 28px; }
+.agent-wrapper { gap: 0; }
+.agent-wrapper::before { display: none; }
+.bubble { font-size: 15px; line-height: 1.85; color: #292b2e; }
+.agent-bubble { padding: 0; }
+.agent-bubble p { margin: 0 0 18px; }
+.agent-bubble h1, .agent-bubble h2, .agent-bubble h3 { font-size: 17px; line-height: 1.6; margin: 26px 0 12px; }
+.agent-bubble > :first-child { margin-top: 0; }
+.agent-bubble ul, .agent-bubble ol { margin: 14px 0 20px; padding-left: 24px; }
+.agent-bubble li { margin: 6px 0; }
+.agent-bubble strong { font-weight: 600; }
+.agent-bubble code { background: #f3f3f4; }
+.agent-bubble pre { background: #f7f7f8; border-color: #e9e9eb; border-radius: 10px; }
+.agent-bubble table { font-size: 13px; line-height: 1.7; }
+.agent-bubble th { background: #f6f6f7; }
+.agent-bubble blockquote { border-left-color: #d5d5d8; color: #777a80; }
+.user-bubble { background: #f3f3f3; border-radius: 18px; padding: 11px 18px; }
+.composer-area { background: #fff; padding-left: max(28px, calc((100% - 820px) / 2)); padding-right: max(28px, calc((100% - 820px) / 2)); }
+.composer { border-color: #e3e3e5; border-radius: 20px; box-shadow: 0 2px 8px #00000005; }
+.composer textarea { font-size: 15px; }
+.send-button { background: #292b2e; border-radius: 50%; }
+.send-button:hover:not(:disabled) { background: #45474b; box-shadow: none; }
+@media (max-width: 600px) {
+    .messages { padding: 24px 18px; }
+    .composer-area { padding-left: 14px; padding-right: 14px; }
+    .bubble { font-size: 14px; }
+}
+.work-summary { margin: 8px 0 22px; border-bottom: 1px solid #ececee; padding-bottom: 9px; color: #929292; font-size: 14px; }
+.work-summary summary { cursor: pointer; list-style: none; width: fit-content; }
+.work-summary summary::-webkit-details-marker { display: none; }
+.work-summary summary::after { content: '›'; display: inline-block; margin-left: 9px; font-size: 20px; line-height: 1; transition: transform .15s; }
+.work-summary[open] summary::after { transform: rotate(90deg); }
+.work-summary summary:focus-visible { outline: 2px solid #777; outline-offset: 4px; }
+.work-steps { padding: 14px 0 3px; font-size: 12px; line-height: 1.9; color: #737780; }
