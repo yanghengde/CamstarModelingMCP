@@ -108,3 +108,40 @@ def test_missing_navigation_is_not_complete():
     result = json.loads(modeling_details.read_envelope('{"Name":"S"}', "test", page_fields=["TxnMap"]))
     assert not result["complete"]
     assert result["missing_fields"] == ["TxnMap"]
+
+
+def test_topic_switch_drops_old_domains_and_write_intent():
+    selected = names([{"role": "user", "content": "创建产品"},
+                      {"role": "user", "content": "查询container状态"}])
+    assert "get_container_details" in selected
+    assert "get_product_details" not in selected
+    assert all(TOOL_POLICIES[n].effect == "read" for n in selected)
+
+
+def test_elliptical_followup_keeps_nearest_topic_but_not_old_writes():
+    messages = [{"role": "user", "content": "创建产品"},
+                {"role": "user", "content": "查询container SN001"},
+                {"role": "user", "content": "它的历史和状态呢"}]
+    selected = names(messages)
+    assert {"get_container_history", "get_container_details"} <= selected
+    assert "get_product_details" not in selected
+    assert all(TOOL_POLICIES[n].effect == "read" for n in selected)
+
+
+def test_local_empty_page_reports_range_not_absence():
+    result = json.loads(modeling_details.read_envelope(
+        '{"Attributes":[{"Name":"A"}]}', "test", offset=5, page_fields=["Attributes"]))
+    assert result["data"]["Attributes"] == []
+    assert result["pages"]["Attributes"]["available_count"] == 1
+    assert result["pages"]["Attributes"]["pagination"] == "local"
+    assert not result["complete"]
+    assert any("offset" in warning for warning in result["warnings"])
+
+
+def test_next_link_only_marks_incomplete_when_nonempty():
+    for link, expected in [(None, True), ("", True), ("next-page", False)]:
+        result = json.loads(modeling_details.read_envelope(
+            json.dumps({"Attributes": [], "Attributes@odata.nextLink": link}),
+            "test", page_fields=["Attributes"]))
+        assert result["complete"] is expected
+        assert result["pages"]["Attributes"]["server_total_known"] is expected

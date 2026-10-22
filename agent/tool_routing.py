@@ -28,17 +28,30 @@ ROUTING_INSTRUCTION = (
 
 def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
     users = [str(m.get("content", "")) for m in messages if m.get("role") == "user"][-3:]
-    context = "\n".join(users).lower()
+    current = users[-1].lower() if users else ""
+    context = current
+    # Explicit topic switches should not retain unrelated domains or write intent.
+    # For elliptical follow-ups, inherit only the nearest identifiable topic.
+    current_groups = {group for group, pattern in GROUP_TERMS.items() if re.search(pattern, current)}
+    inherit_topic = not current_groups or (
+        current_groups == {"query"} and not re.search(r"query|inquiry|sql", current)
+    )
+    if inherit_topic:
+        for previous in reversed(users[:-1]):
+            if any(re.search(pattern, previous, re.I) for pattern in GROUP_TERMS.values()):
+                context = previous.lower() + "\n" + current
+                break
+    wants_write = bool(WRITE_TERMS.search(current))
     groups = {group for group, pattern in GROUP_TERMS.items() if re.search(pattern, context)}
     if "product" in groups and "workflow" in groups:
         groups.update({"spec", "operation"})
-    if "container" in groups and WRITE_TERMS.search(context):
+    if "container" in groups and wants_write:
         groups.add("reference")
     if "container" in groups and not re.search(r"query|inquiry|sql", context):
         groups.discard("query")
     if "excel" in groups:
         groups.add("workflow")
-    write_groups = set(groups) if WRITE_TERMS.search(context) else set()
+    write_groups = set(groups) if wants_write else set()
     # Only successful requests in this user turn activate extra groups.
     start = max((i for i, m in enumerate(messages) if m.get("role") == "user"), default=0)
     for message in messages[start:]:

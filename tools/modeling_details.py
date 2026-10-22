@@ -32,7 +32,7 @@ def _compact(data):
 
 def _has_next_link(data):
     if isinstance(data, dict):
-        return any("nextlink" in k.lower() or _has_next_link(v) for k, v in data.items())
+        return any(("nextlink" in k.lower() and bool(v)) or _has_next_link(v) for k, v in data.items())
     if isinstance(data, list):
         return any(_has_next_link(v) for v in data)
     return False
@@ -48,7 +48,9 @@ def read_envelope(raw: str, source: str, offset: int = 0, limit: int = 50,
         return raw_json({"error": "Unexpected non-object response", "source": source})
     if data.get("error") or data.get("ErrorCode"):
         return raw_json({"source": source, "error": data})
-    complete = not _has_next_link(data)
+    has_next_link = _has_next_link(data)
+    complete = not has_next_link
+    warnings = ["服务端仍有后续页，当前响应不是全量数据。"] if has_next_link else []
     pages = {}
     missing = []
     for key in page_fields or []:
@@ -60,10 +62,18 @@ def read_envelope(raw: str, source: str, offset: int = 0, limit: int = 50,
         if isinstance(values, list):
             data[key] = values[offset:offset + limit]
             pages[key] = {"available_count": len(values), "offset": offset,
+                          "pagination": "local", "server_total_known": not has_next_link,
                           "returned_count": len(data[key]),
                           "next_offset": offset + limit if offset + limit < len(values) else None}
             complete = complete and offset == 0 and len(values) <= limit
+            if offset > 0 or len(values) > limit:
+                warnings.append(f"{key} 仅返回本地分页片段；available_count 是本次服务端响应中的条数。")
+            if offset >= len(values) and offset > 0:
+                warnings.append(f"{key} 的 offset 超出本次响应范围，空页不代表没有数据。")
+    if missing:
+        warnings.append("请求字段未返回或为 null，不能据此判断业务上未配置。")
     result = {"source": source, "complete": complete, "pages": pages, "missing_fields": missing,
+              "warnings": warnings,
               "data": _compact(data),
               "note": "省略 null 字段；未返回/null 不等于业务上未配置。分页 complete=false 时不得宣称全量。"}
     encoded = raw_json(result)
