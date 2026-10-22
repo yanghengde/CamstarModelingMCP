@@ -8,7 +8,7 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel
 
 from config import CAMSTAR_USERNAME, ENABLE_PERFORMANCE_LOG, AGENT_ENGINE
-from agent.memory import get_user_messages, get_sessions, create_session, set_active_session
+from agent.memory import get_user_messages, get_sessions, create_session, set_active_session, get_active_session
 from agent.llm_client import chat_stream
 from agent.experience import get_experience_status, list_candidates
 from core.perf_logger import get_perf_logs
@@ -49,7 +49,7 @@ async def workflow_endpoint(username: str, session_id: str):
 @router.get("/sessions/{username}")
 def sessions_endpoint(username: str):
     """获取用户所有会话"""
-    return {"sessions": get_sessions(username)}
+    return {"sessions": get_sessions(username), "active_session": get_active_session(username)}
 
 
 @router.post("/sessions/{username}/new")

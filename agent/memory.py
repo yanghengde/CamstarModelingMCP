@@ -8,6 +8,7 @@ import os
 import glob
 import json
 import uuid
+import time
 
 from config import MEMORY_FILE, SESSIONS_DIR
 from agent.prompts import SYSTEM_PROMPT
@@ -38,6 +39,7 @@ def save_session(username: str, session_id: str):
         d = get_user_dir(username)
         os.makedirs(d, exist_ok=True)
         session_data = user_memories[username]["sessions"][session_id]
+        session_data["updated_at"] = time.time()
         file_path = os.path.join(d, f"{session_id}.json")
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(session_data, f, ensure_ascii=False, indent=2)
@@ -105,6 +107,7 @@ def load_memory() -> dict:
                         s_data = json.load(fs)
                         sid = s_data.get("id")
                         if sid:
+                            s_data.setdefault("updated_at", os.path.getmtime(s_file))
                             mem[uname]["sessions"][sid] = s_data
                 except Exception:
                     pass
@@ -137,7 +140,11 @@ def get_sessions(username: str) -> list:
     _migrate_if_needed(username)
     sessions = user_memories[username].get("sessions", {})
     # 按时间或自然序号直接吐出列表信息
-    return [{"id": k, "title": v.get("title", "会话")} for k, v in sessions.items()]
+    return sorted(
+        [{"id": k, "title": v.get("title", "会话"), "updated_at": v.get("updated_at", 0)}
+         for k, v in sessions.items()],
+        key=lambda item: (item["updated_at"], item["id"]),
+    )
 
 
 def create_session(username: str) -> str:
@@ -199,7 +206,13 @@ def get_user_messages(username: str, session_id: str = None) -> list:
 
 def init_memory():
     """系统启动时的统一外层装载点。"""
-    global user_memories
-    user_memories = load_memory()
-    # 如果系统刚从单体记忆切换过来，顺便把它们切片冲刷到磁盘中
-    save_memory()
+    loaded = load_memory()
+    # Keep references imported by runtimes valid; startup is not a content update.
+    user_memories.clear()
+    user_memories.update(loaded)
+
+
+def get_active_session(username: str) -> str | None:
+    data = user_memories.get(username, {})
+    active = data.get("active_session")
+    return active if active in data.get("sessions", {}) else None

@@ -24,13 +24,26 @@ function setBusy(value) {
     $('msgs').setAttribute('aria-busy', String(value));
     document.querySelectorAll('.session-item,.record-card').forEach(el => el.disabled = value);
 }
+function rememberSession() {
+    if (!sessionId) return;
+    try { sessionStorage.setItem(`modeling.session.${username}`, sessionId); } catch (_) { /* URL remains the fallback. */ }
+    const url = new URL(location.href);
+    url.searchParams.set('session_id', sessionId);
+    history.replaceState({}, '', url.pathname + url.search);
+}
+function storedSession() {
+    try { return sessionStorage.getItem(`modeling.session.${username}`); } catch (_) { return null; }
+}
 function closeNavigation() { document.body.classList.remove('sidebar-open'); $('menuToggle').setAttribute('aria-expanded','false'); }
 function setView(next, update = true) {
     view = next;
     $('chatColumn').hidden = view !== 'chat'; $('recordsView').hidden = view !== 'records';
     $('chatNav').classList.toggle('active', view === 'chat'); $('recordsNav').classList.toggle('active', view === 'records');
     $('pageTitle').textContent = view === 'chat' ? '建模助手' : '操作记录';
-    if (update) history.pushState({}, '', view === 'chat' ? '/' : '/records');
+    if (update) {
+        const url = (view === 'chat' ? '/' : '/records') + (sessionId ? `?session_id=${encodeURIComponent(sessionId)}` : '');
+        if (url !== location.pathname + location.search) history.pushState({}, '', url);
+    }
     closeNavigation();
 }
 function renderSessions() {
@@ -49,7 +62,11 @@ function renderSessions() {
 async function refreshSessions() {
     const data = await api(`/sessions/${encodeURIComponent(username)}`);
     sessions = (data.sessions || []).slice().reverse();
-    if (!sessionId && sessions.length) sessionId = sessions[0].id;
+    if (!sessions.some(s => s.id === sessionId)) {
+        const candidates = [new URLSearchParams(location.search).get('session_id'), storedSession(), data.active_session, sessions[0]?.id];
+        sessionId = candidates.find(id => sessions.some(s => s.id === id)) || null;
+    }
+    rememberSession();
     renderSessions();
 }
 function appendMessage(role, text) {
@@ -81,12 +98,13 @@ async function loadHistory() {
 function clearAttachment() { attachment = null; $('attachmentArea').hidden = true; }
 async function selectSession(id) {
     if (busy) return;
-    setBusy(true); sessionId = id; clearAttachment(); $('inputBox').value = ''; setView('chat'); renderSessions();
+    setBusy(true); sessionId = id; rememberSession(); clearAttachment(); $('inputBox').value = ''; setView('chat'); renderSessions();
     try { await loadHistory(); } catch (error) { notice(error.message); } finally { setBusy(false); }
 }
 async function newSession() {
     const data = await api(`/sessions/${encodeURIComponent(username)}/new`, {method:'POST'});
     sessionId = data.session_id;
+    rememberSession();
 }
 async function send(explicitText) {
     if (busy || !initialized) return;
@@ -146,7 +164,16 @@ $('fileInput').onchange = async () => {
     finally { $('fileInput').value=''; setBusy(false); }
 };
 for (const [id,next] of [['chatNav','chat'],['recordsNav','records']]) $(id).onclick = event => { event.preventDefault(); setView(next); };
-window.onpopstate = () => setView(location.pathname === '/records' ? 'records' : 'chat',false);
+window.onpopstate = async () => {
+    if (busy) { rememberSession(); return; }
+    setBusy(true);
+    try {
+        sessionId = new URLSearchParams(location.search).get('session_id');
+        await refreshSessions(); clearAttachment(); $('inputBox').value = '';
+        setView(location.pathname === '/records' ? 'records' : 'chat', false);
+        await loadHistory();
+    } catch (error) { notice(error.message); } finally { setBusy(false); }
+};
 $('guideToggle').onclick = () => { $('modelingGuide').hidden = !$('modelingGuide').hidden; $('guideToggle').setAttribute('aria-expanded',String(!$('modelingGuide').hidden)); };
 $('menuToggle').onclick = () => { const open = document.body.classList.toggle('sidebar-open'); $('menuToggle').setAttribute('aria-expanded',String(open)); };
 $('sidebarBackdrop').onclick = closeNavigation;
