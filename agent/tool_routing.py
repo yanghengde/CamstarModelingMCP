@@ -17,6 +17,8 @@ GROUP_TERMS = {
 }
 WRITE_TERMS = re.compile(r"创建|新建|新增|修改|更新|删除|重建|导入|启动|开工|移站|过站|进站|出站|返工|不良|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
 ROUTING_INSTRUCTION = (
+    "以最新用户问题为当前任务，历史消息仅用于解析省略的对象和上下文；明确切换领域后，不继续执行旧问题或加载旧领域。"
+    "连续追问历史时优先查询历史，已有明确容器名称即可使用历史工具，不必重复查询当前状态。"
     "导入中断或写入结果未知时，用 reconcile_workflow_import_plan 只读核对现场；不要自动重试旧计划或宣称已经回滚。"
     "多层容器族谱、父子拆分合并链用 get_container_genealogy，检查 boundaries/failures，不能把遍历受限结果说成完整历史。"
     "容器父子、拆分合并、返工关联用 get_container_trace；检查各 section 的 error/has_more，只对当前读取范围下结论。"
@@ -32,7 +34,7 @@ ROUTING_INSTRUCTION = (
 
 
 def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
-    users = [str(m.get("content", "")) for m in messages if m.get("role") == "user"][-3:]
+    users = [str(m.get("content", "")) for m in messages if m.get("role") == "user"]
     current = users[-1].lower() if users else ""
     context = current
     # Explicit topic switches should not retain unrelated domains or write intent.
@@ -43,7 +45,14 @@ def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
     )
     if inherit_topic:
         for previous in reversed(users[:-1]):
-            if any(re.search(pattern, previous, re.I) for pattern in GROUP_TERMS.values()):
+            previous_groups = {group for group, pattern in GROUP_TERMS.items()
+                               if re.search(pattern, previous, re.I)}
+            # Generic follow-ups such as “再查历史” must not hide the last
+            # concrete domain, even after several consecutive follow-ups.
+            generic_query = previous_groups == {"query"} and not re.search(
+                r"query|inquiry|sql", previous, re.I
+            )
+            if previous_groups and not generic_query:
                 context = previous.lower() + "\n" + current
                 break
     wants_write = bool(WRITE_TERMS.search(current))
