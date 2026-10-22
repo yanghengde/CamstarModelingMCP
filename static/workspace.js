@@ -6,6 +6,19 @@ let username = '', sessionId = null, sessions = [], attachment = null;
 let busy = false, controller = null, pendingApproval = false, initialized = false;
 let view = location.pathname === '/records' ? 'records' : 'chat';
 let recordLimit = 30;
+function resizeComposer() {
+    const input = $('inputBox');
+    if (!input.getClientRects().length) return;
+    input.style.height = 'auto';
+    input.style.height = `${input.scrollHeight}px`;
+    input.style.overflowY = input.scrollHeight > input.clientHeight ? 'auto' : 'hidden';
+}
+function setComposerText(text) {
+    $('inputBox').value = text;
+    resizeComposer();
+}
+$('inputBox').addEventListener('input', resizeComposer);
+window.addEventListener('resize', resizeComposer);
 function startedSessions() {
     return sessions.filter(session => {
         if (typeof session.has_messages === 'boolean') return session.has_messages;
@@ -52,6 +65,7 @@ function closeNavigation() { document.body.classList.remove('sidebar-open'); $('
 function setView(next, update = true) {
     view = next;
     $('chatColumn').hidden = view !== 'chat'; $('recordsView').hidden = view !== 'records';
+    if (view === 'chat') resizeComposer();
     $('chatNav').classList.toggle('active', view === 'chat'); $('recordsNav').classList.toggle('active', view === 'records');
     $('pageTitle').textContent = view === 'chat' ? '制造助手' : '操作记录';
     if (update) {
@@ -166,7 +180,7 @@ async function loadHistory() {
 function clearAttachment() { attachment = null; $('attachmentArea').hidden = true; }
 async function selectSession(id) {
     if (busy) return;
-    setBusy(true); sessionId = id; rememberSession(); clearAttachment(); $('inputBox').value = ''; setView('chat'); renderSessions();
+    setBusy(true); sessionId = id; rememberSession(); clearAttachment(); setComposerText(''); setView('chat'); renderSessions();
     try { await loadHistory(); } catch (error) { notice(error.message); } finally { setBusy(false); }
 }
 async function newSession() {
@@ -195,7 +209,7 @@ async function send(explicitText) {
         }
         started = performance.now(); work = createWorkSummary('Working…');
         timer = setInterval(() => { work.summary.textContent = `Working for ${Math.floor((performance.now() - started) / 1000)}s`; }, 1000);
-        $('inputBox').value = ''; clearAttachment(); $('approvalCard').hidden = true; status('正在分析需求…');
+        setComposerText(''); clearAttachment(); $('approvalCard').hidden = true; status('正在分析需求…');
         const response = await fetch('/chat', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username,session_id:sessionId,message}), signal:controller.signal});
         if (!response.ok || !response.body) throw new Error(`聊天请求失败（${response.status}）`);
         const reader = response.body.getReader(), decoder = new TextDecoder();
@@ -240,7 +254,7 @@ $('composerForm').onsubmit = event => { event.preventDefault(); send(); };
 $('inputBox').onkeydown = event => { if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); send(); } };
 $('stopBtn').onclick = () => controller?.abort();
 $('approveBtn').onclick = () => send('确认执行'); $('rejectBtn').onclick = () => send('取消执行');
-$('newChatTopBtn').onclick = async () => { if (busy) return; setBusy(true); try { await newSession(); clearAttachment(); $('inputBox').value=''; await refreshSessions(); await loadHistory(); setView('chat'); } catch(error) { notice(error.message); } finally { setBusy(false); } };
+$('newChatTopBtn').onclick = async () => { if (busy) return; setBusy(true); try { await newSession(); clearAttachment(); setComposerText(''); await refreshSessions(); await loadHistory(); setView('chat'); } catch(error) { notice(error.message); } finally { setBusy(false); } };
 $('uploadBtn').onclick = () => $('fileInput').click();
 $('removeAttachmentBtn').onclick = clearAttachment;
 $('fileInput').onchange = async () => {
@@ -256,7 +270,7 @@ window.onpopstate = async () => {
     setBusy(true);
     try {
         sessionId = new URLSearchParams(location.search).get('session_id');
-        await refreshSessions(); clearAttachment(); $('inputBox').value = '';
+        await refreshSessions(); clearAttachment(); setComposerText('');
         setView(location.pathname === '/records' ? 'records' : 'chat', false);
         await loadHistory();
     } catch (error) { notice(error.message); } finally { setBusy(false); }
@@ -271,7 +285,7 @@ $('msgs').onclick = event => {
         return;
     }
     const card = event.target.closest('[data-prompt]');
-    if (card && !busy) { $('inputBox').value = card.dataset.prompt; $('inputBox').focus(); }
+    if (card && !busy) { setComposerText(card.dataset.prompt); $('inputBox').focus(); }
 };
 async function initialize() {
     setBusy(true); setView(view,false);
@@ -279,4 +293,4 @@ async function initialize() {
     catch(error) { $('connectionText').textContent = '连接失败'; $('connection').classList.add('error'); notice(`加载失败，请刷新重试：${error.message}`); }
     finally { setBusy(false); }
 }
-initialize().then(() => { if (initialDraft) { $('inputBox').value = initialDraft; $('inputBox').focus(); } });
+initialize().then(() => { if (initialDraft) { setComposerText(initialDraft); $('inputBox').focus(); } });

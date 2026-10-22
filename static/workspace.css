@@ -291,7 +291,7 @@
 .user-bubble { background: #f3f3f3; border-radius: 18px; padding: 11px 18px; }
 .composer-area { background: #fff; padding-left: max(28px, calc((100% - 820px) / 2)); padding-right: max(28px, calc((100% - 820px) / 2)); }
 .composer { border-color: #e3e3e5; border-radius: 20px; box-shadow: 0 2px 8px #00000005; }
-.composer textarea { font-size: 15px; }
+.composer textarea { font-size: 15px; height: 26px; min-height: 26px; max-height: min(200px, 30dvh); overflow-y: hidden; }
 .send-button { background: #292b2e; border-radius: 50%; }
 .send-button:hover:not(:disabled) { background: #45474b; box-shadow: none; }
 @media (max-width: 600px) {
