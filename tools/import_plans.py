@@ -11,6 +11,8 @@ from tools import mcp
 from tools.process_context import ReadContext, get_workflow_structure
 from tools.modeling_details import raw_json
 from core.http_client import request
+from core.import_lock import workflow_locks
+from config import CAMSTAR_BASE_URL
 
 PLAN_DB = Path(__file__).resolve().parents[1] / "data" / "import_plans.sqlite3"
 
@@ -32,6 +34,10 @@ def _stable(value):
 
 def _digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+
+
+def _environment_id():
+    return hashlib.sha256(CAMSTAR_BASE_URL.strip().rstrip("/").encode()).hexdigest()
 
 
 def confirmation_summary(plan_id, digest):
@@ -145,7 +151,7 @@ async def preview_workflow_import(file_path: str, mapping_json: str) -> str:
                 errors.append({"workflow": name, "revision": revision, "error": str(exc)})
         if errors:
             return raw_json({"executable": False, "errors": errors, "validated_workflows": workflows})
-        plan = {"workflows": workflows, "row_count": len(frame), "warning": "重建删除原步骤及其配置，再按 after_rows 创建线性路线；多次写入不具备跨请求事务性。现有描述不修改。"}
+        plan = {"environment_id": _environment_id(), "workflows": workflows, "row_count": len(frame), "warning": "重建删除原步骤及其配置，再按 after_rows 创建线性路线；多次写入不具备跨请求事务性。现有描述不修改。"}
         plan_id, digest = uuid.uuid4().hex, _digest(plan)
         with _db() as db:
             db.execute("INSERT INTO plans VALUES (?,?,?,?,?,NULL)", (plan_id, digest, raw_json(plan), "ready", time.time()))
@@ -157,6 +163,18 @@ async def preview_workflow_import(file_path: str, mapping_json: str) -> str:
 @mcp.tool
 async def execute_workflow_import_plan(plan_id: str, plan_digest: str) -> str:
     """Execute the exact previously previewed workflow import plan after user confirmation. Single-use, expires in 1 hour. Recheck all targets/Specs before first write; reject changed state. No implicit retry/rollback; report each completed action and stop on first failure. Not a cross-request transaction."""
+    with _db() as db:
+        row = db.execute("SELECT digest,payload FROM plans WHERE id=?", (plan_id,)).fetchone()
+    if not row or row[0] != plan_digest:
+        return raw_json({"error": "计划不存在或摘要不符"})
+    try:
+        with workflow_locks(PLAN_DB.parent / "import_locks", json.loads(row[1])["workflows"]):
+            return await _execute_plan(plan_id, plan_digest)
+    except RuntimeError as exc:
+        return raw_json({"error": str(exc)})
+
+
+async def _execute_plan(plan_id, plan_digest):
     outcomes = []
     with _db() as db:
         db.execute("BEGIN IMMEDIATE")
@@ -166,6 +184,8 @@ async def execute_workflow_import_plan(plan_id: str, plan_digest: str) -> str:
         plan = json.loads(row[1])
         if _digest(plan) != plan_digest:
             return raw_json({"error": "计划内容校验失败"})
+        if plan.get("environment_id") != _environment_id():
+            return raw_json({"error": "计划属于不同服务环境或缺少环境绑定；请在当前环境重新预览。"})
         db.execute("UPDATE plans SET state='running' WHERE id=?", (plan_id,))
     try:
         ctx = ReadContext(600)
@@ -177,6 +197,9 @@ async def execute_workflow_import_plan(plan_id: str, plan_digest: str) -> str:
                 await ctx.resolve("Specs", {"Name": step["spec_name"], "Revision": step["spec_revision"], "InstanceId": step["spec_id"]})
         for workflow in plan["workflows"]:
             identifier = workflow["id"]
+            latest_id, latest = await _existing(ReadContext(), workflow["name"], workflow["revision"])
+            if latest_id != identifier or latest != workflow["before"]:
+                raise ValueError("写入前再次核对发现路线变化，已停止；之前路线的结果请查看日志。")
             if not identifier:
                 await _write("POST", "/api/Workflows", {"name": workflow["name"], "revision": workflow["revision"], "description": workflow["description"]}, outcomes, plan_id)
                 found = await ctx.get("Workflows", params={"$filter": "Name eq '" + workflow["name"].replace("'", "''") + "' and Revision eq '" + workflow["revision"].replace("'", "''") + "'", "$top": 2})
@@ -199,6 +222,58 @@ async def execute_workflow_import_plan(plan_id: str, plan_digest: str) -> str:
         result = {"status": "stopped", "error": str(exc), "actions": outcomes, "note": "已完成的写入不会自动回滚；不要自动重试，请核对现场状态。"}
     with _db() as db:
         db.execute("UPDATE plans SET state=?, outcome=? WHERE id=?", (result["status"], raw_json(result), plan_id))
+    return raw_json(result)
+
+
+@mcp.tool
+async def reconcile_workflow_import_plan(plan_id: str) -> str:
+    """Read-only comparison of a saved import plan against current Workflow routes. Report before-match, planned-route-match, difference or unknown. Does not retry writes, reset approval, release a running task or prove which request caused a change."""
+    with _db() as db:
+        row = db.execute("SELECT payload,state FROM plans WHERE id=?", (plan_id,)).fetchone()
+    if not row:
+        return raw_json({"error": "计划不存在"})
+    plan = json.loads(row[0])
+    if plan.get("environment_id") != _environment_id():
+        return raw_json({"error": "计划环境与当前服务不一致或未绑定，不能跨环境核对。"})
+    result = {"plan_id": plan_id, "plan_status": row[1], "workflows": [],
+              "note": "只读现状核对，不代表执行归因或事务快照；不会重置计划、自动重试或证明所有配置一致。"}
+    ctx = ReadContext(600)
+    from tools.workflow_steps import _read_steps
+    for workflow in plan["workflows"]:
+        entry = {"name": workflow["name"], "revision": workflow["revision"]}
+        result["workflows"].append(entry)
+        try:
+            escape = lambda s: s.replace("'", "''")
+            found = await ctx.get("Workflows", params={"$filter": f"Name eq '{escape(workflow['name'])}' and Revision eq '{escape(workflow['revision'])}'", "$top": 2})
+            rows = found.get("value")
+            if not isinstance(rows, list) or len(rows) > 1 or found.get("@odata.nextLink"):
+                raise ValueError("对象查询不完整或有歧义")
+            if not rows:
+                entry["comparison"] = "matches_before_absent" if not workflow["id"] else "different_missing"
+                continue
+            identifier = rows[0]["InstanceID"]
+            actual = await _read_steps(identifier)
+            if actual.get("error"):
+                raise ValueError(actual["error"])
+            entry["actual_steps"] = actual["steps"]
+            entry["actual_route"] = actual["standard_route"]
+            planned = workflow["after_rows"]
+            refs = {s["name"]: s.get("spec") or {} for s in actual["steps"]}
+            matches = (actual.get("steps_complete") and actual.get("standard_route_complete")
+                       and actual["standard_route"] == [s["step_name"] for s in planned]
+                       and len(refs) == len(planned)
+                       and all(refs.get(s["step_name"], {}).get("Name") == s["spec_name"] and refs.get(s["step_name"], {}).get("Revision") == s["spec_revision"] for s in planned))
+            if matches:
+                entry["comparison"] = "matches_planned_route_and_specs"
+            else:
+                try:
+                    before_id, before = await _existing(ctx, workflow["name"], workflow["revision"])
+                    entry["comparison"] = "matches_before" if before_id == workflow["id"] and before == workflow["before"] else "different"
+                except ValueError:
+                    entry["comparison"] = "unknown_or_partial"
+            entry["warnings"] = actual.get("warnings", [])
+        except (ValueError, KeyError, TypeError) as exc:
+            entry.update({"comparison": "unknown", "error": str(exc)})
     return raw_json(result)
 
 
