@@ -8,11 +8,45 @@ from tools.container_inquiry import get_container_details, get_container_history
 from tools.modeling_details import raw_json
 from core.http_client import request
 from config import CAMSTAR_QUERY_BASE_URL
+from tools.workflow_steps import _read_steps
+
+
+async def _sort_distribution(distribution, warnings):
+    """Order each exact workflow revision by verified default-route position."""
+    context = ReadContext()
+    routes = {}
+    for row in distribution:
+        key = (row['workflow'], row['revision'])
+        if key not in routes:
+            routes[key] = ({}, {})
+            try:
+                workflow = await context.resolve('Workflows', {'Name': key[0], 'Revision': key[1]})
+                data = await _read_steps(workflow['InstanceID'])
+                if data.get('error'):
+                    raise ValueError(data['error'])
+                if data.get('workflow', {}).get('name') != key[0] or data.get('workflow', {}).get('revision') != key[1]:
+                    raise ValueError('路线名称或版本不一致')
+                warnings.extend(data.get('warnings', []))
+                if data.get('standard_route_complete'):
+                    routes[key] = ({name: i for i, name in enumerate(data['standard_route'], 1)},
+                                   {s['name']: s.get('sequence') for s in data.get('steps', [])})
+                else:
+                    warnings.append(f'{key}: 标准路线不完整，未推断工序顺序。')
+            except (ValueError, KeyError, TypeError) as exc:
+                warnings.append(f'{key}: 工序排序不可用：{exc}')
+        positions, sequences = routes[key]
+        row['sequence'] = sequences.get(row['step'])
+        row['route_position'] = positions.get(row['step'])
+        row['sort_source'] = 'standard_route' if row['route_position'] is not None else 'unknown'
+        if row['route_position'] is None:
+            warnings.append(f'{key} / {row["step"]}: 未确认标准路线位置，排在该路线已知步骤之后。')
+    distribution.sort(key=lambda r: (r['workflow'] or '', r['revision'] or '',
+                                    r['route_position'] is None, r['route_position'] or 0, r['step'] or ''))
 
 
 @mcp.tool
 async def get_mfgorder_progress(mfgorder_name: str, offset: int = 0, limit: int = 10, include_history: bool = True) -> str:
-    """Read actual order-linked Containers, current workflow/step/status and optional latest 3 direct history rows each. offset>=0, limit=1..20. Closed/last step is NOT proof of completed production. No inferred completion percentage. Fixed SQL Server Container lookup; errors explicitly reported if deployment/schema/permissions do not support it."""
+    """Read actual order-linked Containers, current workflow/step/status and optional latest 3 direct history rows each. page_step_distribution is current-page-only, grouped by exact workflow/revision and sorted by verified standard_route position; route_position is 1-based, sequence is the raw source field. Unknown/branch positions are null and sorted last with warnings. Container pagination remains by ContainerId. offset>=0, limit=1..20. Closed/last step is NOT proof of completed production. No inferred completion percentage. Fixed SQL Server Container lookup; errors explicitly reported if deployment/schema/permissions do not support it."""
     if not mfgorder_name.strip() or offset < 0 or not 1 <= limit <= 20:
         return raw_json({"error": "工单名必填；offset>=0，limit=1..20"})
     result = {"complete": False, "containers": [], "warnings": [], "production_completed_qty": None,
@@ -65,6 +99,8 @@ async def get_mfgorder_progress(mfgorder_name: str, offset: int = 0, limit: int 
             steps[key] = steps.get(key, 0) + 1
         result["page_step_distribution"] = [{"workflow": k[0], "revision": k[1], "step": k[2], "container_count": count}
                                             for k, count in steps.items()]
+        await _sort_distribution(result['page_step_distribution'], result['warnings'])
+        result['distribution_scope'] = 'current_page_only'
         result["container_list_complete"] = offset == 0 and not result["page"]["has_more"]
         if not rows:
             result["warnings"].append("本页无关联容器，不等于工单未开工或已完成。")
