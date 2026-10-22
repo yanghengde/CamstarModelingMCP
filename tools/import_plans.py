@@ -111,13 +111,19 @@ async def preview_workflow_import(file_path: str, mapping_json: str) -> str:
         required = {"workflow_name", "workflow_revision", "step_name", "spec_name"}
         if not required <= fields.keys():
             raise ValueError("缺少必要字段映射")
-        frame = pd.read_excel(file_path, sheet_name=mapping["sheet_name"], dtype=str, keep_default_na=False)
+        header = mapping.get("header_row", 0)
+        if not isinstance(header, int) or not 0 <= header <= 30:
+            raise ValueError("header_row 必须为 0..30")
+        if Path(file_path).suffix.lower() == ".csv":
+            frame = pd.read_csv(file_path, header=header, dtype=str, keep_default_na=False)
+        else:
+            frame = pd.read_excel(file_path, sheet_name=mapping["sheet_name"], header=header, dtype=str, keep_default_na=False)
         if not 1 <= len(frame) <= 200 or any(col not in frame for col in fields.values()):
             raise ValueError("必须为 1..200 行且映射列全部存在")
         groups, errors = {}, []
         for index, source in frame.iterrows():
             row = {field: str(source[column]).strip() for field, column in fields.items()}
-            row["excel_row"] = int(index) + 2
+            row["excel_row"] = int(index) + header + 2
             if any(not row.get(k) for k in required):
                 errors.append({"row": row["excel_row"], "error": "必要字段为空，不会跳过此行"})
                 continue
@@ -201,14 +207,14 @@ async def _execute_plan(plan_id, plan_digest):
             if latest_id != identifier or latest != workflow["before"]:
                 raise ValueError("写入前再次核对发现路线变化，已停止；之前路线的结果请查看日志。")
             if not identifier:
-                await _write("POST", "/api/Workflows", {"name": workflow["name"], "revision": workflow["revision"], "description": workflow["description"]}, outcomes, plan_id)
+                await _write("POST", "/api/Workflows", {"name": workflow["name"], "revision": workflow["revision"], "description": workflow["description"]}, outcomes, plan_id, workflow)
                 found = await ctx.get("Workflows", params={"$filter": "Name eq '" + workflow["name"].replace("'", "''") + "' and Revision eq '" + workflow["revision"].replace("'", "''") + "'", "$top": 2})
                 rows = found.get("value", [])
                 if len(rows) != 1:
                     raise ValueError("创建后无法唯一定位对象，停止执行")
                 identifier = rows[0]["InstanceID"]
             for payload in workflow["payloads"]:
-                await _write("PUT", f"/api/Workflows/{identifier}", payload, outcomes, plan_id)
+                await _write("PUT", f"/api/Workflows/{identifier}", payload, outcomes, plan_id, workflow)
             from tools.workflow_steps import _read_steps
             actual = await _read_steps(identifier)
             expected = [r["step_name"] for r in workflow["after_rows"]]
@@ -283,8 +289,13 @@ def _save_progress(plan_id, outcomes):
             db.execute("UPDATE plans SET outcome=? WHERE id=?", (raw_json({"status": "running", "actions": outcomes}), plan_id))
 
 
-async def _write(method, path, payload, outcomes, plan_id=None):
+async def _write(method, path, payload, outcomes, plan_id=None, workflow=None):
     outcome = {"method": method, "path": path, "success": None, "note": "请求已准备发送，最终结果尚未确认"}
+    if workflow:
+        outcome["workflow"] = {"name": workflow["name"], "revision": workflow["revision"]}
+    outcome["steps"] = [{"action": item.get("listItemAction"),
+                         "name": (item.get("value") or item.get("key") or {}).get("name")}
+                        for item in payload.get("steps-Expanded", [])]
     outcomes.append(outcome)
     _save_progress(plan_id, outcomes)
     raw = await request(method, path, body=payload, response_formatter=raw_json)
@@ -308,7 +319,20 @@ async def get_workflow_import_plan(plan_id: str) -> str:
         row = db.execute("SELECT digest,payload,state,created,outcome FROM plans WHERE id=?", (plan_id,)).fetchone()
     if not row:
         return raw_json({"error": "计划不存在"})
-    return raw_json({"plan_id": plan_id, "plan_digest": row[0], "plan": json.loads(row[1]),
+    plan = json.loads(row[1])
+    outcome = json.loads(row[4]) if row[4] else None
+    row_results = []
+    for workflow in plan["workflows"]:
+        for item in workflow["after_rows"]:
+            matching = [a for a in (outcome or {}).get("actions", [])
+                        if a.get("workflow") == {"name": workflow["name"], "revision": workflow["revision"]}
+                        and any(s.get("name") == item["step_name"] and s.get("action") == "add" for s in a.get("steps", []))]
+            state = "整条路线已核对" if row[2] == "verified" else "尚无该行写入证据"
+            if matching and row[2] != "verified":
+                state = {True: "步骤新增请求成功；路线尚未全部核对", False: "步骤新增请求失败", None: "步骤新增结果未知，需核对现场"}[matching[-1]["success"]]
+            row_results.append({"workflow": workflow["name"], "revision": workflow["revision"],
+                                "row": item["excel_row"], "step": item["step_name"], "state": state})
+    return raw_json({"plan_id": plan_id, "plan_digest": row[0], "plan": plan, "row_results": row_results,
         "status": row[2], "expired": time.time() - row[3] > 3600,
-        "outcome": json.loads(row[4]) if row[4] else None,
+        "outcome": outcome,
         "note": "running 仅表示计划已领取；进程中断后不可自动重放，需核对请求结果。"})

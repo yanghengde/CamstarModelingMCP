@@ -40,6 +40,7 @@ from tools import producttypes         # ProductType 实体
 from tools import excel_importer       # Excel 导入工具
 from tools import modeling_details, container_inquiry, tool_discovery
 from tools import container_genealogy, container_trace, process_context, import_plans, order_progress
+from tools import modeling_workspace
 from tools import system_info          # MCP 服务诊断（无外部副作用）
 
 
@@ -50,7 +51,7 @@ def get_tool_func(name: str):
     """
     if name not in TOOL_POLICIES:
         return None
-    for module in [container_genealogy, container_trace,import_plans, order_progress, process_context, modeling_details, container_inquiry, tool_discovery, specs, operations, workflows, workflow_steps, products, mfgorders,
+    for module in [modeling_workspace, container_genealogy, container_trace,import_plans, order_progress, process_context, modeling_details, container_inquiry, tool_discovery, specs, operations, workflows, workflow_steps, products, mfgorders,
                    container_start, container_moves, container_quality,
                    numbering_rules,
                    container_levels, queries,

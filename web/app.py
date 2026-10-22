@@ -22,6 +22,7 @@ from agent.memory import init_memory
 from agent.llm_client import oai_client, openai_tools, register_tools
 from tools import mcp
 from web.routes import router
+from web.workbench import router as workbench_router
 from web.mcp_transport import BearerTokenMiddleware
 
 
@@ -79,6 +80,7 @@ def create_app() -> FastAPI:
     # 注册路由
     app.mount("/static", StaticFiles(directory="static"), name="static")
     app.include_router(router)
+    app.include_router(workbench_router)
 
     if ENABLE_MCP_HTTP:
         if not MCP_API_KEY:

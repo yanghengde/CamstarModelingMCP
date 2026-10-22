@@ -9,6 +9,9 @@ class ToolPolicy:
     always_confirm: bool = False
 
 TOOL_POLICIES = {
+    "check_modeling_integrity": ToolPolicy("workflow"),
+    "compare_modeling_versions": ToolPolicy("workflow"),
+    "preview_workflow_copy": ToolPolicy("workflow"),
     "reconcile_workflow_import_plan": ToolPolicy("excel"),
     "get_container_genealogy": ToolPolicy("container"),
     "get_container_trace": ToolPolicy("container"),

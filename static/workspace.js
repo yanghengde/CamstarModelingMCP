@@ -1,6 +1,7 @@
 /* Modeling workspace: existing chat/upload APIs and durable approval state. */
 'use strict';
 const $ = id => document.getElementById(id);
+const initialDraft = new URLSearchParams(location.search).get('draft');
 let username = '', sessionId = null, sessions = [], attachment = null;
 let busy = false, controller = null, pendingApproval = false, initialized = false;
 let view = location.pathname === '/records' ? 'records' : 'chat';
@@ -185,4 +186,4 @@ async function initialize() {
     catch(error) { $('connectionText').textContent = '连接失败'; $('connection').classList.add('error'); notice(`加载失败，请刷新重试：${error.message}`); }
     finally { setBusy(false); }
 }
-initialize();
+initialize().then(() => { if (initialDraft) { $('inputBox').value = initialDraft; $('inputBox').focus(); } });
