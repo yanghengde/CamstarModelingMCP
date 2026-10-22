@@ -93,7 +93,7 @@
         .user-wrapper { justify-content: flex-end; }
         .bubble { font-size: 14px; line-height: 1.85; min-width: 0; overflow-wrap: anywhere; }
         .user-bubble { max-width: 85%; background: #eaf0ee; padding: 12px 18px; border-radius: 12px 12px 3px 12px; white-space: pre-wrap; }
-        .agent-wrapper::before { content: "M"; width: 27px; height: 27px; flex-shrink: 0; display: grid; place-items: center; margin-top: 3px; background: var(--teal-soft); border: 1px solid #d8e9e3; color: var(--teal); border-radius: 8px; font-size: 11px; font-weight: 600; }
+        .agent-wrapper::before { content: "S"; width: 27px; height: 27px; flex-shrink: 0; display: grid; place-items: center; margin-top: 3px; background: var(--teal); color: white; border-radius: 8px; font-family: Arial, sans-serif; font-size: 19px; font-weight: 700; line-height: 1; }
         .agent-bubble { flex: 1; padding: 1px 0; }
         .agent-bubble h1, .agent-bubble h2, .agent-bubble h3 { font-size: 16px; margin: 18px 0 8px; font-weight: 600; }
         .agent-bubble p { margin-bottom: 10px; }
@@ -200,3 +200,68 @@
 @media(max-width:600px){.menu-toggle{display:block;} .guide{position:absolute;right:0;top:58px;bottom:0;background:white;z-index:20;width:min(320px,90vw);} .connection{max-width:160px;} .topbar{padding:0 16px;} }
 
 .composer-area{max-height:70dvh;overflow-y:auto;} .approval p{max-height:150px;overflow:auto;} .brand-subtitle{white-space:nowrap;}
+
+/* Slim, neutral scrollbars shared by chat, history and execution logs. */
+* { scrollbar-width: thin; scrollbar-color: #d4d4d4 transparent; }
+*:hover { scrollbar-color: #bdbdbd transparent; }
+.session-list, .messages { scrollbar-color: #d4d4d4 transparent; }
+.session-list:hover, .messages:hover { scrollbar-color: #bdbdbd transparent; }
+@supports selector(::-webkit-scrollbar) {
+    *, .session-list, .messages { scrollbar-width: auto; scrollbar-color: auto; }
+    *::-webkit-scrollbar { width: 8px; height: 8px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb { background: #d4d4d4; border: 1px solid transparent; background-clip: padding-box; border-radius: 999px; }
+    *::-webkit-scrollbar-thumb:hover { background-color: #bdbdbd; }
+    *::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+    *::-webkit-scrollbar-corner { background: transparent; }
+    .session-list::-webkit-scrollbar { width: 8px; }
+    .session-list::-webkit-scrollbar-thumb { background-color: #d4d4d4; }
+    .session-list::-webkit-scrollbar-thumb:hover { background-color: #bdbdbd; }
+}
+.sidebar { --sidebar-inset: 16px; }
+.session-list { margin-right: calc(-1 * var(--sidebar-inset)); padding-right: var(--sidebar-inset); overflow-x: hidden; }
+@media (max-width: 800px) {
+    .sidebar { --sidebar-inset: 10px; }
+}
+
+/* Keep both navigation scroll rails directly against their panel divider. */
+.sidebar > .session-list {
+    align-self: stretch;
+    width: calc(100% + var(--sidebar-inset));
+    margin-right: calc(-1 * var(--sidebar-inset));
+    padding-right: 6px;
+    min-width: 0;
+}
+.trace-sidebar > .log-list { min-height: 0; width: 100%; padding-right: 0; overflow-x: hidden; }
+#sessionListUI, #sidebarList { scrollbar-width: thin; scrollbar-color: #dedede transparent; }
+@supports selector(::-webkit-scrollbar) {
+    #sessionListUI, #sidebarList { scrollbar-width: auto; scrollbar-color: auto; }
+    #sessionListUI::-webkit-scrollbar, #sidebarList::-webkit-scrollbar { width: 10px; }
+    #sessionListUI::-webkit-scrollbar-track, #sidebarList::-webkit-scrollbar-track { background: transparent; }
+    #sessionListUI::-webkit-scrollbar-thumb, #sidebarList::-webkit-scrollbar-thumb {
+        background: #dedede; border: 2px solid transparent; background-clip: padding-box; border-radius: 999px;
+    }
+    #sessionListUI::-webkit-scrollbar-thumb:hover, #sidebarList::-webkit-scrollbar-thumb:hover { background-color: #c7c7c7; }
+    #sessionListUI::-webkit-scrollbar-button, #sidebarList::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+}
+
+#recordList { position: relative; padding-left: 26px; margin-top: 28px; }
+#recordList::before { content: ''; position: absolute; left: 5px; top: 12px; bottom: 28px; width: 1px; background: #dce2e6; }
+.record-date { position: relative; font-size: 13px; font-weight: 600; color: var(--secondary); margin: 26px 0 12px; }
+.record-date::before { content: ''; position: absolute; left: -25px; top: 4px; width: 9px; height: 9px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 4px var(--background); }
+#recordList .record-card { position: relative; line-height: 1.6; }
+#recordList .record-card::before { content: ''; position: absolute; left: -25px; top: 28px; width: 7px; height: 7px; border: 2px solid #b8c4ca; border-radius: 50%; background: var(--background); }
+.record-time { display: block; font-size: 11px; color: var(--muted); margin-bottom: 7px; }
+.record-search { margin-top: 24px; }
+.record-search label { display: block; font-size: 12px; color: var(--secondary); margin-bottom: 8px; }
+.record-search input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; background: white; color: var(--text); font: inherit; }
+.record-search input:focus { outline: 2px solid var(--teal); outline-offset: 2px; }
+#recordLoadStatus { text-align: center; color: var(--muted); font-size: 12px; padding: 18px 0; }
+
+.brand-mark { flex-shrink: 0; font-family: Arial, sans-serif; font-size: 24px; font-weight: 700; line-height: 1; }
+.brand > div { min-width: 0; }
+.brand-subtitle { font-size: 8px; letter-spacing: .4px; }
+
+/* Official Siemens favicon, sourced from https://www.siemens.com/_static/favicon.svg */
+.brand-mark { background: transparent; border-radius: 0; object-fit: contain; }
+.agent-wrapper::before { content: ''; background: url('/static/svg/siemens-official.svg') center / contain no-repeat; border-radius: 0; }

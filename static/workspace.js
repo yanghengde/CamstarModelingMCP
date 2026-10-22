@@ -5,6 +5,11 @@ const initialDraft = new URLSearchParams(location.search).get('draft');
 let username = '', sessionId = null, sessions = [], attachment = null;
 let busy = false, controller = null, pendingApproval = false, initialized = false;
 let view = location.pathname === '/records' ? 'records' : 'chat';
+let recordLimit = 30;
+function matchingRecords() {
+    const query = $('recordSearch').value.trim().toLocaleLowerCase();
+    return sessions.filter(session => (session.title || '未命名对话').toLocaleLowerCase().includes(query));
+}
 const statusLabels = {idle:'准备就绪', complete:'任务已完成', cancelled:'待确认操作已取消', limited:'已达到执行上限', incomplete:'上次流程尚未完成，请核对执行结果后继续', unavailable:'流程状态暂不可用', approval_required:'等待确认操作'};
 async function api(url, options) {
     const response = await fetch(url, options);
@@ -40,7 +45,7 @@ function setView(next, update = true) {
     view = next;
     $('chatColumn').hidden = view !== 'chat'; $('recordsView').hidden = view !== 'records';
     $('chatNav').classList.toggle('active', view === 'chat'); $('recordsNav').classList.toggle('active', view === 'records');
-    $('pageTitle').textContent = view === 'chat' ? '建模助手' : '操作记录';
+    $('pageTitle').textContent = view === 'chat' ? '制造助手' : '操作记录';
     if (update) {
         const url = (view === 'chat' ? '/' : '/records') + (sessionId ? `?session_id=${encodeURIComponent(sessionId)}` : '');
         if (url !== location.pathname + location.search) history.pushState({}, '', url);
@@ -49,17 +54,52 @@ function setView(next, update = true) {
 }
 function renderSessions() {
     $('sessionListUI').replaceChildren(); $('recordList').replaceChildren();
+    const matches = matchingRecords();
+    const visibleIds = new Set(matches.slice(0, recordLimit).map(session => session.id));
+    let lastDay = null;
     for (const [index, session] of sessions.entries()) {
-        for (const target of index < 30 ? ['sessionListUI','recordList'] : ['recordList']) {
+        const targets = [];
+        if (index < 30) targets.push('sessionListUI');
+        if (visibleIds.has(session.id)) targets.push('recordList');
+        for (const target of targets) {
             const button = document.createElement('button');
             button.className = target === 'recordList' ? 'record-card' : 'session-item' + (session.id === sessionId ? ' active' : '');
             button.textContent = session.title || '未命名对话'; button.disabled = busy;
+            if (target === 'recordList') {
+                const date = new Date(Number(session.updated_at) * 1000);
+                const valid = Number(session.updated_at) > 0 && !Number.isNaN(date.getTime());
+                const day = valid ? date.toLocaleDateString('zh-CN', {year:'numeric', month:'long', day:'numeric'}) : '时间未知';
+                if (day !== lastDay) {
+                    const heading = document.createElement('h3');
+                    heading.className = 'record-date'; heading.textContent = day;
+                    $('recordList').append(heading); lastDay = day;
+                }
+                const time = document.createElement('time');
+                time.className = 'record-time';
+                time.textContent = valid ? '最近更新 ' + date.toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit', hour12:false}) : '暂无时间信息';
+                if (valid) time.dateTime = date.toISOString();
+                button.prepend(time);
+            }
             button.onclick = () => selectSession(session.id);
             $(target).append(button);
         }
     }
-    if (!sessions.length) { $('sessionListUI').textContent = '还没有历史对话'; $('recordList').textContent = '开始一次建模对话，记录将显示在这里。'; }
+    if (!sessions.length) { $('sessionListUI').textContent = '还没有历史对话'; $('recordList').textContent = '开始一次对话，记录将显示在这里。'; }
+    else if (!matches.length) $('recordList').textContent = '没有找到匹配的记录';
+    $('recordLoadStatus').textContent = matches.length ? `已显示 ${Math.min(recordLimit, matches.length)} / ${matches.length} 条` + (recordLimit < matches.length ? '，向下滚动加载更多' : '，已显示全部') : '';
 }
+document.addEventListener('input', event => {
+    if (event.target.id !== 'recordSearch') return;
+    recordLimit = 30;
+    $('recordsView').scrollTop = 0;
+    renderSessions();
+});
+$('recordsView').addEventListener('scroll', () => {
+    const panel = $('recordsView');
+    if (panel.scrollHeight - panel.scrollTop - panel.clientHeight > 160 || recordLimit >= matchingRecords().length) return;
+    recordLimit += 30;
+    renderSessions();
+}, {passive:true});
 async function refreshSessions() {
     const data = await api(`/sessions/${encodeURIComponent(username)}`);
     sessions = (data.sessions || []).slice().reverse();
