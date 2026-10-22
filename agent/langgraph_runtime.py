@@ -32,7 +32,7 @@ from agent.experience import (
 from agent.prompts import USER_FACING_LANGUAGE_RULE, QUERY_EFFICIENCY_RULE
 from agent.safety import (
     MutationCounts,
-    approval_prompt,
+    approval_prompt, plan_fingerprint, plan_preview,
     classify_tool,
     count_tool_calls,
     evaluate_mutations,
@@ -48,6 +48,7 @@ from config import (
     MAX_READ_FAILURES,
 )
 from core.perf_logger import record_perf
+from core.inference_metrics import InferenceMetrics, stream_options
 from tools import get_tool_func
 from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCTION
 
@@ -61,6 +62,7 @@ class AgentState(TypedDict, total=False):
     create_count: int
     update_count: int
     delete_count: int
+    approved_plan: str
     approval_granted: bool
     pending_tool_calls: list[dict[str, Any]]
     final_reply: str
@@ -159,18 +161,21 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
             model_messages.append({"role": "system", "content":
                 "本轮查询连续失败，停止调用工具。请立即用中文总结已取得的数据和失败原因，不得声称查询完整或成功。"})
         selected_tools = select_tools(_openai_tools, model_messages)
+        metrics = InferenceMetrics()
         response_stream = await _client.chat.completions.create(
             model=LLM_MODEL,
             messages=model_messages,
             tools=selected_tools,
             tool_choice="none" if exhausted else "auto",
             stream=True,
+            **stream_options(),
         )
 
         tool_calls: dict[int, dict[str, Any]] = {}
         full_content = ""
         stream_started = False
         async for chunk in response_stream:
+            metrics.observe(chunk)
             if not chunk.choices:
                 continue
             delta = chunk.choices[0].delta
@@ -209,6 +214,7 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
             "model": LLM_MODEL,
             "prompt": state.get("request_message", ""),
             "streamed": True,
+            **metrics.result(),
             **selection_metrics(selected_tools, len(_openai_tools)),
             "engine": "langgraph",
         },
@@ -225,6 +231,7 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
         "messages": state.get("messages", []) + [assistant_message],
         "loop_count": loops,
         "pending_tool_calls": ordered_calls,
+        "approved_plan": "",
         "final_reply": full_content if not ordered_calls else "",
         "stop_reason": "complete" if not ordered_calls else "",
     }
@@ -239,7 +246,8 @@ def _route_after_agent(state: AgentState) -> str:
 
 def _policy_node(state: AgentState) -> dict[str, Any]:
     pending = state.get("pending_tool_calls", [])
-    if state.get("approval_granted"):
+    fingerprint = plan_fingerprint(pending)
+    if state.get("approved_plan") == fingerprint:
         return {}
     intended = infer_intended_mutations(
         state.get("request_message", ""), pending
@@ -253,13 +261,14 @@ def _policy_node(state: AgentState) -> dict[str, Any]:
     approval = interrupt(
         {
             "type": "approval_required",
-            "message": approval_prompt(decision),
+            "message": approval_prompt(decision) + "\n\n" + plan_preview(pending),
+            "plan_id": fingerprint,
             "counts": decision.totals.as_dict(),
             "categories": list(decision.categories),
         }
     )
     if isinstance(approval, dict) and approval.get("approved") is True:
-        return {"approval_granted": True}
+        return {"approval_granted": True, "approved_plan": fingerprint}
 
     cancelled_messages = list(state.get("messages", []))
     for tool_call in pending:

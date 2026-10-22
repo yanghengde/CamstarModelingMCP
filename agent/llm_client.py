@@ -21,6 +21,7 @@ from core.tool_catalog import TOOL_POLICIES
 from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCTION
 from agent.safety import MutationCounts, count_tool_calls, evaluate_mutations, approval_prompt, is_explicit_confirmation
 from core.perf_logger import record_perf
+from core.inference_metrics import InferenceMetrics, stream_options
 
 logger = logging.getLogger(__name__)
 
@@ -112,12 +113,14 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             selected_tools = select_tools(openai_tools, chat_messages)
             model_messages = list(chat_messages)
             model_messages.insert(1, {"role": "system", "content": ROUTING_INSTRUCTION})
+            metrics = InferenceMetrics()
             response_stream = await oai_client.chat.completions.create(
                 model=LLM_MODEL,
                 messages=model_messages,
                 tools=selected_tools,
                 tool_choice="auto",
-                stream=True
+                stream=True,
+                **stream_options(),
             )
             
             tool_calls_dict = {}
@@ -125,6 +128,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             has_started_stream = False
             
             async for chunk in response_stream:
+                metrics.observe(chunk)
                 if len(chunk.choices) == 0:
                     continue
                 delta = chunk.choices[0].delta
@@ -158,7 +162,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
                                 tool_calls_dict[idx]["function"]["arguments"] += tc.function.arguments
 
             llm_duration = time.time() - llm_start_time
-            record_perf("LLM_Inference", llm_duration, username, actual_session_id, {"model": LLM_MODEL, "prompt": message, "streamed": True, **selection_metrics(selected_tools, len(openai_tools))})
+            record_perf("LLM_Inference", llm_duration, username, actual_session_id, {"model": LLM_MODEL, "prompt": message, "streamed": True, **metrics.result(), **selection_metrics(selected_tools, len(openai_tools))})
         except asyncio.CancelledError:
             print(f"[WARN] [中止] 用户取消了请求 [@{username}]")
             raise
@@ -197,9 +201,9 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
         for tool_call in response_tool_calls:
             func_name = tool_call["function"]["name"]
             func_args_str = tool_call["function"]["arguments"]
-            if decision.requires_approval and not is_user_confirmation:
+            if decision.requires_approval:
                 chat_messages.append({"role": "tool", "tool_call_id": tool_call["id"],
-                                      "name": func_name, "content": approval_prompt(decision)})
+                                      "name": func_name, "content": approval_prompt(decision) + "\n请使用 LangGraph 模式完成绑定执行计划的确认；legacy 模式不执行此操作。"})
                 continue
             amount = count_tool_calls([tool_call])
             turn_create_count += amount.creates

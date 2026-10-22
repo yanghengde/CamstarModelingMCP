@@ -222,3 +222,28 @@ def approval_prompt(decision: SafetyDecision) -> str:
         "请回复明确指令（例如“确认创建”“确认修改”或“确认删除”）继续，"
         "或回复“取消执行”。"
     )
+
+
+def plan_fingerprint(calls):
+    """Bind approval to ordered tool names and canonical arguments."""
+    import hashlib
+    plan = []
+    for call in calls:
+        function = call.get("function") or {}
+        args = function.get("arguments") or "{}"
+        try:
+            args = json.loads(args)
+        except (ValueError, TypeError):
+            pass
+        plan.append({"tool": function.get("name"), "arguments": args})
+    return hashlib.sha256(json.dumps(plan, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+
+
+def plan_preview(calls):
+    lines = []
+    for index, call in enumerate(calls, 1):
+        function = call.get("function") or {}
+        arguments = str(function.get("arguments") or "{}")
+        suffix = "（参数过长，仅展示前 2000 字符；不是完整数据变更预览）" if len(arguments) > 2000 else ""
+        lines.append(f"{index}. {function.get('name')}: {arguments[:2000]}{suffix}")
+    return "待执行工具与参数：\n" + "\n".join(lines)

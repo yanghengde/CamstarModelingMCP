@@ -185,12 +185,7 @@ async def patch_mfgline(body_json: str) -> str:
     the identifying fields like name).
     Returns the updated MfgLine key string on success.
     """
-    try:
-        payload = json.loads(body_json)
-    except json.JSONDecodeError as e:
-        return f"❌ Invalid body_json: {e}"
-
-    return await request("PATCH", "/api/MfgLines", body=payload)
+    return "Error: 此 PATCH 在当前服务 Swagger 中未验证，已禁用。请使用对应 update 工具。"
 
 
 @mcp.tool
