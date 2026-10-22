@@ -9,6 +9,7 @@ class ToolPolicy:
     always_confirm: bool = False
 
 TOOL_POLICIES = {
+    "get_container_genealogy": ToolPolicy("container"),
     "get_container_trace": ToolPolicy("container"),
     "preview_workflow_import": ToolPolicy("excel"),
     "get_workflow_import_plan": ToolPolicy("excel"),

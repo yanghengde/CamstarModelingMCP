@@ -17,6 +17,7 @@ GROUP_TERMS = {
 }
 WRITE_TERMS = re.compile(r"创建|新建|新增|修改|更新|删除|重建|导入|启动|开工|移站|过站|进站|出站|返工|不良|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
 ROUTING_INSTRUCTION = (
+    "多层容器族谱、父子拆分合并链用 get_container_genealogy，检查 boundaries/failures，不能把遍历受限结果说成完整历史。"
     "容器父子、拆分合并、返工关联用 get_container_trace；检查各 section 的 error/has_more，只对当前读取范围下结论。"
     "Excel 批量导入先 preview_workflow_import，向用户展示逐行结果及重建风险，确认后执行同一 plan_id/plan_digest。工单现场进度优先 get_mfgorder_progress。"
     "工具按任务领域加载。缺少所需工具时先调用 load_tool_group，选择 workflow/spec/operation/"

@@ -218,7 +218,9 @@ async def _write(method, path, payload, outcomes, plan_id=None):
     except ValueError:
         data = None
     failed = (data is None and not raw.startswith("✅")) or raw.startswith(("❌", "Error")) or isinstance(data, dict) and bool(data.get("error") or data.get("ErrorCode"))
-    outcome.update({"success": not failed, "response": raw, "note": "请求返回；不代表整个计划已完成"})
+    uncertain = any(text in raw for text in ("Request timed out", "Request failed", "HTTP 500", "HTTP 502", "HTTP 503", "HTTP 504"))
+    outcome.update({"success": None if uncertain else not failed, "response": raw,
+                    "note": "通信失败，服务端可能已执行；需核对现场，禁止自动重试" if uncertain else "请求返回；不代表整个计划已完成"})
     _save_progress(plan_id, outcomes)
     if failed:
         raise ValueError("写请求失败，已停止后续动作")
