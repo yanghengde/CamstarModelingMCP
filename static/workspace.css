@@ -275,20 +275,26 @@
 .msg-wrapper { margin-bottom: 28px; }
 .agent-wrapper { gap: 0; }
 .agent-wrapper::before { display: none; }
-.bubble { font-size: 15px; line-height: 1.85; color: #292b2e; }
+.bubble { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif; font-size: 16px; font-weight: 400; line-height: 1.75; letter-spacing: normal; color: #292929; }
 .agent-bubble { padding: 0; }
-.agent-bubble p { margin: 0 0 18px; }
-.agent-bubble h1, .agent-bubble h2, .agent-bubble h3 { font-size: 17px; line-height: 1.6; margin: 26px 0 12px; }
+.agent-bubble p { margin: 0 0 14px; }
+.agent-bubble h1, .agent-bubble h2, .agent-bubble h3, .agent-bubble h4, .agent-bubble h5, .agent-bubble h6 { color: inherit; font-weight: 600; line-height: 1.5; margin: 22px 0 10px; }
+.agent-bubble h1 { font-size: 22px; }
+.agent-bubble h2 { font-size: 20px; }
+.agent-bubble h3 { font-size: 18px; }
+.agent-bubble h4, .agent-bubble h5, .agent-bubble h6 { font-size: 16px; }
 .agent-bubble > :first-child { margin-top: 0; }
 .agent-bubble ul, .agent-bubble ol { margin: 14px 0 20px; padding-left: 24px; }
 .agent-bubble li { margin: 6px 0; }
 .agent-bubble strong { font-weight: 600; }
-.agent-bubble code { background: #f3f3f4; }
+.agent-bubble code { font-family: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, monospace; font-size: .85em; color: inherit; background: #f3f3f3; }
 .agent-bubble pre { background: #f7f7f8; border-color: #e9e9eb; border-radius: 10px; }
-.agent-bubble table { font-size: 13px; line-height: 1.7; }
-.agent-bubble th { background: #f6f6f7; }
-.agent-bubble blockquote { border-left-color: #d5d5d8; color: #777a80; }
-.user-bubble { background: #f3f3f3; border-radius: 18px; padding: 11px 18px; }
+.agent-bubble table { font-size: 16px; line-height: 1.75; color: inherit; }
+.agent-bubble th { background: #f7f7f7; font-weight: 600; }
+.agent-bubble a { color: inherit; text-decoration-color: #9b9b9b; }
+.agent-bubble a:hover { text-decoration-color: currentColor; }
+.agent-bubble blockquote { border-left-color: #d9d9d9; color: #6b6b6b; }
+.user-bubble { background: #e8f2fe; color: #263f59; border-radius: 20px; padding: 12px 20px; }
 .composer-area { background: #fff; padding-left: max(28px, calc((100% - 820px) / 2)); padding-right: max(28px, calc((100% - 820px) / 2)); }
 .composer { border-color: #e3e3e5; border-radius: 20px; box-shadow: 0 2px 8px #00000005; }
 .composer textarea { font-size: 15px; height: 26px; min-height: 26px; max-height: min(200px, 30dvh); overflow-y: hidden; }
@@ -297,9 +303,9 @@
 @media (max-width: 600px) {
     .messages { padding: 24px 18px; }
     .composer-area { padding-left: 14px; padding-right: 14px; }
-    .bubble { font-size: 14px; }
+    .bubble { font-size: 16px; }
 }
-.work-summary { margin: 8px 0 22px; border-bottom: 1px solid #ececee; padding-bottom: 9px; color: #929292; font-size: 14px; }
+.work-summary { margin: 8px 0 22px; border-bottom: 1px solid #ececee; padding-bottom: 9px; color: #929292; font-size: 16px; }
 .work-summary summary { cursor: pointer; list-style: none; width: fit-content; }
 .work-summary summary::-webkit-details-marker { display: none; }
 .work-summary summary::after { content: '›'; display: inline-block; margin-left: 9px; font-size: 20px; line-height: 1; transition: transform .15s; }
