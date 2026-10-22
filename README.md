@@ -3,6 +3,8 @@
 > 基于 **FastMCP + FastAPI + LangGraph + LLM** 的 Siemens Opcenter (Camstar) MES 建模 AI 助手。
 > 将 Camstar Modeling REST API 封装为 MCP 工具，通过自然语言对话操控 Spec、Operation、Workflow 等建模实体。
 
+持续开发入口：[核心周边能力开发任务与进度](docs/core-surrounding-capabilities-roadmap.md)。按 T00–T09 推进设备资源、BOM、采集及开工准备检查，并记录各阶段验收结果。
+
 ---
 
 ## ✨ 功能特性
