@@ -1,0 +1,34 @@
+{
+  "registered": {
+    "list_production_reasons": true,
+    "hold_container": true,
+    "release_container": true,
+    "change_container_quantity": true
+  },
+  "read_checks": {
+    "hold": {
+      "valid_collection": true,
+      "returned_rows": 1
+    },
+    "release": {
+      "valid_collection": true,
+      "returned_rows": 1
+    },
+    "scrap": {
+      "valid_collection": true,
+      "returned_rows": 0
+    },
+    "quantity_adjust": {
+      "valid_collection": true,
+      "returned_rows": 1
+    },
+    "rework": {
+      "valid_collection": true,
+      "returned_rows": 1
+    },
+    "container_defect": {
+      "valid_collection": true,
+      "returned_rows": 0
+    }
+  }
+}

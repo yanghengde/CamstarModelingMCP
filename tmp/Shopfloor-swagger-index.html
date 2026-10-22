@@ -1,0 +1,117 @@
+<!-- HTML for static distribution bundle build -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Swagger UI</title>
+    <link rel="stylesheet" type="text/css" href="./swagger-ui.css">
+    <link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
+    <style>
+
+        html {
+            box-sizing: border-box;
+            overflow: -moz-scrollbars-vertical;
+            overflow-y: scroll;
+        }
+
+        *,
+        *:before,
+        *:after {
+            box-sizing: inherit;
+        }
+
+        body {
+            margin: 0;
+            background: #fafafa;
+        }
+    </style>
+    
+</head>
+
+<body>
+    <div id="swagger-ui"></div>
+
+    <!-- Workaround for https://github.com/swagger-api/swagger-editor/issues/1371 -->
+    <script>
+        if (window.navigator.userAgent.indexOf("Edge") > -1) {
+            console.log("Removing native Edge fetch in favor of swagger-ui's polyfill")
+            window.fetch = undefined;
+        }
+    </script>
+
+    <script src="./swagger-ui-bundle.js"></script>
+    <script src="./swagger-ui-standalone-preset.js"></script>
+    <script>
+        /* Source: https://gist.github.com/lamberta/3768814
+         * Parse a string function definition and return a function object. Does not use eval.
+         * @param {string} str
+         * @return {function}
+         *
+         * Example:
+         *  var f = function (x, y) { return x * y; };
+         *  var g = parseFunction(f.toString());
+         *  g(33, 3); //=> 99
+         */
+        function parseFunction(str) {
+            if (!str) return void (0);
+
+            var fn_body_idx = str.indexOf('{'),
+                fn_body = str.substring(fn_body_idx + 1, str.lastIndexOf('}')),
+                fn_declare = str.substring(0, fn_body_idx),
+                fn_params = fn_declare.substring(fn_declare.indexOf('(') + 1, fn_declare.lastIndexOf(')')),
+                args = fn_params.split(',');
+
+            args.push(fn_body);
+
+            function Fn() {
+                return Function.apply(this, args);
+            }
+            Fn.prototype = Function.prototype;
+
+            return new Fn();
+        }
+
+        window.onload = function () {
+            var configObject = JSON.parse('{"urls":[{"url":"../swagger/ActivateChangePkg/swagger.json","name":"ActivateChangePkg"},{"url":"../swagger/ActivityComplete/swagger.json","name":"ActivityComplete"},{"url":"../swagger/ActivityEndProcessing/swagger.json","name":"ActivityEndProcessing"},{"url":"../swagger/ActivityNext/swagger.json","name":"ActivityNext"},{"url":"../swagger/ActivitySetStatus/swagger.json","name":"ActivitySetStatus"},{"url":"../swagger/ActivityStart/swagger.json","name":"ActivityStart"},{"url":"../swagger/ActivityTxn/swagger.json","name":"ActivityTxn"},{"url":"../swagger/AddSPCAnnotation/swagger.json","name":"AddSPCAnnotation"},{"url":"../swagger/ApprovalTxn/swagger.json","name":"ApprovalTxn"},{"url":"../swagger/AssignApprovalSheet/swagger.json","name":"AssignApprovalSheet"},{"url":"../swagger/AssignChangePkgContent/swagger.json","name":"AssignChangePkgContent"},{"url":"../swagger/AssignChecklist/swagger.json","name":"AssignChecklist"},{"url":"../swagger/AssignChecklistToEvent/swagger.json","name":"AssignChecklistToEvent"},{"url":"../swagger/Assignment/swagger.json","name":"Assignment"},{"url":"../swagger/AssignPermissions/swagger.json","name":"AssignPermissions"},{"url":"../swagger/AssignSingleCPContent/swagger.json","name":"AssignSingleCPContent"},{"url":"../swagger/Associate/swagger.json","name":"Associate"},{"url":"../swagger/AttachDocument/swagger.json","name":"AttachDocument"},{"url":"../swagger/AutoHold/swagger.json","name":"AutoHold"},{"url":"../swagger/BatchDispense/swagger.json","name":"BatchDispense"},{"url":"../swagger/BatchStart/swagger.json","name":"BatchStart"},{"url":"../swagger/BPMoveNonStd/swagger.json","name":"BPMoveNonStd"},{"url":"../swagger/BPMoveStd/swagger.json","name":"BPMoveStd"},{"url":"../swagger/BPMoveTxn/swagger.json","name":"BPMoveTxn"},{"url":"../swagger/BPStartTxn/swagger.json","name":"BPStartTxn"},{"url":"../swagger/BroadcastMessageTxn/swagger.json","name":"BroadcastMessageTxn"},{"url":"../swagger/BusinessProcessTxn/swagger.json","name":"BusinessProcessTxn"},{"url":"../swagger/CancelApproval/swagger.json","name":"CancelApproval"},{"url":"../swagger/CancelApprovalSheet/swagger.json","name":"CancelApprovalSheet"},{"url":"../swagger/ChangeCategory/swagger.json","name":"ChangeCategory"},{"url":"../swagger/ChangeMgtTxn/swagger.json","name":"ChangeMgtTxn"},{"url":"../swagger/ChangeMgtTxns/swagger.json","name":"ChangeMgtTxns"},{"url":"../swagger/ChangeOwner/swagger.json","name":"ChangeOwner"},{"url":"../swagger/ChangeProcess/swagger.json","name":"ChangeProcess"},{"url":"../swagger/ChangeQty/swagger.json","name":"ChangeQty"},{"url":"../swagger/ChangeStatusTxn/swagger.json","name":"ChangeStatusTxn"},{"url":"../swagger/ChangeStatusTxns/swagger.json","name":"ChangeStatusTxns"},{"url":"../swagger/ChgContainerAttribute/swagger.json","name":"ChgContainerAttribute"},{"url":"../swagger/Close/swagger.json","name":"Close"},{"url":"../swagger/CloseCPStatus/swagger.json","name":"CloseCPStatus"},{"url":"../swagger/CloseCPStatuses/swagger.json","name":"CloseCPStatuses"},{"url":"../swagger/CloseQualityObject/swagger.json","name":"CloseQualityObject"},{"url":"../swagger/Closes/swagger.json","name":"Closes"},{"url":"../swagger/CollectData/swagger.json","name":"CollectData"},{"url":"../swagger/CollectDataPoints/swagger.json","name":"CollectDataPoints"},{"url":"../swagger/CollectLotSamplingData/swagger.json","name":"CollectLotSamplingData"},{"url":"../swagger/CollectResourceData/swagger.json","name":"CollectResourceData"},{"url":"../swagger/CollectSamplingData/swagger.json","name":"CollectSamplingData"},{"url":"../swagger/Combine/swagger.json","name":"Combine"},{"url":"../swagger/CompleteActivity/swagger.json","name":"CompleteActivity"},{"url":"../swagger/CompleteActivityDisposition/swagger.json","name":"CompleteActivityDisposition"},{"url":"../swagger/CompleteActivityInvestigation/swagger.json","name":"CompleteActivityInvestigation"},{"url":"../swagger/CompleteMaintenance/swagger.json","name":"CompleteMaintenance"},{"url":"../swagger/CompleteProcessObject/swagger.json","name":"CompleteProcessObject"},{"url":"../swagger/CompleteRiskAssessment/swagger.json","name":"CompleteRiskAssessment"},{"url":"../swagger/ComponentDefect/swagger.json","name":"ComponentDefect"},{"url":"../swagger/ComponentDistribute/swagger.json","name":"ComponentDistribute"},{"url":"../swagger/ComponentIssue/swagger.json","name":"ComponentIssue"},{"url":"../swagger/ComponentIssueR2/swagger.json","name":"ComponentIssueR2"},{"url":"../swagger/ComponentRemove/swagger.json","name":"ComponentRemove"},{"url":"../swagger/ComponentReplace/swagger.json","name":"ComponentReplace"},{"url":"../swagger/CompoundTxn/swagger.json","name":"CompoundTxn"},{"url":"../swagger/ContainerAttrMaint/swagger.json","name":"ContainerAttrMaint"},{"url":"../swagger/ContainerDefect/swagger.json","name":"ContainerDefect"},{"url":"../swagger/ContainerMaint/swagger.json","name":"ContainerMaint"},{"url":"../swagger/ContainerRename/swagger.json","name":"ContainerRename"},{"url":"../swagger/ContainerStatusChange/swagger.json","name":"ContainerStatusChange"},{"url":"../swagger/ContainerStatusChanges/swagger.json","name":"ContainerStatusChanges"},{"url":"../swagger/ContainersTxn/swagger.json","name":"ContainersTxn"},{"url":"../swagger/ContainerTxn/swagger.json","name":"ContainerTxn"},{"url":"../swagger/ContainerTxnRev/swagger.json","name":"ContainerTxnRev"},{"url":"../swagger/CreateCAPA/swagger.json","name":"CreateCAPA"},{"url":"../swagger/CreateEvent/swagger.json","name":"CreateEvent"},{"url":"../swagger/CreateProductionEvent/swagger.json","name":"CreateProductionEvent"},{"url":"../swagger/CreateRegulatoryReport/swagger.json","name":"CreateRegulatoryReport"},{"url":"../swagger/CreateSamplingLot/swagger.json","name":"CreateSamplingLot"},{"url":"../swagger/CurrentSamplingStatusUpdate/swagger.json","name":"CurrentSamplingStatusUpdate"},{"url":"../swagger/DBAssociate/swagger.json","name":"DBAssociate"},{"url":"../swagger/DBClose/swagger.json","name":"DBClose"},{"url":"../swagger/DBDisassociate/swagger.json","name":"DBDisassociate"},{"url":"../swagger/DBRenameContainers/swagger.json","name":"DBRenameContainers"},{"url":"../swagger/DBRPTControlLimitsUpdate/swagger.json","name":"DBRPTControlLimitsUpdate"},{"url":"../swagger/DBStart/swagger.json","name":"DBStart"},{"url":"../swagger/DBStartSimple/swagger.json","name":"DBStartSimple"},{"url":"../swagger/Defect/swagger.json","name":"Defect"},{"url":"../swagger/DelegateTask/swagger.json","name":"DelegateTask"},{"url":"../swagger/DelegateTasks/swagger.json","name":"DelegateTasks"},{"url":"../swagger/DeleteQualityObject/swagger.json","name":"DeleteQualityObject"},{"url":"../swagger/DeployChangePkg/swagger.json","name":"DeployChangePkg"},{"url":"../swagger/DesignateProcessObject/swagger.json","name":"DesignateProcessObject"},{"url":"../swagger/DetachDocument/swagger.json","name":"DetachDocument"},{"url":"../swagger/DetachSingleCPContent/swagger.json","name":"DetachSingleCPContent"},{"url":"../swagger/Disassociate/swagger.json","name":"Disassociate"},{"url":"../swagger/DocAttachmentsTxn/swagger.json","name":"DocAttachmentsTxn"},{"url":"../swagger/EmptyCarrier/swagger.json","name":"EmptyCarrier"},{"url":"../swagger/EmptyMaterialContainer/swagger.json","name":"EmptyMaterialContainer"},{"url":"../swagger/EndCollaboration/swagger.json","name":"EndCollaboration"},{"url":"../swagger/ExecuteChecklist/swagger.json","name":"ExecuteChecklist"},{"url":"../swagger/ExecuteMfgOrdertask/swagger.json","name":"ExecuteMfgOrdertask"},{"url":"../swagger/ExecuteProductionProcess/swagger.json","name":"ExecuteProductionProcess"},{"url":"../swagger/ExecuteRecipeTask/swagger.json","name":"ExecuteRecipeTask"},{"url":"../swagger/ExecuteSamplingLot/swagger.json","name":"ExecuteSamplingLot"},{"url":"../swagger/ExecuteTask/swagger.json","name":"ExecuteTask"},{"url":"../swagger/Export/swagger.json","name":"Export"},{"url":"../swagger/ExportImportController/swagger.json","name":"ExportImportController"},{"url":"../swagger/ExportImportTxns/swagger.json","name":"ExportImportTxns"},{"url":"../swagger/GenericTxn/swagger.json","name":"GenericTxn"},{"url":"../swagger/GenericTxns/swagger.json","name":"GenericTxns"},{"url":"../swagger/GroupStart/swagger.json","name":"GroupStart"},{"url":"../swagger/HistoryViewTxn/swagger.json","name":"HistoryViewTxn"},{"url":"../swagger/Hold/swagger.json","name":"Hold"},{"url":"../swagger/HoldManagementTxn/swagger.json","name":"HoldManagementTxn"},{"url":"../swagger/Holds/swagger.json","name":"Holds"},{"url":"../swagger/HoldStatusTxn/swagger.json","name":"HoldStatusTxn"},{"url":"../swagger/HoldStatusTxns/swagger.json","name":"HoldStatusTxns"},{"url":"../swagger/HVComponentIssue/swagger.json","name":"HVComponentIssue"},{"url":"../swagger/HVComponentRemove/swagger.json","name":"HVComponentRemove"},{"url":"../swagger/HVResourceSetup/swagger.json","name":"HVResourceSetup"},{"url":"../swagger/Import/swagger.json","name":"Import"},{"url":"../swagger/InlineSPCTxn/swagger.json","name":"InlineSPCTxn"},{"url":"../swagger/InventoryTransfer/swagger.json","name":"InventoryTransfer"},{"url":"../swagger/JobAcknowledge/swagger.json","name":"JobAcknowledge"},{"url":"../swagger/JobAssign/swagger.json","name":"JobAssign"},{"url":"../swagger/JobCancel/swagger.json","name":"JobCancel"},{"url":"../swagger/JobClockOff/swagger.json","name":"JobClockOff"},{"url":"../swagger/JobClockOn/swagger.json","name":"JobClockOn"},{"url":"../swagger/JobComplete/swagger.json","name":"JobComplete"},{"url":"../swagger/JobCreate/swagger.json","name":"JobCreate"},{"url":"../swagger/JobProgress/swagger.json","name":"JobProgress"},{"url":"../swagger/JobTxn/swagger.json","name":"JobTxn"},{"url":"../swagger/LogTxn/swagger.json","name":"LogTxn"},{"url":"../swagger/MaintClassActivation/swagger.json","name":"MaintClassActivation"},{"url":"../swagger/MaintenanceReqTxn/swagger.json","name":"MaintenanceReqTxn"},{"url":"../swagger/MaterialContainerStart/swagger.json","name":"MaterialContainerStart"},{"url":"../swagger/MfgOperation/swagger.json","name":"MfgOperation"},{"url":"../swagger/MfgOrderTxn/swagger.json","name":"MfgOrderTxn"},{"url":"../swagger/ModifyProcessObject/swagger.json","name":"ModifyProcessObject"},{"url":"../swagger/MoveIn/swagger.json","name":"MoveIn"},{"url":"../swagger/MoveNonStd/swagger.json","name":"MoveNonStd"},{"url":"../swagger/MoveNonStdChangePkg/swagger.json","name":"MoveNonStdChangePkg"},{"url":"../swagger/MoveNonStds/swagger.json","name":"MoveNonStds"},{"url":"../swagger/MoveOut/swagger.json","name":"MoveOut"},{"url":"../swagger/MoveStd/swagger.json","name":"MoveStd"},{"url":"../swagger/MoveStdChangePkg/swagger.json","name":"MoveStdChangePkg"},{"url":"../swagger/MoveTxn/swagger.json","name":"MoveTxn"},{"url":"../swagger/MoveTxns/swagger.json","name":"MoveTxns"},{"url":"../swagger/MoveWithThruput/swagger.json","name":"MoveWithThruput"},{"url":"../swagger/NCRClose/swagger.json","name":"NCRClose"},{"url":"../swagger/NCRCloseQuality/swagger.json","name":"NCRCloseQuality"},{"url":"../swagger/NCRCreate/swagger.json","name":"NCRCreate"},{"url":"../swagger/NCREscalate/swagger.json","name":"NCREscalate"},{"url":"../swagger/NCRTxn/swagger.json","name":"NCRTxn"},{"url":"../swagger/NCRUpdate/swagger.json","name":"NCRUpdate"},{"url":"../swagger/Open/swagger.json","name":"Open"},{"url":"../swagger/OpenCPStatus/swagger.json","name":"OpenCPStatus"},{"url":"../swagger/OpenCPStatuses/swagger.json","name":"OpenCPStatuses"},{"url":"../swagger/OpenProcessObject/swagger.json","name":"OpenProcessObject"},{"url":"../swagger/OpenQualityObject/swagger.json","name":"OpenQualityObject"},{"url":"../swagger/Opens/swagger.json","name":"Opens"},{"url":"../swagger/PartCreate/swagger.json","name":"PartCreate"},{"url":"../swagger/PartRequest/swagger.json","name":"PartRequest"},{"url":"../swagger/PartRequestAcknowledge/swagger.json","name":"PartRequestAcknowledge"},{"url":"../swagger/PartRequestAssign/swagger.json","name":"PartRequestAssign"},{"url":"../swagger/PartRequestCancel/swagger.json","name":"PartRequestCancel"},{"url":"../swagger/PartRequestCancelAcknowledge/swagger.json","name":"PartRequestCancelAcknowledge"},{"url":"../swagger/PartRequestComplete/swagger.json","name":"PartRequestComplete"},{"url":"../swagger/PartRequestIssue/swagger.json","name":"PartRequestIssue"},{"url":"../swagger/PartRequestUpdate/swagger.json","name":"PartRequestUpdate"},{"url":"../swagger/PartScrap/swagger.json","name":"PartScrap"},{"url":"../swagger/PartSetup/swagger.json","name":"PartSetup"},{"url":"../swagger/PartTxn/swagger.json","name":"PartTxn"},{"url":"../swagger/PauseTaskTimer/swagger.json","name":"PauseTaskTimer"},{"url":"../swagger/PLMApprovePackage/swagger.json","name":"PLMApprovePackage"},{"url":"../swagger/PrintContainerLabel/swagger.json","name":"PrintContainerLabel"},{"url":"../swagger/PrintLabelsTxn/swagger.json","name":"PrintLabelsTxn"},{"url":"../swagger/PrintLabelTxn/swagger.json","name":"PrintLabelTxn"},{"url":"../swagger/PrintNCRLabel/swagger.json","name":"PrintNCRLabel"},{"url":"../swagger/PrintPELabel/swagger.json","name":"PrintPELabel"},{"url":"../swagger/PrintPELabels/swagger.json","name":"PrintPELabels"},{"url":"../swagger/PrintQualityObjectLabel/swagger.json","name":"PrintQualityObjectLabel"},{"url":"../swagger/ProcessObjectTxn/swagger.json","name":"ProcessObjectTxn"},{"url":"../swagger/QualityTxn/swagger.json","name":"QualityTxn"},{"url":"../swagger/RecipeDispense/swagger.json","name":"RecipeDispense"},{"url":"../swagger/RecordDecisionTree/swagger.json","name":"RecordDecisionTree"},{"url":"../swagger/RecordLogEntry/swagger.json","name":"RecordLogEntry"},{"url":"../swagger/RecordSPCViolation/swagger.json","name":"RecordSPCViolation"},{"url":"../swagger/Release/swagger.json","name":"Release"},{"url":"../swagger/Releases/swagger.json","name":"Releases"},{"url":"../swagger/RemoteReceive/swagger.json","name":"RemoteReceive"},{"url":"../swagger/RemoteStart/swagger.json","name":"RemoteStart"},{"url":"../swagger/RenameContainers/swagger.json","name":"RenameContainers"},{"url":"../swagger/ReorderProcessObject/swagger.json","name":"ReorderProcessObject"},{"url":"../swagger/ReprintContainerLabel/swagger.json","name":"ReprintContainerLabel"},{"url":"../swagger/ReprintLabel/swagger.json","name":"ReprintLabel"},{"url":"../swagger/ReprintNCRLabel/swagger.json","name":"ReprintNCRLabel"},{"url":"../swagger/ReprintQualityObjectLabel/swagger.json","name":"ReprintQualityObjectLabel"},{"url":"../swagger/ReprocessActivity/swagger.json","name":"ReprocessActivity"},{"url":"../swagger/ResolveCAR/swagger.json","name":"ResolveCAR"},{"url":"../swagger/ResourceActivation/swagger.json","name":"ResourceActivation"},{"url":"../swagger/ResourceSetup/swagger.json","name":"ResourceSetup"},{"url":"../swagger/ResourceSetupTransition/swagger.json","name":"ResourceSetupTransition"},{"url":"../swagger/ResourceThruput/swagger.json","name":"ResourceThruput"},{"url":"../swagger/ResourceTxn/swagger.json","name":"ResourceTxn"},{"url":"../swagger/ResourceTxnRev/swagger.json","name":"ResourceTxnRev"},{"url":"../swagger/Rework/swagger.json","name":"Rework"},{"url":"../swagger/RouteApproval/swagger.json","name":"RouteApproval"},{"url":"../swagger/RouteApprovalSheet/swagger.json","name":"RouteApprovalSheet"},{"url":"../swagger/RouteProcessObject/swagger.json","name":"RouteProcessObject"},{"url":"../swagger/RPTControlLimitsUpdate/swagger.json","name":"RPTControlLimitsUpdate"},{"url":"../swagger/SamplingLotTxn/swagger.json","name":"SamplingLotTxn"},{"url":"../swagger/Serialize/swagger.json","name":"Serialize"},{"url":"../swagger/SerializePrimaryQty/swagger.json","name":"SerializePrimaryQty"},{"url":"../swagger/SerializeSecondaryQty/swagger.json","name":"SerializeSecondaryQty"},{"url":"../swagger/Ship/swagger.json","name":"Ship"},{"url":"../swagger/Ships/swagger.json","name":"Ships"},{"url":"../swagger/ShopFloor/swagger.json","name":"ShopFloor"},{"url":"../swagger/SignApproval/swagger.json","name":"SignApproval"},{"url":"../swagger/SignatureApproval/swagger.json","name":"SignatureApproval"},{"url":"../swagger/Slitting/swagger.json","name":"Slitting"},{"url":"../swagger/SPCTxn/swagger.json","name":"SPCTxn"},{"url":"../swagger/Split/swagger.json","name":"Split"},{"url":"../swagger/Start/swagger.json","name":"Start"},{"url":"../swagger/StartChangePkg/swagger.json","name":"StartChangePkg"},{"url":"../swagger/StopTimer/swagger.json","name":"StopTimer"},{"url":"../swagger/Thruput/swagger.json","name":"Thruput"},{"url":"../swagger/TrackTargetDeployment/swagger.json","name":"TrackTargetDeployment"},{"url":"../swagger/Transfer/swagger.json","name":"Transfer"},{"url":"../swagger/TransferRework/swagger.json","name":"TransferRework"},{"url":"../swagger/TriageQualityObject/swagger.json","name":"TriageQualityObject"},{"url":"../swagger/UnitStart/swagger.json","name":"UnitStart"},{"url":"../swagger/UpdateCAPA/swagger.json","name":"UpdateCAPA"},{"url":"../swagger/UpdateChangePkg/swagger.json","name":"UpdateChangePkg"},{"url":"../swagger/UpdateEvent/swagger.json","name":"UpdateEvent"},{"url":"../swagger/UpdateEventChecklist/swagger.json","name":"UpdateEventChecklist"},{"url":"../swagger/UpdateEventCrossRefs/swagger.json","name":"UpdateEventCrossRefs"},{"url":"../swagger/UpdateEventData/swagger.json","name":"UpdateEventData"},{"url":"../swagger/UpdateEventDetails/swagger.json","name":"UpdateEventDetails"},{"url":"../swagger/UpdateEventDispositions/swagger.json","name":"UpdateEventDispositions"},{"url":"../swagger/UpdateEventFailureActions/swagger.json","name":"UpdateEventFailureActions"},{"url":"../swagger/UpdateEventFailureCauses/swagger.json","name":"UpdateEventFailureCauses"},{"url":"../swagger/UpdateEventFailures/swagger.json","name":"UpdateEventFailures"},{"url":"../swagger/UpdateEventLogs/swagger.json","name":"UpdateEventLogs"},{"url":"../swagger/UpdateEventLots/swagger.json","name":"UpdateEventLots"},{"url":"../swagger/UpdateSamplingLot/swagger.json","name":"UpdateSamplingLot"},{"url":"../swagger/V4_ChangeAttribute/swagger.json","name":"V4_ChangeAttribute"},{"url":"../swagger/VoidCPStatus/swagger.json","name":"VoidCPStatus"},{"url":"../swagger/VoidCPStatuses/swagger.json","name":"VoidCPStatuses"},{"url":"../swagger/VoidProcessObject/swagger.json","name":"VoidProcessObject"},{"url":"../swagger/XShareAttachDocument/swagger.json","name":"XShareAttachDocument"}],"deepLinking":false,"persistAuthorization":false,"displayOperationId":false,"defaultModelsExpandDepth":1,"defaultModelExpandDepth":1,"defaultModelRendering":"example","displayRequestDuration":false,"docExpansion":"list","showExtensions":false,"showCommonExtensions":false,"supportedSubmitMethods":["get","put","post","delete","options","head","patch","trace"],"tryItOutEnabled":false,"queryConfigEnabled":true,"syntaxHighlight":false}');
+            var oauthConfigObject = JSON.parse('{"scopeSeparator":" ","scopes":[],"useBasicAuthenticationWithAccessCodeGrant":false,"usePkceWithAuthorizationCodeGrant":false}');
+
+            // Workaround for https://github.com/swagger-api/swagger-ui/issues/5945
+            configObject.urls.forEach(function (item) {
+                if (item.url.startsWith("http") || item.url.startsWith("/")) return;
+                item.url = window.location.href.replace("index.html", item.url).split('#')[0];
+            });
+
+            // If validatorUrl is not explicitly provided, disable the feature by setting to null
+            if (!configObject.hasOwnProperty("validatorUrl"))
+                configObject.validatorUrl = null
+
+            // If oauth2RedirectUrl isn't specified, use the built-in default
+            if (!configObject.hasOwnProperty("oauth2RedirectUrl"))
+                configObject.oauth2RedirectUrl = (new URL("oauth2-redirect.html", window.location.href)).href;
+
+            // Apply mandatory parameters
+            configObject.dom_id = "#swagger-ui";
+            configObject.presets = [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset];
+            configObject.layout = "StandaloneLayout";
+
+            // Parse and add interceptor functions
+            var interceptors = JSON.parse('{"RequestInterceptorFunction":null,"ResponseInterceptorFunction":null}');
+            if (interceptors.RequestInterceptorFunction)
+                configObject.requestInterceptor = parseFunction(interceptors.RequestInterceptorFunction);
+            if (interceptors.ResponseInterceptorFunction)
+                configObject.responseInterceptor = parseFunction(interceptors.ResponseInterceptorFunction);
+
+            // Begin Swagger UI call region
+
+            const ui = SwaggerUIBundle(configObject);
+
+            ui.initOAuth(oauthConfigObject);
+
+            // End Swagger UI call region
+
+            window.ui = ui
+        }
+    </script>
+</body>
+</html>
