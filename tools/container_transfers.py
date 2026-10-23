@@ -95,6 +95,10 @@ async def service_preview(out, body):
             value = row.get('Qty')
             if isinstance(value, bool) or not Decimal(str(value)).is_finite() or Decimal(str(value)) != Decimal(str(expected['qty'])):
                 raise ValueError('合批数量未正确回显。')
+            if 'qty2' in expected:
+                value = row.get('Qty2')
+                if isinstance(value, bool) or not Decimal(str(value)).is_finite() or Decimal(str(value)) != Decimal(str(expected['qty2'])):
+                    raise ValueError('合批第二数量未正确回显。')
         else:
             rows = data.get('ChildContainers')
             if not isinstance(rows, list) or len(rows) != len(body['childContainers']):
@@ -161,8 +165,8 @@ async def snapshot(name):
     return out
 
 
-def quantity(snap):
-    value = snap['status'].get('Qty')
+def quantity(snap, field='Qty'):
+    value = snap['status'].get(field)
     if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
         return None
     return Decimal(str(value))
@@ -201,11 +205,17 @@ async def preview_container_split(container_name: str, new_container_name: str, 
 
 @mcp.tool
 async def preview_container_combine(target_container_name: str, source_container_name: str, qty: float,
-                                     close_when_empty: bool = False, verify_service: bool = False) -> str:
-    """单来源到现有目标的数量合批预览。不执行，不自动合全部数量或搬移子容器；verify_service=true增加execute=false序列化回显核对，始终不代表业务验证通过。"""
+                                     close_when_empty: bool = False, verify_service: bool = False,
+                                     qty2: float | None = None) -> str:
+    """单来源数量合批预览。qty2可明确指定有限非负第二数量，不由qty换算；省略保持未知。verify_service=true核对execute=false回显，不执行，不自动合全部数量或搬移子容器。"""
     out = base('Combine')
     try:
         requested = amount(qty)
+        secondary = None
+        if qty2 is not None:
+            if isinstance(qty2, bool) or not isinstance(qty2, (int, float)) or not math.isfinite(qty2) or qty2 < 0:
+                raise ValueError('第二数量必须为有限非负数，或省略。')
+            secondary = Decimal(str(qty2))
         if type(verify_service) is not bool or type(close_when_empty) is not bool or target_container_name.strip() == source_container_name.strip():
             raise ValueError('来源与目标须不同，close_when_empty 必须为布尔值。')
         target, source = await snapshot(target_container_name), await snapshot(source_container_name)
@@ -226,11 +236,25 @@ async def preview_container_combine(target_container_name: str, source_container
             'target_after_if_accepted': str(b+requested) if b is not None else None}
         if a is None or b is None or a < requested:
             out['blockers'].append('来源/目标数量未知或来源余额不足。')
+        a2, b2 = quantity(source, 'Qty2'), quantity(target, 'Qty2')
+        out['intent']['quantity2'] = str(secondary) if secondary is not None else None
+        out['quantity2_effect'] = {'source_before': str(a2) if a2 is not None else None,
+            'target_before': str(b2) if b2 is not None else None,
+            'source_after_if_accepted': str(a2-secondary) if secondary is not None and a2 is not None and a2 >= secondary else None,
+            'target_after_if_accepted': str(b2+secondary) if secondary is not None and b2 is not None else None,
+            'unit_conversion_performed': False}
+        if secondary is None:
+            out['blockers'].append('未明确第二数量，不推断为0或按主数量比例换算。')
+        elif a2 is None or b2 is None or a2 < secondary:
+            out['blockers'].append('第二数量余额未知或不足。')
         out['flag_effects'] = {'close_when_empty': '来源变空后请求关闭' if close_when_empty else '不请求自动关闭'}
         if verify_service:
+            detail = {'fromContainer': ref(source), 'qty': qty,
+                      'combineAllQty': False, 'closeWhenEmpty': close_when_empty}
+            if qty2 is not None:
+                detail['qty2'] = qty2
             await service_preview(out, {'container': ref(target), 'closeWhenEmpty': close_when_empty,
-                'fromContainerDetails': [{'fromContainer': ref(source), 'qty': qty,
-                                          'combineAllQty': False, 'closeWhenEmpty': close_when_empty}]})
+                'fromContainerDetails': [detail]})
     except (ValueError, TypeError, AttributeError) as error:
         out['error'] = str(error)
     return encode(out)

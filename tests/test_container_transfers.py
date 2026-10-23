@@ -133,3 +133,34 @@ def test_verify_service_opt_in(monkeypatch):
     req=AsyncMock();monkeypatch.setattr(ct,'request',req)
     run(ct.preview_container_associate('P',['C']))
     req.assert_not_called()
+
+@pytest.mark.parametrize('qty2',[0,2.5])
+def test_secondary_quantity(monkeypatch,qty2):
+    target,source=snap('B',2),snap('A',10)
+    target['status']['Qty2']=3;source['status']['Qty2']=8
+    monkeypatch.setattr(ct,'snapshot',AsyncMock(side_effect=[target,source]))
+    r=run(ct.preview_container_combine('B','A',2,qty2=qty2))
+    assert r['quantity2_effect']['source_after_if_accepted']==str(ct.Decimal('8')-ct.Decimal(str(qty2)))
+    assert r['quantity2_effect']['unit_conversion_performed'] is False
+
+
+@pytest.mark.parametrize('qty2',[-1,True,float('nan'),float('inf')])
+def test_bad_secondary_before_reads(monkeypatch,qty2):
+    mock=AsyncMock();monkeypatch.setattr(ct,'snapshot',mock)
+    assert 'error' in run(ct.preview_container_combine('B','A',1,qty2=qty2));mock.assert_not_called()
+
+
+def test_secondary_missing_not_zero(monkeypatch):
+    monkeypatch.setattr(ct,'snapshot',AsyncMock(side_effect=[snap('B'),snap('A')]))
+    r=run(ct.preview_container_combine('B','A',1))
+    assert r['intent']['quantity2'] is None
+    assert r['quantity2_effect']['source_after_if_accepted'] is None
+
+
+@pytest.mark.parametrize('echo',[None,'3',False,'NaN','2.0'])
+def test_secondary_echo(monkeypatch,echo):
+    body={'container':{'name':'B','instanceId':'b'},'closeWhenEmpty':False,'fromContainerDetails':[{'fromContainer':{'name':'A','instanceId':'a'},'qty':1,'qty2':2,'combineAllQty':False,'closeWhenEmpty':False}]}
+    data={'Container':{'Name':'B','InstanceId':'b'},'CloseWhenEmpty':False,'FromContainerDetails':[{'FromContainer':{'Name':'A','InstanceId':'a'},'Qty':'1','Qty2':echo,'CombineAllQty':False,'CloseWhenEmpty':False}]}
+    monkeypatch.setattr(ct,'request',AsyncMock(return_value=json.dumps(data)))
+    out=ct.base('Combine');asyncio.run(ct.service_preview(out,body))
+    assert out['server_echo_verified'] is (echo=='2.0')

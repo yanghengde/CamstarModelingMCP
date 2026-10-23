@@ -39,8 +39,14 @@ def checked_snapshot(preview):
         if child['parent_before'] != parent['id']:
             raise ValueError('拆箱对象必须是已确认的直属子容器。')
     for snap in [parent] + [c['child'] for c in children]:
-        if not snap['family_complete'] or snap['status'].get('Status') != 1:
+        if not snap['family_complete'] or type(snap['status'].get('Status')) is not int or snap['status']['Status'] != 1:
             raise ValueError('只支持关系完整且状态为Active的容器。')
+    body = preview['request_preview']['body']
+    expected = {'container': {'name': parent['container']['Name'], 'instanceId': parent['id']},
+                'childContainers': [{'name': c['child']['container']['Name'], 'instanceId': c['child']['id']} for c in children],
+                'disassociateAll': False}
+    if body != expected or body.get('disassociateAll') is not False:
+        raise ValueError('执行请求与已审阅的明确拆箱对象不一致。')
     # Business capacity/level allowlists govern association, not removal. Keep server validations enabled.
     return {'environment': CAMSTAR_SHOPFLOOR_BASE_URL.rstrip('/'), 'operation': 'Disassociate',
             'body': preview['request_preview']['body'], 'parent': parent,
@@ -90,6 +96,8 @@ async def execute_container_disassociation(plan_id: str, plan_digest: str) -> st
     if not row or row[0] != plan_digest or row[2] != 'ready' or time.time()-row[3]>3600:
         return encode({'submitted':False,'error':'计划无效、已使用或过期。'})
     data=json.loads(row[1])
+    if digest(data['snapshot']) != plan_digest:
+        return encode({'submitted':False,'error':'存储计划摘要不匹配，禁止提交。'})
     try:
         preview=json.loads(await preview_container_disassociate(**data['arguments'],verify_service=True))
         if digest(checked_snapshot(preview)) != plan_digest:
