@@ -8,7 +8,7 @@ from pathlib import Path
 
 from tools import mcp
 from tools.boms import encode
-from tools.container_transfers import preview_container_disassociate, preview_container_combine, quantity, amount, ref
+from tools.container_transfers import preview_container_disassociate, preview_container_combine, preview_container_associate, quantity, amount, ref
 from tools.container_trace import get_container_trace
 from tools.modeling_details import raw_json
 from core.http_client import request
@@ -98,14 +98,67 @@ def checked_snapshot(preview):
             'children': children, 'ancestors': preview['ancestor_check']['nodes']}
 
 
+def checked_association(preview):
+    if preview.get('error') or preview.get('server_echo_verified') is not True:
+        raise ValueError('装箱服务回显未验证。')
+    parent, children = preview['parent'], preview['relationships']
+    if (not children or not preview.get('relationship_checks_complete') or preview.get('relationship_conflicts')
+            or preview['ancestor_check'].get('complete') is not True or preview['ancestor_check'].get('cycle')):
+        raise ValueError('装箱祖先或直属关系未完整确认。')
+    rules=preview['level_rules']
+    if (rules.get('complete') is not True or len(rules.get('checks',[]))!=len(children)
+            or {r['child_id'] for r in rules['checks']}!={c['child']['id'] for c in children}
+            or any(r['parent_allows_child']!='listed' or r['child_allows_parent']!='listed' for r in rules['checks'])):
+        raise ValueError('父/子双方层级未明确允许。')
+    seen={parent['id']}
+    for child in children:
+        node=child['child']
+        if child['parent_before'] not in (None,'') or node['id'] in seen:
+            raise ValueError('子容器已有父级或重复。')
+        seen.add(node['id'])
+    for node in [parent]+[c['child'] for c in children]:
+        if (not node['family_complete'] or not node['parent_known'] or node['parent_id']
+                or type(node['status'].get('Status')) is not int or node['status']['Status']!=1):
+            raise ValueError('当前仅支持无父容器且Active的对象。')
+    for child in children:
+        node=child['child']
+        if any(r.get('ParentContainerId')==node['id'] for r in node['family']):
+            raise ValueError('本阶段不支持携带已有子容器的多层装箱。')
+    expected={'container':ref(parent),'childContainers':[ref(c['child']) for c in children]}
+    if preview['request_preview']['body']!=expected:
+        raise ValueError('装箱请求与明确对象不一致。')
+    return {'environment':CAMSTAR_SHOPFLOOR_BASE_URL.rstrip('/'),'operation':'Associate','body':expected,
+            'parent':parent,'children':children,'ancestors':preview['ancestor_check']['nodes'],'level_rules':rules,
+            'capacity_policy':'未知；不得跳过服务端业务校验，不宣称预先满足容量要求。'}
+
+
 def confirmation_summary(plan_id, plan_digest):
     with db_connect() as db:
         row = db.execute('SELECT digest,payload,state,created FROM plans WHERE id=?',(plan_id,)).fetchone()
     if not row or row[0] != plan_digest or row[2] != 'ready' or time.time()-row[3] > 3600:
         return '拆箱计划不可执行，请重新预览。'
     snap=json.loads(row[1])['snapshot']
-    label='合批（明确Qty/Qty2与空后关闭选项）：' if snap['operation']=='Combine' else '仅解除以下明确子容器关系，不执行全部拆箱：'
+    label={'Combine':'合批（明确Qty/Qty2与空后关闭选项）：',
+           'Associate':'装箱：增加以下父子关系；容量规则由服务端校验，可能拒绝。',
+           'Disassociate':'仅解除以下明确子容器关系，不执行全部拆箱：'}[snap['operation']]
     return label+'\n'+json.dumps(snap['body'],ensure_ascii=False)
+
+
+@mcp.tool
+async def prepare_container_association(parent_container_name: str, child_container_names: list[str]) -> str:
+    """准备单次明确装箱计划，检查Active、无已有父级、叶子子容器、祖先链、双向层级及execute=false回显。容量未知，执行时保留全部服务端规则，不代表业务许可。现场验收待补。"""
+    try:
+        args={'parent_container_name':parent_container_name,'child_container_names':child_container_names}
+        preview=json.loads(await preview_container_associate(**args,verify_service=True))
+        snap=checked_association(preview)
+        plan_id,plan_digest=uuid.uuid4().hex,digest(snap)
+        with db_connect() as db:
+            db.execute('INSERT INTO plans VALUES (?,?,?,?,?,?)',(plan_id,plan_digest,
+                json.dumps({'snapshot':snap,'arguments':args},ensure_ascii=False),'ready',time.time(),None))
+        return encode({'plan_id':plan_id,'plan_digest':plan_digest,'state':'ready','request':snap['body'],
+                       'capacity_verified':False,'expires_in_seconds':3600,'note':snap['capacity_policy']})
+    except (ValueError,TypeError,KeyError) as error:
+        return encode({'error':str(error),'executable':False})
 
 
 @mcp.tool
@@ -167,6 +220,12 @@ async def execute_container_combination(plan_id: str, plan_digest: str) -> str:
     return await execute_plan(plan_id,plan_digest,'Combine')
 
 
+@mcp.tool
+async def execute_container_association(plan_id: str, plan_digest: str) -> str:
+    """确认后执行单次装箱计划，重读身份/关系/层级/服务回显，跨拆箱合批锁定涉及容器。只发明确父子引用，不绕过服务业务规则、不重试。结果关联未验证时保留unknown。"""
+    return await execute_plan(plan_id,plan_digest,'Associate')
+
+
 async def execute_plan(plan_id,plan_digest,operation):
     with db_connect() as db:
         row=db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone()
@@ -181,6 +240,9 @@ async def execute_plan(plan_id,plan_digest,operation):
         if operation=='Combine':
             preview=json.loads(await preview_container_combine(**data['arguments'],verify_service=True))
             refreshed=checked_combine(preview)
+        elif operation=='Associate':
+            preview=json.loads(await preview_container_associate(**data['arguments'],verify_service=True))
+            refreshed=checked_association(preview)
         else:
             preview=json.loads(await preview_container_disassociate(**data['arguments'],verify_service=True))
             refreshed=checked_snapshot(preview)

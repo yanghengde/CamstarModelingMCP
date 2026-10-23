@@ -246,7 +246,7 @@ def plan_preview(calls):
         arguments = str(function.get("arguments") or "{}")
         suffix = "（参数过长，仅展示前 2000 字符；不是完整数据变更预览）" if len(arguments) > 2000 else ""
         lines.append(f"{index}. {function.get('name')}: {arguments[:2000]}{suffix}")
-        if function.get("name") in {"execute_container_disassociation", "execute_container_combination"}:
+        if function.get("name") in {"execute_container_disassociation", "execute_container_combination", "execute_container_association"}:
             try:
                 from tools.container_transfer_plans import confirmation_summary
                 args = json.loads(arguments)
