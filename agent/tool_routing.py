@@ -5,6 +5,7 @@ import re
 from core.tool_catalog import TOOL_POLICIES
 
 GROUP_TERMS = {
+    "collection": r"采集|采样|测量|collection|datapoint",
     "material": r"bom|物料|用料|耗料",
     "resource": r"resource|设备|资源|机台",
     "workflow": r"workflow|工艺|路线|step|步骤|路径|分支|返工",
@@ -28,7 +29,7 @@ ROUTING_INSTRUCTION = (
     "容器父子、拆分合并、返工关联用 get_container_trace；检查各 section 的 error/has_more，只对当前读取范围下结论。"
     "Excel 批量导入先 preview_workflow_import，向用户展示逐行结果及重建风险，确认后执行同一 plan_id/plan_digest。工单现场进度优先 get_mfgorder_progress。"
     "工具按任务领域加载。缺少所需工具时先调用 load_tool_group，选择 workflow/spec/operation/"
-    "product/mfgorder/container/material/resource/reference/query/excel；下一轮会获得该组定义。查询优先只读；"
+    "product/mfgorder/container/collection/material/resource/reference/query/excel；下一轮会获得该组定义。查询优先只读；"
     "需要修改时 include_writes=true。工具加载不代表获得业务写入授权。"
     "产品完整工艺链优先 get_product_process；复杂 Workflow 分支、返工和子流程优先 get_workflow_structure。"
     "对象关联详情优先 get_spec_details/get_product_details/get_operation_details/get_mfgorder_details；"

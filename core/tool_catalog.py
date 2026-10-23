@@ -9,6 +9,8 @@ class ToolPolicy:
     always_confirm: bool = False
 
 TOOL_POLICIES = {
+    "get_data_collection_details": ToolPolicy("collection"),
+    "get_container_collection_requirements": ToolPolicy("collection"),
     "get_bom_details": ToolPolicy("material"),
     "get_product_material_requirements": ToolPolicy("material"),
     "compare_bom_versions": ToolPolicy("material"),
