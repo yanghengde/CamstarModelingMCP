@@ -9,6 +9,7 @@ from tools import mcp
 from tools.boms import encode
 from tools.container_inquiry import get_container_details
 from tools.container_trace import get_container_trace
+from tools.container_level_rules import check_level_rules
 from tools.modeling_details import raw_json, _has_next_link
 from core.http_client import request
 from config import CAMSTAR_SHOPFLOOR_BASE_URL, CAMSTAR_QUERY_BASE_URL
@@ -264,6 +265,13 @@ async def family_preview(parent_name, child_names, operation, verify_service=Fal
                 'parent_after_if_accepted': parent['id'] if operation == 'Associate' else None})
         out['blockers'].append('层级规则和容量限制尚未完整核对；不推算父容器数量变化。')
         out['scope'] = 'explicit_direct_children_only'
+        out['level_rules'] = await check_level_rules(parent, [r['child'] for r in out['relationships']])
+        if not out['level_rules']['complete']:
+            out['blockers'].append('静态父/子层级允许列表未完整确认。')
+        elif operation == 'Associate' and any(
+                c['parent_allows_child'] != 'listed' or c['child_allows_parent'] != 'listed'
+                for c in out['level_rules']['checks']):
+            out['blockers'].append('所选父子层级未同时出现在双方允许列表中。')
         chain = await ancestor_chain(parent['id'])
         out['ancestor_check'] = chain
         ancestor_ids = {r['ContainerId'] for r in chain['nodes']}

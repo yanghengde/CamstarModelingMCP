@@ -8,6 +8,7 @@ from core.tool_catalog import TOOL_POLICIES
 
 @pytest.fixture(autouse=True)
 def no_live_ancestors(monkeypatch):
+    monkeypatch.setattr(ct, "check_level_rules", AsyncMock(return_value={"complete":False,"checks":[]}))
     monkeypatch.setattr(ct, "ancestor_chain", AsyncMock(return_value={"complete":False,"nodes":[],"cycle":False}))
 
 
