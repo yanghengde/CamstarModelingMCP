@@ -69,3 +69,30 @@ def test_requirement_error_not_no_match(monkeypatch):
     monkeypatch.setattr(ci, 'request', AsyncMock(return_value='{"ErrorCode":"13369346"}'))
     result=json.loads(asyncio.run(ci.get_component_requirement('C','P')))
     assert result['status']=='query_failed'
+
+
+def test_history_bounded_fixed_query(monkeypatch):
+    identifier='0004108000000052'
+    monkeypatch.setattr(ci,'get_container_details',AsyncMock(return_value=json.dumps({'data':{'Container':{'Name':'C','InstanceId':identifier}}})))
+    rows=[{'IssueActualsHistoryId':str(i),'ToContainerId':identifier,'Qty':1} for i in range(2)]
+    mock=AsyncMock(return_value=json.dumps(rows));monkeypatch.setattr(ci,'request',mock)
+    d=json.loads(asyncio.run(ci.get_component_issue_history('C',limit=1)))
+    assert d['has_more'] and not d['complete'] and len(d['rows'])==1
+    query=mock.call_args.kwargs['body']['queryText']
+    assert "WHERE ToContainerId='0004108000000052'" in query and 'FETCH NEXT 2 ROWS' in query
+    mock.return_value='[]'
+    d=json.loads(asyncio.run(ci.get_component_issue_history('C')))
+    assert d['complete'] and d['rows']==[]
+
+
+def test_history_identity_rejects_injection(monkeypatch):
+    monkeypatch.setattr(ci,'get_container_details',AsyncMock(return_value=json.dumps({'data':{'Container':{'Name':'C','InstanceId':"x';DROP"}}})))
+    mock=AsyncMock();monkeypatch.setattr(ci,'request',mock)
+    assert 'error' in json.loads(asyncio.run(ci.get_component_issue_history('C')))
+    mock.assert_not_called()
+
+
+def test_history_rejects_other_container_rows(monkeypatch):
+    monkeypatch.setattr(ci,'get_container_details',AsyncMock(return_value=json.dumps({'data':{'Container':{'Name':'C','InstanceId':'0004108000000052'}}})))
+    monkeypatch.setattr(ci,'request',AsyncMock(return_value='[{"IssueActualsHistoryId":"h","ToContainerId":"wrong"}]'))
+    assert 'error' in json.loads(asyncio.run(ci.get_component_issue_history('C')))

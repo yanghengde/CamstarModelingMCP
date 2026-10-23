@@ -43,3 +43,14 @@ T05总任务保持未完成。不得把本工具描述为“投料已接入”�
 工具区分 matched、no_matching_requirement、query_failed、requirement_incomplete、unknown。成功响应仍核对父容器名称/ID和匹配对象，缺少BOM行或需求数量不标为完整。非空成功响应的现场回读尚待样本验证；目前只经过模拟测试。即便 matched，也不授予执行许可，意图预览仍 executable=false。
 
 37项相关测试通过。证据：[component-requirement-validation.json](component-requirement-validation.json)，含契约摘要校验。下一步优先取得真实需求匹配样本，核对服务需求行与 IssueActualDetail 的关联；再验证单位、来源状态及消耗历史。LoadRequirements 的事件协议和执行结果核实尚未解决，T05保持进行中。
+
+
+## 续接：历史回读与样本可用性
+
+2026-10-23 新增 `get_component_issue_history`，固定只读 Query/AdHoc SQL。先核对容器名称及16位十六进制ID，再按 IssueActualsHistory.ToContainerId 读取直接投料历史，保留历史ID、事务ID、来源容器/批号/库存点、产品和数量。offset>=0，limit=1..100，多取一条判断后续页；不接受用户SQL，不拼接容器名称。
+
+字段经 INFORMATION_SCHEMA.COLUMNS 现场核对。当前查询范围内 IssueActualsHistory、ProductMaterialListItem、MfgOrderMaterialListItem 的 COUNT 均为0；真实需求行和非空历史样本不可用。证据：[component-issue-history-contract.json](component-issue-history-contract.json)。首次计数查询的别名 RowCount 被SQL解析器拒绝，已改为逐表 TotalRows 成功查询，保留原失败证据。
+
+40项相关测试通过，包括身份校验、固定SQL、分页、空页和错误目标记录拦截。该工具只展示直接接收容器的原始投料历史，不扣除移除/退料，不代表净消耗；ID排序不是时间排序。空历史不能证明某次请求失败，更不授权重试。非空历史的数量/来源语义仍待现场验收。
+
+执行链剩余输入条件：需要一个已配置物料需求的测试容器/工单、真实来源物料及可用的需求加载操作证据。现环境没有这些样本，不能继续通过反复空查询证明写入正确。下次应提供对应测试对象，或明确授权配置隔离测试数据；没有这些条件时可继续独立的T06契约开发，但T05必须保持未完成。

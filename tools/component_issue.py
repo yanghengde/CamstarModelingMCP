@@ -1,5 +1,6 @@
 """Reviewable issue intent; not an executable Shopfloor payload."""
 import math
+import re
 from typing import Literal
 from tools import mcp
 from tools.boms import encode
@@ -10,6 +11,40 @@ import json
 from config import CAMSTAR_QUERY_BASE_URL
 from core.http_client import request
 from tools.modeling_details import raw_json, _has_next_link
+
+
+@mcp.tool
+async def get_component_issue_history(container_name: str, container_instance_id: str | None = None,
+                                      offset: int = 0, limit: int = 20) -> str:
+    """固定只读投料实际历史查询，按 ToContainerId 定位直接接收容器，返回原始证据ID/来源/数量。不是净消耗、完整族谱或某次请求成功证明；分页limit=1..100。"""
+    out = {'complete': False, 'source': 'Query/AdHoc IssueActualsHistory',
+           'scope': 'direct_to_container_actual_issues',
+           'note': '不扣除移除/退料，不推断净消耗；ID排序不是时间排序，并发变化时分页非一致快照。空页不能证明某次请求失败或安全重试。'}
+    try:
+        if not container_name.strip() or type(offset) is not int or offset < 0 or type(limit) is not int or not 1 <= limit <= 100:
+            raise ValueError('容器名必填；offset为非负整数，limit=1..100。')
+        info = json.loads(await get_container_details(container_name, container_instance_id, view='info'))
+        ref = info.get('data', {}).get('Container')
+        identifier = (ref.get('InstanceId') or ref.get('InstanceID')) if isinstance(ref, dict) else None
+        if (info.get('error') or not isinstance(identifier, str) or not re.fullmatch(r'[0-9a-fA-F]{16}', identifier)
+                or ref.get('Name') != container_name.strip() or (container_instance_id is not None and identifier != container_instance_id.strip())):
+            raise ValueError('无法核对目标容器名称与16位ID，未执行历史查询。')
+        query = ('SELECT IssueActualsHistoryId,IssueHistoryDetailId,HistoryId,TxnId,ToContainerId,'
+                 'FromContainerId,FromLot,FromStockPoint,ProductId,Qty,Qty2 FROM IssueActualsHistory '
+                 f"WHERE ToContainerId='{identifier}' ORDER BY IssueActualsHistoryId "
+                 f'OFFSET {offset} ROWS FETCH NEXT {limit + 1} ROWS ONLY')
+        raw = await request('POST', '/api/AdHoc', base_url=CAMSTAR_QUERY_BASE_URL,
+                            body={'queryText': query}, response_formatter=raw_json, retry_read_only=True)
+        rows = json.loads(raw)
+        if not isinstance(rows, list) or any(not isinstance(row, dict) or not row.get('IssueActualsHistoryId')
+                                          or row.get('ToContainerId') != identifier for row in rows):
+            raise ValueError('历史响应非有效记录列表或包含其他目标容器。')
+        more = len(rows) > limit
+        out.update(container=ref, rows=rows[:limit], has_more=more, next_offset=offset + limit if more else None,
+                   offset=offset, page_complete=True, complete=offset == 0 and not more)
+    except (ValueError, TypeError, AttributeError) as error:
+        out['error'] = str(error)
+    return encode(out)
 
 
 @mcp.tool

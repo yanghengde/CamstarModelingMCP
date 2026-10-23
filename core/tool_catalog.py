@@ -9,6 +9,7 @@ class ToolPolicy:
     always_confirm: bool = False
 
 TOOL_POLICIES = {
+    "get_component_issue_history": ToolPolicy("material"),
     "get_component_requirement": ToolPolicy("material"),
     "preview_component_issue": ToolPolicy("material"),
     "check_mfgorder_readiness": ToolPolicy("mfgorder"),

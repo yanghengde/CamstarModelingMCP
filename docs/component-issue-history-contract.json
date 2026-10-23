@@ -1,0 +1,461 @@
+{
+  "checked_at": "2026-10-23T10:02:34.303700+08:00",
+  "method": "fixed read-only SQL via Query/AdHoc",
+  "queries": [
+    {
+      "query": "SELECT TABLE_NAME,COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME IN ('IssueActualsHistory','IssueHistoryDetail','ComponentIssueHistory') ORDER BY TABLE_NAME,ORDINAL_POSITION",
+      "result": [
+        {
+          "TABLE_NAME": "ComponentIssueHistory",
+          "COLUMN_NAME": "BatchId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "ComponentIssueHistory",
+          "COLUMN_NAME": "BillControl",
+          "DATA_TYPE": "bit"
+        },
+        {
+          "TABLE_NAME": "ComponentIssueHistory",
+          "COLUMN_NAME": "BypassExpirationCheck",
+          "DATA_TYPE": "bit"
+        },
+        {
+          "TABLE_NAME": "ComponentIssueHistory",
+          "COLUMN_NAME": "CDOTypeId",
+          "DATA_TYPE": "int"
+        },
+        {
+          "TABLE_NAME": "ComponentIssueHistory",
+          "COLUMN_NAME": "ChangeCount",
+          "DATA_TYPE": "int"
+        },
+        {
+          "TABLE_NAME": "ComponentIssueHistory",
+          "COLUMN_NAME": "ComponentIssueHistoryId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "ComponentIssueHistory",
+          "COLUMN_NAME": "ExportImportKey",
+          "DATA_TYPE": "nvarchar"
+        },
+        {
+          "TABLE_NAME": "ComponentIssueHistory",
+          "COLUMN_NAME": "HistoryId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "ComponentIssueHistory",
+          "COLUMN_NAME": "HistoryMainlineId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "ComponentIssueHistory",
+          "COLUMN_NAME": "MasterRecipeId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "ComponentIssueHistory",
+          "COLUMN_NAME": "RecipeIssueItemId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "ComponentIssueHistory",
+          "COLUMN_NAME": "RecipeListId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "ComponentIssueHistory",
+          "COLUMN_NAME": "TxnId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "ComponentIssueHistory",
+          "COLUMN_NAME": "IntegrationTxnId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "CDOTypeId",
+          "DATA_TYPE": "int"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "ChangeCount",
+          "DATA_TYPE": "int"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "EnteredQty2Issued",
+          "DATA_TYPE": "nvarchar"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "EnteredQtyIssued",
+          "DATA_TYPE": "nvarchar"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "ExportImportKey",
+          "DATA_TYPE": "nvarchar"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "FromBatchId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "FromCarrierId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "FromContainerId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "FromLocationId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "FromLot",
+          "DATA_TYPE": "nvarchar"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "FromStockPoint",
+          "DATA_TYPE": "nvarchar"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "HistoryId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "IsAutoWeightEntry",
+          "DATA_TYPE": "bit"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "IssueActualsHistoryId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "IssueDifferenceReasonId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "IssueHistoryDetailId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "IssueReasonId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "ManualOverride",
+          "DATA_TYPE": "bit"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "Notes",
+          "DATA_TYPE": "nvarchar"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "ProductDescription",
+          "DATA_TYPE": "nvarchar"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "ProductId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "Qty",
+          "DATA_TYPE": "float"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "Qty2",
+          "DATA_TYPE": "float"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "ReferenceDesignator",
+          "DATA_TYPE": "nvarchar"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "ResourceId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "SubstitutionReasonId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "ToContainerId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "ToLocationId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "TxnId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "VendorItemId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "ES_BulkUID",
+          "DATA_TYPE": "nvarchar"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "ES_FromLot2",
+          "DATA_TYPE": "nvarchar"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "ES_FromLot3",
+          "DATA_TYPE": "nvarchar"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "ES_ToolId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "ES_ToolName",
+          "DATA_TYPE": "nvarchar"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "FeederBankId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "FeederId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "FeederSlotId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "IntegrationTxnId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "isMaterialQueueDetailsId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueActualsHistory",
+          "COLUMN_NAME": "ReplaceProductId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "ActualQty2Issued",
+          "DATA_TYPE": "float"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "ActualQtyIssued",
+          "DATA_TYPE": "float"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "AllowManualWeighOverride",
+          "DATA_TYPE": "bit"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "CDOTypeId",
+          "DATA_TYPE": "int"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "ChangeCount",
+          "DATA_TYPE": "int"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "CloseWhenEmpty",
+          "DATA_TYPE": "bit"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "ComponentIssueHistoryId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "ExportImportKey",
+          "DATA_TYPE": "nvarchar"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "HistoryId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "IsManualReadingOnly",
+          "DATA_TYPE": "bit"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "IssueControl",
+          "DATA_TYPE": "int"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "IssueDifferenceReasonId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "IssueHistoryDetailId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "Notes",
+          "DATA_TYPE": "nvarchar"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "ProductId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "ProductMaterialListItemId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "Qty2Required",
+          "DATA_TYPE": "float"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "QtyLowerLimit",
+          "DATA_TYPE": "float"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "QtyRequired",
+          "DATA_TYPE": "float"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "QtyUpperLimit",
+          "DATA_TYPE": "float"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "ReferenceDesignator",
+          "DATA_TYPE": "nvarchar"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "TxnId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "UOM2Id",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "UOMId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "TABLE_NAME": "IssueHistoryDetail",
+          "COLUMN_NAME": "IntegrationTxnId",
+          "DATA_TYPE": "char"
+        }
+      ]
+    },
+    {
+      "query": "SELECT 'IssueActualsHistory' AS Source, COUNT(*) AS RowCount FROM IssueActualsHistory UNION ALL SELECT 'ProductMaterialListItem', COUNT(*) FROM ProductMaterialListItem UNION ALL SELECT 'MfgOrderMaterialListItem', COUNT(*) FROM MfgOrderMaterialListItem",
+      "result": {
+        "error": "❌ HTTP 400 Error\nURL: https://172.18.203.238/Query/api/AdHoc\nResponse: {\"ErrorCode\":\"13500474\",\"Message\":\"A server error occurred.\",\"Target\":null,\"Details\":[{\"ErrorCode\":\"13500474\",\"Message\":\"[Opcenter][ODBC SQL Server Wire Protocol driver][Microsoft SQL Server]Incorrect syntax near the keyword \\u0027RowCount\\u0027.\",\"Target\":null}],\"InnerError\":null,\"InstanceAnnotations\":[],\"TypeAnnotation\":null}"
+      }
+    },
+    {
+      "query": "SELECT TOP 3 MfgOrderMaterialListItemId,MfgOrderId,ProductId,QtyRequired,IssueControl FROM MfgOrderMaterialListItem ORDER BY MfgOrderMaterialListItemId",
+      "result": []
+    },
+    {
+      "query": "SELECT COUNT(*) AS TotalRows FROM IssueActualsHistory",
+      "result": [
+        {
+          "TotalRows": "0"
+        }
+      ]
+    },
+    {
+      "query": "SELECT COUNT(*) AS TotalRows FROM ProductMaterialListItem",
+      "result": [
+        {
+          "TotalRows": "0"
+        }
+      ]
+    },
+    {
+      "query": "SELECT COUNT(*) AS TotalRows FROM MfgOrderMaterialListItem",
+      "result": [
+        {
+          "TotalRows": "0"
+        }
+      ]
+    }
+  ],
+  "tool_validation": {
+    "complete": true,
+    "source": "Query/AdHoc IssueActualsHistory",
+    "scope": "direct_to_container_actual_issues",
+    "note": "不扣除移除/退料，不推断净消耗；ID排序不是时间排序，并发变化时分页非一致快照。空页不能证明某次请求失败或安全重试。",
+    "container": {
+      "InstanceId": "0004108000000052",
+      "CDOTypeName": "Container",
+      "Name": "SN0000001"
+    },
+    "rows": [],
+    "has_more": false,
+    "next_offset": null,
+    "offset": 0,
+    "page_complete": true
+  }
+}
