@@ -13,6 +13,7 @@ TOOL_POLICIES = {
     "get_component_requirement": ToolPolicy("material"),
     "preview_component_issue": ToolPolicy("material"),
     "check_mfgorder_readiness": ToolPolicy("mfgorder"),
+    "validate_collection_values": ToolPolicy("collection"),
     "get_data_collection_details": ToolPolicy("collection"),
     "get_container_collection_requirements": ToolPolicy("collection"),
     "get_bom_details": ToolPolicy("material"),

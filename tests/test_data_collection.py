@@ -130,7 +130,7 @@ def test_container_bounds_and_missing_definition(monkeypatch):
 
 
 def test_registry_and_loading():
-    names = {'get_data_collection_details', 'get_container_collection_requirements'}
+    names = {'get_data_collection_details', 'get_container_collection_requirements', 'validate_collection_values'}
     assert names <= {t.name for t in asyncio.run(mcp.list_tools())}
     assert all(get_tool_func(n) and TOOL_POLICIES[n].effect == 'read' for n in names)
     assert set(run(load_tool_group('collection'))['tools']) == names
