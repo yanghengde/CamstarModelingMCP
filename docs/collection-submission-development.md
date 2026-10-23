@@ -36,3 +36,28 @@
 该工具不覆盖自定义 ParametricData / 分组采样历史，不根据空页判断某次提交失败，不触发自动重试，也不把历史越限标记转换为质量结论。51 项相关测试通过（含分页、类型校验、身份不匹配、事务筛选、重复行和能力发现），未进行业务写入。
 
 下一步仍是核实具体 UserDataCollection 提交结构及越限规则，随后实现确认后的提交和按事务标识回读；不能仅凭历史表结构反推请求字段。
+
+
+## 第三步：服务预览与单次执行入口（2026-10-23）
+
+用户决定：先完成不依赖现场写入的开发，T00–T09 后集中补现场测试。本次没有执行真实采集。
+
+### 契约补齐
+
+本地《OCEXCR REST API 2510+》1-23～1-28 明确 Swagger 不显示继承子类型，需要元数据和 @odata.type；3-2 明确 execute=false 不添加 Execute 节点。实时 Shopfloor/api/$metadata 确认 DataPointSummary 派生于 ParametricData，包含 DataPointDetails，每项必须有 DataPoint 引用，DataValue 是字符串。服务以 execute=false 接受并回显了 Thickness=1，类型 7273/7276 与元数据一致。
+
+证据：[元数据](collection-submit-metadata.json)、[加载](collection-load-validation.json)、[序列化](collection-serialization-validation.json)、[完整预览](collection-preview-validation.json)。完整预览的 server_echo_verified=true，但测试容器当前 Spec 未返回，因此 static_mapping_verified=false、executable=false，没有生成执行计划。
+
+### 工具与行为
+
+- preview_container_data_collection：静态校验、工序 CollectData 映射、明确版本和点ID、服务不执行回显；仅数值/字符串。不自动转换单位，不设置覆盖限值或绕过必填字段。
+- 关联及回显通过才保存不可变、有效1小时的计划。摘要绑定服务环境、容器、工序、定义、值和已返回约束。
+- collect_container_data：写工具，always_confirm=true，确认界面展示完整提交内容；执行前再次预览，比对摘要，原子领取单次计划后才提交，不自动重试。
+- get_collection_submission_plan：读取计划与持久化结果。异常/超时/崩溃后计划不能重新领取；同一环境容器存在 in_flight/unknown 时禁止另一计划绕过。
+- 提交后读取采集历史作证据。当前契约尚不能可靠关联本次响应与历史事务，**即使收到 HTTP 200，结果仍为 unknown、verified_success=false**，不报告核实成功，也不自动解除容器的未知状态。核实/恢复入口待现场契约验证后实现，当前需人工处理。
+
+### 尚未完成
+
+端到端 T06 不勾选完成：布尔/日期/对象及分组采样未支持；非空历史关联和真正成功判定尚未完成；未知结果核实后解除锁定的流程待补。写入口已实现并通过模拟验证，不能混同现场验收完成。统一补测见 [集中验收清单](core-surrounding-deferred-tests.md)。
+
+本轮验证：66 项相关测试通过，包含确认展示、工序变化拒绝、摘要/过期、并发单次领取、超时持久化及新计划防绕过；git diff --check 通过。pytest 退出时有 Windows 临时目录清理权限提示，测试结果与退出码正常。

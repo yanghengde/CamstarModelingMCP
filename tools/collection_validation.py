@@ -55,7 +55,8 @@ async def validate_collection_values(values: dict, name: str = '', revision: str
                 elif key in values:
                     out['warnings'].append({'point': key, 'code': 'empty_optional_value'})
                 continue
-            check = {'point': key, 'value': value, 'type_valid': None, 'limits': {}}
+            check = {'point': key, 'point_instance_id': p.get('InstanceID'), 'data_type': kind,
+                     'value': value, 'type_valid': None, 'limits': {}}
             out['checks'].append(check)
             if kind in (1, 2, 3, 9):
                 number = numeric(value) if not isinstance(value, str) else None

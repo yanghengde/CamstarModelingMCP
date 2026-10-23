@@ -1,0 +1,128 @@
+{
+  "date": "2026-10-23",
+  "transaction_executed": false,
+  "result": {
+    "complete": false,
+    "executable": false,
+    "stage": "server_preview",
+    "transaction_executed": false,
+    "server_echo_verified": true,
+    "blockers": [
+      "尚未完成真实提交和按事务标识回读验收；预览不能授权执行。",
+      "当前工序与 CollectData 采集定义关联未完整确认。"
+    ],
+    "validation": {
+      "complete": false,
+      "executable": false,
+      "static_valid": true,
+      "errors": [],
+      "warnings": [
+        {
+          "point": "Thickness",
+          "code": "lower_limit_unknown"
+        },
+        {
+          "point": "Thickness",
+          "code": "upper_limit_unknown"
+        },
+        {
+          "code": "dynamic_constraints_unverified",
+          "detail": "枚举、单位、动态必填和越限处理未验证；静态校验通过不代表可提交或质量合格。"
+        }
+      ],
+      "checks": [
+        {
+          "point": "Thickness",
+          "point_instance_id": "001c678000000001",
+          "data_type": 3,
+          "value": 1,
+          "type_valid": true,
+          "limits": {
+            "lower": {
+              "raw": null,
+              "status": "unknown"
+            },
+            "upper": {
+              "raw": null,
+              "status": "unknown"
+            }
+          },
+          "limit_override_allowed": true
+        }
+      ],
+      "quality_verdict": null,
+      "submission_contract_verified": false,
+      "definition": {
+        "InstanceID": "001c618000000001",
+        "Name": "SPCTesterPageUDC",
+        "Revision": "1"
+      }
+    },
+    "context": {
+      "complete": false,
+      "source": "Query/ContainerInfoInquiry -> Specs/TxnMap -> DataCollectionDefs",
+      "note": "仅静态定义；未验证当前事务动态必填、权限或质量判定。null/缺失约束为未知，不推断无限制。",
+      "dynamic_requirements_verified": false,
+      "mappings": [],
+      "warnings": [],
+      "status": "current_spec_unknown",
+      "error": "容器查询未返回当前 Spec，无法确认工序采集要求。"
+    },
+    "static_mapping_verified": false,
+    "request_preview": {
+      "method": "POST",
+      "path": "/api/CollectData",
+      "params": {
+        "execute": "false",
+        "$select": "Container,DataCollectionDef,HasUserDataCollection,ParametricDataDefType",
+        "$expand": "ParametricData($expand=shopfloor.DataPointSummary/DataPointDetails)"
+      },
+      "body": {
+        "container": {
+          "name": "SN0000001",
+          "instanceId": "0004108000000052"
+        },
+        "dataCollectionDef": {
+          "name": "SPCTesterPageUDC",
+          "revision": "1",
+          "instanceId": "001c618000000001"
+        },
+        "parametricData": {
+          "@odata.type": "#shopfloor.DataPointSummary",
+          "dataPointDetails": [
+            {
+              "dataPoint": {
+                "name": "Thickness",
+                "instanceId": "001c678000000001"
+              },
+              "dataValue": "1"
+            }
+          ]
+        }
+      }
+    },
+    "server_points": [
+      {
+        "DataPoint": {
+          "Name": "Thickness",
+          "Parent": {
+            "Name": "SPCTesterPageUDC",
+            "Revision": "1",
+            "UseRor": "false",
+            "InstanceId": "001c618000000001"
+          },
+          "InstanceId": "001c678000000001"
+        },
+        "DataName": "Thickness",
+        "DataValue": "1",
+        "DataType": "3",
+        "IsRequired": "false",
+        "LowerLimit": null,
+        "UpperLimit": null,
+        "IsLimitViolation": "false",
+        "IsLimitOverrideAllowed": "true"
+      }
+    ],
+    "note": "仅确认 execute=false 模式的序列化与回显；越限标记可能尚未经过 Execute 验证，不能视为质量结论。"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "execute": false,
+  "body": {
+    "container": {
+      "name": "SN0000001",
+      "instanceId": "0004108000000052"
+    },
+    "dataCollectionDef": {
+      "name": "SPCTesterPageUDC",
+      "revision": "1",
+      "instanceId": "001c618000000001"
+    }
+  },
+  "params": {
+    "execute": "false",
+    "$select": "Container,DataCollectionDef,HasUserDataCollection,ParametricDataDefType",
+    "$expand": "ParametricData($expand=shopfloor.DataPointSummary/DataPointDetails)"
+  },
+  "response": "{\"@odata.context\": \"https://172.18.203.238/api/$metadata#CollectData/$entity\", \"value\": \"\", \"data\": {\"Container\": {\"Name\": \"SN0000001\", \"Level\": {\"Name\": \"BOX\"}, \"InstanceId\": \"0004108000000052\"}, \"DataCollectionDef\": {\"Name\": \"SPCTesterPageUDC\", \"Revision\": \"1\", \"UseRor\": \"false\", \"InstanceId\": \"001c618000000001\"}, \"HasUserDataCollection\": \"true\", \"ParametricDataDefType\": \"7273\", \"ParametricData\": {\"Parent\": {\"InstanceId\": \"0008980000000003\"}, \"InstanceId\": \"001c690000000003\", \"CDOTypeId\": \"7273\", \"DataPointLayout\": \"2\", \"OverrideDataPointLimits\": \"false\", \"IsDeleted\": \"false\"}}}"
+}

@@ -130,10 +130,12 @@ def test_container_bounds_and_missing_definition(monkeypatch):
 
 
 def test_registry_and_loading():
-    names = {'get_data_collection_details', 'get_container_collection_requirements', 'validate_collection_values', 'get_container_collection_history'}
+    names = {'get_data_collection_details', 'get_container_collection_requirements', 'validate_collection_values', 'get_container_collection_history', 'preview_container_data_collection', 'get_collection_submission_plan', 'collect_container_data'}
     assert names <= {t.name for t in asyncio.run(mcp.list_tools())}
-    assert all(get_tool_func(n) and TOOL_POLICIES[n].effect == 'read' for n in names)
-    assert set(run(load_tool_group('collection'))['tools']) == names
+    assert all(get_tool_func(n) and (TOOL_POLICIES[n].effect == 'read' or n == 'collect_container_data') for n in names)
+    assert set(run(load_tool_group('collection'))['tools']) == names - {'collect_container_data'}
+    assert set(run(load_tool_group('collection', include_writes=True))['tools']) == names
     assert run(get_capabilities(group='collection'))['groups'][0]['group'] == 'collection'
     selected = select_tools([{'function': {'name': n}} for n in TOOL_POLICIES], [{'role': 'user', 'content': '批次需要采集什么数据？'}])
-    assert names <= {t['function']['name'] for t in selected}
+    assert names - {'collect_container_data'} <= {t['function']['name'] for t in selected}
+    assert 'collect_container_data' not in {t['function']['name'] for t in selected}

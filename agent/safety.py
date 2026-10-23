@@ -246,6 +246,13 @@ def plan_preview(calls):
         arguments = str(function.get("arguments") or "{}")
         suffix = "（参数过长，仅展示前 2000 字符；不是完整数据变更预览）" if len(arguments) > 2000 else ""
         lines.append(f"{index}. {function.get('name')}: {arguments[:2000]}{suffix}")
+        if function.get("name") == "collect_container_data":
+            try:
+                from tools.collection_submission import confirmation_summary
+                args = json.loads(arguments)
+                lines.append(confirmation_summary(args.get("plan_id"), args.get("plan_digest")))
+            except (ValueError, TypeError, KeyError):
+                lines.append("无法读取有效采集计划，请先重新预览。")
         if function.get("name") == "execute_workflow_import_plan":
             try:
                 from tools.import_plans import confirmation_summary
