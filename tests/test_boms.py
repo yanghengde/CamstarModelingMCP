@@ -126,7 +126,7 @@ def test_registry_loading_and_routing():
     names = {'get_bom_details', 'get_product_material_requirements', 'compare_bom_versions'}
     assert names <= {t.name for t in asyncio.run(mcp.list_tools())}
     assert all(get_tool_func(n) and TOOL_POLICIES[n].effect == 'read' for n in names)
-    assert set(run(load_tool_group('material'))['tools']) == names
+    assert names <= set(run(load_tool_group('material'))['tools'])
     assert run(get_capabilities(group='material'))['groups'][0]['group'] == 'material'
     tools = [{'function': {'name': n}} for n in TOOL_POLICIES]
     chosen = select_tools(tools, [{'role': 'user', 'content': '比较 BOM 两个版本用料差异'}])

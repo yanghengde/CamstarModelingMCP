@@ -6,7 +6,7 @@ from core.tool_catalog import TOOL_POLICIES
 
 GROUP_TERMS = {
     "collection": r"采集|采样|测量|collection|datapoint",
-    "material": r"bom|物料|用料|耗料",
+    "material": r"bom|物料|用料|耗料|投料",
     "resource": r"resource|设备|资源|机台",
     "workflow": r"workflow|工艺|路线|step|步骤|路径|分支|返工",
     "spec": r"spec|规格|工艺|工序",
