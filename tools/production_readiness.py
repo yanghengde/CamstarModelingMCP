@@ -1,6 +1,7 @@
 """Bounded read-only configuration evidence, never authorizes production start."""
 import asyncio
 import json
+from typing import Literal
 
 from tools import mcp
 from tools.process_context import ReadContext, get_product_process
@@ -8,6 +9,42 @@ from tools.modeling_workspace import inspect_structure
 from tools.resources import get_spec_resource_context, reference
 from tools.boms import get_product_material_requirements, encode
 from tools.modeling_details import _has_next_link
+from tools.data_collection import definition
+
+
+async def collection_summary(identifier, kind, max_definitions, point_limit):
+    ctx = ReadContext(max_requests=1 + 3 * max_definitions)
+    spec = await ctx.get('Specs', identifier, {'$expand': 'TxnMap'})
+    if spec.get('InstanceID') != identifier:
+        raise ValueError('Spec ID 不一致。')
+    rows = spec.get('TxnMap')
+    if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
+        raise ValueError('TxnMap 未返回有效映射列表。')
+    out = {'read_complete': not _has_next_link(spec) and len(rows) <= max_definitions,
+           'mapping_count': len(rows), 'unexamined_mapping_count': max(0, len(rows) - max_definitions),
+           'dynamic_requirements_verified': False, 'constraints_complete': False, 'mappings': []}
+    cache = {}
+    for row in rows[:max_definitions]:
+        ref = row.get('DataCollectionDef')
+        selected = kind
+        if kind == 'base' and isinstance(ref, dict):
+            selected = {'UserDataCollectionDef': 'user', 'DataPointCollectionDef': 'point'}.get(ref.get('CDOTypeName'), 'base')
+        item = {'transaction': row.get('TxnName'), 'required': row.get('Required'),
+                'sequence': row.get('Sequence'), 'definition_ref': ref, 'kind': selected}
+        try:
+            key = json.dumps([selected, ref], sort_keys=True)
+            if key not in cache:
+                cache[key] = await definition(ctx, ref, selected, 0, point_limit)
+            detail = cache[key]
+            item['collection'] = {k: detail[k] for k in ['source', 'complete', 'constraints_complete', 'page', 'points', 'groups', 'warnings'] if k in detail}
+            item['resolved_definition'] = {k: detail.get('definition', {}).get(k) for k in ['InstanceID', 'Name', 'Revision']}
+            if detail.get('complete') is not True:
+                out['read_complete'] = False
+        except ValueError as error:
+            item['error'] = str(error)
+            out['read_complete'] = False
+        out['mappings'].append(item)
+    return out
 
 
 async def decoded(task):
@@ -19,12 +56,15 @@ async def decoded(task):
 
 
 @mcp.tool
-async def check_mfgorder_readiness(mfgorder_name: str, max_specs: int = 5, max_depth: int = 2) -> str:
+async def check_mfgorder_readiness(mfgorder_name: str, max_specs: int = 5, max_depth: int = 2,
+                                  collection_kind: Literal['base', 'user', 'point'] = 'base',
+                                  max_definitions: int = 5, point_limit: int = 20) -> str:
     """只读工单开工配置检查：产品工艺、资源、标准BOM/工单物料、Spec静态采集映射。返回通过/缺失/未知/不适用及证据；不检查库存、资质或动态事务规则，不执行Start。max_specs=1..10，max_depth=0..3。"""
     out = {'complete': False, 'ready_to_start': None, 'checks': [],
            'scope': '工单关联及已读取范围的静态配置；不是开工许可或全部业务规则验收。',
            'limits': {'max_specs': max_specs, 'max_depth': max_depth, 'concurrency': 2,
-                      'logical_request_upper_bound': 178 + 33 * max_specs,
+                      'max_definitions_per_spec': max_definitions, 'point_limit': point_limit,
+                      'logical_request_upper_bound': 178 + (33 + 3 * max_definitions) * max_specs,
                       'note': '复用各领域请求预算之和；HTTP 层 GET 重试最多使实际尝试数翻倍。'},
            'unexamined_specs': []}
 
@@ -32,8 +72,9 @@ async def check_mfgorder_readiness(mfgorder_name: str, max_specs: int = 5, max_d
         out['checks'].append({'area': area, 'object': obj, 'status': status,
                               'source': source, 'detail': detail, 'next_action': action})
 
-    if not mfgorder_name.strip() or not 1 <= max_specs <= 10 or not 0 <= max_depth <= 3:
-        out['error'] = '工单名称必填；max_specs=1..10，max_depth=0..3。'
+    if (not mfgorder_name.strip() or not 1 <= max_specs <= 10 or not 0 <= max_depth <= 3
+            or collection_kind not in {'base', 'user', 'point'} or not 1 <= max_definitions <= 10 or not 1 <= point_limit <= 50):
+        out['error'] = '工单名称必填；max_specs=1..10，max_depth=0..3，collection_kind=base/user/point，max_definitions=1..10，point_limit=1..50。'
         return encode(out)
     ctx = ReadContext(max_requests=4)
     try:
@@ -72,13 +113,7 @@ async def check_mfgorder_readiness(mfgorder_name: str, max_specs: int = 5, max_d
         async with sem:
             resource = await decoded(get_spec_resource_context(instance_id=identifier, max_groups=5, max_resources=10, max_depth=3))
             try:
-                spec = await ReadContext(max_requests=1).get('Specs', identifier, {'$expand': 'TxnMap'})
-                if spec.get('InstanceID') != identifier:
-                    raise ValueError('Spec ID 不一致。')
-                mappings = spec.get('TxnMap')
-                collection = {'read_complete': isinstance(mappings, list) and not _has_next_link(spec),
-                              'mapping_count': len(mappings) if isinstance(mappings, list) else None,
-                              'dynamic_requirements_verified': False}
+                collection = await collection_summary(identifier, collection_kind, max_definitions, point_limit)
             except ValueError as error:
                 collection = {'read_complete': False, 'error': str(error)}
             return identifier, resource, collection

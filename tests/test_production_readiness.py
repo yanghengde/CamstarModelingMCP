@@ -72,3 +72,33 @@ def test_registry_and_route():
     assert get_tool_func(name) and TOOL_POLICIES[name].effect == 'read'
     selected = select_tools([{'function': {'name': n}} for n in TOOL_POLICIES], [{'role': 'user', 'content': '检查工单 O 开工准备'}])
     assert name in {t['function']['name'] for t in selected}
+
+
+def test_collection_points_deduplicated_and_bounded(monkeypatch):
+    rows = [{'TxnName': 'MoveOut', 'DataCollectionDef': {'InstanceID': 'd', 'CDOTypeName': 'UserDataCollectionDef'}}] * 3
+    mock = AsyncMock(return_value={'InstanceID': 's', 'TxnMap': rows})
+    monkeypatch.setattr(pr.ReadContext, 'get', mock)
+    detail = AsyncMock(return_value={'complete': True, 'constraints_complete': False, 'definition': {'Name': 'D'},
+                                    'points': [{'name': 'Thickness', 'lower_limit': 0, 'required': False}]})
+    monkeypatch.setattr(pr, 'definition', detail)
+    data = asyncio.run(pr.collection_summary('s', 'base', 2, 10))
+    assert not data['read_complete'] and data['unexamined_mapping_count'] == 1
+    assert detail.await_count == 1 and detail.call_args.args[2] == 'user'
+    assert data['mappings'][0]['collection']['points'][0]['lower_limit'] == 0
+
+
+def test_collection_unknown_type_and_partial_failure(monkeypatch):
+    rows = [{'DataCollectionDef': {'InstanceID': 'd'}}, {'DataCollectionDef': None}]
+    monkeypatch.setattr(pr.ReadContext, 'get', AsyncMock(return_value={'InstanceID': 's', 'TxnMap': rows}))
+    detail = AsyncMock(side_effect=[{'complete': False, 'warnings': ['unknown subtype']}, ValueError('missing ref')])
+    monkeypatch.setattr(pr, 'definition', detail)
+    data = asyncio.run(pr.collection_summary('s', 'base', 5, 20))
+    assert not data['read_complete'] and detail.call_args_list[0].args[2] == 'base'
+    assert 'error' in data['mappings'][1] and 'collection' in data['mappings'][0]
+
+
+def test_collection_malformed_mapping(monkeypatch):
+    monkeypatch.setattr(pr.ReadContext, 'get', AsyncMock(return_value={'InstanceID': 's', 'TxnMap': [None]}))
+    import pytest
+    with pytest.raises(ValueError):
+        asyncio.run(pr.collection_summary('s', 'base', 5, 20))
