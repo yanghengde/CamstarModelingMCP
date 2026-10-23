@@ -7,6 +7,53 @@ from tools.process_context import ReadContext
 from tools.resources import reference
 from tools.container_inquiry import get_container_details
 import json
+from config import CAMSTAR_QUERY_BASE_URL
+from core.http_client import request
+from tools.modeling_details import raw_json, _has_next_link
+
+
+@mcp.tool
+async def get_component_requirement(container_name: str, object_name: str,
+                                     container_instance_id: str | None = None) -> str:
+    """固定只读 ComponentIssueInquiry，parentContainer+objectName 匹配产品/替代产品/来源容器的需求。返回单条IssueDetails，不是完整BOM或消耗历史；不执行投料。"""
+    out = {'source': 'Query/ComponentIssueInquiry', 'complete': False, 'status': 'unknown',
+           'note': '单条需求匹配，不是全部需求或本次实际消耗；QtyIssued 为累计量。'}
+    if not container_name.strip() or not object_name.strip() or (container_instance_id is not None and not container_instance_id.strip()):
+        out['error'] = '目标容器、匹配对象必填，显式ID不能为空。'
+        return encode(out)
+    ref = {'name': container_name.strip()}
+    if container_instance_id:
+        ref['instanceId'] = container_instance_id.strip()
+    raw = await request('POST', '/api/ComponentIssueInquiry', base_url=CAMSTAR_QUERY_BASE_URL,
+                        body={'parentContainer': ref, 'objectName': object_name.strip()},
+                        params={'execute': 'true', '$expand': 'IssueDetails'},
+                        response_formatter=raw_json, retry_read_only=True)
+    try:
+        data = json.loads(raw.split('Response: ', 1)[-1])
+        if not isinstance(data, dict):
+            raise ValueError('需求查询未返回对象。')
+        if data.get('ErrorCode') or data.get('error'):
+            out['status'] = 'no_matching_requirement' if str(data.get('ErrorCode')) == '13501228' else 'query_failed'
+            out['error'] = data
+        else:
+            parent = data.get('ParentContainer')
+            identifier = (parent or {}).get('InstanceId') or (parent or {}).get('InstanceID') if isinstance(parent, dict) else None
+            if not isinstance(parent, dict) or parent.get('Name') != container_name.strip() or not identifier:
+                raise ValueError('响应未确认目标父容器身份。')
+            if container_instance_id and identifier != container_instance_id.strip():
+                raise ValueError('响应父容器ID不匹配。')
+            if data.get('ObjectName') != object_name.strip():
+                raise ValueError('响应匹配对象与请求不一致。')
+            detail = data.get('IssueDetails')
+            out['data'] = data
+            if isinstance(detail, dict) and detail.get('BOMLineItem') and isinstance(detail.get('QtyRequired'), (int, float)):
+                out['status'] = 'matched'
+                out['complete'] = not _has_next_link(data)
+            else:
+                out['status'] = 'requirement_incomplete'
+    except (ValueError, TypeError) as error:
+        out['error'] = str(error)
+    return encode(out)
 
 
 @mcp.tool
@@ -45,6 +92,10 @@ async def preview_component_issue(container_name: str, product_name: str, produc
             raise ValueError('目标容器 ID 无法核对。')
         out['resolved_target'] = ref
         out['target_query_complete'] = info.get('complete') is True
+        out['requirement_match'] = json.loads(await get_component_requirement(
+            container_name, source_name if issue_control in (1, 2) else product_name, identifier))
+        if out['requirement_match'].get('status') != 'matched':
+            out['blockers'].append('未获得可核实的目标物料需求匹配，不能执行投料。')
         out['blockers'].append('来源仅记录为用户意图，尚未核对其存在性、余额及与需求的匹配。')
     except (ValueError, TypeError, AttributeError) as error:
         out['error'] = str(error)

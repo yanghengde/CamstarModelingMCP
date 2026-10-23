@@ -1,0 +1,27 @@
+{
+  "checked_at": "2026-10-23T10:00:26.020177+08:00",
+  "method": "fixed read-only Query inquiry; no Shopfloor write",
+  "contract": "Swagger\\extensions\\Query-ComponentIssueInquiry.json",
+  "sha256": "f02cb244681c52996839ba925d505159bd082fbddb64b9ad606f67348a7fb238",
+  "result": {
+    "source": "Query/ComponentIssueInquiry",
+    "complete": false,
+    "status": "no_matching_requirement",
+    "note": "单条需求匹配，不是全部需求或本次实际消耗；QtyIssued 为累计量。",
+    "error": {
+      "ErrorCode": "13501228",
+      "Message": "A server error occurred.",
+      "Target": null,
+      "Details": [
+        {
+          "ErrorCode": "13501228",
+          "Message": "The container/product entered does not satisfy any Material Requirement.",
+          "Target": null
+        }
+      ],
+      "InnerError": null,
+      "InstanceAnnotations": [],
+      "TypeAnnotation": null
+    }
+  }
+}
