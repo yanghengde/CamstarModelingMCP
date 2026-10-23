@@ -1,0 +1,46 @@
+{
+  "checked_at": "2026-10-23T09:25:08.619246+08:00",
+  "method": "read-only GET; no business writes",
+  "checks": {
+    "list_resources": {
+      "source": "Modeling/Resources",
+      "complete": true,
+      "warnings": [],
+      "note": "配置候选不代表允许开工；未返回/null 不等于未配置。非空资源现场样本尚待验收。",
+      "resources": [],
+      "offset": 0,
+      "limit": 5,
+      "has_more": false,
+      "next_offset": null
+    },
+    "missing_resource": {
+      "source": "Modeling/Resources",
+      "complete": false,
+      "warnings": [
+        "查询限制或对象未找到；详细错误未持久化"
+      ],
+      "note": "配置候选不代表允许开工；未返回/null 不等于未配置。非空资源现场样本尚待验收。"
+    },
+    "spec_context": {
+      "source": "Modeling/Specs -> ResourceGroups -> Resources",
+      "complete": false,
+      "warnings": [
+        "查询限制或对象未找到；详细错误未持久化"
+      ],
+      "note": "配置候选不代表允许开工；未返回/null 不等于未配置。非空资源现场样本尚待验收。",
+      "groups": [],
+      "resources": [],
+      "cycles": [],
+      "spec": {
+        "InstanceID": "00071c8000000002",
+        "Name": "Incoming Inspection",
+        "Revision": "1"
+      }
+    }
+  },
+  "registered_tools": [
+    "list_resources",
+    "get_resource_details",
+    "get_spec_resource_context"
+  ]
+}

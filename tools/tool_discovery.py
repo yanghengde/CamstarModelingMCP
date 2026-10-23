@@ -8,14 +8,14 @@ from tools import mcp
 
 @mcp.tool
 async def load_tool_group(
-    group: Literal["workflow", "spec", "operation", "product", "mfgorder", "container", "reference", "query", "excel"],
+    group: Literal["resource", "workflow", "spec", "operation", "product", "mfgorder", "container", "reference", "query", "excel"],
     include_writes: bool = False,
 ) -> str:
     """Load a tool group on the NEXT model round when needed tools are missing.
 
     workflow=routes/steps; spec=specifications; operation=operations;
     product=products; mfgorder=orders; container=execution/status/history;
-    reference=levels/numbering/lines/types; query=general Inquiry; excel=import.
+    resource=equipment/groups/spec resource context; reference=levels/numbering/lines/types; query=general Inquiry; excel=import.
     include_writes exposes write definitions only, never authorizes execution.
     """
     names = [name for name, policy in TOOL_POLICIES.items()
@@ -32,7 +32,7 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
     Read-only local registry inspection, never executes a business tool.
     """
     registered = {tool.name: tool for tool in await mcp.list_tools()}
-    labels = {'workflow': '工艺路线', 'spec': '规格与工序配置', 'operation': '操作定义',
+    labels = {'resource': '设备资源与工序资源配置', 'workflow': '工艺路线', 'spec': '规格与工序配置', 'operation': '操作定义',
               'product': '产品', 'mfgorder': '工单及现场进度', 'container': '容器与生产事务',
               'reference': '基础资料与原因码', 'query': '查询服务', 'excel': '表格导入', 'system': '系统与能力发现'}
     disabled = {'patch_mfgorder': '当前服务 PATCH 契约未验证，工具已禁用；使用 update_mfgorder。'}
