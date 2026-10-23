@@ -37,3 +37,5 @@ T06 补充：验证 reconcile_collection_submission 对已知事务的完整匹�
 - Associate：未关联、已有父级、自关联、重复名称、两名称同ID、多级祖先环和容量限制；不能只检查直接父级。
 - Disassociate：指定直属子容器、非直属/外部容器、遗漏子项、全部拆箱的明确授权与预览。当前工具固定disassociateAll=false。
 - 每类事务单独验证预览→确认→重读→执行→历史核对。响应丢失和部分失败不得自动重试或声称全部成功；操作前后变化不能替代事务关联证明。
+
+T07 服务预览补测：为 Combine/Associate/Disassociate 各准备一组有效对象，以 verify_service=true 核对非空回显及返回标志；确认 execute=false 未产生事务历史或数量/关系变化。模拟测试通过不代表现场回显契约已通过。

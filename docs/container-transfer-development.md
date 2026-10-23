@@ -30,3 +30,12 @@ Combine.fromContainerDetails 是必填列表，包含 fromContainer、qty/qty2�
 3. 对已确认契约的操作增加服务不执行预览、不可变单次计划、确认展示及提交前重读。
 4. 执行与按事务核实必须区分当前状态和历史证据，覆盖部分失败、超时和重试；不提供自动回滚。
 5. 所有真实事务测试按用户要求统一延期，见集中验收清单。T07当前仅完成预览层，不标为执行能力或阶段完成。
+
+
+## 第二步：可选服务回显预览（2026-10-23）
+
+Combine / Associate / Disassociate 三个现有预览工具新增 verify_service（默认 false）。开启后只调用固定服务路径，强制 execute=false，不调用 PerformEvent，不执行事务，不重试；只发送契约定义的用户输入字段。Split 未开放此参数，继续禁止猜测数量输入。
+
+合批核对目标/来源名称和ID、唯一明细、数量、combineAllQty=false及顶层/明细closeWhenEmpty；父子操作核对全部子容器名称和ID且无重复，拆箱额外要求回显disassociateAll=false。服务错误、漏项、错误身份、数量/标志差异或分页不完整均返回server_echo_verified=false。回显成功只改变stage=server_preview，complete/executable仍为false，保留业务规则阻塞项，不生成执行计划。
+
+37项相关模拟测试通过，覆盖三个固定路径、execute=false、默认不请求服务、错误/重复/不完整回显。本轮未对现场发起预览或写入；三类非空现场回显尚待集中验收。后续仍需深层关系与兼容规则验证后再生成可执行计划。

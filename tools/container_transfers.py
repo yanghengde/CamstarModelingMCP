@@ -8,6 +8,74 @@ from tools import mcp
 from tools.boms import encode
 from tools.container_inquiry import get_container_details
 from tools.container_trace import get_container_trace
+from tools.modeling_details import raw_json, _has_next_link
+from core.http_client import request
+from config import CAMSTAR_SHOPFLOOR_BASE_URL
+
+
+def ref(snap):
+    return {'name': snap['container']['Name'], 'instanceId': snap['id']}
+
+
+def same_ref(actual, expected):
+    return (isinstance(actual, dict) and actual.get('Name') == expected['name']
+            and (actual.get('InstanceId') or actual.get('InstanceID')) == expected['instanceId'])
+
+
+def echoed_bool(value, expected):
+    return type(value) is bool and value == expected or value == str(expected).lower()
+
+
+async def service_preview(out, body):
+    """Fixed non-executing endpoint; never event dispatch or execution fallback."""
+    operation = out['operation']
+    if operation not in {'Combine', 'Associate', 'Disassociate'}:
+        raise ValueError('此服务尚未支持不执行预览。')
+    params = {'execute': 'false'}
+    if operation == 'Combine':
+        params.update({'$select': 'Container,CloseWhenEmpty', '$expand': 'FromContainerDetails'})
+    else:
+        params['$select'] = 'Container,ChildContainers' + (',DisassociateAll' if operation == 'Disassociate' else '')
+    out['request_preview'] = {'path': '/api/' + operation, 'params': params, 'body': body}
+    out['server_echo_verified'] = False
+    try:
+        response = json.loads(await request('POST', '/api/' + operation, body=body, params=params,
+                                           base_url=CAMSTAR_SHOPFLOOR_BASE_URL, response_formatter=raw_json))
+        data = response.get('data', response)
+        if response.get('error') or data.get('error') or data.get('ErrorCode') or _has_next_link(response):
+            raise ValueError('服务预览报错或返回不完整。')
+        if not same_ref(data.get('Container'), body['container']):
+            raise ValueError('服务回显目标容器不一致。')
+        if operation == 'Combine':
+            rows = data.get('FromContainerDetails')
+            if not isinstance(rows, list) or len(rows) != 1 or not isinstance(rows[0], dict):
+                raise ValueError('服务未回显唯一来源明细。')
+            row, expected = rows[0], body['fromContainerDetails'][0]
+            if (not same_ref(row.get('FromContainer'), expected['fromContainer'])
+                    or not echoed_bool(row.get('CombineAllQty'), False)
+                    or not echoed_bool(row.get('CloseWhenEmpty'), expected['closeWhenEmpty'])
+                    or not echoed_bool(data.get('CloseWhenEmpty'), body['closeWhenEmpty'])):
+                raise ValueError('来源或合批标志未正确回显。')
+            value = row.get('Qty')
+            if isinstance(value, bool) or not Decimal(str(value)).is_finite() or Decimal(str(value)) != Decimal(str(expected['qty'])):
+                raise ValueError('合批数量未正确回显。')
+        else:
+            rows = data.get('ChildContainers')
+            if not isinstance(rows, list) or len(rows) != len(body['childContainers']):
+                raise ValueError('子容器回显不完整。')
+            seen = set()
+            for row in rows:
+                matches = [r for r in body['childContainers'] if same_ref(row, r)]
+                if len(matches) != 1 or matches[0]['instanceId'] in seen:
+                    raise ValueError('子容器回显不匹配或重复。')
+                seen.add(matches[0]['instanceId'])
+            if operation == 'Disassociate' and not echoed_bool(data.get('DisassociateAll'), False):
+                raise ValueError('disassociateAll=false 未正确回显。')
+        out['server_echo_verified'] = True
+        out['stage'] = 'server_preview'
+        out['server_preview_note'] = 'execute=false 仅验证序列化/回显，不代表业务规则已验证或事务已提交。'
+    except (ValueError, TypeError, AttributeError, ArithmeticError) as error:
+        out['server_preview_error'] = str(error)
 
 
 def amount(value):
@@ -97,12 +165,12 @@ async def preview_container_split(container_name: str, new_container_name: str, 
 
 @mcp.tool
 async def preview_container_combine(target_container_name: str, source_container_name: str, qty: float,
-                                     close_when_empty: bool = False) -> str:
-    """单来源到现有目标的数量合批意图预览。不执行，不自动合全部数量或搬移子容器；核对身份、产品版本、层级和当前数量，单位等未知时不宣称可执行。"""
+                                     close_when_empty: bool = False, verify_service: bool = False) -> str:
+    """单来源到现有目标的数量合批预览。不执行，不自动合全部数量或搬移子容器；verify_service=true增加execute=false序列化回显核对，始终不代表业务验证通过。"""
     out = base('Combine')
     try:
         requested = amount(qty)
-        if type(close_when_empty) is not bool or target_container_name.strip() == source_container_name.strip():
+        if type(verify_service) is not bool or type(close_when_empty) is not bool or target_container_name.strip() == source_container_name.strip():
             raise ValueError('来源与目标须不同，close_when_empty 必须为布尔值。')
         target, source = await snapshot(target_container_name), await snapshot(source_container_name)
         if target['id'] == source['id']:
@@ -123,14 +191,20 @@ async def preview_container_combine(target_container_name: str, source_container
         if a is None or b is None or a < requested:
             out['blockers'].append('来源/目标数量未知或来源余额不足。')
         out['flag_effects'] = {'close_when_empty': '来源变空后请求关闭' if close_when_empty else '不请求自动关闭'}
+        if verify_service:
+            await service_preview(out, {'container': ref(target), 'closeWhenEmpty': close_when_empty,
+                'fromContainerDetails': [{'fromContainer': ref(source), 'qty': qty,
+                                          'combineAllQty': False, 'closeWhenEmpty': close_when_empty}]})
     except (ValueError, TypeError, AttributeError) as error:
         out['error'] = str(error)
     return encode(out)
 
 
-async def family_preview(parent_name, child_names, operation):
+async def family_preview(parent_name, child_names, operation, verify_service=False):
     out = base(operation)
     try:
+        if type(verify_service) is not bool:
+            raise ValueError('verify_service 必须为布尔值。')
         children = names(child_names)
         if parent_name.strip() in children:
             raise ValueError('父容器不能作为自己的子容器。')
@@ -155,18 +229,23 @@ async def family_preview(parent_name, child_names, operation):
                 'parent_after_if_accepted': parent['id'] if operation == 'Associate' else None})
         out['blockers'].append('更深层祖先环、层级规则和容量限制尚未完整核对；不推算父容器数量变化。')
         out['scope'] = 'explicit_direct_children_only'
+        if verify_service:
+            body = {'container': ref(parent), 'childContainers': [ref(r['child']) for r in out['relationships']]}
+            if operation == 'Disassociate':
+                body['disassociateAll'] = False
+            await service_preview(out, body)
     except (ValueError, TypeError, AttributeError) as error:
         out['error'] = str(error)
     return encode(out)
 
 
 @mcp.tool
-async def preview_container_associate(parent_container_name: str, child_container_names: list[str]) -> str:
-    """装箱/父子关联意图预览，只读，明确1..10个子容器，核对已有父关系。不等同数量合批；深层环/层级/容量规则待验。"""
-    return await family_preview(parent_container_name, child_container_names, 'Associate')
+async def preview_container_associate(parent_container_name: str, child_container_names: list[str], verify_service: bool = False) -> str:
+    """装箱/父子关联预览，明确1..10个子容器；verify_service=true增加execute=false服务回显核对，不执行。深层环/层级/容量规则待验，回显通过不是业务许可。"""
+    return await family_preview(parent_container_name, child_container_names, 'Associate', verify_service)
 
 
 @mcp.tool
-async def preview_container_disassociate(parent_container_name: str, child_container_names: list[str]) -> str:
-    """拆箱/解除父子关系意图预览，只读，仅明确1..10个直属子容器，disassociateAll固定false；不提供隐式全部拆箱，不等同数量拆批。"""
-    return await family_preview(parent_container_name, child_container_names, 'Disassociate')
+async def preview_container_disassociate(parent_container_name: str, child_container_names: list[str], verify_service: bool = False) -> str:
+    """拆箱/解除父子关系预览，仅明确1..10个直属子容器，disassociateAll固定false；verify_service=true增加execute=false服务回显核对，不执行或隐式全部拆箱。"""
+    return await family_preview(parent_container_name, child_container_names, 'Disassociate', verify_service)
