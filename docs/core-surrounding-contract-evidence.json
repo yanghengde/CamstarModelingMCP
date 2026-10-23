@@ -1,0 +1,1106 @@
+{
+  "checked_at": "2026-10-23T09:19:02.257724+08:00",
+  "method": "GET only; no business mutations; bounded sample reads",
+  "contracts": [
+    {
+      "service": "Modeling",
+      "name": "Resources",
+      "source_path": "/swagger/Resources/swagger.json",
+      "live": {
+        "http_status": 200
+      },
+      "provenance": "live",
+      "file": "Swagger/extensions/Modeling-Resources.json",
+      "sha256": "7cf2b382d7671b3763fc0866f6295cae8a81d37aa0f2d5d8729e6e3eb174b478",
+      "api_version": "ResourceEntity",
+      "operations": {
+        "/api/Resources": [
+          "get",
+          "post"
+        ],
+        "/api/Resources/$count": [
+          "get"
+        ],
+        "/api/Resources({key})": [
+          "get",
+          "put",
+          "delete"
+        ],
+        "/api/Resources/{key}": [
+          "get",
+          "put",
+          "delete"
+        ],
+        "/api/Resources/RequestSelectionValues": [
+          "post"
+        ]
+      },
+      "schema_names": [
+        "AttachDocumentDetails",
+        "AttachDocumentDetailsExpandedListItem",
+        "BaseObjectRef",
+        "BooleanNullableExpandedListItem",
+        "ChangeHistoryChanges",
+        "NamedObjectRef",
+        "NamedObjectRefExpandedListItem",
+        "NamedSubentityRef",
+        "PMStatusChanges",
+        "PMStatusChangesExpandedListItem",
+        "ResourceEntity",
+        "ResourceLogChanges",
+        "ResourceLogChangesExpandedListItem",
+        "ResourcePartChanges",
+        "ResourcePartChangesExpandedListItem",
+        "RevisionedObjectRef",
+        "SubentityRef",
+        "UserAttributeChanges",
+        "UserAttributeChangesExpandedListItem",
+        "WIPMsgDetailChanges",
+        "WIPMsgDetailChangesExpandedListItem",
+        "WIPMsgEntity",
+        "WIPMsgKeyChanges",
+        "WIPMsgLabelKeyChanges",
+        "WIPMsgLabelKeyChangesExpandedListItem",
+        "WIPMsgOperationKeyChanges",
+        "WIPMsgOperationKeyChangesExpandedListItem"
+      ],
+      "sample": {
+        "http_status": 200,
+        "returned_count": 0,
+        "sample_status": "empty",
+        "fields": []
+      }
+    },
+    {
+      "service": "Modeling",
+      "name": "ResourceGroups",
+      "source_path": "/swagger/ResourceGroups/swagger.json",
+      "live": {
+        "http_status": 200
+      },
+      "provenance": "live",
+      "file": "Swagger/extensions/Modeling-ResourceGroups.json",
+      "sha256": "d4d1c7ca76873208931b946d88936428f030fb8641cf158ea9fd689217ac977e",
+      "api_version": "ResourceGroupEntity",
+      "operations": {
+        "/api/ResourceGroups": [
+          "get",
+          "post"
+        ],
+        "/api/ResourceGroups/$count": [
+          "get"
+        ],
+        "/api/ResourceGroups({key})": [
+          "get",
+          "put",
+          "delete"
+        ],
+        "/api/ResourceGroups/{key}": [
+          "get",
+          "put",
+          "delete"
+        ],
+        "/api/ResourceGroups/RequestSelectionValues": [
+          "post"
+        ]
+      },
+      "schema_names": [
+        "AttachDocumentDetails",
+        "AttachDocumentDetailsExpandedListItem",
+        "BaseObjectRef",
+        "BaseObjectRefExpandedListItem",
+        "BooleanNullableExpandedListItem",
+        "ChangeHistoryChanges",
+        "Int32NullableExpandedListItem",
+        "NamedObjectRef",
+        "NamedObjectRefExpandedListItem",
+        "ResourceGroupEntity",
+        "RevisionedObjectRef",
+        "SubentityRef"
+      ],
+      "sample": {
+        "error_type": "ReadTimeout",
+        "returned_count": null,
+        "sample_status": "unverified",
+        "fields": []
+      }
+    },
+    {
+      "service": "Modeling",
+      "name": "BOMs",
+      "source_path": "/swagger/BOMs/swagger.json",
+      "live": {
+        "http_status": 200
+      },
+      "provenance": "live",
+      "file": "Swagger/extensions/Modeling-BOMs.json",
+      "sha256": "572dca6a5f10f8e8f433c08385aaada203bfa1a0e4210ec76f481aa262e87b7b",
+      "api_version": "BOMEntity",
+      "operations": {
+        "/api/BOMs({key})": [
+          "get",
+          "put",
+          "delete"
+        ],
+        "/api/BOMs/{key}": [
+          "get",
+          "put",
+          "delete"
+        ],
+        "/api/BOMs": [
+          "get",
+          "patch",
+          "post"
+        ],
+        "/api/BOMs/$count": [
+          "get"
+        ],
+        "/api/BOMs/RequestSelectionValues": [
+          "post"
+        ]
+      },
+      "schema_names": [
+        "AttachDocumentDetails",
+        "AttachDocumentDetailsExpandedListItem",
+        "BOMEntity",
+        "BaseObjectRef",
+        "ChangeHistoryChanges",
+        "MaterialListItemChanges",
+        "MaterialListItemChangesExpandedListItem",
+        "NamedObjectRef",
+        "NamedObjectRefExpandedListItem",
+        "NamedSubentityRef",
+        "ProductMaterialListItemChanges",
+        "ProductMaterialListItemChangesExpandedListItem",
+        "RevisionedObjectRef",
+        "RevisionedObjectRefExpandedListItem",
+        "SubentityRef",
+        "WIPMsgDetailChanges",
+        "WIPMsgDetailChangesExpandedListItem",
+        "WIPMsgEntity",
+        "WIPMsgKeyChanges",
+        "WIPMsgLabelKeyChanges",
+        "WIPMsgLabelKeyChangesExpandedListItem",
+        "WIPMsgOperationKeyChanges",
+        "WIPMsgOperationKeyChangesExpandedListItem"
+      ],
+      "sample": {
+        "http_status": 200,
+        "returned_count": 0,
+        "sample_status": "empty",
+        "fields": []
+      }
+    },
+    {
+      "service": "Modeling",
+      "name": "DataCollectionDefs",
+      "source_path": "/swagger/DataCollectionDefs/swagger.json",
+      "live": {
+        "http_status": 200
+      },
+      "provenance": "live",
+      "file": "Swagger/extensions/Modeling-DataCollectionDefs.json",
+      "sha256": "09b6eb27d80407402f62cfd42cf675814bdff5c3fe5d08442f4eecb85ef50e53",
+      "api_version": "DataCollectionDefEntity",
+      "operations": {
+        "/api/DataCollectionDefs({key})": [
+          "get",
+          "put",
+          "delete"
+        ],
+        "/api/DataCollectionDefs/{key}": [
+          "get",
+          "put",
+          "delete"
+        ],
+        "/api/DataCollectionDefs": [
+          "get",
+          "patch",
+          "post"
+        ],
+        "/api/DataCollectionDefs/$count": [
+          "get"
+        ],
+        "/api/DataCollectionDefs/RequestSelectionValues": [
+          "post"
+        ]
+      },
+      "schema_names": [
+        "AttachDocumentDetails",
+        "AttachDocumentDetailsExpandedListItem",
+        "BaseObjectRef",
+        "ChangeHistoryChanges",
+        "DataCollectionDefEntity",
+        "NamedObjectRef",
+        "NamedObjectRefExpandedListItem",
+        "RevisionedObjectRef",
+        "SubentityRef",
+        "WIPMsgDetailChanges",
+        "WIPMsgDetailChangesExpandedListItem",
+        "WIPMsgEntity",
+        "WIPMsgKeyChanges",
+        "WIPMsgLabelKeyChanges",
+        "WIPMsgLabelKeyChangesExpandedListItem",
+        "WIPMsgOperationKeyChanges",
+        "WIPMsgOperationKeyChangesExpandedListItem"
+      ],
+      "sample": {
+        "error_type": "ReadTimeout",
+        "returned_count": null,
+        "sample_status": "unverified",
+        "fields": []
+      }
+    },
+    {
+      "service": "Modeling",
+      "name": "MfgOrderTaskLists",
+      "source_path": "/swagger/MfgOrderTaskLists/swagger.json",
+      "live": {
+        "http_status": 200
+      },
+      "provenance": "live",
+      "file": "Swagger/extensions/Modeling-MfgOrderTaskLists.json",
+      "sha256": "49d5ef8fda93236b29b39f73a6fbb49a411c91a280956f53afbd4a59d113548b",
+      "api_version": "MfgOrderTaskListEntity",
+      "operations": {
+        "/api/MfgOrderTaskLists({key})": [
+          "get",
+          "put",
+          "delete"
+        ],
+        "/api/MfgOrderTaskLists/{key}": [
+          "get",
+          "put",
+          "delete"
+        ],
+        "/api/MfgOrderTaskLists": [
+          "get",
+          "patch",
+          "post"
+        ],
+        "/api/MfgOrderTaskLists/$count": [
+          "get"
+        ],
+        "/api/MfgOrderTaskLists/RequestSelectionValues": [
+          "post"
+        ]
+      },
+      "schema_names": [
+        "AttachDocumentDetails",
+        "AttachDocumentDetailsExpandedListItem",
+        "BaseObjectRef",
+        "ChangeHistoryChanges",
+        "EndTimerTaskDtlChanges",
+        "EndTimerTaskDtlChangesExpandedListItem",
+        "MfgOrderTaskListEntity",
+        "NamedObjectRef",
+        "NamedObjectRefExpandedListItem",
+        "NamedSubentityRef",
+        "NamedSubentityRefExpandedListItem",
+        "ProcessItemChanges",
+        "ProcessItemChangesExpandedListItem",
+        "RevisionedObjectRef",
+        "StartTimerTaskDtlChanges",
+        "StartTimerTaskDtlChangesExpandedListItem",
+        "SubentityRef",
+        "TaskItemChanges",
+        "TaskItemChangesExpandedListItem",
+        "TaskMaterialsChanges",
+        "TaskMaterialsChangesExpandedListItem",
+        "TaskQueriesChanges",
+        "TaskQueriesChangesExpandedListItem",
+        "WIPMsgDetailChanges",
+        "WIPMsgDetailChangesExpandedListItem",
+        "WIPMsgEntity",
+        "WIPMsgKeyChanges",
+        "WIPMsgLabelKeyChanges",
+        "WIPMsgLabelKeyChangesExpandedListItem",
+        "WIPMsgOperationKeyChanges",
+        "WIPMsgOperationKeyChangesExpandedListItem"
+      ],
+      "sample": {
+        "http_status": 200,
+        "returned_count": 0,
+        "sample_status": "empty",
+        "fields": []
+      }
+    },
+    {
+      "service": "Modeling",
+      "name": "DocumentSets",
+      "source_path": "/swagger/DocumentSets/swagger.json",
+      "live": {
+        "http_status": 200
+      },
+      "provenance": "live",
+      "file": "Swagger/extensions/Modeling-DocumentSets.json",
+      "sha256": "91d04dadc2a7d6c642b741fca28b2a3cee59a1979e315704798b6d6f97e7eae5",
+      "api_version": "DocumentSetEntity",
+      "operations": {
+        "/api/DocumentSets": [
+          "get",
+          "post"
+        ],
+        "/api/DocumentSets/$count": [
+          "get"
+        ],
+        "/api/DocumentSets({key})": [
+          "get",
+          "put",
+          "delete"
+        ],
+        "/api/DocumentSets/{key}": [
+          "get",
+          "put",
+          "delete"
+        ],
+        "/api/DocumentSets/RequestSelectionValues": [
+          "post"
+        ]
+      },
+      "schema_names": [
+        "AttachDocumentDetails",
+        "AttachDocumentDetailsExpandedListItem",
+        "BaseObjectRef",
+        "BooleanNullableExpandedListItem",
+        "ChangeHistoryChanges",
+        "DocumentEntryChanges",
+        "DocumentEntryChangesExpandedListItem",
+        "DocumentSetEntity",
+        "NamedObjectRef",
+        "NamedSubentityRef",
+        "RevisionedObjectRef",
+        "SubentityRef"
+      ],
+      "sample": {
+        "http_status": 200,
+        "returned_count": 0,
+        "sample_status": "empty",
+        "fields": []
+      }
+    },
+    {
+      "service": "Modeling",
+      "name": "DataPointCollectionDefs",
+      "source_path": "/swagger/DataPointCollectionDefs/swagger.json",
+      "live": {
+        "http_status": 200
+      },
+      "provenance": "live",
+      "file": "Swagger/extensions/Modeling-DataPointCollectionDefs.json",
+      "sha256": "c6bbb95d7ca9e95bd66515a7921fa0f77aa14ab9a0c4a6955d6675d5c9df785d",
+      "api_version": "DataPointCollectionDefEntity",
+      "operations": {
+        "/api/DataPointCollectionDefs({key})": [
+          "get",
+          "put",
+          "delete"
+        ],
+        "/api/DataPointCollectionDefs/{key}": [
+          "get",
+          "put",
+          "delete"
+        ],
+        "/api/DataPointCollectionDefs": [
+          "get",
+          "patch",
+          "post"
+        ],
+        "/api/DataPointCollectionDefs/$count": [
+          "get"
+        ],
+        "/api/DataPointCollectionDefs/RequestSelectionValues": [
+          "post"
+        ]
+      },
+      "schema_names": [
+        "AttachDocumentDetails",
+        "AttachDocumentDetailsExpandedListItem",
+        "BaseObjectRef",
+        "ChangeHistoryChanges",
+        "DataPointCollectionDefEntity",
+        "DataPointCollectionGroupChgs",
+        "DataPointCollectionGroupChgsExpandedListItem",
+        "DataPointCollectionPointChgs",
+        "DataPointCollectionPointChgsExpandedListItem",
+        "NamedObjectRef",
+        "NamedObjectRefExpandedListItem",
+        "NamedSubentityRef",
+        "RevisionedObjectRef",
+        "SubentityRef",
+        "WIPMsgDetailChanges",
+        "WIPMsgDetailChangesExpandedListItem",
+        "WIPMsgEntity",
+        "WIPMsgKeyChanges",
+        "WIPMsgLabelKeyChanges",
+        "WIPMsgLabelKeyChangesExpandedListItem",
+        "WIPMsgOperationKeyChanges",
+        "WIPMsgOperationKeyChangesExpandedListItem"
+      ],
+      "sample": {
+        "http_status": 200,
+        "returned_count": 0,
+        "sample_status": "empty",
+        "fields": []
+      }
+    },
+    {
+      "service": "Modeling",
+      "name": "UserDataCollectionDefs",
+      "source_path": "/swagger/UserDataCollectionDefs/swagger.json",
+      "live": {
+        "http_status": 200
+      },
+      "provenance": "live",
+      "file": "Swagger/extensions/Modeling-UserDataCollectionDefs.json",
+      "sha256": "e4926d642bf4929eb1f18d08083aa4f4fc3472db1d3a537ee6943b69fcbe736e",
+      "api_version": "UserDataCollectionDefEntity",
+      "operations": {
+        "/api/UserDataCollectionDefs({key})": [
+          "get",
+          "put",
+          "delete"
+        ],
+        "/api/UserDataCollectionDefs/{key}": [
+          "get",
+          "put",
+          "delete"
+        ],
+        "/api/UserDataCollectionDefs": [
+          "get",
+          "patch",
+          "post"
+        ],
+        "/api/UserDataCollectionDefs/$count": [
+          "get"
+        ],
+        "/api/UserDataCollectionDefs/RequestSelectionValues": [
+          "post"
+        ]
+      },
+      "schema_names": [
+        "AttachDocumentDetails",
+        "AttachDocumentDetailsExpandedListItem",
+        "BaseObjectRef",
+        "ChangeHistoryChanges",
+        "DataPointChanges",
+        "DataPointChangesExpandedListItem",
+        "NamedObjectRef",
+        "NamedObjectRefExpandedListItem",
+        "NamedSubentityRef",
+        "RevisionedObjectRef",
+        "SubentityRef",
+        "UserDataCollectionDefEntity",
+        "WIPMsgDetailChanges",
+        "WIPMsgDetailChangesExpandedListItem",
+        "WIPMsgEntity",
+        "WIPMsgKeyChanges",
+        "WIPMsgLabelKeyChanges",
+        "WIPMsgLabelKeyChangesExpandedListItem",
+        "WIPMsgOperationKeyChanges",
+        "WIPMsgOperationKeyChangesExpandedListItem"
+      ],
+      "sample": {
+        "http_status": 200,
+        "returned_count": 1,
+        "sample_status": "available",
+        "fields": [
+          "AssociatedPackages",
+          "AttachDocumentDetails-Expanded",
+          "Base",
+          "CanChangeRevOfRcd",
+          "DataPointLayout",
+          "DataPoints-Expanded",
+          "Description",
+          "DisplayLimits",
+          "DisplayName",
+          "ECO",
+          "FilterTags",
+          "IconId",
+          "InstanceID",
+          "InstanceLocked",
+          "IsFrozen",
+          "IsRevOfRcd",
+          "Name",
+          "Notes",
+          "ObjectToChange",
+          "ParametricDataControl",
+          "ParametricDataDef",
+          "ParametricDataDefType",
+          "ReplaceDetails",
+          "ReplaceDetailsSubentityListNames",
+          "Revision",
+          "SPCChartDefEntries",
+          "SPCChartDefEntries-Expanded",
+          "SPCChartDefGroup",
+          "SPCChartDefGroupProxy",
+          "SkipSubentityListsToSequence",
+          "Status",
+          "UseRor",
+          "WebPart",
+          "isAttachImage",
+          "isScaleEnabled"
+        ]
+      }
+    },
+    {
+      "service": "Shopfloor",
+      "name": "ComponentIssue",
+      "source_path": "/swagger/ComponentIssue/swagger.json",
+      "live": {
+        "http_status": 200
+      },
+      "provenance": "live",
+      "file": "Swagger/extensions/Shopfloor-ComponentIssue.json",
+      "sha256": "172a9ca3118d3cff23f27f6bebe128873973f6aa547384207aa6b1c548002ebd",
+      "api_version": "ComponentIssue",
+      "operations": {
+        "/api/ComponentIssue": [
+          "post"
+        ],
+        "/api/ComponentIssue/PerformEvent": [
+          "post"
+        ],
+        "/api/ComponentIssue({key})/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/ComponentIssue/{key}/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/ComponentIssue/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/ComponentIssue/RequestSelectionValues": [
+          "post"
+        ],
+        "/api/ComponentIssue({key})": [
+          "put"
+        ],
+        "/api/ComponentIssue/{key}": [
+          "put"
+        ]
+      },
+      "schema_names": [
+        "ActionDetails",
+        "BaseObjectRef",
+        "ChangeHistory",
+        "CollectDataPoints",
+        "ComponentIssue",
+        "ComponentIssueAdvancedPerformEventModel",
+        "ComponentIssueShopfloorPerformEventModel",
+        "ComputationDetail",
+        "ComputationParamDetail",
+        "ContainerRef",
+        "CurrentContainerStatus",
+        "DPCollectionGroupDetail",
+        "DPCollectionPointDetail",
+        "DPCollectionSampleDetail",
+        "DocumentEntry",
+        "DocumentSet",
+        "ESigCaptureDetail",
+        "ESigProcessTimerServiceDetail",
+        "ESigServiceDetail",
+        "EventToPerform",
+        "IssueActualDetail",
+        "IssueActuals",
+        "IssueDetails",
+        "LabelDetails",
+        "LabelSummary",
+        "LiveRelayInfo",
+        "MaterialListItem",
+        "ModelingESigHistoryDetail",
+        "NamedObjectRef",
+        "NamedSubentityRef",
+        "ParametricData",
+        "QueryParameter",
+        "RevisionedObjectRef",
+        "Service",
+        "SmartScanParseResult",
+        "SubentityRef",
+        "Timer",
+        "WIPMsg",
+        "WIPMsgCriteria",
+        "WIPMsgMgr"
+      ],
+      "sample": {
+        "sample_status": "not_checked",
+        "reason": "No live Modeling contract or transaction-only group"
+      }
+    },
+    {
+      "service": "Shopfloor",
+      "name": "CollectData",
+      "source_path": "/swagger/CollectData/swagger.json",
+      "live": {
+        "http_status": 200
+      },
+      "provenance": "live",
+      "file": "Swagger/extensions/Shopfloor-CollectData.json",
+      "sha256": "184d0f2349ef47b99a13522d76f8139af3dbd9bae16685e2f9201afe5c0d2f2b",
+      "api_version": "CollectData",
+      "operations": {
+        "/api/CollectData": [
+          "post"
+        ],
+        "/api/CollectData/PerformEvent": [
+          "post"
+        ],
+        "/api/CollectData({key})/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/CollectData/{key}/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/CollectData/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/CollectData/RequestSelectionValues": [
+          "post"
+        ],
+        "/api/CollectData({key})": [
+          "put"
+        ],
+        "/api/CollectData/{key}": [
+          "put"
+        ]
+      },
+      "schema_names": [
+        "ActionDetails",
+        "BaseObjectRef",
+        "ChangeHistory",
+        "CollectData",
+        "CollectDataAdvancedPerformEventModel",
+        "CollectDataPoints",
+        "CollectDataShopfloorPerformEventModel",
+        "ComputationDetail",
+        "ComputationParamDetail",
+        "ContainerRef",
+        "CurrentContainerStatus",
+        "DPCollectionGroupDetail",
+        "DPCollectionPointDetail",
+        "DPCollectionSampleDetail",
+        "DocumentEntry",
+        "DocumentSet",
+        "ESigCaptureDetail",
+        "ESigProcessTimerServiceDetail",
+        "ESigServiceDetail",
+        "EventToPerform",
+        "LabelDetails",
+        "LabelSummary",
+        "LiveRelayInfo",
+        "ModelingESigHistoryDetail",
+        "NamedObjectRef",
+        "NamedSubentityRef",
+        "ParametricData",
+        "QueryParameter",
+        "RevisionedObjectRef",
+        "Service",
+        "SmartScanParseResult",
+        "SubentityRef",
+        "Timer",
+        "WIPMsg",
+        "WIPMsgCriteria",
+        "WIPMsgMgr"
+      ],
+      "sample": {
+        "sample_status": "not_checked",
+        "reason": "No live Modeling contract or transaction-only group"
+      }
+    },
+    {
+      "service": "Shopfloor",
+      "name": "ExecuteMfgOrdertask",
+      "source_path": "/swagger/ExecuteMfgOrdertask/swagger.json",
+      "live": {
+        "http_status": 200
+      },
+      "provenance": "live",
+      "file": "Swagger/extensions/Shopfloor-ExecuteMfgOrdertask.json",
+      "sha256": "ec96b3a1de06c62d9c54b800cba98bbc65af6b4e2c50422219abb7ed0e88fcc6",
+      "api_version": "ExecuteMfgOrdertask",
+      "operations": {
+        "/api/ExecuteMfgOrdertask": [
+          "post"
+        ],
+        "/api/ExecuteMfgOrdertask/PerformEvent": [
+          "post"
+        ],
+        "/api/ExecuteMfgOrdertask({key})/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/ExecuteMfgOrdertask/{key}/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/ExecuteMfgOrdertask/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/ExecuteMfgOrdertask/RequestSelectionValues": [
+          "post"
+        ],
+        "/api/ExecuteMfgOrdertask({key})": [
+          "put"
+        ],
+        "/api/ExecuteMfgOrdertask/{key}": [
+          "put"
+        ]
+      },
+      "schema_names": [
+        "ActionDetails",
+        "BaseObjectRef",
+        "ComputationDetail",
+        "ComputationParamDetail",
+        "ContainerRef",
+        "ESigCaptureDetail",
+        "ESigServiceDetail",
+        "EventToPerform",
+        "ExecuteMfgOrdertask",
+        "ExecuteMfgOrdertaskAdvancedPerformEventModel",
+        "ExecuteMfgOrdertaskShopfloorPerformEventModel",
+        "LabelDetails",
+        "LabelSummary",
+        "LiveRelayInfo",
+        "NamedObjectRef",
+        "NamedSubentityRef",
+        "ParametricData",
+        "QueryParameter",
+        "RevisionedObjectRef",
+        "Service",
+        "SmartScanParseResult",
+        "SubentityRef",
+        "WIPMsg",
+        "WIPMsgCriteria",
+        "WIPMsgMgr"
+      ],
+      "sample": {
+        "sample_status": "not_checked",
+        "reason": "No live Modeling contract or transaction-only group"
+      }
+    },
+    {
+      "service": "Shopfloor",
+      "name": "Split",
+      "source_path": "/swagger/Split/swagger.json",
+      "live": {
+        "http_status": 200
+      },
+      "provenance": "live",
+      "file": "Swagger/extensions/Shopfloor-Split.json",
+      "sha256": "a8adb325a2fe92ab0e1655c255ef5cc3b7779bb1eb078ac24d9683752faf8fc7",
+      "api_version": "Split",
+      "operations": {
+        "/api/Split": [
+          "post"
+        ],
+        "/api/Split/PerformEvent": [
+          "post"
+        ],
+        "/api/Split({key})/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/Split/{key}/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/Split/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/Split/RequestSelectionValues": [
+          "post"
+        ],
+        "/api/Split({key})": [
+          "put"
+        ],
+        "/api/Split/{key}": [
+          "put"
+        ]
+      },
+      "schema_names": [
+        "ActionDetails",
+        "BaseObjectRef",
+        "ChangeHistory",
+        "CollectDataPoints",
+        "ComputationDetail",
+        "ComputationParamDetail",
+        "ContainerRef",
+        "CurrentContainerStatus",
+        "DPCollectionGroupDetail",
+        "DPCollectionPointDetail",
+        "DPCollectionSampleDetail",
+        "DocumentEntry",
+        "DocumentSet",
+        "ESigCaptureDetail",
+        "ESigProcessTimerServiceDetail",
+        "ESigServiceDetail",
+        "EventToPerform",
+        "LabelDetails",
+        "LabelSummary",
+        "LiveRelayInfo",
+        "ModelingESigHistoryDetail",
+        "NamedObjectRef",
+        "NamedSubentityRef",
+        "ParametricData",
+        "QueryParameter",
+        "RevisionedObjectRef",
+        "Service",
+        "SmartScanParseResult",
+        "Split",
+        "SplitAdvancedPerformEventModel",
+        "SplitDetails",
+        "SplitShopfloorPerformEventModel",
+        "SubentityRef",
+        "Timer",
+        "WIPMsg",
+        "WIPMsgCriteria",
+        "WIPMsgMgr"
+      ],
+      "sample": {
+        "sample_status": "not_checked",
+        "reason": "No live Modeling contract or transaction-only group"
+      }
+    },
+    {
+      "service": "Shopfloor",
+      "name": "Combine",
+      "source_path": "/swagger/Combine/swagger.json",
+      "live": {
+        "http_status": 200
+      },
+      "provenance": "live",
+      "file": "Swagger/extensions/Shopfloor-Combine.json",
+      "sha256": "c1b77f7ac4266c71532be3a74d3f2e5ba3d33a881bdec1d5e21130882d14a9af",
+      "api_version": "Combine",
+      "operations": {
+        "/api/Combine": [
+          "post"
+        ],
+        "/api/Combine/PerformEvent": [
+          "post"
+        ],
+        "/api/Combine({key})/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/Combine/{key}/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/Combine/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/Combine/RequestSelectionValues": [
+          "post"
+        ],
+        "/api/Combine({key})": [
+          "put"
+        ],
+        "/api/Combine/{key}": [
+          "put"
+        ]
+      },
+      "schema_names": [
+        "ActionDetails",
+        "BaseObjectRef",
+        "ChangeHistory",
+        "CollectDataPoints",
+        "Combine",
+        "CombineAdvancedPerformEventModel",
+        "CombineFromDetail",
+        "CombineShopfloorPerformEventModel",
+        "ComputationDetail",
+        "ComputationParamDetail",
+        "ContainerRef",
+        "CurrentContainerStatus",
+        "DPCollectionGroupDetail",
+        "DPCollectionPointDetail",
+        "DPCollectionSampleDetail",
+        "DocumentEntry",
+        "DocumentSet",
+        "ESigCaptureDetail",
+        "ESigProcessTimerServiceDetail",
+        "ESigServiceDetail",
+        "EligibleContainersInquiry",
+        "EventToPerform",
+        "LabelDetails",
+        "LabelSummary",
+        "LiveRelayInfo",
+        "ModelingESigHistoryDetail",
+        "NamedObjectRef",
+        "NamedSubentityRef",
+        "ParametricData",
+        "QueryParameter",
+        "RevisionedObjectRef",
+        "Service",
+        "SmartScanParseResult",
+        "SubentityRef",
+        "Timer",
+        "WIPMsg",
+        "WIPMsgCriteria",
+        "WIPMsgMgr",
+        "WIPMsgMgrInquiry"
+      ],
+      "sample": {
+        "sample_status": "not_checked",
+        "reason": "No live Modeling contract or transaction-only group"
+      }
+    },
+    {
+      "service": "Shopfloor",
+      "name": "Associate",
+      "source_path": "/swagger/Associate/swagger.json",
+      "live": {
+        "http_status": 200
+      },
+      "provenance": "live",
+      "file": "Swagger/extensions/Shopfloor-Associate.json",
+      "sha256": "71be783e5e2155bd191156e488a57e17f687374d6fc80ab2ccf34c1ba73f6faf",
+      "api_version": "Associate",
+      "operations": {
+        "/api/Associate": [
+          "post"
+        ],
+        "/api/Associate/PerformEvent": [
+          "post"
+        ],
+        "/api/Associate({key})/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/Associate/{key}/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/Associate/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/Associate/RequestSelectionValues": [
+          "post"
+        ],
+        "/api/Associate({key})": [
+          "put"
+        ],
+        "/api/Associate/{key}": [
+          "put"
+        ]
+      },
+      "schema_names": [
+        "ActionDetails",
+        "Associate",
+        "AssociateAdvancedPerformEventModel",
+        "AssociateShopfloorPerformEventModel",
+        "BaseObjectRef",
+        "ChangeHistory",
+        "CollectDataPoints",
+        "ComputationDetail",
+        "ComputationParamDetail",
+        "ContainerRef",
+        "CurrentContainerStatus",
+        "DPCollectionGroupDetail",
+        "DPCollectionPointDetail",
+        "DPCollectionSampleDetail",
+        "DocumentEntry",
+        "DocumentSet",
+        "ESigCaptureDetail",
+        "ESigProcessTimerServiceDetail",
+        "ESigServiceDetail",
+        "EligibleContainersInquiry",
+        "EventToPerform",
+        "LabelDetails",
+        "LabelSummary",
+        "LiveRelayInfo",
+        "ModelingESigHistoryDetail",
+        "NamedObjectRef",
+        "NamedSubentityRef",
+        "ParametricData",
+        "QueryParameter",
+        "RevisionedObjectRef",
+        "Service",
+        "SmartScanParseResult",
+        "SubentityRef",
+        "Timer",
+        "WIPMsg",
+        "WIPMsgCriteria",
+        "WIPMsgMgr",
+        "WIPMsgMgrInquiry"
+      ],
+      "sample": {
+        "sample_status": "not_checked",
+        "reason": "No live Modeling contract or transaction-only group"
+      }
+    },
+    {
+      "service": "Shopfloor",
+      "name": "Disassociate",
+      "source_path": "/swagger/Disassociate/swagger.json",
+      "live": {
+        "http_status": 200
+      },
+      "provenance": "live",
+      "file": "Swagger/extensions/Shopfloor-Disassociate.json",
+      "sha256": "63e473aab53a2d42243f086ec353ae4bedb13f29d94eafeefcb06d7a764f1afc",
+      "api_version": "Disassociate",
+      "operations": {
+        "/api/Disassociate": [
+          "post"
+        ],
+        "/api/Disassociate/PerformEvent": [
+          "post"
+        ],
+        "/api/Disassociate({key})/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/Disassociate/{key}/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/Disassociate/AdvancedPerformEvent": [
+          "post"
+        ],
+        "/api/Disassociate/RequestSelectionValues": [
+          "post"
+        ],
+        "/api/Disassociate({key})": [
+          "put"
+        ],
+        "/api/Disassociate/{key}": [
+          "put"
+        ]
+      },
+      "schema_names": [
+        "ActionDetails",
+        "BaseObjectRef",
+        "ChangeHistory",
+        "CollectDataPoints",
+        "ComputationDetail",
+        "ComputationParamDetail",
+        "ContainerRef",
+        "CurrentContainerStatus",
+        "DPCollectionGroupDetail",
+        "DPCollectionPointDetail",
+        "DPCollectionSampleDetail",
+        "Disassociate",
+        "DisassociateAdvancedPerformEventModel",
+        "DisassociateShopfloorPerformEventModel",
+        "DocumentEntry",
+        "DocumentSet",
+        "ESigCaptureDetail",
+        "ESigProcessTimerServiceDetail",
+        "ESigServiceDetail",
+        "EventToPerform",
+        "LabelDetails",
+        "LabelSummary",
+        "LiveRelayInfo",
+        "ModelingESigHistoryDetail",
+        "NamedObjectRef",
+        "NamedSubentityRef",
+        "ParametricData",
+        "QueryParameter",
+        "RevisionedObjectRef",
+        "Service",
+        "SmartScanParseResult",
+        "SubentityRef",
+        "Timer",
+        "WIPMsg",
+        "WIPMsgCriteria",
+        "WIPMsgMgr"
+      ],
+      "sample": {
+        "sample_status": "not_checked",
+        "reason": "No live Modeling contract or transaction-only group"
+      }
+    }
+  ]
+}
