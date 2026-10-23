@@ -39,3 +39,12 @@ Combine / Associate / Disassociate 三个现有预览工具新增 verify_service
 合批核对目标/来源名称和ID、唯一明细、数量、combineAllQty=false及顶层/明细closeWhenEmpty；父子操作核对全部子容器名称和ID且无重复，拆箱额外要求回显disassociateAll=false。服务错误、漏项、错误身份、数量/标志差异或分页不完整均返回server_echo_verified=false。回显成功只改变stage=server_preview，complete/executable仍为false，保留业务规则阻塞项，不生成执行计划。
 
 37项相关模拟测试通过，覆盖三个固定路径、execute=false、默认不请求服务、错误/重复/不完整回显。本轮未对现场发起预览或写入；三类非空现场回显尚待集中验收。后续仍需深层关系与兼容规则验证后再生成可执行计划。
+
+
+## 第三步：当前祖先链校验（2026-10-23）
+
+装箱与拆箱预览新增当前父链检查，仅查询 Container.ParentContainerId，不混用历史父关系或拆合批记录。每次查询按已验证16位ID限定最多2行，必须唯一返回且包含父字段；null/空字符串表示已读取的根，字段缺失仍为未知。最多20节点、30秒，循环/截断/查询失败保留不完整状态。
+
+选中子容器位于目标父容器祖先链时报告冲突；初次状态读取和父链读取的直接父ID不同时提示状态变化。relationship_checks_complete仅表示当前读取范围完整，不是事务许可；所有预览仍executable=false，层级规则、容量、数量单位及实际执行待补。逐次读取不是一致性快照，执行前仍需重新校验。
+
+47项相关测试通过，包括三层父链、循环、深层祖先冲突、缺项/错ID/重复记录、节点上限、非法ID和读取间关系变化。现场只读证据见 container-ancestor-validation.json；无业务写入。下一步继续层级/容量及服务兼容规则，不能仅靠无环结果生成执行计划。

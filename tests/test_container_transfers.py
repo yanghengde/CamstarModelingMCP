@@ -6,6 +6,11 @@ from agent.tool_routing import select_tools
 from core.tool_catalog import TOOL_POLICIES
 
 
+@pytest.fixture(autouse=True)
+def no_live_ancestors(monkeypatch):
+    monkeypatch.setattr(ct, "ancestor_chain", AsyncMock(return_value={"complete":False,"nodes":[],"cycle":False}))
+
+
 def snap(name,qty=10,parent=None):
     return {'id':name,'container':{'Name':name},'status':{'Qty':qty,'Product':{'Name':'P','Revision':'1'},'ContainerLevel':{'Name':'L'},'UOM':None,'UOM2':None,'Spec':None},'family_complete':True,'parent_known':True,'parent_id':parent}
 

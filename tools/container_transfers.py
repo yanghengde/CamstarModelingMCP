@@ -2,6 +2,7 @@
 import json
 import math
 import re
+import asyncio
 from decimal import Decimal
 
 from tools import mcp
@@ -10,7 +11,41 @@ from tools.container_inquiry import get_container_details
 from tools.container_trace import get_container_trace
 from tools.modeling_details import raw_json, _has_next_link
 from core.http_client import request
-from config import CAMSTAR_SHOPFLOOR_BASE_URL
+from config import CAMSTAR_SHOPFLOOR_BASE_URL, CAMSTAR_QUERY_BASE_URL
+
+
+async def ancestor_chain(container_id, max_nodes=20):
+    """Follow only current ParentContainerId, never historical split/combine edges."""
+    out = {'complete': False, 'nodes': [], 'cycle': False,
+           'note': '当前父关系逐次读取，不是一致性快照；执行前仍须重新核对。'}
+    async def walk():
+        current, seen = container_id, set()
+        for _ in range(max_nodes):
+            if not isinstance(current, str) or not re.fullmatch('[0-9a-fA-F]{16}', current):
+                raise ValueError('祖先容器ID格式无效。')
+            if current in seen:
+                out['cycle'] = True
+                raise ValueError('当前父链存在循环。')
+            seen.add(current)
+            raw = await request('POST', '/api/AdHoc', base_url=CAMSTAR_QUERY_BASE_URL,
+                body={'queryText': "SELECT TOP 2 ContainerId,ContainerName,ParentContainerId FROM Container "
+                      f"WHERE ContainerId='{current}'"}, response_formatter=raw_json, retry_read_only=True)
+            rows = json.loads(raw)
+            if (not isinstance(rows, list) or len(rows) != 1 or not isinstance(rows[0], dict)
+                    or rows[0].get('ContainerId') != current or 'ParentContainerId' not in rows[0]):
+                raise ValueError('祖先查询缺失、不唯一或身份不符。')
+            row = rows[0]
+            out['nodes'].append(row)
+            current = row['ParentContainerId']
+            if current is None or current == '':
+                out['complete'] = True
+                return
+        raise ValueError('祖先链达到20节点上限，未确认根节点。')
+    try:
+        await asyncio.wait_for(walk(), timeout=30)
+    except (ValueError, TypeError, asyncio.TimeoutError) as error:
+        out['error'] = str(error) or '祖先查询超时。'
+    return out
 
 
 def ref(snap):
@@ -227,8 +262,22 @@ async def family_preview(parent_name, child_names, operation, verify_service=Fal
                 out['blockers'].append('所选子容器是当前父容器的父级，可能形成关系环。')
             out['relationships'].append({'child': child, 'parent_before': before,
                 'parent_after_if_accepted': parent['id'] if operation == 'Associate' else None})
-        out['blockers'].append('更深层祖先环、层级规则和容量限制尚未完整核对；不推算父容器数量变化。')
+        out['blockers'].append('层级规则和容量限制尚未完整核对；不推算父容器数量变化。')
         out['scope'] = 'explicit_direct_children_only'
+        chain = await ancestor_chain(parent['id'])
+        out['ancestor_check'] = chain
+        ancestor_ids = {r['ContainerId'] for r in chain['nodes']}
+        conflicts = [r['child']['id'] for r in out['relationships'] if r['child']['id'] in ancestor_ids]
+        out['relationship_checks_complete'] = chain['complete'] and all(
+            r['child']['parent_known'] for r in out['relationships'])
+        out['relationship_conflicts'] = conflicts
+        if conflicts:
+            out['blockers'].append('所选子容器位于目标父容器的当前祖先链中，不能形成此关联。')
+        if not chain['complete']:
+            out['blockers'].append('当前祖先链未完整核实，不能认定不存在关系环。')
+        if chain['nodes'] and parent['parent_known'] and chain['nodes'][0]['ParentContainerId'] != parent['parent_id']:
+            out['relationship_checks_complete'] = False
+            out['blockers'].append('两次读取的父关系发生变化，须重新预览。')
         if verify_service:
             body = {'container': ref(parent), 'childContainers': [ref(r['child']) for r in out['relationships']]}
             if operation == 'Disassociate':

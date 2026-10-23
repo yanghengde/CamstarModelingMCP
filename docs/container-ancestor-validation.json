@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-23",
+  "read_only": true,
+  "result": {
+    "complete": true,
+    "nodes": [
+      {
+        "ContainerId": "0004108000000052",
+        "ContainerName": "SN0000001",
+        "ParentContainerId": ""
+      }
+    ],
+    "cycle": false,
+    "note": "当前父关系逐次读取，不是一致性快照；执行前仍须重新核对。"
+  }
+}
