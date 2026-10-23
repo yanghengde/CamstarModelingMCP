@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-23",
+  "read_only": true,
+  "new_container_created": false,
+  "result": {
+    "operation": "Split",
+    "complete": false,
+    "executable": false,
+    "stage": "intent_preview",
+    "blockers": [
+      "服务执行规则、单位/第二数量、权限及提交后历史关联尚待验证。",
+      "toContainerDetails 为系统生成历史字段；数量拆批的实际输入路径尚未核实。"
+    ],
+    "note": "只读意图预览，不是执行许可；数量为条件计算，父子关系不等同物料合批。",
+    "source": {
+      "container": {
+        "InstanceId": "0004108000000052",
+        "CDOTypeName": "Container",
+        "Name": "SN0000001"
+      },
+      "id": "0004108000000052",
+      "status": {
+        "Qty": 1.0,
+        "Qty2": null,
+        "UOM": null,
+        "UOM2": null,
+        "Product": {
+          "InstanceId": "00062c8000000034",
+          "CDOTypeName": "Product",
+          "Name": "PACK-1000",
+          "Revision": "A"
+        },
+        "ContainerLevel": {
+          "InstanceId": "0005288000000003",
+          "CDOTypeName": "ContainerLevel",
+          "Name": "BOX"
+        },
+        "Status": 1,
+        "StatusName": "Active",
+        "Spec": {
+          "InstanceId": "00071c800000004d",
+          "CDOTypeName": "Spec",
+          "Name": "SP-CELL-INSP-001",
+          "Revision": "A"
+        },
+        "Step": {
+          "InstanceId": "00074e800000004d",
+          "CDOTypeName": "SpecStep",
+          "Name": "010-CELL-INSP",
+          "Parent": {
+            "@odata.type": "#inquiry.RevisionedObjectRef",
+            "InstanceId": "0005aa800000004d",
+            "CDOTypeName": "Workflow",
+            "Name": "WF-PACK-01",
+            "Revision": "A"
+          }
+        },
+        "InProcess": true,
+        "InRework": false
+      },
+      "unknown_fields": [
+        "Qty2",
+        "UOM",
+        "UOM2"
+      ],
+      "family_complete": true,
+      "family": [
+        {
+          "ContainerId": "0004108000000052",
+          "ContainerName": "SN0000001",
+          "ParentContainerId": "",
+          "SplitFromId": ""
+        }
+      ],
+      "parent_known": true,
+      "parent_id": ""
+    },
+    "intent": {
+      "new_container_name": "T07-PREVIEW-ONLY",
+      "quantity": "0.25",
+      "close_when_empty": false,
+      "reduce_qty": true
+    },
+    "quantity_effect": {
+      "source_before": "1.0",
+      "source_after_if_accepted": "0.75",
+      "new_quantity_if_accepted": "0.25"
+    },
+    "new_name_available": null,
+    "flag_effects": {
+      "reduce_qty": "扣减来源数量",
+      "close_when_empty": "不请求自动关闭"
+    }
+  }
+}

@@ -13,7 +13,7 @@ GROUP_TERMS = {
     "operation": r"operation|工序|工作中心",
     "product": r"product|产品|bom|物料清单",
     "mfgorder": r"mfgorder|工单|订单|生产进度|开工准备|开工配置",
-    "container": r"container|容器|追溯|父子|拆分|合并|序列号|批次|在制|过站|移站|进站|出站|开工|挂起|释放|返工|不良",
+    "container": r"container|容器|追溯|父子|拆分|合并|拆批|合批|装箱|拆箱|split|combine|associate|disassociate|序列号|批次|在制|过站|移站|进站|出站|开工|挂起|释放|返工|不良",
     "reference": r"编号|层级|产线|产品类型|numbering|level|mfgline|producttype",
     "query": r"query|inquiry|sql|历史|状态|进度|在制|追溯",
     "excel": r"excel|csv|表格|附件|导入|上传",

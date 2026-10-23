@@ -9,10 +9,16 @@ class ToolPolicy:
     always_confirm: bool = False
 
 TOOL_POLICIES = {
+    "preview_container_split": ToolPolicy("container"),
+    "preview_container_combine": ToolPolicy("container"),
+    "preview_container_associate": ToolPolicy("container"),
+    "preview_container_disassociate": ToolPolicy("container"),
+
     "get_component_issue_history": ToolPolicy("material"),
     "get_component_requirement": ToolPolicy("material"),
     "preview_component_issue": ToolPolicy("material"),
     "check_mfgorder_readiness": ToolPolicy("mfgorder"),
+    "reconcile_collection_submission": ToolPolicy("collection"),
     "collect_container_data": ToolPolicy("collection", "update", True, True),
     "get_collection_submission_plan": ToolPolicy("collection"),
     "preview_container_data_collection": ToolPolicy("collection"),
