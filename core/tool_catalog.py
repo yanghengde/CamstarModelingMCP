@@ -9,6 +9,9 @@ class ToolPolicy:
     always_confirm: bool = False
 
 TOOL_POLICIES = {
+    "prepare_container_disassociation": ToolPolicy("container"),
+    "get_container_transfer_plan": ToolPolicy("container"),
+    "execute_container_disassociation": ToolPolicy("container", "update", True, True),
     "preview_container_split": ToolPolicy("container"),
     "preview_container_combine": ToolPolicy("container"),
     "preview_container_associate": ToolPolicy("container"),

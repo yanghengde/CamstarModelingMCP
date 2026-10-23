@@ -55,3 +55,12 @@ Combine / Associate / Disassociate 三个现有预览工具新增 verify_service
 实时归档 Modeling-ContainerLevels.json，ChildLevels 为允许子层级，ParentLevels 为允许父层级。装箱/拆箱预览按明确层级引用读取配置，双向对照允许列表，缓存相同层级读取；展开身份或分页不完整则报告未知。空列表不推断无限制，同名但ID冲突不视为匹配。装箱不在双方允许列表内显示阻塞；拆箱保留配置事实，不据此禁止解除已有关系。
 
 容量契约尚未确认，capacity_verified=false，所有预览仍不可执行。49项相关测试通过，新增列表缺失/空、名称ID冲突、双向匹配、读取缓存及错误展开测试。无业务写入。现场非空层级配置与容量/第二数量规则继续按集中验收计划补齐。
+
+
+## 第五步：明确拆箱单次执行（2026-10-23）
+
+新增 prepare_container_disassociation / get_container_transfer_plan / execute_container_disassociation，已注册能力列表。计划包含明确子容器列表（disassociateAll=false）、所有涉及容器状态及当前关系、祖先链、环境摘要；有效1小时。只对直属关系和Active状态完整、execute=false回显通过的请求生成计划。拆箱不套用装箱容量许可，但保留服务端全部业务校验。
+
+写入口在应用内always_confirm，确认展示实际body。提交前重新预览并对照摘要；SQLite原子领取后才POST，不重试。相同环境内任何涉及容器与unknown/in_flight计划重叠，禁止新计划绕过锁。响应丢失、服务错误、回读失败均保留unknown；当前关系证据不被当作已核实事务成功。真实写入按用户要求未进行。
+
+仍不能将T07声明完成：Split缺少已确认数量输入路径，Combine第二数量及完整兼容规则未确认，Associate容量等规则未确认；三类执行没有开放。拆箱的请求到历史事务关联及未知锁解除仍待现场契约。所需外部证据是脱敏成功请求/接口说明（非新增生产测试）：数量拆批、带Qty2合批、装箱容量配置；有了这些才能完成相应实现。不能以猜测字段替代。
