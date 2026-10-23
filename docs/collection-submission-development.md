@@ -23,3 +23,16 @@
 没有进行任何 Shopfloor 写入。T06 尚未完成端到端验收。
 
 验证：39 项相关测试通过（校验、采集定义、能力发现和 Agent 安全）；git diff --check 通过。
+
+
+## 第二步：容器采集历史查询（2026-10-23）
+
+新增 `get_container_collection_history(container_name, container_instance_id, txn_id, offset, limit)`，已接入 collection 能力组及动态能力列表。
+
+先核对容器身份，再通过固定 SELECT 查询 DataPointHistoryDetail → DataPointHistory → HistoryMainline，返回原始采集值、类型、上下限、越限/覆盖标记、定义 ID 和事务 ID。显式 ID 仅接受 16 位十六进制；分页上限 100，额外读取一条判断下一页；支持已知 TxnId 精确筛选。身份不符、重复明细或查询错误时不返回成功页。
+
+证据：[字段结构](collection-history-schema.json)、[现场只读验证](collection-history-contract.json)。真实接口已确认字段存在且查询可执行；当前 DataPointHistoryDetail 总数为 0，测试容器返回空页。关联路径仍需非空样本验证，因此 complete=false、nonempty_linkage_verified=false。page_complete 仅表示该页查询和身份检查通过，不表示覆盖所有采集类型。
+
+该工具不覆盖自定义 ParametricData / 分组采样历史，不根据空页判断某次提交失败，不触发自动重试，也不把历史越限标记转换为质量结论。51 项相关测试通过（含分页、类型校验、身份不匹配、事务筛选、重复行和能力发现），未进行业务写入。
+
+下一步仍是核实具体 UserDataCollection 提交结构及越限规则，随后实现确认后的提交和按事务标识回读；不能仅凭历史表结构反推请求字段。

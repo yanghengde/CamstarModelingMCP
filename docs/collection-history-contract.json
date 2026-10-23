@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-23",
+  "read_only": true,
+  "checks": [
+    {
+      "query": "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='HistoryMainline' AND COLUMN_NAME IN ('HistoryMainlineId','ContainerId','TxnDate','TxnType')",
+      "response": [
+        {
+          "COLUMN_NAME": "ContainerId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "COLUMN_NAME": "HistoryMainlineId",
+          "DATA_TYPE": "char"
+        },
+        {
+          "COLUMN_NAME": "TxnDate",
+          "DATA_TYPE": "datetime"
+        },
+        {
+          "COLUMN_NAME": "TxnType",
+          "DATA_TYPE": "int"
+        }
+      ]
+    },
+    {
+      "query": "SELECT COUNT(*) AS RecordCount FROM DataPointHistoryDetail",
+      "response": [
+        {
+          "RecordCount": "0"
+        }
+      ]
+    },
+    {
+      "query": "SELECT TOP 1 DataPointHistoryId,HistoryMainlineId,DataCollectionDefId,TxnId FROM DataPointHistory",
+      "response": []
+    }
+  ],
+  "live_tool_check": {
+    "complete": false,
+    "source": "Query/AdHoc DataPointHistoryDetail -> DataPointHistory -> HistoryMainline",
+    "scope": "user_data_collection_history",
+    "submission_outcome": "unknown",
+    "nonempty_linkage_verified": false,
+    "note": "仅返回该历史结构中的直接容器记录，不涵盖全部采集类型；空页不能证明提交失败或允许重试。分页不是一致快照。",
+    "container": {
+      "InstanceId": "0004108000000052",
+      "CDOTypeName": "Container",
+      "Name": "SN0000001"
+    },
+    "txn_id_filter": null,
+    "rows": [],
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "page_complete": true
+  }
+}

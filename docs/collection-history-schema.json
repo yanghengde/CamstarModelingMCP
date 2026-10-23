@@ -1,0 +1,558 @@
+{
+  "date": "2026-10-23",
+  "source": "Query/AdHoc INFORMATION_SCHEMA.COLUMNS",
+  "read_only": true,
+  "filter": "TABLE_NAME LIKE '%DataCollect%' OR TABLE_NAME LIKE '%Parametric%' OR TABLE_NAME LIKE '%DataPointHistory%'",
+  "columns": [
+    {
+      "TABLE_NAME": "csiView_DATACOLLECTION_DHR",
+      "COLUMN_NAME": "DATANAME",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "csiView_DATACOLLECTION_DHR",
+      "COLUMN_NAME": "DATAVALUE",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "csiView_DATACOLLECTION_DHR",
+      "COLUMN_NAME": "LOWERLIMIT",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "csiView_DATACOLLECTION_DHR",
+      "COLUMN_NAME": "UPPERLIMIT",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "csiView_DATACOLLECTION_DHR",
+      "COLUMN_NAME": "WORKFLOWSTEPNAME",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "csiView_DATACOLLECTION_DHR",
+      "COLUMN_NAME": "OPERATIONNAME",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "csiView_DATACOLLECTION_DHR",
+      "COLUMN_NAME": "CONTAINERNAME",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "csiView_DATACOLLECTION_DHR",
+      "COLUMN_NAME": "EMPLOYEENAME",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "csiView_DATACOLLECTION_DHR",
+      "COLUMN_NAME": "TXNDATE",
+      "DATA_TYPE": "datetime"
+    },
+    {
+      "TABLE_NAME": "csiView_DATACOLLECTION_DHR",
+      "COLUMN_NAME": "UOMNAME",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "csiView_DATACOLLECTION_DHR",
+      "COLUMN_NAME": "COMMENTS",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "csiView_ISRVDATAPOINTHISTORY",
+      "COLUMN_NAME": "VALUE",
+      "DATA_TYPE": "decimal"
+    },
+    {
+      "TABLE_NAME": "csiView_ISRVDATAPOINTHISTORY",
+      "COLUMN_NAME": "DATANAME",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "csiView_ISRVDATAPOINTHISTORY",
+      "COLUMN_NAME": "LOWERLIMIT",
+      "DATA_TYPE": "decimal"
+    },
+    {
+      "TABLE_NAME": "csiView_ISRVDATAPOINTHISTORY",
+      "COLUMN_NAME": "UPPERLIMIT",
+      "DATA_TYPE": "decimal"
+    },
+    {
+      "TABLE_NAME": "csiView_ISRVDATAPOINTHISTORY",
+      "COLUMN_NAME": "DATATYPE",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "csiView_ISRVDATAPOINTHISTORY",
+      "COLUMN_NAME": "TXNDATE",
+      "DATA_TYPE": "datetime"
+    },
+    {
+      "TABLE_NAME": "csiView_ISRVDATAPOINTHISTORY",
+      "COLUMN_NAME": "CONTAINERID",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "csiView_ISRVDATAPOINTHISTORY",
+      "COLUMN_NAME": "CONTAINERNAME",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "CDOTypeId",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "ChangeCount",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "ChangeHistoryId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "DataCollectionDefBaseId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "DataCollectionDefId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "DataCollectionDefRevision",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "DataPointLayout",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "Description",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "DisplayLimits",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "ECO",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "FilterTags",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "IconId",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "Instructions",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "IsFrozen",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "isScaleEnabled",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "Notes",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "ParametricDataControl",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "ParametricDataDefType",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "SPCChartDefGroupId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "Status",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "WebPartId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "WIPMsgDefMgrId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "isDefectReasonGroupId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "SetupAccessId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDef",
+      "COLUMN_NAME": "UseSPCMatrix",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDefBase",
+      "COLUMN_NAME": "CDOTypeId",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDefBase",
+      "COLUMN_NAME": "ChangeCount",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDefBase",
+      "COLUMN_NAME": "DataCollectionDefBaseId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDefBase",
+      "COLUMN_NAME": "DataCollectionDefName",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDefBase",
+      "COLUMN_NAME": "IconId",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "DataCollectionDefBase",
+      "COLUMN_NAME": "RevOfRcdId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistory",
+      "COLUMN_NAME": "CDOTypeId",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "DataPointHistory",
+      "COLUMN_NAME": "ChangeCount",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "DataPointHistory",
+      "COLUMN_NAME": "DataCollectionDefId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistory",
+      "COLUMN_NAME": "DataPointHistoryId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistory",
+      "COLUMN_NAME": "ExportImportKey",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataPointHistory",
+      "COLUMN_NAME": "HistoryId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistory",
+      "COLUMN_NAME": "HistoryMainlineId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistory",
+      "COLUMN_NAME": "TxnId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistory",
+      "COLUMN_NAME": "IntegrationTxnId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "AttributeName",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "BooleanValue",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "CDOTypeId",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "ChangeCount",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "Comments",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "DataCollectionDefId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "DataName",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "DataPointHistoryDetailId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "DataPointHistoryId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "DataPointId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "DataType",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "DataValue",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "DecimalScale",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "DecimalValue",
+      "DATA_TYPE": "decimal"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "EnumerationValue",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "ExportImportKey",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "FixedValue",
+      "DATA_TYPE": "float"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "FloatValue",
+      "DATA_TYPE": "float"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "HistoryId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "IntegerValue",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "IsLimitOverride",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "IsLimitOverrideAllowed",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "IsLimitViolation",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "IsRequired",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "LowerLimit",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "MapToUserAttribute",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "NDOValueId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "ObjectTypeName",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "OriginalValue",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "RDOValueId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "TimestampValue",
+      "DATA_TYPE": "datetime"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "TxnId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "UOMId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "UpperLimit",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "IntegrationTxnId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "isDefectReasonId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "DataPointHistoryDetail",
+      "COLUMN_NAME": "isRequireDefectReason",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "RV_DHRDATACOLLECTION",
+      "COLUMN_NAME": "CONTAINERNAME",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "RV_DHRDATACOLLECTION",
+      "COLUMN_NAME": "ES_PRIMARYSERIALNUMBER",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "RV_DHRDATACOLLECTION",
+      "COLUMN_NAME": "ES_SERIALNUMBER2",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "RV_DHRDATACOLLECTION",
+      "COLUMN_NAME": "ES_SERIALNUMBER3",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "RV_DHRDATACOLLECTION",
+      "COLUMN_NAME": "DATANAME",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "RV_DHRDATACOLLECTION",
+      "COLUMN_NAME": "DATAVALUE",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "RV_DHRDATACOLLECTION",
+      "COLUMN_NAME": "LOWERLIMIT",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "RV_DHRDATACOLLECTION",
+      "COLUMN_NAME": "UPPERLIMIT",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "RV_DHRDATACOLLECTION",
+      "COLUMN_NAME": "WORKFLOWSTEPNAME",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "RV_DHRDATACOLLECTION",
+      "COLUMN_NAME": "OPERATIONNAME",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "RV_DHRDATACOLLECTION",
+      "COLUMN_NAME": "EMPLOYEENAME",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "RV_DHRDATACOLLECTION",
+      "COLUMN_NAME": "TXNDATE",
+      "DATA_TYPE": "datetime"
+    },
+    {
+      "TABLE_NAME": "RV_DHRDATACOLLECTION",
+      "COLUMN_NAME": "UOMNAME",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "RV_DHRDATACOLLECTION",
+      "COLUMN_NAME": "COMMENTS",
+      "DATA_TYPE": "nvarchar"
+    }
+  ]
+}
