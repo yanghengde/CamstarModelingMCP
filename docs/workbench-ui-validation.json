@@ -1,0 +1,43 @@
+{
+  "checks": [
+    {
+      "feature": "route_and_integrity",
+      "read_complete": true,
+      "issues": 0
+    },
+    {
+      "feature": "version_comparison",
+      "same_revision_changes": 0
+    },
+    {
+      "feature": "copy_preview",
+      "executable": true,
+      "error": null
+    },
+    {
+      "feature": "edited_route_revalidation",
+      "new_plan": true,
+      "old_link_disabled": true
+    },
+    {
+      "feature": "csv_mapping_and_plan",
+      "executable": true
+    },
+    {
+      "feature": "order",
+      "containers": 10,
+      "has_more": true
+    },
+    {
+      "feature": "order_pagination",
+      "offset": 10
+    },
+    {
+      "feature": "trace_and_history",
+      "nodes": 1,
+      "histories": 6
+    }
+  ],
+  "business_writes_executed": false,
+  "browser_errors": []
+}

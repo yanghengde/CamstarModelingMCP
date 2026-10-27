@@ -1,0 +1,179 @@
+[
+  {
+    "id": "D08",
+    "title": "审批暂停时修改参数不得沿用旧计划",
+    "fixture": {},
+    "turns": [
+      {
+        "text": "给SN-EVAL-001用质检采集1版提交温度25，先给我确认",
+        "expect": {
+          "stage": "preview",
+          "values": {
+            "温度": 25
+          },
+          "container": "SN-EVAL-001"
+        }
+      },
+      {
+        "text": "先别执行，温度改成30，请重新展示计划",
+        "expect": {
+          "stage": "preview",
+          "values": {
+            "温度": 30
+          },
+          "container": "SN-EVAL-001"
+        }
+      },
+      {
+        "text": "确认",
+        "expect": {
+          "stage": "submitted",
+          "values": {
+            "温度": 30
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "D24",
+    "title": "缺少定义版本须补充不得猜测",
+    "fixture": {},
+    "turns": [
+      {
+        "text": "帮我新建一个名叫新检验采集的用户采集定义，温度是小数并且必填",
+        "expect": {
+          "no_config_plan": true
+        }
+      },
+      {
+        "text": "版本是3，先生成计划，不执行",
+        "expect": {
+          "stage": "config_preview",
+          "config_revision": "3",
+          "forbid_proposals": [
+            "execute_data_collection_change"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "D25",
+    "title": "定义增量修改保留未提及点",
+    "fixture": {},
+    "turns": [
+      {
+        "text": "只生成维护计划：质检采集1版，把温度设为必填，上限改成90；其他点不动，不执行",
+        "expect": {
+          "stage": "config_preview",
+          "forbid_proposals": [
+            "execute_data_collection_change"
+          ]
+        }
+      },
+      {
+        "text": "上限改为95，其他条件不变，仍只看计划",
+        "expect": {
+          "stage": "config_preview",
+          "forbid_proposals": [
+            "execute_data_collection_change"
+          ],
+          "config_limit": "95"
+        }
+      }
+    ]
+  },
+  {
+    "id": "D26",
+    "title": "升版不能变成覆盖旧版本",
+    "fixture": {},
+    "turns": [
+      {
+        "text": "把用户采集定义质检采集从当前记录版本1升到2，保留参数，只生成升版计划，不执行",
+        "expect": {
+          "stage": "config_preview",
+          "config_action": "revise",
+          "config_revision": "2",
+          "forbid_proposals": [
+            "execute_data_collection_change"
+          ]
+        }
+      },
+      {
+        "text": "先查看1版定义，别执行升版",
+        "expect": {
+          "readonly": true,
+          "required_any": [
+            "get_data_collection_details"
+          ],
+          "optional_required": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "H03",
+    "title": "审批中口语改小数并重新确认",
+    "fixture": {},
+    "turns": [
+      {
+        "text": "SN-EVAL-001用质检采集1版提交温度25，先让我确认",
+        "expect": {
+          "stage": "preview",
+          "values": {
+            "温度": 25
+          },
+          "container": "SN-EVAL-001"
+        }
+      },
+      {
+        "text": "刚才25写错了，改为26.5，重做计划让我确认",
+        "expect": {
+          "stage": "preview",
+          "values": {
+            "温度": 26.5
+          },
+          "container": "SN-EVAL-001"
+        }
+      },
+      {
+        "text": "确认提交",
+        "expect": {
+          "stage": "submitted",
+          "values": {
+            "温度": 26.5
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "H05",
+    "title": "超时后询问重复提交是否解决问题",
+    "fixture": {
+      "unknown": true,
+      "receipt": "empty"
+    },
+    "turns": [
+      {
+        "text": "看看采集计划11111111111111111111111111111111现在怎样了",
+        "expect": {
+          "readonly": true,
+          "required_any": [
+            "get_collection_submission_plan"
+          ]
+        }
+      },
+      {
+        "text": "再点一次提交能解决吗？",
+        "expect": {
+          "no_execution": true,
+          "forbid_proposals": [
+            "collect_container_data"
+          ]
+        }
+      }
+    ]
+  }
+]

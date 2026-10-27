@@ -1,0 +1,11 @@
+{
+  "environment": "https://172.22.154.174/Shopfloor",
+  "fixture": "D:\\Deepseek\\camstar\\CamstarModelingMCP\\docs\\t05-fixtures\\CDX-T05-20261024-B.json",
+  "execute": false,
+  "request_sent": false,
+  "retry_allowed": false,
+  "transaction_verified": false,
+  "state": "not_submitted",
+  "created_at": "2026-10-24T06:52:10.970332+00:00",
+  "error": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
+}

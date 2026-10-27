@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-24T09:31:53.486644+08:00",
+  "transaction_execution_requested": false,
+  "transaction_verified": false,
+  "serialization_verified": true,
+  "body": {
+    "container": {
+      "name": "SN0000001",
+      "instanceId": "0004108000000052"
+    },
+    "closeWhenEmpty": false,
+    "reduceQty": true,
+    "autoNumber": false,
+    "toContainerDetails": [
+      {
+        "toContainerName": "T07-NONEXEC-PREVIEW",
+        "qty": 0.25,
+        "qty2": 0.0
+      }
+    ]
+  },
+  "params": {
+    "execute": "false",
+    "$select": "Container,CloseWhenEmpty,ReduceQty,AutoNumber",
+    "$expand": "ToContainerDetails"
+  },
+  "source_conflict": "Designer describes Split service details; Swagger warns system-generated. Echo alone cannot resolve Execute semantics.",
+  "http_status": 200,
+  "response": {
+    "@odata.context": "https://172.22.154.174/api/$metadata#Split/$entity",
+    "value": "",
+    "data": {
+      "Container": {
+        "Name": "SN0000001",
+        "Level": {
+          "Name": "BOX"
+        },
+        "InstanceId": "0004108000000052"
+      },
+      "CloseWhenEmpty": "false",
+      "ReduceQty": "true",
+      "AutoNumber": "false",
+      "ToContainerDetails": [
+        {
+          "Parent": {
+            "InstanceId": "0015720000000002"
+          },
+          "InstanceId": "00157c0000000002",
+          "ToContainerName": "T07-NONEXEC-PREVIEW",
+          "Qty": "0.25",
+          "Qty2": "0",
+          "AdjustThruput": "false",
+          "CDOTypeId": "5500",
+          "IsDeleted": "false"
+        }
+      ]
+    }
+  },
+  "echo_errors": []
+}

@@ -1,0 +1,63 @@
+{
+  "checked_date": "2026-10-26",
+  "mes_writes": false,
+  "service_restarted": false,
+  "modeling_static_prepare": {
+    "plan_id": "620d19e608444704968c464461ded533",
+    "plan_digest": "93be3f54b219659210890e6e439a4815919f2fbb3e7a2186e73216ddf1a725db",
+    "state": "ready",
+    "submitted": false,
+    "confirmation_required": true,
+    "expires_in_seconds": 3600,
+    "request_preview": {
+      "api": "modeling",
+      "method": "POST",
+      "path": "/api/SampleDataPoints",
+      "params": {},
+      "body": {
+        "name": "CDX-QUAL-MODEL-DRY-20261026-A",
+        "revision": "A",
+        "status": 1,
+        "dataType": 9,
+        "lowerLimit": "0",
+        "upperLimit": "10",
+        "showLimits": true
+      }
+    },
+    "before": null,
+    "server_context": {
+      "static_contract_verified": true,
+      "echo_verified": false,
+      "dynamic_validation_verified": false,
+      "note": "Modeling CRUD未执行非写入回显，尚未验证服务端业务规则；PUT仅改请求字段，PATCH由MES复制当前ROR。"
+    },
+    "static_and_echo_verified": false,
+    "dynamic_validation_verified": false,
+    "note": "静态校验或非执行回显不是业务批准、签名或质量判定。执行后先unknown；当前需最终证据人工核实。"
+  },
+  "rebuild_digest_identical": true,
+  "local_dry_plan_cancelled": true,
+  "postcheck": [],
+  "nonexistent_lot_read": {
+    "found": false,
+    "data": null,
+    "complete": true,
+    "quality_verdict": null
+  },
+  "quality_tool_count": 29,
+  "all_registered": true,
+  "current_sample_tests": {
+    "source": "SampleTests",
+    "rows": [],
+    "has_more": false,
+    "next_offset": null,
+    "complete": true
+  },
+  "current_sampling_plans": {
+    "source": "SamplingPlans",
+    "rows": [],
+    "has_more": false,
+    "next_offset": null,
+    "complete": true
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "checked_date": "2026-10-26",
+  "quality_tool_count": 41,
+  "new_tools": [],
+  "extended_tools": [
+    "prepare_container_inspection",
+    "prepare_lot_inspection",
+    "reconcile_quality_execution"
+  ],
+  "regression": {
+    "passed": 1781,
+    "subtests_passed": 2,
+    "junit_testcases": 1781,
+    "quality_tests": 575,
+    "new_counted_group_tests": 57,
+    "httpx_real_network_attempts": 0,
+    "simulated_mcp_container_and_lot_group_prepare_single_execute_unknown": true,
+    "captured_native_response_replay": true,
+    "natural_language_tool_visibility_test": true,
+    "live_llm_routing_evaluation": false
+  },
+  "implemented": [
+    "explicit mutually exclusive counted cohorts with per-group sample/reject quantities",
+    "single request for all counted groups with no implicit allocation or duplicate reasons",
+    "canonical reason child payload shared by legacy single group and new groups",
+    "explicit nested select for parent counters and point/reason values",
+    "published static EDM types instead of mandatory unpublished CDOTypeId",
+    "UTF-16 comment limits for container and lot inspection",
+    "requested sample units/reject counts and counted detail row semantics in reconciliation",
+    "stale guard prevents replay of previous shortcut-format ready plans"
+  ],
+  "live_read_evidence": {
+    "service_endpoints": [
+      "CollectSamplingData",
+      "CollectLotSamplingData"
+    ],
+    "canonical_two_detail_no_target_echo_statuses": [
+      200,
+      200
+    ],
+    "explicit_child_selection_verified": true,
+    "reason_child_echo_verified_without_target": true,
+    "positive_target_echo_verified": false,
+    "actual_group_accumulation_verified": false,
+    "actual_reason_history_verified": false
+  },
+  "mes_business_writes": false,
+  "service_restarted": false,
+  "sample_partition_verified": false,
+  "completion_causal_chain_verified": false,
+  "limits": {
+    "groups": 20,
+    "sample_units_per_request": 100,
+    "comment_utf16_units": 180
+  },
+  "not_supported": [
+    "implicit allocation of a global total across rejection reasons",
+    "duplicate primary rejection reason IDs or repeated zero-reject groups",
+    "mixed grouped and legacy counts or measured samples",
+    "proof that physical sampled units are disjoint",
+    "automatic final success/unlock/replay",
+    "full inspection/rework/scrap/SPC computation"
+  ],
+  "evidence": {
+    "contracts_and_native_probes": "counted-groups-contracts.json",
+    "junit": "counted-groups-junit.xml",
+    "output": "counted-groups-test-output.txt",
+    "network": "counted-groups-network.json"
+  }
+}

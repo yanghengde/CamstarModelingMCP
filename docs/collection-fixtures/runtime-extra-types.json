@@ -1,0 +1,1157 @@
+{
+  "DPCollectionGroupLayoutEnum": {
+    "attributes": {
+      "Name": "DPCollectionGroupLayoutEnum",
+      "BaseType": "shopfloor.Enumeration",
+      "{customAttribute}EventList": "GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; "
+    },
+    "fields": [
+      {
+        "Name": "Horizontal",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8127",
+        "{customAttribute}FieldId": "18730",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Horizontal"
+      },
+      {
+        "Name": "Unassociated",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8127",
+        "{customAttribute}FieldId": "18731",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Unassociated"
+      },
+      {
+        "Name": "Vertical",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8127",
+        "{customAttribute}FieldId": "18729",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Vertical"
+      }
+    ]
+  },
+  "DPCollectionRangeColorEnum": {
+    "attributes": {
+      "Name": "DPCollectionRangeColorEnum",
+      "BaseType": "shopfloor.Enumeration",
+      "{customAttribute}EventList": "GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; "
+    },
+    "fields": [
+      {
+        "Name": "AboveInner",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8146",
+        "{customAttribute}FieldId": "18927",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Above Inner"
+      },
+      {
+        "Name": "AboveOuter",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8146",
+        "{customAttribute}FieldId": "18928",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Above Outer"
+      },
+      {
+        "Name": "BelowInner",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8146",
+        "{customAttribute}FieldId": "18925",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Below Inner"
+      },
+      {
+        "Name": "BelowOuter",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8146",
+        "{customAttribute}FieldId": "18924",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Below Outer"
+      },
+      {
+        "Name": "WithinInner",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8146",
+        "{customAttribute}FieldId": "18926",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Within Inner"
+      }
+    ]
+  },
+  "DPCollectionPointSample": {
+    "attributes": {
+      "Name": "DPCollectionPointSample",
+      "BaseType": "shopfloor.NamedSubentity",
+      "{customAttribute}EventList": "_DeleteMe; GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; TxnRev_Add; TxnRev_Change; TxnRev_Delete; TxnRev_SaveUnreversedValues; "
+    },
+    "fields": [
+      {
+        "Name": "DataValue",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8167",
+        "{customAttribute}FieldId": "19157",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The actual value collected for the Sample."
+      }
+    ]
+  },
+  "DPCollectionGroupHistory": {
+    "attributes": {
+      "Name": "DPCollectionGroupHistory",
+      "BaseType": "shopfloor.ServiceHistoryDetail",
+      "{customAttribute}EventList": "_DeleteMe; GetDetailLine; GetNextLevelHistoryDetails; GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; NegateQtys; NormalizeTimestamps; TxnRev_Add; TxnRev_Change; TxnRev_Delete; TxnRev_SaveUnreversedValues; "
+    },
+    "fields": [
+      {
+        "Name": "Group",
+        "Type": "shopfloor.NamedSubentityRef",
+        "{customAttribute}OriginalType": "DataPointCollectionGroup",
+        "{customAttribute}CdoId": "8152",
+        "{customAttribute}FieldId": "19010",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The Data Point Collection Group for which the data points are collected.\r\n\r\nA DataPointCollectionGroup contains a list of DataPointColletionPoint objects to be collected.  The data points may be related to each other, and presented in a vertical or horizontal format, or unrelated (Unassociated) and presented individually."
+      },
+      {
+        "Name": "GroupLayout",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8152",
+        "{customAttribute}FieldId": "18973",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The layout assigned to the Group.  \r\n1 = Vertical\r\n2 = Horizontal\r\n3 = Unassociated"
+      },
+      {
+        "Name": "HistoryDetails",
+        "Type": "Collection(shopfloor.SubentityRef)",
+        "{customAttribute}OriginalType": "DPCollectionPointHistory",
+        "{customAttribute}CdoId": "8152",
+        "{customAttribute}FieldId": "19005",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The history for the data point collection points."
+      },
+      {
+        "Name": "MinimumSamples",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8152",
+        "{customAttribute}FieldId": "19012",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "Minimum Number of Samples"
+      },
+      {
+        "Name": "Name",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8152",
+        "{customAttribute}FieldId": "18974",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The Name assigned to the Group."
+      },
+      {
+        "Name": "Sequence",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8152",
+        "{customAttribute}FieldId": "18975",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The Sequence assigned to the Group."
+      }
+    ]
+  },
+  "DPCollectionSampleHistory": {
+    "attributes": {
+      "Name": "DPCollectionSampleHistory",
+      "BaseType": "shopfloor.ServiceHistoryDetail",
+      "{customAttribute}EventList": "_DeleteMe; GetDetailLine; GetNextLevelHistoryDetails; GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; NegateQtys; NormalizeTimestamps; TxnRev_Add; TxnRev_Change; TxnRev_Delete; TxnRev_SaveUnreversedValues; "
+    },
+    "fields": [
+      {
+        "Name": "BooleanValue",
+        "Type": "Edm.Boolean",
+        "{customAttribute}CdoId": "8153",
+        "{customAttribute}FieldId": "18982",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The Data Value coerced to Boolean."
+      },
+      {
+        "Name": "CellName",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8153",
+        "{customAttribute}FieldId": "18983",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The unique identifier for the Sample collected. "
+      },
+      {
+        "Name": "DataPointCollectionRangeColor",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8153",
+        "{customAttribute}FieldId": "18988",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "Identifies whether the value was within the respective limits (warning/spec).\r\n-2 = BelowOuter\r\n-1 = BelowInner\r\n0  = WithinInner\r\n1  = AboveInner\r\n2  = AboveOuter"
+      },
+      {
+        "Name": "DataValue",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8153",
+        "{customAttribute}FieldId": "18984",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The actual value collected for the Sample."
+      },
+      {
+        "Name": "DecimalValue",
+        "Type": "Edm.Decimal",
+        "Scale": "Variable",
+        "{customAttribute}CdoId": "8153",
+        "{customAttribute}FieldId": "18985",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The Data Value coerced to Decimal."
+      },
+      {
+        "Name": "IntegerValue",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8153",
+        "{customAttribute}FieldId": "18986",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The Data Value coerced to Integer."
+      },
+      {
+        "Name": "TimestampValue",
+        "Type": "Edm.DateTimeOffset",
+        "{customAttribute}CdoId": "8153",
+        "{customAttribute}FieldId": "18987",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The Data Value coerced to Timestamp."
+      }
+    ]
+  },
+  "DPCollectionPointHistory": {
+    "attributes": {
+      "Name": "DPCollectionPointHistory",
+      "BaseType": "shopfloor.ServiceHistoryDetail",
+      "{customAttribute}EventList": "_DeleteMe; GetDetailLine; GetNextLevelHistoryDetails; GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; NegateQtys; NormalizeTimestamps; TxnRev_Add; TxnRev_Change; TxnRev_Delete; TxnRev_SaveUnreversedValues; "
+    },
+    "fields": [
+      {
+        "Name": "DataType",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8154",
+        "{customAttribute}FieldId": "18995",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The data type assigned to the Point.\r\n1 Integer\r\n4 String\r\n6 TimeStamp\r\n7 Boolean\r\n9 Decimal"
+      },
+      {
+        "Name": "HistoryDetails",
+        "Type": "Collection(shopfloor.SubentityRef)",
+        "{customAttribute}OriginalType": "DPCollectionSampleHistory",
+        "{customAttribute}CdoId": "8154",
+        "{customAttribute}FieldId": "19004",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The history for the data point collection samples."
+      },
+      {
+        "Name": "InnerLowerLimit",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8154",
+        "{customAttribute}FieldId": "19000",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The lower \"warning\" limit assigned to the Point."
+      },
+      {
+        "Name": "InnerUpperLimit",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8154",
+        "{customAttribute}FieldId": "19001",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The upper \"warning\" limit assigned to the Point."
+      },
+      {
+        "Name": "MinimumSamples",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8154",
+        "{customAttribute}FieldId": "19013",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "Minimum Number of Samples"
+      },
+      {
+        "Name": "Name",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8154",
+        "{customAttribute}FieldId": "18996",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The Name assigned to the Point."
+      },
+      {
+        "Name": "OuterLowerLimit",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8154",
+        "{customAttribute}FieldId": "19002",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The lower \"spec\" limit assigned to the Point."
+      },
+      {
+        "Name": "OuterUpperLimit",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8154",
+        "{customAttribute}FieldId": "19003",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The upper \"spec\" limit assigned to the Point."
+      },
+      {
+        "Name": "Point",
+        "Type": "shopfloor.NamedSubentityRef",
+        "{customAttribute}OriginalType": "DataPointCollectionPoint",
+        "{customAttribute}CdoId": "8154",
+        "{customAttribute}FieldId": "18997",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The Data Point Collection Point for which the samples are collected.\r\n\r\nDescribes a piece of data to be collected, including limits.  The user entering the data can dynamically add extra samples as well as dynamically adding new data points."
+      },
+      {
+        "Name": "Sequence",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8154",
+        "{customAttribute}FieldId": "18998",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The Sequence assigned to the Point."
+      },
+      {
+        "Name": "UOM",
+        "Type": "shopfloor.NamedObjectRef",
+        "{customAttribute}OriginalType": "UOM",
+        "{customAttribute}CdoId": "8154",
+        "{customAttribute}FieldId": "18999",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The UOM assigned to the Point."
+      }
+    ]
+  },
+  "DPCollectionSampleDetail": {
+    "attributes": {
+      "Name": "DPCollectionSampleDetail",
+      "BaseType": "shopfloor.ServiceDetails",
+      "{customAttribute}EventList": "_DeleteMe; AccumulateSummaryHistoryData; AddHistoryDetail; Execute; Execute_User; GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; LiveConnect_Initialize; Load; LoadDetails; LoadDetails_Specific; LoadDetails_User; ModifyEntityUsingDetail; RecordDetailPostHistory; RecordDetailPreHistory; TxnRev_Add; TxnRev_Change; TxnRev_Delete; TxnRev_SaveUnreversedValues; Validate; Validate_User; ValidateBoolean; "
+    },
+    "fields": [
+      {
+        "Name": "BooleanValue",
+        "Type": "Edm.Boolean",
+        "{customAttribute}CdoId": "8148",
+        "{customAttribute}FieldId": "18932",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "If the data type is Boolean, then the value is coerced to Boolean and recorded in history."
+      },
+      {
+        "Name": "CellName",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8148",
+        "{customAttribute}FieldId": "18933",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The client can optionally pass in a unique identifier for the Sample collected.  On a \"load\", the name will be returned to the client for collected Samples.  It is also recorded in history on execution of the service."
+      },
+      {
+        "Name": "DataPointCollectionRangeColor",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8148",
+        "{customAttribute}FieldId": "18934",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Identifies whether the value was within the respective limits (warning/spec).  The result is recorded in history on execution of the service.\r\n-2 = BelowOuter\r\n-1 = BelowInner\r\n0  = WithinInner\r\n1  = AboveInner\r\n2  = AboveOuter"
+      },
+      {
+        "Name": "DataValue",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8148",
+        "{customAttribute}FieldId": "18935",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The actual value collected for the Sample."
+      },
+      {
+        "Name": "DecimalValue",
+        "Type": "Edm.Decimal",
+        "Scale": "Variable",
+        "{customAttribute}CdoId": "8148",
+        "{customAttribute}FieldId": "18936",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "If the data type is Decimal, then the value is coerced to Decimal and recorded in history."
+      },
+      {
+        "Name": "IntegerValue",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8148",
+        "{customAttribute}FieldId": "18937",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "If the data type is Integer, then the value is coerced to Integer and recorded in history."
+      },
+      {
+        "Name": "Sample",
+        "Type": "shopfloor.NamedSubentityRef",
+        "{customAttribute}OriginalType": "DPCollectionPointSample",
+        "{customAttribute}CdoId": "8148",
+        "{customAttribute}FieldId": "19159",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "A sample collected for the Data Point."
+      },
+      {
+        "Name": "TimestampValue",
+        "Type": "Edm.DateTimeOffset",
+        "{customAttribute}CdoId": "8148",
+        "{customAttribute}FieldId": "18938",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "If the data type is Timestamp, then the value is coerced to Timestamp and recorded in history."
+      }
+    ]
+  },
+  "DPCollectionPointDetail": {
+    "attributes": {
+      "Name": "DPCollectionPointDetail",
+      "BaseType": "shopfloor.ServiceDetails",
+      "{customAttribute}EventList": "_DeleteMe; AccumulateSummaryHistoryData; AddHistoryDetail; Execute; Execute_User; GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; LiveConnect_Initialize; Load; LoadDetails; LoadDetails_Specific; LoadDetails_User; LoadSavedData; ModifyEntityUsingDetail; RecordDetailPostHistory; RecordDetailPreHistory; TxnRev_Add; TxnRev_Change; TxnRev_Delete; TxnRev_SaveUnreversedValues; Validate; Validate_User; ValidateBoolean; ValidateLimits; "
+    },
+    "fields": [
+      {
+        "Name": "DataType",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8149",
+        "{customAttribute}FieldId": "18939",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The data type assigned to the Point.  This value is returned on a \"load\".  It identifies how the Point will be recorded.  It is also recorded in history on execution of the service.\r\n1 Integer\r\n4 String\r\n6 TimeStamp\r\n7 Boolean\r\n9 Decimal"
+      },
+      {
+        "Name": "InnerLowerLimit",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8149",
+        "{customAttribute}FieldId": "18946",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The lower \"warning\" limit assigned to the Point.  This value is returned on a \"load\".  It is used as part of the range checks for the Point.  It is also recorded in history on execution of the service."
+      },
+      {
+        "Name": "InnerUpperLimit",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8149",
+        "{customAttribute}FieldId": "18947",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The upper \"warning\" limit assigned to the Point.  This value is returned on a \"load\".  It is used as part of the range checks for the Point.  It is also recorded in history on execution of the service."
+      },
+      {
+        "Name": "MinimumSamples",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8149",
+        "{customAttribute}FieldId": "18940",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The Minimum Samples assigned to the Point.  This value is returned on a \"load\".  It identifies how the Point will be displayed.  It is also recorded in history on execution of the service."
+      },
+      {
+        "Name": "Name",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8149",
+        "{customAttribute}FieldId": "18941",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The Name assigned to the Point.  This value is returned on a \"load\".  It is also recorded in history on execution of the service."
+      },
+      {
+        "Name": "OuterLowerLimit",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8149",
+        "{customAttribute}FieldId": "18948",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The lower \"spec\" limit assigned to the Point.  This value is returned on a \"load\".  It is used as part of the range checks for the Point.  It is also recorded in history on execution of the service."
+      },
+      {
+        "Name": "OuterUpperLimit",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8149",
+        "{customAttribute}FieldId": "18949",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The upper \"spec\" limit assigned to the Point.  This value is returned on a \"load\".  It is used as part of the range checks for the Point.  It is also recorded in history on execution of the service."
+      },
+      {
+        "Name": "Point",
+        "Type": "shopfloor.NamedSubentityRef",
+        "{customAttribute}OriginalType": "DataPointCollectionPoint",
+        "{customAttribute}CdoId": "8149",
+        "{customAttribute}FieldId": "18942",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The Data Point Collection Point for which the samples are being collected.\r\n\r\nA DataPointCollectionPoint describes a piece of data to be collected, including limits.  The user entering the data can dynamically add extra samples as well as dynamically adding new data points."
+      },
+      {
+        "Name": "Sequence",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8149",
+        "{customAttribute}FieldId": "18944",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The Sequence assigned to the Point. This value is returned on a \"load\".  It identifies the order in which the Points will be displayed.  It is also recorded in history on execution of the service."
+      },
+      {
+        "Name": "UOM",
+        "Type": "shopfloor.NamedObjectRef",
+        "{customAttribute}OriginalType": "UOM",
+        "{customAttribute}CdoId": "8149",
+        "{customAttribute}FieldId": "18945",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The UOM assigned to the Point.  This value is returned on a \"load\". It is also recorded in history on execution of the service."
+      },
+      {
+        "Name": "Samples",
+        "Type": "Collection(shopfloor.DPCollectionSampleDetail)",
+        "{customAttribute}CdoId": "8149",
+        "{customAttribute}FieldId": "18943",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The list of actual data values collected for the Point, to be passed in by the client."
+      }
+    ]
+  },
+  "DPCollectionGroupDetail": {
+    "attributes": {
+      "Name": "DPCollectionGroupDetail",
+      "BaseType": "shopfloor.ServiceDetails",
+      "{customAttribute}EventList": "_DeleteMe; AccumulateSummaryHistoryData; AddHistoryDetail; Execute; Execute_User; GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; LiveConnect_Initialize; Load; LoadDetails; LoadDetails_Specific; LoadDetails_User; ModifyEntityUsingDetail; RecordDetailPostHistory; RecordDetailPreHistory; ReviewDataPoints; TxnRev_Add; TxnRev_Change; TxnRev_Delete; TxnRev_SaveUnreversedValues; Validate; Validate_User; ValidateGroup; ValidateNoDups; "
+    },
+    "fields": [
+      {
+        "Name": "Group",
+        "Type": "shopfloor.NamedSubentityRef",
+        "{customAttribute}OriginalType": "DataPointCollectionGroup",
+        "{customAttribute}CdoId": "8150",
+        "{customAttribute}FieldId": "18950",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The Data Point Collection Group for which the data points are being collected.\r\n\r\nA DataPointCollectionGroup contains a list of DataPointColletionPoint objects to be collected.  The data points may be related to each other, and presented in a vertical or horizontal format, or unrelated (Unassociated) and presented individually."
+      },
+      {
+        "Name": "GroupLayout",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8150",
+        "{customAttribute}FieldId": "18951",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The layout assigned to the Group.  This value is returned on a \"load\".  It identifies how the data points will be displayed.  It is also recorded in history on execution of the service.\r\n1 = Vertical\r\n2 = Horizontal\r\n3 = Unassociated"
+      },
+      {
+        "Name": "LastEnteredBy",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8150",
+        "{customAttribute}FieldId": "19170",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Last Completed By"
+      },
+      {
+        "Name": "LastEnteredByRole",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8150",
+        "{customAttribute}FieldId": "19171",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Last Completed By Role"
+      },
+      {
+        "Name": "LastEnteredOnGMT",
+        "Type": "Edm.DateTimeOffset",
+        "{customAttribute}CdoId": "8150",
+        "{customAttribute}FieldId": "19172",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Last Completed On GMT"
+      },
+      {
+        "Name": "MinimumSamples",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8150",
+        "{customAttribute}FieldId": "18952",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The Minimum Samples assigned to the Group.  This value is returned on a \"load\".  It identifies how the data points will be displayed.  It is also recorded in history on execution of the service."
+      },
+      {
+        "Name": "Name",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8150",
+        "{customAttribute}FieldId": "18953",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The Name assigned to the Group.  This value is returned on a \"load\".  It is also recorded in history on execution of the service."
+      },
+      {
+        "Name": "Sequence",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "8150",
+        "{customAttribute}FieldId": "18954",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The Sequence assigned to the Group.  This value is returned on a \"load\".  It identifies the order in which the Groups will be displayed.  It is also recorded in history on execution of the service."
+      },
+      {
+        "Name": "ServiceDetails",
+        "Type": "Collection(shopfloor.DPCollectionPointDetail)",
+        "{customAttribute}CdoId": "8150",
+        "{customAttribute}FieldId": "18955",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The data points for the group to be passed in by the client.  It is also used to return the data points to be collected for the group on a \"load\"."
+      }
+    ]
+  },
+  "DataPointSummary": {
+    "attributes": {
+      "Name": "DataPointSummary",
+      "BaseType": "shopfloor.ParametricData",
+      "{customAttribute}EventList": "_DeleteMe; AccumulateSummaryHistoryData; AddHistoryDetail; DataPointSummary_ValidateResource; Execute; Execute_User; GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; LiveConnect_Initialize; LoadDetails; LoadDetails_Specific; LoadDetails_User; ModifyEntityUsingDetail; RecordDetailPostHistory; RecordDetailPreHistory; TxnRev_Add; TxnRev_Change; TxnRev_Delete; TxnRev_SaveUnreversedValues; Validate; Validate_User; ValidateDecimalScale; "
+    },
+    "fields": [
+      {
+        "Name": "DataPointLayout",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "7273",
+        "{customAttribute}FieldId": "11746",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "DataPointLayout"
+      },
+      {
+        "Name": "OverrideDataPointLimits",
+        "Type": "Edm.Boolean",
+        "{customAttribute}CdoId": "7273",
+        "{customAttribute}FieldId": "11747",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Generic Boolean"
+      },
+      {
+        "Name": "DataPointDetails",
+        "Type": "Collection(shopfloor.DataPointDetails)",
+        "{customAttribute}CdoId": "7273",
+        "{customAttribute}FieldId": "10620",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The DataPoints collected."
+      }
+    ]
+  },
+  "DataPointDetails": {
+    "attributes": {
+      "Name": "DataPointDetails",
+      "BaseType": "shopfloor.ParametricData",
+      "{customAttribute}EventList": "_DeleteMe; AccumulateSummaryHistoryData; AddHistoryDetail; EvaluateUpperLowerLimits; Execute; Execute_User; GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; LiveConnect_Initialize; LoadDetails; LoadDetails_Specific; LoadDetails_User; ModifyEntityUsingDetail; RecordDetailPostHistory; RecordDetailPreHistory; TxnRev_Add; TxnRev_Change; TxnRev_Delete; TxnRev_SaveUnreversedValues; UpdateBooleanDatapointHistory; Validate; Validate_User; ValidateBoolean; "
+    },
+    "fields": [
+      {
+        "Name": "AttributeName",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "17226",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "A unique name for an attribute of a object."
+      },
+      {
+        "Name": "BooleanFalse",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "26285",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The BooleanFalse pulled from the DataPoint."
+      },
+      {
+        "Name": "BooleanTrue",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "26284",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The BooleanTrue pulled from the DataPoint."
+      },
+      {
+        "Name": "BooleanValue",
+        "Type": "Edm.Boolean",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10606",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "DataValue as Boolean."
+      },
+      {
+        "Name": "ColumnPosition",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10756",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "Used to determine the display order in the UI."
+      },
+      {
+        "Name": "Comments",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10612",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Notes/Comments"
+      },
+      {
+        "Name": "DataName",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10602",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The name pulled from the DataPoint."
+      },
+      {
+        "Name": "DataPoint",
+        "Type": "shopfloor.NamedSubentityRef",
+        "Nullable": "false",
+        "{customAttribute}OriginalType": "DataPoint",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10601",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "Required",
+        "{customAttribute}Annotations": "A single data item to be collected for a DataPointCollectionDef."
+      },
+      {
+        "Name": "DataPointName",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "28581",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The type used to retrieve the Data Point Name, providing a simplified approach for the User Data Collection Definition API"
+      },
+      {
+        "Name": "DataType",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10613",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The DataType pulled from the DataPoint.\r\n"
+      },
+      {
+        "Name": "DataValue",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10603",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The actual value collected as a string.  This value is coerced to the value fields for the other data types."
+      },
+      {
+        "Name": "DecimalScale",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "27393",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Decimal Scale"
+      },
+      {
+        "Name": "DecimalValue",
+        "Type": "Edm.Decimal",
+        "Scale": "Variable",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10607",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "DataValue as Decimal."
+      },
+      {
+        "Name": "DisplayLimits",
+        "Type": "Edm.Boolean",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10691",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The DisplayLimits pulled from the DataPoint."
+      },
+      {
+        "Name": "DisplayMode",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "11703",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "Identifies the type of the Control Display Mode\r\n1 = DropDown\r\n2 = PickList\r\n4 = None"
+      },
+      {
+        "Name": "EnumerationValue",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "11706",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "Enumeration"
+      },
+      {
+        "Name": "FixedValue",
+        "Type": "Edm.Double",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10608",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "DataValue as Fixed."
+      },
+      {
+        "Name": "FloatValue",
+        "Type": "Edm.Single",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10609",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "DataValue as Float."
+      },
+      {
+        "Name": "IntegerValue",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10610",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "DataValue as Integer."
+      },
+      {
+        "Name": "IsLimitOverride",
+        "Type": "Edm.Boolean",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10604",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Identifies whether the upper/lower limit validations were overridden."
+      },
+      {
+        "Name": "IsLimitOverrideAllowed",
+        "Type": "Edm.Boolean",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10618",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The IsLimitOverrideAllowed pulled from the DataPoint."
+      },
+      {
+        "Name": "IsLimitViolation",
+        "Type": "Edm.Boolean",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10605",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "Identifies whether the DataValue is outside of the limits for the DataPoint.  This is set regardless of whether the IsLimitOverride is set or not."
+      },
+      {
+        "Name": "IsRequired",
+        "Type": "Edm.Boolean",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10616",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The IsRequired pulled from the DataPoint."
+      },
+      {
+        "Name": "LowerLimit",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10614",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The LowerLimit pulled from the DataPoint."
+      },
+      {
+        "Name": "MapToUserAttribute",
+        "Type": "Edm.Boolean",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "17227",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Controls whether the data point value is mapped to a user attribute"
+      },
+      {
+        "Name": "NDOValue",
+        "Type": "shopfloor.NamedObjectRef",
+        "{customAttribute}OriginalType": "NamedDataObject",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "11704",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Factory modeling objects that can be uniquely identified by name."
+      },
+      {
+        "Name": "ObjectRefType",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10706",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "Identifies the type of object for the Data Point Collection Def\r\n1 = NDO\r\n2 = RDO\r\n5 = Enumeration\r\n\r\nThis is for use by the Web client to determine what type of control to use for the DataValue for object types."
+      },
+      {
+        "Name": "ObjectValueCDOType",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10707",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The name of the ObjectType identified in the Object Data Point.  This is for use by the Web client to put a caption on the DataValue field for object data types."
+      },
+      {
+        "Name": "OriginalValue",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "27396",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Original Value"
+      },
+      {
+        "Name": "PersLowerLimit",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "27394",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Lower Limit"
+      },
+      {
+        "Name": "PersUpperLimit",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "27395",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Upper Limit"
+      },
+      {
+        "Name": "RDOValue",
+        "Type": "shopfloor.RevisionedObjectRef",
+        "{customAttribute}OriginalType": "RevisionedObject",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "11705",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Attributes that are common to all CDOs that include revision control (for instances). There are two CDO Definitions for each; a Base Entity and a Revision Entity."
+      },
+      {
+        "Name": "RoundingRule",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "27724",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "1 = Round Down (Floor)\r\n2 = Round Up (Ceiling)\r\n3 = Round to Nearest"
+      },
+      {
+        "Name": "RowPosition",
+        "Type": "Edm.Int32",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10755",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "Used to determine the display order in the UI."
+      },
+      {
+        "Name": "TimestampValue",
+        "Type": "Edm.DateTimeOffset",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10611",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "DataValue as Timestamp."
+      },
+      {
+        "Name": "UOM",
+        "Type": "shopfloor.NamedObjectRef",
+        "{customAttribute}OriginalType": "UOM",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10617",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The UOM pulled from the DataPoint."
+      },
+      {
+        "Name": "UpperLimit",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "10615",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The UpperLimit pulled from the DataPoint."
+      },
+      {
+        "Name": "ValidateResource",
+        "Type": "Edm.Boolean",
+        "{customAttribute}CdoId": "7276",
+        "{customAttribute}FieldId": "29034",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Generic Boolean"
+      }
+    ]
+  },
+  "DPCollection": {
+    "attributes": {
+      "Name": "DPCollection",
+      "BaseType": "shopfloor.ParametricData",
+      "{customAttribute}EventList": "_DeleteMe; AccumulateSummaryHistoryData; AddHistoryDetail; Execute; Execute_User; GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; LiveConnect_Initialize; LoadDetails; LoadDetails_Specific; LoadDetails_User; ModifyEntityUsingDetail; RecordDetailPostHistory; RecordDetailPreHistory; TxnRev_Add; TxnRev_Change; TxnRev_Delete; TxnRev_SaveUnreversedValues; Validate; Validate_User; "
+    },
+    "fields": [
+      {
+        "Name": "DPCollectionGroups",
+        "Type": "Collection(shopfloor.DPCollectionGroupDetail)",
+        "{customAttribute}CdoId": "8373",
+        "{customAttribute}FieldId": "20964",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Group(s) of data points to be collected "
+      }
+    ]
+  }
+}

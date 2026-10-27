@@ -1,0 +1,58 @@
+{
+  "created_at_utc": "2026-10-25T13:06:04.166774+00:00",
+  "environment": "https://172.31.61.144/Modeling",
+  "names": {
+    "component": "CDX-T05-BULK-STOP-COMP",
+    "target": "CDX-T05-BULK-STOP-TARGET",
+    "source_order": "CDX-T05-BULK-STOP-SRC-MO",
+    "target_order": "CDX-T05-BULK-STOP-DST-MO",
+    "source": "CDX-T05-BULK-STOP-SRC",
+    "destination": "CDX-T05-BULK-STOP-DST"
+  },
+  "count": 6,
+  "issue_control": 2,
+  "source_quantity": 3,
+  "destination_quantity": 1,
+  "material_quantity": 2,
+  "level": "BOX",
+  "owner": "OWNER",
+  "start_reason": "STARTREASON",
+  "product_revision": "1",
+  "unit": "EACH",
+  "workflow": {
+    "name": "WF",
+    "revision": "A"
+  },
+  "material": {
+    "name": "T05-BULK",
+    "product": {
+      "name": "CDX-T05-BULK-STOP-COMP",
+      "revision": "1"
+    },
+    "qtyRequired": 2,
+    "qty2Required": 0,
+    "issueControl": 2,
+    "UOM": {
+      "name": "EACH"
+    }
+  },
+  "attempts": [
+    {
+      "kind": "Product",
+      "name": "CDX-T05-BULK-STOP-COMP",
+      "arguments": {
+        "name": "CDX-T05-BULK-STOP-COMP",
+        "revision": "1",
+        "product_type_name": "PT",
+        "status": 1,
+        "description": "TEST DATA ONLY: isolated mode-2 source preview; not production.",
+        "body_json": "{\"StdStartUOM\": {\"name\": \"EACH\"}, \"workflow\": {\"name\": \"WF\", \"revision\": \"A\"}}"
+      },
+      "state": "unknown_or_failed",
+      "error": "TimeoutError('Unknown creation result')"
+    }
+  ],
+  "state": "stopped_without_retry",
+  "numbering": "explicit names, autoNumber=false",
+  "component_issue_submitted": false
+}

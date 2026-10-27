@@ -1,0 +1,242 @@
+{
+  "checked_at": "2026-10-23T09:40:40.297066+08:00",
+  "method": "Modeling GET + fixed read-only Query inquiry; no Shopfloor writes",
+  "definition": {
+    "source": "UserDataCollectionDefs",
+    "definition": {
+      "@odata.context": "https://172.18.203.238/Modeling/api/$metadata#UserDataCollectionDefs(DataPoints())/$entity",
+      "DataPointLayout": null,
+      "DisplayLimits": null,
+      "IsRevOfRcd": null,
+      "Name": "SPCTesterPageUDC",
+      "ParametricDataDef": null,
+      "ParametricDataDefType": null,
+      "UseRor": false,
+      "IsFrozen": null,
+      "isScaleEnabled": null,
+      "ParametricDataControl": null,
+      "AssociatedPackages": null,
+      "CanChangeRevOfRcd": null,
+      "Description": null,
+      "ECO": null,
+      "FilterTags": null,
+      "IconId": null,
+      "InstanceID": "001c618000000001",
+      "InstanceLocked": null,
+      "isAttachImage": null,
+      "Notes": null,
+      "ReplaceDetails": null,
+      "ReplaceDetailsSubentityListNames": null,
+      "Revision": "1",
+      "SkipSubentityListsToSequence": null,
+      "Status": null,
+      "DisplayName": null,
+      "Base": null,
+      "DataPoints-Expanded": [],
+      "ObjectToChange": null,
+      "SPCChartDefEntries": [],
+      "SPCChartDefEntries-Expanded": [],
+      "SPCChartDefGroup": null,
+      "SPCChartDefGroupProxy": null,
+      "WebPart": null,
+      "AttachDocumentDetails-Expanded": []
+    },
+    "complete": true,
+    "note": "仅静态定义；未验证当前事务动态必填、权限或质量判定。null/缺失约束为未知，不推断无限制。",
+    "warnings": [],
+    "page": {
+      "offset": 0,
+      "limit": 50,
+      "available_count": 1,
+      "server_total_known": true,
+      "next_offset": null
+    },
+    "raw_items": [
+      {
+        "@odata.type": "#modeling.ValueDataPointChanges",
+        "DisplayName": null,
+        "InstanceID": "001c678000000001",
+        "IsFrozen": false,
+        "Name": "Thickness",
+        "ParentName": null,
+        "PhantomQueryName": null,
+        "QueryName1": null,
+        "TypeName": null,
+        "ColumnPosition": 1,
+        "DataType": 3,
+        "DecimalScale": null,
+        "IsRequired": false,
+        "RoundingRule": null,
+        "RowPosition": 1,
+        "AttributeName": null,
+        "BooleanFalse": null,
+        "BooleanTrue": null,
+        "DisplayLimits": false,
+        "IsLimitOverrideAllowed": true,
+        "LowerLimit": null,
+        "MapToUserAttribute": false,
+        "UpperLimit": null,
+        "ListItemToChange": null,
+        "ObjectToChange": null,
+        "Parent": null,
+        "UOM": null
+      }
+    ],
+    "points": [
+      {
+        "name": "Thickness",
+        "data_type": {
+          "raw": 3,
+          "label": "Fixed"
+        },
+        "required": false,
+        "uom": null,
+        "lower_limit": null,
+        "upper_limit": null,
+        "unknown_constraints": [
+          "UOM",
+          "LowerLimit",
+          "UpperLimit"
+        ],
+        "allowed_values": {
+          "status": "unknown",
+          "note": "未验证统一枚举选值契约；不根据数字类型猜测。"
+        }
+      }
+    ],
+    "constraints_complete": false
+  },
+  "container": {
+    "complete": false,
+    "source": "Query/ContainerInfoInquiry -> Specs/TxnMap -> DataCollectionDefs",
+    "note": "仅静态定义；未验证当前事务动态必填、权限或质量判定。null/缺失约束为未知，不推断无限制。",
+    "dynamic_requirements_verified": false,
+    "mappings": [],
+    "warnings": [],
+    "status": "current_spec_unknown",
+    "error": "容器查询未返回当前 Spec，无法确认工序采集要求。"
+  },
+  "metadata_status": 200,
+  "metadata_sha256": "e38ff87dafe59277715af6cc93fae1b0f488c1e4ead2092a14caac7f6cb04fe9",
+  "metadata_types": {
+    "DataPoint": {
+      "base": null,
+      "fields": {}
+    },
+    "TxnMap": {
+      "base": null,
+      "fields": {}
+    },
+    "DataPointCollectionGroup": {
+      "base": "modeling.NamedSubentity",
+      "fields": {
+        "GroupLayout": {
+          "type": "Edm.Int32",
+          "kind": "Property"
+        },
+        "LastEnteredBy": {
+          "type": "modeling.NamedObjectRef",
+          "kind": "Property"
+        },
+        "LastEnteredByRole": {
+          "type": "modeling.NamedObjectRef",
+          "kind": "Property"
+        },
+        "LastEnteredOn": {
+          "type": "Edm.DateTimeOffset",
+          "kind": "Property"
+        },
+        "LastEnteredOnGMT": {
+          "type": "Edm.DateTimeOffset",
+          "kind": "Property"
+        },
+        "MinimumSamples": {
+          "type": "Edm.Int32",
+          "kind": "Property"
+        },
+        "Sequence": {
+          "type": "Edm.Int32",
+          "kind": "Property"
+        },
+        "Points": {
+          "type": "Collection(modeling.DataPointCollectionPoint)",
+          "kind": "NavigationProperty"
+        }
+      }
+    },
+    "ValueDataPoint": {
+      "base": "modeling.DataPoint",
+      "fields": {
+        "AttributeName": {
+          "type": "Edm.String",
+          "kind": "Property"
+        },
+        "BooleanFalse": {
+          "type": "Edm.String",
+          "kind": "Property"
+        },
+        "BooleanTrue": {
+          "type": "Edm.String",
+          "kind": "Property"
+        },
+        "IsLimitOverrideAllowed": {
+          "type": "Edm.Boolean",
+          "kind": "Property"
+        },
+        "LowerLimit": {
+          "type": "Edm.String",
+          "kind": "Property"
+        },
+        "MapToUserAttribute": {
+          "type": "Edm.Boolean",
+          "kind": "Property"
+        },
+        "UOM": {
+          "type": "modeling.NamedObjectRef",
+          "kind": "Property"
+        },
+        "UpperLimit": {
+          "type": "Edm.String",
+          "kind": "Property"
+        }
+      }
+    },
+    "DataPointCollectionPoint": {
+      "base": "modeling.DataPoint",
+      "fields": {
+        "InnerLowerLimit": {
+          "type": "Edm.String",
+          "kind": "Property"
+        },
+        "InnerUpperLimit": {
+          "type": "Edm.String",
+          "kind": "Property"
+        },
+        "MinimumSamples": {
+          "type": "Edm.Int32",
+          "kind": "Property"
+        },
+        "OuterLowerLimit": {
+          "type": "Edm.String",
+          "kind": "Property"
+        },
+        "OuterUpperLimit": {
+          "type": "Edm.String",
+          "kind": "Property"
+        },
+        "Sequence": {
+          "type": "Edm.Int32",
+          "kind": "Property"
+        },
+        "UOM": {
+          "type": "modeling.NamedObjectRef",
+          "kind": "Property"
+        },
+        "Samples": {
+          "type": "Collection(modeling.DPCollectionPointSample)",
+          "kind": "NavigationProperty"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "source": "REST manual 2-23: POST /Modeling/api/Upload",
+  "method": "POST",
+  "attempt_count": 1,
+  "file": "CDX-T09-20261024-A.txt",
+  "http_status": 400,
+  "response": {
+    "ErrorCode": "400",
+    "Message": "A server error occurred.",
+    "Target": null,
+    "Details": [
+      {
+        "ErrorCode": "400",
+        "Message": "Upload folder doesn't exist",
+        "Target": null
+      }
+    ],
+    "InnerError": null,
+    "InstanceAnnotations": [],
+    "TypeAnnotation": null
+  }
+}

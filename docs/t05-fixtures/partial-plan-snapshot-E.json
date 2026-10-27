@@ -1,0 +1,284 @@
+{
+  "stored": {
+    "plan_id": "a020dd91fbd04188ac15bdfa75e5506b",
+    "plan_digest": "6b0897e487963d3a113e28288b3d375322290dd7242119f7d9acc4276fc10333",
+    "plan": {
+      "plan_id": "a020dd91fbd04188ac15bdfa75e5506b",
+      "marker": "Codex issue a020dd91fbd04188ac15bdfa75e5506b",
+      "snapshot": {
+        "environment": "https://172.22.154.174/Shopfloor",
+        "body": {
+          "container": {
+            "name": "CDX-T05-20261024-E-C01",
+            "instanceId": "00041080000000e6"
+          },
+          "preventOverIssue": true,
+          "serviceDetails": [
+            {
+              "bomLineItem": {
+                "name": "T05-QTY",
+                "instanceId": "001b7b8000000005",
+                "parent": {
+                  "instanceId": "0006548000000087"
+                }
+              },
+              "product": {
+                "name": "CDX-T05-20261024-E-COMP",
+                "instanceId": "00062c8000000085",
+                "revision": "1"
+              },
+              "issueControl": 5,
+              "uom": {
+                "name": "EACH",
+                "instanceId": "0008de8000000002"
+              },
+              "qtyRequired": 2.0,
+              "actualQtyIssued": 1,
+              "actualQty2Issued": 0,
+              "actuals": [
+                {
+                  "product": {
+                    "name": "CDX-T05-20261024-E-COMP",
+                    "instanceId": "00062c8000000085",
+                    "revision": "1"
+                  },
+                  "toContainer": {
+                    "name": "CDX-T05-20261024-E-C01",
+                    "instanceId": "00041080000000e6"
+                  },
+                  "qtyIssued": 1,
+                  "qty2Issued": 0,
+                  "issueDifferenceReason": {
+                    "name": "CDX-T05-20261024-E-PARTIAL",
+                    "instanceId": "0019c8800000001b"
+                  }
+                }
+              ],
+              "issueDifferenceReason": {
+                "name": "CDX-T05-20261024-E-PARTIAL",
+                "instanceId": "0019c8800000001b"
+              }
+            }
+          ]
+        },
+        "context": {
+          "Container": {
+            "InstanceId": "00041080000000e6",
+            "CDOTypeName": "Container",
+            "Name": "CDX-T05-20261024-E-C01"
+          },
+          "Product": {
+            "InstanceId": "00062c8000000086",
+            "CDOTypeName": "Product",
+            "Name": "CDX-T05-20261024-E-TARGET",
+            "Revision": "1"
+          },
+          "MfgOrder": {
+            "InstanceId": "0006548000000087",
+            "CDOTypeName": "MfgOrder",
+            "Name": "CDX-T05-20261024-E-MO"
+          },
+          "Spec": {
+            "InstanceId": "00071c800000001b",
+            "CDOTypeName": "Spec",
+            "Name": "SP-STAMPING-001",
+            "Revision": "A"
+          },
+          "Operation": {
+            "InstanceId": "00060e800000001b",
+            "CDOTypeName": "Operation",
+            "Name": "OP-STAMPING"
+          },
+          "Step": {
+            "InstanceId": "00074e800000001b",
+            "CDOTypeName": "SpecStep",
+            "Name": "SP-STAMPING-001",
+            "Parent": {
+              "@odata.type": "#inquiry.RevisionedObjectRef",
+              "InstanceId": "0005aa800000001b",
+              "CDOTypeName": "Workflow",
+              "Name": "WF-WM-900A",
+              "Revision": "A"
+            }
+          },
+          "UOM": {
+            "InstanceId": "0008de8000000002",
+            "CDOTypeName": "UOM",
+            "Name": "EACH"
+          },
+          "UOM2": null,
+          "Qty": 1.0,
+          "Qty2": null,
+          "Status": 1,
+          "InProcess": true,
+          "InRework": false,
+          "LastActivityDate": "2026-10-24T15:38:03",
+          "LastMoveDate": "2026-10-24T15:38:03",
+          "ContainerLevel": {
+            "InstanceId": "0005288000000003",
+            "CDOTypeName": "ContainerLevel",
+            "Name": "BOX"
+          }
+        },
+        "constraints": {
+          "@odata.type": "#inquiry.IssueDetailsQuantity",
+          "ActualQty2Issued": 0.0,
+          "ActualQtyIssued": 0.0,
+          "AdjustmentType": null,
+          "AdjustmentValue": null,
+          "AllowManualWeighOverride": false,
+          "AllowSubstitution": false,
+          "AssemblySequence": null,
+          "CloseWhenEmpty": false,
+          "Comments": null,
+          "IsManualReadingOnly": false,
+          "IsRecipeQtyEvaluated": true,
+          "IssueControl": 5,
+          "IssueControlName": "Quantity Only",
+          "NetQty2Required": 0.0,
+          "NetQtyRequired": 2.0,
+          "ProductDescription": "Codex isolated T05 acceptance fixture; no production use.",
+          "Qty2Issued": 0.0,
+          "Qty2Required": 0.0,
+          "QtyIssued": 0.0,
+          "QtyLowerLimit": null,
+          "QtyRequired": 2.0,
+          "QtyUpperLimit": null,
+          "RecipeQtyMessage": null,
+          "ReferenceDesignator": null,
+          "TaskQtyRequired": 2.0,
+          "ValidateQtyDifference": true,
+          "ValidSequence": false,
+          "BOMLineItem": {
+            "InstanceId": "001b7b8000000005",
+            "CDOTypeName": "MfgOrderMaterialListItem",
+            "Name": "T05-QTY",
+            "Parent": {
+              "@odata.type": "#inquiry.NamedObjectRef",
+              "InstanceId": "0006548000000087",
+              "CDOTypeName": "MfgOrder",
+              "Name": "CDX-T05-20261024-E-MO"
+            }
+          },
+          "IssueActualsHistory": [],
+          "IssueDifferenceReason": null,
+          "Product": {
+            "InstanceId": "00062c8000000085",
+            "CDOTypeName": "Product",
+            "Name": "CDX-T05-20261024-E-COMP",
+            "Revision": "1",
+            "UseROR": null
+          },
+          "ProductSubstitutes": [],
+          "RemovalHistoryDetails": [],
+          "UOM": {
+            "InstanceId": "0008de8000000002",
+            "CDOTypeName": "UOM",
+            "Name": "EACH"
+          },
+          "UOM2": null
+        },
+        "arguments": {
+          "container_name": "CDX-T05-20261024-E-C01",
+          "container_instance_id": "00041080000000e6",
+          "product_name": "CDX-T05-20261024-E-COMP",
+          "product_revision": "1",
+          "qty": 1,
+          "issue_difference_reason": "CDX-T05-20261024-E-PARTIAL"
+        },
+        "difference_reason": {
+          "Name": "CDX-T05-20261024-E-PARTIAL",
+          "InstanceId": "0019c8800000001b"
+        },
+        "marker": "Codex issue a020dd91fbd04188ac15bdfa75e5506b"
+      }
+    },
+    "state": "ready",
+    "expired": false,
+    "outcome": null
+  },
+  "echo_status": 200,
+  "echo": {
+    "@odata.context": "https://172.22.154.174/api/$metadata#ComponentIssue/$entity",
+    "value": "",
+    "data": {
+      "Container": {
+        "Name": "CDX-T05-20261024-E-C01",
+        "Level": {
+          "Name": "BOX"
+        },
+        "InstanceId": "00041080000000e6"
+      },
+      "PreventOverIssue": "true",
+      "ServiceDetails": [
+        {
+          "Parent": {
+            "InstanceId": "0019280000000010"
+          },
+          "InstanceId": "0019320000000012",
+          "BOMLineItem": {
+            "Name": "T05-QTY",
+            "Parent": {
+              "Name": "CDX-T05-20261024-E-MO",
+              "InstanceId": "0006548000000087"
+            },
+            "InstanceId": "001b7b8000000005"
+          },
+          "Product": {
+            "Name": "CDX-T05-20261024-E-COMP",
+            "Revision": "1",
+            "UseRor": "false",
+            "InstanceId": "00062c8000000085"
+          },
+          "IssueControl": "5",
+          "UOM": {
+            "Name": "EACH",
+            "InstanceId": "0008de8000000002"
+          },
+          "QtyRequired": "2",
+          "ActualQtyIssued": "1",
+          "ActualQty2Issued": "0",
+          "IssueDifferenceReason": {
+            "Name": "CDX-T05-20261024-E-PARTIAL",
+            "InstanceId": "0019c8800000001b"
+          },
+          "Actuals": [
+            {
+              "Parent": {
+                "Parent": {
+                  "InstanceId": "0019280000000010"
+                },
+                "InstanceId": "0019320000000012"
+              },
+              "InstanceId": "00193c000000000d",
+              "Product": {
+                "Name": "CDX-T05-20261024-E-COMP",
+                "Revision": "1",
+                "UseRor": "false",
+                "InstanceId": "00062c8000000085"
+              },
+              "QtyIssued": "1",
+              "Qty2Issued": "0",
+              "ToContainer": {
+                "Name": "CDX-T05-20261024-E-C01",
+                "Level": {
+                  "Name": "BOX"
+                },
+                "InstanceId": "00041080000000e6"
+              },
+              "CDOTypeId": "6460",
+              "IsAutoWeightEntry": "false",
+              "ManualOverride": "false",
+              "ProductDescription": "Codex isolated T05 acceptance fixture; no production use.",
+              "IssueDifferenceReason": {
+                "Name": "CDX-T05-20261024-E-PARTIAL",
+                "InstanceId": "0019c8800000001b"
+              },
+              "IsDeleted": "false"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

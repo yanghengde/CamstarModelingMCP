@@ -1,0 +1,100 @@
+{
+  "checked_at": "2026-10-22T06:48:39.281469+00:00",
+  "read_only": true,
+  "workflows": [
+    {
+      "name": "IMR Workflow",
+      "revision": "1",
+      "complete": true,
+      "error": null,
+      "step_count": 3,
+      "warnings": []
+    },
+    {
+      "name": "WF-WM-900A",
+      "revision": "A",
+      "complete": true,
+      "error": null,
+      "step_count": 6,
+      "warnings": []
+    },
+    {
+      "name": "WF-PACK-01",
+      "revision": "A",
+      "complete": true,
+      "error": null,
+      "step_count": 13,
+      "warnings": []
+    }
+  ],
+  "products": [
+    {
+      "name": "WM-900A",
+      "complete": true,
+      "error": null,
+      "spec_count": 6,
+      "operation_count": 6,
+      "warnings": []
+    },
+    {
+      "name": "PACK-1000",
+      "complete": true,
+      "error": null,
+      "spec_count": 13,
+      "operation_count": 13,
+      "warnings": []
+    },
+    {
+      "name": "MODULE-100",
+      "complete": false,
+      "error": "Workflows 引用未返回，不能推断关联对象。",
+      "spec_count": 0,
+      "operation_count": 0,
+      "warnings": []
+    },
+    {
+      "name": "CELL-50",
+      "complete": false,
+      "error": "Workflows 引用未返回，不能推断关联对象。",
+      "spec_count": 0,
+      "operation_count": 0,
+      "warnings": []
+    }
+  ],
+  "history": [
+    {
+      "container": "BOX-0001",
+      "page_counts": [
+        2,
+        2
+      ],
+      "combined_count": 4,
+      "nonempty_continuity_verified": true,
+      "note": "三次查询非事务快照；并发新增历史可能改变排序。",
+      "errors": []
+    }
+  ],
+  "order_execution": [
+    {
+      "name": "MO-100076435",
+      "status": "procedure_not_configured",
+      "nonempty_success_verified": false,
+      "complete": false,
+      "error": {
+        "ErrorCode": "16780524",
+        "Message": "A server error occurred.",
+        "Target": null,
+        "Details": [
+          {
+            "ErrorCode": "16780524",
+            "Message": "Mfg Order 'MO-100076435' does not use a pre or post production procedure.",
+            "Target": null
+          }
+        ],
+        "InnerError": null,
+        "InstanceAnnotations": [],
+        "TypeAnnotation": null
+      }
+    }
+  ]
+}

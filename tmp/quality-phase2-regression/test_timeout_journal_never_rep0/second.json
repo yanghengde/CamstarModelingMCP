@@ -1,0 +1,12 @@
+{
+  "execute": true,
+  "request_sent": false,
+  "retry_allowed": false,
+  "transaction_verified": false,
+  "service_accepted": false,
+  "serialization_verified": false,
+  "state": "not_submitted",
+  "environment": "https://172.31.61.144/Shopfloor",
+  "marker": "Codex T05 Actuals d127ab26a66d444c9b53afdbe4764e34",
+  "error": "ValueError: Execution journal exists; do not replay the experiment."
+}

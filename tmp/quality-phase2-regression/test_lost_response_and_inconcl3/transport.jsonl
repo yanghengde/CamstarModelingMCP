@@ -1,0 +1,9 @@
+{"stage": "execute_accepted", "marker": "Codex issue 8339d7f9ec0b42abb4c9b7fc7365aca4", "qty": 2}
+{"stage": "receipt_read", "table": "HistoryMainline"}
+{"stage": "receipt_read", "table": "IssueHistoryDetail"}
+{"stage": "receipt_read", "table": "ComponentIssueHistory"}
+{"stage": "receipt_read", "table": "IssueActualsHistory"}
+{"stage": "receipt_read", "table": "HistoryMainline"}
+{"stage": "receipt_read", "table": "IssueHistoryDetail"}
+{"stage": "receipt_read", "table": "ComponentIssueHistory"}
+{"stage": "receipt_read", "table": "IssueActualsHistory"}

@@ -1,0 +1,116 @@
+{
+  "checked_date": "2026-10-26",
+  "mes_business_writes": false,
+  "probes": [
+    {
+      "kind": "aql_level",
+      "api": "modeling",
+      "method": "GET",
+      "entity": "AQLLevels",
+      "params": {
+        "$top": 2,
+        "$select": "InstanceID,Name,Description,IsFrozen,SampleSizeDetails",
+        "$expand": "SampleSizeDetails"
+      },
+      "status": 200,
+      "response": {
+        "@odata.context": "https://172.31.61.144/Modeling/api/$metadata#AQLLevels(InstanceID,Name,Description,IsFrozen,SampleSizeDetails,SampleSizeDetails())",
+        "value": []
+      }
+    },
+    {
+      "query": "SELECT AQLLevelId,ChangeCount FROM AQLLevel WHERE AQLLevelId='0000000000000000'",
+      "query_valid": true,
+      "rows": []
+    },
+    {
+      "kind": "inspection_level",
+      "api": "modeling",
+      "method": "GET",
+      "entity": "InspectionLevels",
+      "params": {
+        "$top": 2,
+        "$select": "InstanceID,Name,Description,IsFrozen,LotSizeDetails",
+        "$expand": "LotSizeDetails"
+      },
+      "status": 200,
+      "response": {
+        "@odata.context": "https://172.31.61.144/Modeling/api/$metadata#InspectionLevels(InstanceID,Name,Description,IsFrozen,LotSizeDetails,LotSizeDetails())",
+        "value": []
+      }
+    },
+    {
+      "query": "SELECT InspectionLevelId,ChangeCount FROM InspectionLevel WHERE InspectionLevelId='0000000000000000'",
+      "query_valid": true,
+      "rows": []
+    }
+  ],
+  "nonempty_target_found": false,
+  "string_storage_limits": [
+    {
+      "TABLE_NAME": "AQLLevel",
+      "COLUMN_NAME": "AQLLevelName",
+      "CHARACTER_MAXIMUM_LENGTH": "30"
+    },
+    {
+      "TABLE_NAME": "AQLLevel",
+      "COLUMN_NAME": "Description",
+      "CHARACTER_MAXIMUM_LENGTH": "255"
+    },
+    {
+      "TABLE_NAME": "AQLLevel",
+      "COLUMN_NAME": "FilterTags",
+      "CHARACTER_MAXIMUM_LENGTH": "-1"
+    },
+    {
+      "TABLE_NAME": "AQLLevel",
+      "COLUMN_NAME": "Notes",
+      "CHARACTER_MAXIMUM_LENGTH": "2000"
+    },
+    {
+      "TABLE_NAME": "InspectionLevel",
+      "COLUMN_NAME": "Description",
+      "CHARACTER_MAXIMUM_LENGTH": "255"
+    },
+    {
+      "TABLE_NAME": "InspectionLevel",
+      "COLUMN_NAME": "FilterTags",
+      "CHARACTER_MAXIMUM_LENGTH": "-1"
+    },
+    {
+      "TABLE_NAME": "InspectionLevel",
+      "COLUMN_NAME": "InspectionLevelName",
+      "CHARACTER_MAXIMUM_LENGTH": "30"
+    },
+    {
+      "TABLE_NAME": "InspectionLevel",
+      "COLUMN_NAME": "Notes",
+      "CHARACTER_MAXIMUM_LENGTH": "2000"
+    },
+    {
+      "TABLE_NAME": "LotSizeDetails",
+      "COLUMN_NAME": "ExportImportKey",
+      "CHARACTER_MAXIMUM_LENGTH": "36"
+    },
+    {
+      "TABLE_NAME": "LotSizeDetails",
+      "COLUMN_NAME": "SampleSizeCode",
+      "CHARACTER_MAXIMUM_LENGTH": "30"
+    },
+    {
+      "TABLE_NAME": "SampleSizeDetails",
+      "COLUMN_NAME": "ExportImportKey",
+      "CHARACTER_MAXIMUM_LENGTH": "36"
+    },
+    {
+      "TABLE_NAME": "SampleSizeDetails",
+      "COLUMN_NAME": "SampleSize",
+      "CHARACTER_MAXIMUM_LENGTH": "30"
+    },
+    {
+      "TABLE_NAME": "SampleSizeDetails",
+      "COLUMN_NAME": "SampleSizeCode",
+      "CHARACTER_MAXIMUM_LENGTH": "30"
+    }
+  ]
+}

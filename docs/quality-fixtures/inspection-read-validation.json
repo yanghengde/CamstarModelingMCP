@@ -1,0 +1,100 @@
+{
+  "mes_writes": false,
+  "service_restarted": false,
+  "tasks": {
+    "container": {
+      "name": "SN0000001",
+      "instanceId": "0004108000000052"
+    },
+    "status": {
+      "ContainerId": "0004108000000052",
+      "ContainerName": "SN0000001",
+      "Status": 1,
+      "CurrentHoldCount": null,
+      "InQualityControl": "0",
+      "SamplingRequired": false,
+      "SamplingPassed": false,
+      "SamplingLotId": "",
+      "Qty": "1",
+      "ChangeCount": 1
+    },
+    "tasks": [],
+    "page_complete": true,
+    "complete": true,
+    "has_more": false,
+    "next_offset": null,
+    "quality_verdict": null,
+    "release_authorized": false,
+    "scope": "current persisted container sampling tasks; not all process tasks"
+  },
+  "history": {
+    "container": {
+      "name": "SN0000001",
+      "instanceId": "0004108000000052"
+    },
+    "rows": [],
+    "page_complete": true,
+    "complete": false,
+    "has_more": false,
+    "next_offset": null,
+    "verified_success": false,
+    "state_changed": false,
+    "quantity_semantics": "raw MES history fields; not submission deltas"
+  },
+  "container_status_field_names": [
+    "InstanceID",
+    "ContainerLevelName",
+    "ContainerName",
+    "InProcess",
+    "InRework",
+    "LastActivityDate",
+    "LastMoveDate",
+    "NextOperation",
+    "OperationName",
+    "OriginalStartDate",
+    "ProductDescription",
+    "ProductIsRevOfRcd",
+    "ProductName",
+    "ProductRev",
+    "Qty",
+    "QtyOperator",
+    "Specification",
+    "SpecIsRevOfRcd",
+    "SpecRevision",
+    "Status",
+    "StatusName",
+    "StepName",
+    "WorkflowIsRevOfRcd",
+    "WorkflowRev",
+    "ContainerStatus",
+    "MfgOrderName",
+    "OwnerName",
+    "StartReasonName",
+    "Container",
+    "ContainerLevel",
+    "MfgOrder",
+    "Operation",
+    "Owner",
+    "Product",
+    "Spec",
+    "StartReason",
+    "Step",
+    "Workflow"
+  ],
+  "preview_syntax_probes": [
+    {
+      "expand": "ServiceDetails($expand=SamplingDataPointDetails)",
+      "response": "❌ HTTP 400 Error\nURL: https://172.31.61.144/Shopfloor/api/CollectSamplingData\nResponse: {\"ErrorCode\":\"2424857\",\"Message\":\"A server error occurred.\",\"Target\":null,\"Details\":[{\"ErrorCode\":\"2424857\",\"Message\":\"Evaluation error: field \\u0027Name\\u0027 cannot be accessed through null object reference at CDO \\u0027CollectSamplingData\\u0027 in expression \\u0027Container, SampleTest.Name\\u0027\",\"Target\":null}],\"InnerError\":null,\"InstanceAnnotations\":[],\"TypeAnnotation\":null}"
+    },
+    {
+      "expand": "ServiceDetails,ServiceDetails.SamplingDataPointDetails",
+      "response": "❌ HTTP 400 Error\nURL: https://172.31.61.144/Shopfloor/api/CollectSamplingData\nResponse: {\"error\":{\"code\":\"\",\"message\":\"The query specified in the URI is not valid. Could not find a property named 'ServiceDetails.SamplingDataPointDetails' on type 'shopfloor.CollectSamplingData'.\",\"details\":[],\"innererror\":{\"message\":\"Could not find a property named 'ServiceDetails.SamplingDataPointDetails' on type 'shopfloor.CollectSamplingData'.\",\"type\":\"Microsoft.OData.ODataException\",\"stacktrace\":\"   at Microsoft.OData.UriParser.SelectExpandBinder.GenerateExpandItem(ExpandTermToken tokenIn)\\r\\n   at System.Linq.Enumerable.IEnumerableSelectIterator`2.MoveNext()\\r\\n   at System.Linq.Enumerable.IEnumerableWhereIterator`1.MoveNext()\\r\\n   at System.Collections.Generic.List`1.AddRange(IEnumerable`1 collection)\\r\\n   at Microsoft.OData.UriParser.SelectExpandBinder.Bind(ExpandToken expandToken, SelectToken selectToken)\\r\\n   at Microsoft.OData.UriParser.SelectExpandSemanticBinder.Bind(ODataPathInfo odataPathInfo, ExpandToken expandToken, SelectToken selectToken, ODataUriParserConfiguration configuration, BindingState state)\\r\\n   at Microsoft.OData.UriParser.ODataQueryOptionParser.ParseSelectAndExpandImplementation(String select, String expand, ODataUriParserConfiguration configuration, ODataPathInfo odataPathInfo)\\r\\n   at Microsoft.OData.UriParser.ODataQueryOptionParser.ParseSelectAndExpand()\\r\\n   at Microsoft.AspNetCore.OData.Query.SelectExpandQueryOption.get_SelectExpandClause()\\r\\n   at Microsoft.AspNetCore.OData.Query.Validator.SelectExpandQueryValidator.Validate(SelectExpandQueryOption selectExpandQueryOption, ODataValidationSettings validationSettings)\\r\\n   at Microsoft.AspNetCore.OData.Query.SelectExpandQueryOption.Validate(ODataValidationSettings validationSettings)\\r\\n   at Microsoft.AspNetCore.OData.Query.Validator.ODataQueryValidator.Validate(ODataQueryOptions options, ODataValidationSettings validationSettings)\\r\\n   at Microsoft.AspNetCore.OData.Query.ODataQueryOptions.Validate(ODataValidationSettings validationSettings)\\r\\n   at Microsoft.AspNetCore.OData."
+    }
+  ],
+  "quality_tool_count": 25,
+  "all_quality_tools_registered": true,
+  "complete_target_preview_verified": false,
+  "nonempty_data_verified": false,
+  "no_executable_live_plan_created": true,
+  "note": "The empty-target execute=false probe failed because SampleTest was absent. It does not verify target execution or final quality results."
+}

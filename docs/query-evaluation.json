@@ -1,0 +1,1264 @@
+{
+  "created_utc": "2026-10-22T13:40:57.321093+00:00",
+  "rounds": 3,
+  "method": {
+    "service": "fixed read-only calls; scoped success is not full-history completeness",
+    "connection": "new_connection closes local HTTP pool; reused_connection follows immediately; server caches uncontrolled",
+    "model": "synthetic completed-turn boundaries, no business answers; intent replay, not end-to-end dialogue; selected/all order alternates; tool calls never executed",
+    "cache": "provider usage retained when returned; no claim to force cold/warm model or database caches"
+  },
+  "routing": [
+    {
+      "case": "long_followup",
+      "prompts": [
+        "查询容器 BOX-0001",
+        "当前状态呢",
+        "再查历史",
+        "继续",
+        "再查历史"
+      ],
+      "expected": "get_container_history",
+      "passed": true,
+      "unexpected_tools": [],
+      "available_tool_count": 124,
+      "selected_tool_count": 7,
+      "tool_schema_chars": 5519,
+      "selected_tools": [
+        "request_container_start_selection_values",
+        "get_container_details",
+        "get_container_history",
+        "load_tool_group",
+        "get_container_trace",
+        "get_container_genealogy",
+        "get_mcp_server_status"
+      ]
+    },
+    {
+      "case": "switch_to_order",
+      "prompts": [
+        "创建一个产品",
+        "查询工单 MO-100076435 的现场容器进度"
+      ],
+      "expected": "get_mfgorder_progress",
+      "passed": true,
+      "unexpected_tools": [],
+      "available_tool_count": 124,
+      "selected_tool_count": 14,
+      "tool_schema_chars": 9841,
+      "selected_tools": [
+        "list_mfgorders",
+        "get_mfgorder",
+        "get_mfgorders_count",
+        "request_mfgorder_selection_values",
+        "request_container_start_selection_values",
+        "get_mfgorder_details",
+        "get_container_details",
+        "get_container_history",
+        "get_mfgorder_execution",
+        "load_tool_group",
+        "get_container_trace",
+        "get_container_genealogy",
+        "get_mfgorder_progress",
+        "get_mcp_server_status"
+      ]
+    },
+    {
+      "case": "switch_to_product",
+      "prompts": [
+        "追溯容器 BOX-0001",
+        "查询产品 InstanceID 00062c8000000002 的完整工艺链"
+      ],
+      "expected": "get_product_process",
+      "passed": true,
+      "unexpected_tools": [],
+      "available_tool_count": 124,
+      "selected_tool_count": 25,
+      "tool_schema_chars": 14979,
+      "selected_tools": [
+        "list_specs",
+        "get_spec",
+        "get_specs_count",
+        "request_selection_values",
+        "list_operations",
+        "get_operation",
+        "get_operations_count",
+        "request_operation_selection_values",
+        "list_workflows",
+        "get_workflow",
+        "get_workflows_count",
+        "request_workflow_selection_values",
+        "list_workflow_steps",
+        "get_workflow_step",
+        "list_products",
+        "get_product",
+        "get_products_count",
+        "request_product_selection_values",
+        "get_spec_details",
+        "get_product_details",
+        "get_operation_details",
+        "load_tool_group",
+        "get_workflow_structure",
+        "get_product_process",
+        "get_mcp_server_status"
+      ]
+    },
+    {
+      "case": "read_rework",
+      "prompts": [
+        "创建一个工单",
+        "查询容器 BOX-0001 的返工关联历史"
+      ],
+      "expected": "get_container_trace",
+      "passed": true,
+      "unexpected_tools": [],
+      "available_tool_count": 124,
+      "selected_tool_count": 7,
+      "tool_schema_chars": 5519,
+      "selected_tools": [
+        "request_container_start_selection_values",
+        "get_container_details",
+        "get_container_history",
+        "load_tool_group",
+        "get_container_trace",
+        "get_container_genealogy",
+        "get_mcp_server_status"
+      ]
+    }
+  ],
+  "services": [
+    {
+      "case": "container",
+      "samples": [
+        {
+          "round": 1,
+          "mode": "new_connection",
+          "success": true,
+          "scope": {
+            "complete": true
+          },
+          "has_error": false,
+          "seconds": 0.2557
+        },
+        {
+          "round": 1,
+          "mode": "reused_connection",
+          "success": true,
+          "scope": {
+            "complete": true
+          },
+          "has_error": false,
+          "seconds": 0.0264
+        },
+        {
+          "round": 2,
+          "mode": "new_connection",
+          "success": true,
+          "scope": {
+            "complete": true
+          },
+          "has_error": false,
+          "seconds": 0.0307
+        },
+        {
+          "round": 2,
+          "mode": "reused_connection",
+          "success": true,
+          "scope": {
+            "complete": true
+          },
+          "has_error": false,
+          "seconds": 0.0249
+        },
+        {
+          "round": 3,
+          "mode": "new_connection",
+          "success": true,
+          "scope": {
+            "complete": true
+          },
+          "has_error": false,
+          "seconds": 0.0317
+        },
+        {
+          "round": 3,
+          "mode": "reused_connection",
+          "success": true,
+          "scope": {
+            "complete": true
+          },
+          "has_error": false,
+          "seconds": 0.0285
+        }
+      ],
+      "summary": {
+        "new_connection": {
+          "count": 3,
+          "success_count": 3,
+          "median_seconds": 0.0317,
+          "p95_seconds": 0.2557,
+          "p95_method": "nearest-rank; small samples are descriptive only"
+        },
+        "reused_connection": {
+          "count": 3,
+          "success_count": 3,
+          "median_seconds": 0.0264,
+          "p95_seconds": 0.0285,
+          "p95_method": "nearest-rank; small samples are descriptive only"
+        }
+      }
+    },
+    {
+      "case": "trace",
+      "samples": [
+        {
+          "round": 1,
+          "mode": "new_connection",
+          "success": true,
+          "scope": {
+            "complete": false,
+            "requested_sections_complete": true
+          },
+          "has_error": false,
+          "seconds": 0.198
+        },
+        {
+          "round": 1,
+          "mode": "reused_connection",
+          "success": true,
+          "scope": {
+            "complete": false,
+            "requested_sections_complete": true
+          },
+          "has_error": false,
+          "seconds": 0.1028
+        },
+        {
+          "round": 2,
+          "mode": "new_connection",
+          "success": true,
+          "scope": {
+            "complete": false,
+            "requested_sections_complete": true
+          },
+          "has_error": false,
+          "seconds": 0.0972
+        },
+        {
+          "round": 2,
+          "mode": "reused_connection",
+          "success": true,
+          "scope": {
+            "complete": false,
+            "requested_sections_complete": true
+          },
+          "has_error": false,
+          "seconds": 0.0925
+        },
+        {
+          "round": 3,
+          "mode": "new_connection",
+          "success": true,
+          "scope": {
+            "complete": false,
+            "requested_sections_complete": true
+          },
+          "has_error": false,
+          "seconds": 0.1159
+        },
+        {
+          "round": 3,
+          "mode": "reused_connection",
+          "success": true,
+          "scope": {
+            "complete": false,
+            "requested_sections_complete": true
+          },
+          "has_error": false,
+          "seconds": 0.1379
+        }
+      ],
+      "summary": {
+        "new_connection": {
+          "count": 3,
+          "success_count": 3,
+          "median_seconds": 0.1159,
+          "p95_seconds": 0.198,
+          "p95_method": "nearest-rank; small samples are descriptive only"
+        },
+        "reused_connection": {
+          "count": 3,
+          "success_count": 3,
+          "median_seconds": 0.1028,
+          "p95_seconds": 0.1379,
+          "p95_method": "nearest-rank; small samples are descriptive only"
+        }
+      }
+    },
+    {
+      "case": "product",
+      "samples": [
+        {
+          "round": 1,
+          "mode": "new_connection",
+          "success": true,
+          "scope": {
+            "complete": true
+          },
+          "has_error": false,
+          "seconds": 2.6909
+        },
+        {
+          "round": 1,
+          "mode": "reused_connection",
+          "success": true,
+          "scope": {
+            "complete": true
+          },
+          "has_error": false,
+          "seconds": 2.0276
+        },
+        {
+          "round": 2,
+          "mode": "new_connection",
+          "success": true,
+          "scope": {
+            "complete": true
+          },
+          "has_error": false,
+          "seconds": 1.5765
+        },
+        {
+          "round": 2,
+          "mode": "reused_connection",
+          "success": true,
+          "scope": {
+            "complete": true
+          },
+          "has_error": false,
+          "seconds": 1.8922
+        },
+        {
+          "round": 3,
+          "mode": "new_connection",
+          "success": true,
+          "scope": {
+            "complete": true
+          },
+          "has_error": false,
+          "seconds": 1.8033
+        },
+        {
+          "round": 3,
+          "mode": "reused_connection",
+          "success": true,
+          "scope": {
+            "complete": true
+          },
+          "has_error": false,
+          "seconds": 1.4506
+        }
+      ],
+      "summary": {
+        "new_connection": {
+          "count": 3,
+          "success_count": 3,
+          "median_seconds": 1.8033,
+          "p95_seconds": 2.6909,
+          "p95_method": "nearest-rank; small samples are descriptive only"
+        },
+        "reused_connection": {
+          "count": 3,
+          "success_count": 3,
+          "median_seconds": 1.8922,
+          "p95_seconds": 2.0276,
+          "p95_method": "nearest-rank; small samples are descriptive only"
+        }
+      }
+    },
+    {
+      "case": "order",
+      "samples": [
+        {
+          "round": 1,
+          "mode": "new_connection",
+          "success": true,
+          "scope": {
+            "complete": false,
+            "page": {
+              "offset": 0,
+              "limit": 2,
+              "has_more": true,
+              "next_offset": 2,
+              "total_count": null
+            }
+          },
+          "has_error": false,
+          "seconds": 1.037
+        },
+        {
+          "round": 1,
+          "mode": "reused_connection",
+          "success": true,
+          "scope": {
+            "complete": false,
+            "page": {
+              "offset": 0,
+              "limit": 2,
+              "has_more": true,
+              "next_offset": 2,
+              "total_count": null
+            }
+          },
+          "has_error": false,
+          "seconds": 0.5265
+        },
+        {
+          "round": 2,
+          "mode": "new_connection",
+          "success": true,
+          "scope": {
+            "complete": false,
+            "page": {
+              "offset": 0,
+              "limit": 2,
+              "has_more": true,
+              "next_offset": 2,
+              "total_count": null
+            }
+          },
+          "has_error": false,
+          "seconds": 0.5546
+        },
+        {
+          "round": 2,
+          "mode": "reused_connection",
+          "success": true,
+          "scope": {
+            "complete": false,
+            "page": {
+              "offset": 0,
+              "limit": 2,
+              "has_more": true,
+              "next_offset": 2,
+              "total_count": null
+            }
+          },
+          "has_error": false,
+          "seconds": 0.4452
+        },
+        {
+          "round": 3,
+          "mode": "new_connection",
+          "success": true,
+          "scope": {
+            "complete": false,
+            "page": {
+              "offset": 0,
+              "limit": 2,
+              "has_more": true,
+              "next_offset": 2,
+              "total_count": null
+            }
+          },
+          "has_error": false,
+          "seconds": 0.5011
+        },
+        {
+          "round": 3,
+          "mode": "reused_connection",
+          "success": true,
+          "scope": {
+            "complete": false,
+            "page": {
+              "offset": 0,
+              "limit": 2,
+              "has_more": true,
+              "next_offset": 2,
+              "total_count": null
+            }
+          },
+          "has_error": false,
+          "seconds": 0.4372
+        }
+      ],
+      "summary": {
+        "new_connection": {
+          "count": 3,
+          "success_count": 3,
+          "median_seconds": 0.5546,
+          "p95_seconds": 1.037,
+          "p95_method": "nearest-rank; small samples are descriptive only"
+        },
+        "reused_connection": {
+          "count": 3,
+          "success_count": 3,
+          "median_seconds": 0.4452,
+          "p95_seconds": 0.5265,
+          "p95_method": "nearest-rank; small samples are descriptive only"
+        }
+      }
+    }
+  ],
+  "model": [
+    {
+      "case": "long_followup",
+      "samples": [
+        {
+          "round": 1,
+          "mode": "selected",
+          "success": false,
+          "chosen_tools": [
+            "get_container_history",
+            "get_container_details"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 299,
+            "prompt_tokens": 2023,
+            "total_tokens": 2322,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 157,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 1792
+            },
+            "prompt_cache_hit_tokens": 1792,
+            "prompt_cache_miss_tokens": 231
+          },
+          "seconds": 3.8459
+        },
+        {
+          "round": 1,
+          "mode": "all",
+          "success": false,
+          "chosen_tools": [
+            "get_container_details",
+            "get_container_history"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 238,
+            "prompt_tokens": 22309,
+            "total_tokens": 22547,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 96,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 22144
+            },
+            "prompt_cache_hit_tokens": 22144,
+            "prompt_cache_miss_tokens": 165
+          },
+          "seconds": 2.0857
+        },
+        {
+          "round": 2,
+          "mode": "all",
+          "success": false,
+          "chosen_tools": [
+            "get_container_details",
+            "get_container_history"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 262,
+            "prompt_tokens": 22309,
+            "total_tokens": 22571,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 120,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 22144
+            },
+            "prompt_cache_hit_tokens": 22144,
+            "prompt_cache_miss_tokens": 165
+          },
+          "seconds": 2.1127
+        },
+        {
+          "round": 2,
+          "mode": "selected",
+          "success": true,
+          "chosen_tools": [
+            "get_container_history"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 232,
+            "prompt_tokens": 2023,
+            "total_tokens": 2255,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 139,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 1792
+            },
+            "prompt_cache_hit_tokens": 1792,
+            "prompt_cache_miss_tokens": 231
+          },
+          "seconds": 2.1049
+        },
+        {
+          "round": 3,
+          "mode": "selected",
+          "success": true,
+          "chosen_tools": [
+            "get_container_history"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 140,
+            "prompt_tokens": 2023,
+            "total_tokens": 2163,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 47,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 1792
+            },
+            "prompt_cache_hit_tokens": 1792,
+            "prompt_cache_miss_tokens": 231
+          },
+          "seconds": 1.5172
+        },
+        {
+          "round": 3,
+          "mode": "all",
+          "success": false,
+          "chosen_tools": [
+            "get_container_history",
+            "get_container_details"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 337,
+            "prompt_tokens": 22309,
+            "total_tokens": 22646,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 195,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 22144
+            },
+            "prompt_cache_hit_tokens": 22144,
+            "prompt_cache_miss_tokens": 165
+          },
+          "seconds": 2.4264
+        }
+      ],
+      "summary": {
+        "selected": {
+          "count": 3,
+          "success_count": 2,
+          "median_seconds": 2.1049,
+          "p95_seconds": 3.8459,
+          "p95_method": "nearest-rank; small samples are descriptive only"
+        },
+        "all": {
+          "count": 3,
+          "success_count": 0,
+          "median_seconds": 2.1127,
+          "p95_seconds": 2.4264,
+          "p95_method": "nearest-rank; small samples are descriptive only"
+        }
+      }
+    },
+    {
+      "case": "switch_to_order",
+      "samples": [
+        {
+          "round": 1,
+          "mode": "selected",
+          "success": true,
+          "chosen_tools": [
+            "get_mfgorder_progress"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 110,
+            "prompt_tokens": 3089,
+            "total_tokens": 3199,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 28,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 2816
+            },
+            "prompt_cache_hit_tokens": 2816,
+            "prompt_cache_miss_tokens": 273
+          },
+          "seconds": 1.1515
+        },
+        {
+          "round": 1,
+          "mode": "all",
+          "success": true,
+          "chosen_tools": [
+            "get_mfgorder_progress"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 154,
+            "prompt_tokens": 22280,
+            "total_tokens": 22434,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 56,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 22144
+            },
+            "prompt_cache_hit_tokens": 22144,
+            "prompt_cache_miss_tokens": 136
+          },
+          "seconds": 1.658
+        },
+        {
+          "round": 2,
+          "mode": "all",
+          "success": true,
+          "chosen_tools": [
+            "get_mfgorder_progress"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 156,
+            "prompt_tokens": 22280,
+            "total_tokens": 22436,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 74,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 22144
+            },
+            "prompt_cache_hit_tokens": 22144,
+            "prompt_cache_miss_tokens": 136
+          },
+          "seconds": 1.9661
+        },
+        {
+          "round": 2,
+          "mode": "selected",
+          "success": true,
+          "chosen_tools": [
+            "get_mfgorder_progress"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 108,
+            "prompt_tokens": 3089,
+            "total_tokens": 3197,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 26,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 2944
+            },
+            "prompt_cache_hit_tokens": 2944,
+            "prompt_cache_miss_tokens": 145
+          },
+          "seconds": 1.6014
+        },
+        {
+          "round": 3,
+          "mode": "selected",
+          "success": true,
+          "chosen_tools": [
+            "get_mfgorder_progress"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 115,
+            "prompt_tokens": 3089,
+            "total_tokens": 3204,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 33,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 2944
+            },
+            "prompt_cache_hit_tokens": 2944,
+            "prompt_cache_miss_tokens": 145
+          },
+          "seconds": 1.2393
+        },
+        {
+          "round": 3,
+          "mode": "all",
+          "success": true,
+          "chosen_tools": [
+            "get_mfgorder_progress"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 107,
+            "prompt_tokens": 22280,
+            "total_tokens": 22387,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 25,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 22144
+            },
+            "prompt_cache_hit_tokens": 22144,
+            "prompt_cache_miss_tokens": 136
+          },
+          "seconds": 1.7304
+        }
+      ],
+      "summary": {
+        "selected": {
+          "count": 3,
+          "success_count": 3,
+          "median_seconds": 1.2393,
+          "p95_seconds": 1.6014,
+          "p95_method": "nearest-rank; small samples are descriptive only"
+        },
+        "all": {
+          "count": 3,
+          "success_count": 3,
+          "median_seconds": 1.7304,
+          "p95_seconds": 1.9661,
+          "p95_method": "nearest-rank; small samples are descriptive only"
+        }
+      }
+    },
+    {
+      "case": "switch_to_product",
+      "samples": [
+        {
+          "round": 1,
+          "mode": "selected",
+          "success": true,
+          "chosen_tools": [
+            "get_product_process"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 88,
+            "prompt_tokens": 4379,
+            "total_tokens": 4467,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 25,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 4096
+            },
+            "prompt_cache_hit_tokens": 4096,
+            "prompt_cache_miss_tokens": 283
+          },
+          "seconds": 1.2103
+        },
+        {
+          "round": 1,
+          "mode": "all",
+          "success": true,
+          "chosen_tools": [
+            "get_product_process"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 88,
+            "prompt_tokens": 22289,
+            "total_tokens": 22377,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 25,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 22144
+            },
+            "prompt_cache_hit_tokens": 22144,
+            "prompt_cache_miss_tokens": 145
+          },
+          "seconds": 1.753
+        },
+        {
+          "round": 2,
+          "mode": "all",
+          "success": true,
+          "chosen_tools": [
+            "get_product_process"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 91,
+            "prompt_tokens": 22289,
+            "total_tokens": 22380,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 28,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 22144
+            },
+            "prompt_cache_hit_tokens": 22144,
+            "prompt_cache_miss_tokens": 145
+          },
+          "seconds": 1.5808
+        },
+        {
+          "round": 2,
+          "mode": "selected",
+          "success": true,
+          "chosen_tools": [
+            "get_product_process"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 95,
+            "prompt_tokens": 4379,
+            "total_tokens": 4474,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 25,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 4224
+            },
+            "prompt_cache_hit_tokens": 4224,
+            "prompt_cache_miss_tokens": 155
+          },
+          "seconds": 1.3525
+        },
+        {
+          "round": 3,
+          "mode": "selected",
+          "success": true,
+          "chosen_tools": [
+            "get_product_process"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 89,
+            "prompt_tokens": 4379,
+            "total_tokens": 4468,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 26,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 4224
+            },
+            "prompt_cache_hit_tokens": 4224,
+            "prompt_cache_miss_tokens": 155
+          },
+          "seconds": 1.7922
+        },
+        {
+          "round": 3,
+          "mode": "all",
+          "success": true,
+          "chosen_tools": [
+            "get_product_process"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 95,
+            "prompt_tokens": 22289,
+            "total_tokens": 22384,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 25,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 22144
+            },
+            "prompt_cache_hit_tokens": 22144,
+            "prompt_cache_miss_tokens": 145
+          },
+          "seconds": 1.8034
+        }
+      ],
+      "summary": {
+        "selected": {
+          "count": 3,
+          "success_count": 3,
+          "median_seconds": 1.3525,
+          "p95_seconds": 1.7922,
+          "p95_method": "nearest-rank; small samples are descriptive only"
+        },
+        "all": {
+          "count": 3,
+          "success_count": 3,
+          "median_seconds": 1.753,
+          "p95_seconds": 1.8034,
+          "p95_method": "nearest-rank; small samples are descriptive only"
+        }
+      }
+    },
+    {
+      "case": "read_rework",
+      "samples": [
+        {
+          "round": 1,
+          "mode": "selected",
+          "success": true,
+          "chosen_tools": [
+            "get_container_trace"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 185,
+            "prompt_tokens": 1995,
+            "total_tokens": 2180,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 108,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 1792
+            },
+            "prompt_cache_hit_tokens": 1792,
+            "prompt_cache_miss_tokens": 203
+          },
+          "seconds": 1.9071
+        },
+        {
+          "round": 1,
+          "mode": "all",
+          "success": true,
+          "chosen_tools": [
+            "get_container_trace"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 104,
+            "prompt_tokens": 22281,
+            "total_tokens": 22385,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 27,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 22144
+            },
+            "prompt_cache_hit_tokens": 22144,
+            "prompt_cache_miss_tokens": 137
+          },
+          "seconds": 1.3184
+        },
+        {
+          "round": 2,
+          "mode": "all",
+          "success": true,
+          "chosen_tools": [
+            "get_container_trace"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 166,
+            "prompt_tokens": 22281,
+            "total_tokens": 22447,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 89,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 22144
+            },
+            "prompt_cache_hit_tokens": 22144,
+            "prompt_cache_miss_tokens": 137
+          },
+          "seconds": 1.8567
+        },
+        {
+          "round": 2,
+          "mode": "selected",
+          "success": true,
+          "chosen_tools": [
+            "get_container_trace"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 112,
+            "prompt_tokens": 1995,
+            "total_tokens": 2107,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 35,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 1792
+            },
+            "prompt_cache_hit_tokens": 1792,
+            "prompt_cache_miss_tokens": 203
+          },
+          "seconds": 1.0244
+        },
+        {
+          "round": 3,
+          "mode": "selected",
+          "success": true,
+          "chosen_tools": [
+            "get_container_trace"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 116,
+            "prompt_tokens": 1995,
+            "total_tokens": 2111,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 39,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 1792
+            },
+            "prompt_cache_hit_tokens": 1792,
+            "prompt_cache_miss_tokens": 203
+          },
+          "seconds": 1.3147
+        },
+        {
+          "round": 3,
+          "mode": "all",
+          "success": true,
+          "chosen_tools": [
+            "get_container_trace"
+          ],
+          "arguments_json_valid": true,
+          "finish_reason": "tool_calls",
+          "usage": {
+            "completion_tokens": 103,
+            "prompt_tokens": 22281,
+            "total_tokens": 22384,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 28,
+              "rejected_prediction_tokens": null
+            },
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": 22144
+            },
+            "prompt_cache_hit_tokens": 22144,
+            "prompt_cache_miss_tokens": 137
+          },
+          "seconds": 2.1815
+        }
+      ],
+      "summary": {
+        "selected": {
+          "count": 3,
+          "success_count": 3,
+          "median_seconds": 1.3147,
+          "p95_seconds": 1.9071,
+          "p95_method": "nearest-rank; small samples are descriptive only"
+        },
+        "all": {
+          "count": 3,
+          "success_count": 3,
+          "median_seconds": 1.8567,
+          "p95_seconds": 2.1815,
+          "p95_method": "nearest-rank; small samples are descriptive only"
+        }
+      }
+    }
+  ]
+}

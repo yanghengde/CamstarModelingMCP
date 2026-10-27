@@ -1,0 +1,1280 @@
+{
+  "checked_at": "2026-10-23T09:20:51.631676+08:00",
+  "method": "GET only",
+  "checks": [
+    {
+      "path": "/api/Resources",
+      "params": {
+        "$top": 1
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 0,
+      "row_fields": [],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/Resources/$count",
+      "params": {},
+      "http_status": 200,
+      "count": 0
+    },
+    {
+      "path": "/api/Resources",
+      "params": {
+        "$select": "InstanceID,Name",
+        "$top": 1,
+        "$skip": 0
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 0,
+      "row_fields": [],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/ResourceGroups",
+      "params": {
+        "$top": 1
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 0,
+      "row_fields": [],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/ResourceGroups/$count",
+      "params": {},
+      "http_status": 200,
+      "count": 0
+    },
+    {
+      "path": "/api/ResourceGroups",
+      "params": {
+        "$select": "InstanceID,Name",
+        "$top": 1,
+        "$skip": 0
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 0,
+      "row_fields": [],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/BOMs",
+      "params": {
+        "$top": 1
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 0,
+      "row_fields": [],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/BOMs/$count",
+      "params": {},
+      "http_status": 200,
+      "count": 0
+    },
+    {
+      "path": "/api/BOMs",
+      "params": {
+        "$select": "InstanceID,Name",
+        "$top": 1,
+        "$skip": 0
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 0,
+      "row_fields": [],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/DataCollectionDefs",
+      "params": {
+        "$top": 1
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 1,
+      "row_fields": [
+        "AssociatedPackages",
+        "AttachDocumentDetails-Expanded",
+        "Base",
+        "CanChangeRevOfRcd",
+        "Description",
+        "DisplayName",
+        "ECO",
+        "FilterTags",
+        "IconId",
+        "InstanceID",
+        "InstanceLocked",
+        "IsFrozen",
+        "IsRevOfRcd",
+        "Name",
+        "Notes",
+        "ObjectToChange",
+        "ParametricDataControl",
+        "ParametricDataDef",
+        "ParametricDataDefType",
+        "ReplaceDetails",
+        "ReplaceDetailsSubentityListNames",
+        "Revision",
+        "SPCChartDefEntries",
+        "SPCChartDefEntries-Expanded",
+        "SPCChartDefGroup",
+        "SPCChartDefGroupProxy",
+        "SkipSubentityListsToSequence",
+        "Status",
+        "UseRor",
+        "WebPart",
+        "isAttachImage",
+        "isScaleEnabled"
+      ],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/DataCollectionDefs/$count",
+      "params": {},
+      "http_status": 200,
+      "count": 2
+    },
+    {
+      "path": "/api/DataCollectionDefs",
+      "params": {
+        "$select": "InstanceID,Name",
+        "$top": 1,
+        "$skip": 0
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 1,
+      "row_fields": [
+        "InstanceID",
+        "Name"
+      ],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/DataCollectionDefs/001c618000000001",
+      "params": {},
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "AssociatedPackages",
+        "AttachDocumentDetails-Expanded",
+        "Base",
+        "CanChangeRevOfRcd",
+        "Description",
+        "DisplayName",
+        "ECO",
+        "FilterTags",
+        "IconId",
+        "InstanceID",
+        "InstanceLocked",
+        "IsFrozen",
+        "IsRevOfRcd",
+        "Name",
+        "Notes",
+        "ObjectToChange",
+        "ParametricDataControl",
+        "ParametricDataDef",
+        "ParametricDataDefType",
+        "ReplaceDetails",
+        "ReplaceDetailsSubentityListNames",
+        "Revision",
+        "SPCChartDefEntries",
+        "SPCChartDefEntries-Expanded",
+        "SPCChartDefGroup",
+        "SPCChartDefGroupProxy",
+        "SkipSubentityListsToSequence",
+        "Status",
+        "UseRor",
+        "WebPart",
+        "isAttachImage",
+        "isScaleEnabled"
+      ],
+      "has_next_link": false,
+      "business_error": false,
+      "id_matches": true
+    },
+    {
+      "path": "/api/DataCollectionDefs",
+      "params": {
+        "$filter": "Name eq 'SPCTesterPageUDC' and Revision eq '1'",
+        "$top": 2
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 1,
+      "row_fields": [
+        "AssociatedPackages",
+        "AttachDocumentDetails-Expanded",
+        "Base",
+        "CanChangeRevOfRcd",
+        "Description",
+        "DisplayName",
+        "ECO",
+        "FilterTags",
+        "IconId",
+        "InstanceID",
+        "InstanceLocked",
+        "IsFrozen",
+        "IsRevOfRcd",
+        "Name",
+        "Notes",
+        "ObjectToChange",
+        "ParametricDataControl",
+        "ParametricDataDef",
+        "ParametricDataDefType",
+        "ReplaceDetails",
+        "ReplaceDetailsSubentityListNames",
+        "Revision",
+        "SPCChartDefEntries",
+        "SPCChartDefEntries-Expanded",
+        "SPCChartDefGroup",
+        "SPCChartDefGroupProxy",
+        "SkipSubentityListsToSequence",
+        "Status",
+        "UseRor",
+        "WebPart",
+        "isAttachImage",
+        "isScaleEnabled"
+      ],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/DataCollectionDefs",
+      "params": {
+        "$filter": "Name eq 'SPCTesterPageUDC' and IsRevOfRcd eq true",
+        "$top": 2
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 1,
+      "row_fields": [
+        "AssociatedPackages",
+        "AttachDocumentDetails-Expanded",
+        "Base",
+        "CanChangeRevOfRcd",
+        "Description",
+        "DisplayName",
+        "ECO",
+        "FilterTags",
+        "IconId",
+        "InstanceID",
+        "InstanceLocked",
+        "IsFrozen",
+        "IsRevOfRcd",
+        "Name",
+        "Notes",
+        "ObjectToChange",
+        "ParametricDataControl",
+        "ParametricDataDef",
+        "ParametricDataDefType",
+        "ReplaceDetails",
+        "ReplaceDetailsSubentityListNames",
+        "Revision",
+        "SPCChartDefEntries",
+        "SPCChartDefEntries-Expanded",
+        "SPCChartDefGroup",
+        "SPCChartDefGroupProxy",
+        "SkipSubentityListsToSequence",
+        "Status",
+        "UseRor",
+        "WebPart",
+        "isAttachImage",
+        "isScaleEnabled"
+      ],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/DataCollectionDefs",
+      "params": {
+        "$top": 1,
+        "$skip": 1
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 1,
+      "row_fields": [
+        "AssociatedPackages",
+        "AttachDocumentDetails-Expanded",
+        "Base",
+        "CanChangeRevOfRcd",
+        "Description",
+        "DisplayName",
+        "ECO",
+        "FilterTags",
+        "IconId",
+        "InstanceID",
+        "InstanceLocked",
+        "IsFrozen",
+        "IsRevOfRcd",
+        "Name",
+        "Notes",
+        "ObjectToChange",
+        "ParametricDataControl",
+        "ParametricDataDef",
+        "ParametricDataDefType",
+        "ReplaceDetails",
+        "ReplaceDetailsSubentityListNames",
+        "Revision",
+        "SPCChartDefEntries",
+        "SPCChartDefEntries-Expanded",
+        "SPCChartDefGroup",
+        "SPCChartDefGroupProxy",
+        "SkipSubentityListsToSequence",
+        "Status",
+        "UseRor",
+        "WebPart",
+        "isAttachImage",
+        "isScaleEnabled"
+      ],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/DataCollectionDefs/001c618000000001",
+      "params": {
+        "$expand": "ChangeHistory"
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "AssociatedPackages",
+        "AttachDocumentDetails-Expanded",
+        "Base",
+        "CanChangeRevOfRcd",
+        "ChangeHistory",
+        "Description",
+        "DisplayName",
+        "ECO",
+        "FilterTags",
+        "IconId",
+        "InstanceID",
+        "InstanceLocked",
+        "IsFrozen",
+        "IsRevOfRcd",
+        "Name",
+        "Notes",
+        "ObjectToChange",
+        "ParametricDataControl",
+        "ParametricDataDef",
+        "ParametricDataDefType",
+        "ReplaceDetails",
+        "ReplaceDetailsSubentityListNames",
+        "Revision",
+        "SPCChartDefEntries",
+        "SPCChartDefEntries-Expanded",
+        "SPCChartDefGroup",
+        "SPCChartDefGroupProxy",
+        "SkipSubentityListsToSequence",
+        "Status",
+        "UseRor",
+        "WebPart",
+        "isAttachImage",
+        "isScaleEnabled"
+      ],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/DataCollectionDefs/001c618000000001",
+      "params": {
+        "$expand": "ESigHistoryDetails"
+      },
+      "http_status": 400,
+      "response_fields": [
+        "error"
+      ],
+      "has_next_link": false,
+      "business_error": true
+    },
+    {
+      "path": "/api/MfgOrderTaskLists",
+      "params": {
+        "$top": 1
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 0,
+      "row_fields": [],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/MfgOrderTaskLists/$count",
+      "params": {},
+      "http_status": 200,
+      "count": 0
+    },
+    {
+      "path": "/api/MfgOrderTaskLists",
+      "params": {
+        "$select": "InstanceID,Name",
+        "$top": 1,
+        "$skip": 0
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 0,
+      "row_fields": [],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/DocumentSets",
+      "params": {
+        "$top": 1
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 0,
+      "row_fields": [],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/DocumentSets/$count",
+      "params": {},
+      "http_status": 200,
+      "count": 0
+    },
+    {
+      "path": "/api/DocumentSets",
+      "params": {
+        "$select": "InstanceID,Name",
+        "$top": 1,
+        "$skip": 0
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 0,
+      "row_fields": [],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/DataPointCollectionDefs",
+      "params": {
+        "$top": 1
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 0,
+      "row_fields": [],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/DataPointCollectionDefs/$count",
+      "params": {},
+      "http_status": 200,
+      "count": 0
+    },
+    {
+      "path": "/api/DataPointCollectionDefs",
+      "params": {
+        "$select": "InstanceID,Name",
+        "$top": 1,
+        "$skip": 0
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 0,
+      "row_fields": [],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/UserDataCollectionDefs",
+      "params": {
+        "$top": 1
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 1,
+      "row_fields": [
+        "AssociatedPackages",
+        "AttachDocumentDetails-Expanded",
+        "Base",
+        "CanChangeRevOfRcd",
+        "DataPointLayout",
+        "DataPoints-Expanded",
+        "Description",
+        "DisplayLimits",
+        "DisplayName",
+        "ECO",
+        "FilterTags",
+        "IconId",
+        "InstanceID",
+        "InstanceLocked",
+        "IsFrozen",
+        "IsRevOfRcd",
+        "Name",
+        "Notes",
+        "ObjectToChange",
+        "ParametricDataControl",
+        "ParametricDataDef",
+        "ParametricDataDefType",
+        "ReplaceDetails",
+        "ReplaceDetailsSubentityListNames",
+        "Revision",
+        "SPCChartDefEntries",
+        "SPCChartDefEntries-Expanded",
+        "SPCChartDefGroup",
+        "SPCChartDefGroupProxy",
+        "SkipSubentityListsToSequence",
+        "Status",
+        "UseRor",
+        "WebPart",
+        "isAttachImage",
+        "isScaleEnabled"
+      ],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/UserDataCollectionDefs/$count",
+      "params": {},
+      "http_status": 200,
+      "count": 2
+    },
+    {
+      "path": "/api/UserDataCollectionDefs",
+      "params": {
+        "$select": "InstanceID,Name",
+        "$top": 1,
+        "$skip": 0
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 1,
+      "row_fields": [
+        "InstanceID",
+        "Name"
+      ],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/UserDataCollectionDefs/001c618000000001",
+      "params": {},
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "AssociatedPackages",
+        "AttachDocumentDetails-Expanded",
+        "Base",
+        "CanChangeRevOfRcd",
+        "DataPointLayout",
+        "DataPoints-Expanded",
+        "Description",
+        "DisplayLimits",
+        "DisplayName",
+        "ECO",
+        "FilterTags",
+        "IconId",
+        "InstanceID",
+        "InstanceLocked",
+        "IsFrozen",
+        "IsRevOfRcd",
+        "Name",
+        "Notes",
+        "ObjectToChange",
+        "ParametricDataControl",
+        "ParametricDataDef",
+        "ParametricDataDefType",
+        "ReplaceDetails",
+        "ReplaceDetailsSubentityListNames",
+        "Revision",
+        "SPCChartDefEntries",
+        "SPCChartDefEntries-Expanded",
+        "SPCChartDefGroup",
+        "SPCChartDefGroupProxy",
+        "SkipSubentityListsToSequence",
+        "Status",
+        "UseRor",
+        "WebPart",
+        "isAttachImage",
+        "isScaleEnabled"
+      ],
+      "has_next_link": false,
+      "business_error": false,
+      "id_matches": true
+    },
+    {
+      "path": "/api/UserDataCollectionDefs",
+      "params": {
+        "$filter": "Name eq 'SPCTesterPageUDC' and Revision eq '1'",
+        "$top": 2
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 1,
+      "row_fields": [
+        "AssociatedPackages",
+        "AttachDocumentDetails-Expanded",
+        "Base",
+        "CanChangeRevOfRcd",
+        "DataPointLayout",
+        "DataPoints-Expanded",
+        "Description",
+        "DisplayLimits",
+        "DisplayName",
+        "ECO",
+        "FilterTags",
+        "IconId",
+        "InstanceID",
+        "InstanceLocked",
+        "IsFrozen",
+        "IsRevOfRcd",
+        "Name",
+        "Notes",
+        "ObjectToChange",
+        "ParametricDataControl",
+        "ParametricDataDef",
+        "ParametricDataDefType",
+        "ReplaceDetails",
+        "ReplaceDetailsSubentityListNames",
+        "Revision",
+        "SPCChartDefEntries",
+        "SPCChartDefEntries-Expanded",
+        "SPCChartDefGroup",
+        "SPCChartDefGroupProxy",
+        "SkipSubentityListsToSequence",
+        "Status",
+        "UseRor",
+        "WebPart",
+        "isAttachImage",
+        "isScaleEnabled"
+      ],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/UserDataCollectionDefs",
+      "params": {
+        "$filter": "Name eq 'SPCTesterPageUDC' and IsRevOfRcd eq true",
+        "$top": 2
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 1,
+      "row_fields": [
+        "AssociatedPackages",
+        "AttachDocumentDetails-Expanded",
+        "Base",
+        "CanChangeRevOfRcd",
+        "DataPointLayout",
+        "DataPoints-Expanded",
+        "Description",
+        "DisplayLimits",
+        "DisplayName",
+        "ECO",
+        "FilterTags",
+        "IconId",
+        "InstanceID",
+        "InstanceLocked",
+        "IsFrozen",
+        "IsRevOfRcd",
+        "Name",
+        "Notes",
+        "ObjectToChange",
+        "ParametricDataControl",
+        "ParametricDataDef",
+        "ParametricDataDefType",
+        "ReplaceDetails",
+        "ReplaceDetailsSubentityListNames",
+        "Revision",
+        "SPCChartDefEntries",
+        "SPCChartDefEntries-Expanded",
+        "SPCChartDefGroup",
+        "SPCChartDefGroupProxy",
+        "SkipSubentityListsToSequence",
+        "Status",
+        "UseRor",
+        "WebPart",
+        "isAttachImage",
+        "isScaleEnabled"
+      ],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/UserDataCollectionDefs",
+      "params": {
+        "$top": 1,
+        "$skip": 1
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "value"
+      ],
+      "returned_count": 1,
+      "row_fields": [
+        "AssociatedPackages",
+        "AttachDocumentDetails-Expanded",
+        "Base",
+        "CanChangeRevOfRcd",
+        "DataPointLayout",
+        "DataPoints-Expanded",
+        "Description",
+        "DisplayLimits",
+        "DisplayName",
+        "ECO",
+        "FilterTags",
+        "IconId",
+        "InstanceID",
+        "InstanceLocked",
+        "IsFrozen",
+        "IsRevOfRcd",
+        "Name",
+        "Notes",
+        "ObjectToChange",
+        "ParametricDataControl",
+        "ParametricDataDef",
+        "ParametricDataDefType",
+        "ReplaceDetails",
+        "ReplaceDetailsSubentityListNames",
+        "Revision",
+        "SPCChartDefEntries",
+        "SPCChartDefEntries-Expanded",
+        "SPCChartDefGroup",
+        "SPCChartDefGroupProxy",
+        "SkipSubentityListsToSequence",
+        "Status",
+        "UseRor",
+        "WebPart",
+        "isAttachImage",
+        "isScaleEnabled"
+      ],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/UserDataCollectionDefs/001c618000000001",
+      "params": {
+        "$expand": "DataPoints"
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "AssociatedPackages",
+        "AttachDocumentDetails-Expanded",
+        "Base",
+        "CanChangeRevOfRcd",
+        "DataPointLayout",
+        "DataPoints",
+        "DataPoints-Expanded",
+        "Description",
+        "DisplayLimits",
+        "DisplayName",
+        "ECO",
+        "FilterTags",
+        "IconId",
+        "InstanceID",
+        "InstanceLocked",
+        "IsFrozen",
+        "IsRevOfRcd",
+        "Name",
+        "Notes",
+        "ObjectToChange",
+        "ParametricDataControl",
+        "ParametricDataDef",
+        "ParametricDataDefType",
+        "ReplaceDetails",
+        "ReplaceDetailsSubentityListNames",
+        "Revision",
+        "SPCChartDefEntries",
+        "SPCChartDefEntries-Expanded",
+        "SPCChartDefGroup",
+        "SPCChartDefGroupProxy",
+        "SkipSubentityListsToSequence",
+        "Status",
+        "UseRor",
+        "WebPart",
+        "isAttachImage",
+        "isScaleEnabled"
+      ],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/UserDataCollectionDefs/001c618000000001",
+      "params": {
+        "$expand": "ChangeHistory"
+      },
+      "http_status": 200,
+      "response_fields": [
+        "@odata.context",
+        "AssociatedPackages",
+        "AttachDocumentDetails-Expanded",
+        "Base",
+        "CanChangeRevOfRcd",
+        "ChangeHistory",
+        "DataPointLayout",
+        "DataPoints-Expanded",
+        "Description",
+        "DisplayLimits",
+        "DisplayName",
+        "ECO",
+        "FilterTags",
+        "IconId",
+        "InstanceID",
+        "InstanceLocked",
+        "IsFrozen",
+        "IsRevOfRcd",
+        "Name",
+        "Notes",
+        "ObjectToChange",
+        "ParametricDataControl",
+        "ParametricDataDef",
+        "ParametricDataDefType",
+        "ReplaceDetails",
+        "ReplaceDetailsSubentityListNames",
+        "Revision",
+        "SPCChartDefEntries",
+        "SPCChartDefEntries-Expanded",
+        "SPCChartDefGroup",
+        "SPCChartDefGroupProxy",
+        "SkipSubentityListsToSequence",
+        "Status",
+        "UseRor",
+        "WebPart",
+        "isAttachImage",
+        "isScaleEnabled"
+      ],
+      "has_next_link": false,
+      "business_error": false
+    },
+    {
+      "path": "/api/Resources/T00-NONEXISTENT-READ-PROBE",
+      "params": {},
+      "http_status": 400,
+      "response_fields": [
+        "Details",
+        "ErrorCode",
+        "InnerError",
+        "InstanceAnnotations",
+        "Message",
+        "Target",
+        "TypeAnnotation"
+      ],
+      "has_next_link": false,
+      "business_error": true
+    }
+  ],
+  "metadata_status": 200,
+  "metadata_sha256": "e38ff87dafe59277715af6cc93fae1b0f488c1e4ead2092a14caac7f6cb04fe9",
+  "entities": {
+    "Resources": {
+      "base_type": "modeling.NamedDataObject",
+      "keys": [
+        "InstanceID"
+      ],
+      "properties": {
+        "DisplayName": "Edm.String",
+        "InstanceID": "Edm.String",
+        "AssociatedPackages": "Edm.Int32",
+        "Description": "Edm.String",
+        "FilterTags": "Edm.String",
+        "IconId": "Edm.Int32",
+        "InstanceLocked": "Edm.Boolean",
+        "IsFrozen": "Edm.Boolean",
+        "ModelingInstanceLocks": "Collection(modeling.SubentityRef)",
+        "Name": "Edm.String",
+        "Notes": "Edm.String",
+        "WhereUsed": "Collection(modeling.SubentityRef)",
+        "Availability": "Edm.Int32",
+        "BOM": "modeling.RevisionedObjectRef",
+        "ChildResources": "Collection(modeling.NamedObjectRef)",
+        "ClearanceLevel": "Edm.Int32",
+        "CurrentSetup": "modeling.RevisionedObjectRef",
+        "Factory": "modeling.NamedObjectRef",
+        "FactoryLevel": "Edm.Int32",
+        "FactoryLevelIndex": "Edm.Int32",
+        "FHMResolvedChildResources": "Collection(modeling.NamedObjectRef)",
+        "FullyQualifiedName": "Edm.String",
+        "HVSetup": "modeling.SubentityRef",
+        "JobCount": "Edm.Int32",
+        "LastRouteStep": "modeling.NamedSubentityRef",
+        "Location": "modeling.NamedSubentityRef",
+        "MaintenanceClass": "modeling.NamedObjectRef",
+        "MaintenanceStatuses": "Collection(modeling.SubentityRef)",
+        "NickName": "Edm.String",
+        "ParentResource": "modeling.NamedObjectRef",
+        "PartExpiryDate": "Edm.DateTimeOffset",
+        "PartQty": "Edm.Int32",
+        "PartRequestCount": "Edm.Int32",
+        "PhysicalLocation": "modeling.NamedObjectRef",
+        "PhysicalPosition": "modeling.NamedObjectRef",
+        "PrintQueue": "modeling.NamedObjectRef",
+        "Product": "modeling.RevisionedObjectRef",
+        "Reason": "modeling.NamedObjectRef",
+        "RecipePattern": "Edm.String",
+        "ResolvedFactory": "modeling.NamedObjectRef",
+        "ResolvedRecipePattern": "Edm.String",
+        "ResourceFamily": "modeling.NamedObjectRef",
+        "ResourceStatusModel": "modeling.NamedObjectRef",
+        "ResourceType": "modeling.NamedObjectRef",
+        "SmartScanRule": "modeling.NamedObjectRef",
+        "Status": "modeling.NamedObjectRef",
+        "ToolPlan": "modeling.NamedObjectRef",
+        "Tools": "Collection(modeling.NamedObjectRef)",
+        "TrainingReqGroup": "modeling.NamedObjectRef",
+        "UseHVTraceability": "Edm.Boolean",
+        "Vendor": "modeling.NamedObjectRef",
+        "VendorModel": "Edm.String",
+        "VendorSerialNumber": "Edm.String",
+        "WebServiceTransport": "modeling.NamedObjectRef"
+      },
+      "navigation": {
+        "ChangeHistory": "modeling.ChangeHistory",
+        "ESigHistoryDetails": "Collection(modeling.ModelingESigHistoryDetail)",
+        "AssignedMaintReqs": "Collection(modeling.AssignedMaintReq)",
+        "Attributes": "Collection(modeling.UserAttribute)",
+        "Logs": "Collection(modeling.ResourceLog)",
+        "Parts": "Collection(modeling.ResourcePart)",
+        "PMStatus": "Collection(modeling.PMStatus)",
+        "ProductionStatus": "modeling.ProductionStatus",
+        "WIPMsgDefMgr": "modeling.WIPMsgDefMgr"
+      },
+      "sample_status": "empty"
+    },
+    "ResourceGroups": {
+      "base_type": "modeling.NamedObjectGroup",
+      "keys": [
+        "InstanceID"
+      ],
+      "properties": {
+        "DisplayName": "Edm.String",
+        "InstanceID": "Edm.String",
+        "AssociatedPackages": "Edm.Int32",
+        "Description": "Edm.String",
+        "FilterTags": "Edm.String",
+        "IconId": "Edm.Int32",
+        "InstanceLocked": "Edm.Boolean",
+        "IsFrozen": "Edm.Boolean",
+        "ModelingInstanceLocks": "Collection(modeling.SubentityRef)",
+        "Name": "Edm.String",
+        "Notes": "Edm.String",
+        "WhereUsed": "Collection(modeling.SubentityRef)",
+        "DefaultForObjectTypes": "Collection(Edm.Int32)",
+        "Entries": "Collection(modeling.BaseObjectRef)",
+        "EntryType": "Edm.String",
+        "Groups": "Collection(modeling.NamedObjectRef)",
+        "ResolvedEntries": "Collection(modeling.BaseObjectRef)"
+      },
+      "navigation": {
+        "ChangeHistory": "modeling.ChangeHistory",
+        "ESigHistoryDetails": "Collection(modeling.ModelingESigHistoryDetail)"
+      },
+      "sample_status": "empty"
+    },
+    "BOMs": {
+      "base_type": "modeling.Bill",
+      "keys": [
+        "InstanceID"
+      ],
+      "properties": {
+        "DisplayName": "Edm.String",
+        "InstanceID": "Edm.String",
+        "AssociatedPackages": "Edm.Int32",
+        "Base": "modeling.NamedObjectRef",
+        "Description": "Edm.String",
+        "ECO": "Edm.String",
+        "FilterTags": "Edm.String",
+        "IconId": "Edm.Int32",
+        "InstanceLocked": "Edm.Boolean",
+        "IsFrozen": "Edm.Boolean",
+        "IsRevOfRcd": "Edm.Boolean",
+        "ModelingInstanceLocks": "Collection(modeling.SubentityRef)",
+        "Name": "Edm.String",
+        "Notes": "Edm.String",
+        "Revision": "Edm.String",
+        "Status": "Edm.Int32",
+        "WhereUsed": "Collection(modeling.SubentityRef)",
+        "UseRor": "Edm.Boolean",
+        "BillType": "modeling.NamedObjectRef"
+      },
+      "navigation": {
+        "ChangeHistory": "modeling.ChangeHistory",
+        "ESigHistoryDetails": "Collection(modeling.ModelingESigHistoryDetail)",
+        "WIPMsgDefMgr": "modeling.WIPMsgDefMgr",
+        "MaterialList": "Collection(modeling.MaterialListItem)"
+      },
+      "sample_status": "empty"
+    },
+    "DataCollectionDefs": {
+      "base_type": "modeling.RevisionedObject",
+      "keys": [
+        "InstanceID"
+      ],
+      "properties": {
+        "DisplayName": "Edm.String",
+        "InstanceID": "Edm.String",
+        "AssociatedPackages": "Edm.Int32",
+        "Base": "modeling.NamedObjectRef",
+        "Description": "Edm.String",
+        "ECO": "Edm.String",
+        "FilterTags": "Edm.String",
+        "IconId": "Edm.Int32",
+        "InstanceLocked": "Edm.Boolean",
+        "IsFrozen": "Edm.Boolean",
+        "IsRevOfRcd": "Edm.Boolean",
+        "ModelingInstanceLocks": "Collection(modeling.SubentityRef)",
+        "Name": "Edm.String",
+        "Notes": "Edm.String",
+        "Revision": "Edm.String",
+        "Status": "Edm.Int32",
+        "WhereUsed": "Collection(modeling.SubentityRef)",
+        "UseRor": "Edm.Boolean",
+        "isScaleEnabled": "Edm.Boolean",
+        "ParametricDataControl": "Edm.String",
+        "ParametricDataDefType": "Edm.Int32",
+        "SPCChartDefEntries": "Collection(modeling.NamedObjectRef)",
+        "SPCChartDefGroup": "modeling.NamedObjectRef",
+        "WebPart": "modeling.NamedObjectRef"
+      },
+      "navigation": {
+        "ChangeHistory": "modeling.ChangeHistory",
+        "ESigHistoryDetails": "Collection(modeling.ModelingESigHistoryDetail)",
+        "WIPMsgDefMgr": "modeling.WIPMsgDefMgr"
+      },
+      "sample_id": "001c618000000001",
+      "sample_status": "available"
+    },
+    "MfgOrderTaskLists": {
+      "base_type": "modeling.ProcessList",
+      "keys": [
+        "InstanceID"
+      ],
+      "properties": {
+        "DisplayName": "Edm.String",
+        "InstanceID": "Edm.String",
+        "AssociatedPackages": "Edm.Int32",
+        "Base": "modeling.NamedObjectRef",
+        "Description": "Edm.String",
+        "ECO": "Edm.String",
+        "FilterTags": "Edm.String",
+        "IconId": "Edm.Int32",
+        "InstanceLocked": "Edm.Boolean",
+        "IsFrozen": "Edm.Boolean",
+        "IsRevOfRcd": "Edm.Boolean",
+        "ModelingInstanceLocks": "Collection(modeling.SubentityRef)",
+        "Name": "Edm.String",
+        "Notes": "Edm.String",
+        "Revision": "Edm.String",
+        "Status": "Edm.Int32",
+        "WhereUsed": "Collection(modeling.SubentityRef)",
+        "UseRor": "Edm.Boolean",
+        "ExecutionMode": "Edm.Int32",
+        "Instruction": "Edm.String",
+        "isImage": "modeling.RevisionedObjectRef",
+        "PrerequisiteTaskList": "modeling.RevisionedObjectRef",
+        "ReportInstruction": "Edm.String",
+        "RequiredTasks": "Collection(modeling.NamedSubentityRef)",
+        "VariantExpression": "Edm.String",
+        "VariantTasks": "Collection(modeling.NamedSubentityRef)",
+        "Workstation": "modeling.NamedObjectRef",
+        "WorkstationGroup": "modeling.NamedObjectRef"
+      },
+      "navigation": {
+        "ChangeHistory": "modeling.ChangeHistory",
+        "ESigHistoryDetails": "Collection(modeling.ModelingESigHistoryDetail)",
+        "WIPMsgDefMgr": "modeling.WIPMsgDefMgr",
+        "Tasks": "Collection(modeling.ProcessItem)"
+      },
+      "sample_status": "empty"
+    },
+    "DocumentSets": {
+      "base_type": "modeling.NamedDataObject",
+      "keys": [
+        "InstanceID"
+      ],
+      "properties": {
+        "DisplayName": "Edm.String",
+        "InstanceID": "Edm.String",
+        "AssociatedPackages": "Edm.Int32",
+        "Description": "Edm.String",
+        "FilterTags": "Edm.String",
+        "IconId": "Edm.Int32",
+        "InstanceLocked": "Edm.Boolean",
+        "IsFrozen": "Edm.Boolean",
+        "ModelingInstanceLocks": "Collection(modeling.SubentityRef)",
+        "Name": "Edm.String",
+        "Notes": "Edm.String",
+        "WhereUsed": "Collection(modeling.SubentityRef)",
+        "DocSetModelObjectName": "Edm.String",
+        "DocSetModelObjectTypeName": "Edm.String"
+      },
+      "navigation": {
+        "ChangeHistory": "modeling.ChangeHistory",
+        "ESigHistoryDetails": "Collection(modeling.ModelingESigHistoryDetail)",
+        "DocumentEntries": "Collection(modeling.DocumentEntry)"
+      },
+      "sample_status": "empty"
+    },
+    "DataPointCollectionDefs": {
+      "base_type": "modeling.DataCollectionDef",
+      "keys": [
+        "InstanceID"
+      ],
+      "properties": {
+        "DisplayName": "Edm.String",
+        "InstanceID": "Edm.String",
+        "AssociatedPackages": "Edm.Int32",
+        "Base": "modeling.NamedObjectRef",
+        "Description": "Edm.String",
+        "ECO": "Edm.String",
+        "FilterTags": "Edm.String",
+        "IconId": "Edm.Int32",
+        "InstanceLocked": "Edm.Boolean",
+        "IsFrozen": "Edm.Boolean",
+        "IsRevOfRcd": "Edm.Boolean",
+        "ModelingInstanceLocks": "Collection(modeling.SubentityRef)",
+        "Name": "Edm.String",
+        "Notes": "Edm.String",
+        "Revision": "Edm.String",
+        "Status": "Edm.Int32",
+        "WhereUsed": "Collection(modeling.SubentityRef)",
+        "UseRor": "Edm.Boolean",
+        "isScaleEnabled": "Edm.Boolean",
+        "ParametricDataControl": "Edm.String",
+        "ParametricDataDefType": "Edm.Int32",
+        "SPCChartDefEntries": "Collection(modeling.NamedObjectRef)",
+        "SPCChartDefGroup": "modeling.NamedObjectRef",
+        "WebPart": "modeling.NamedObjectRef",
+        "Instructions": "Edm.String"
+      },
+      "navigation": {
+        "ChangeHistory": "modeling.ChangeHistory",
+        "ESigHistoryDetails": "Collection(modeling.ModelingESigHistoryDetail)",
+        "WIPMsgDefMgr": "modeling.WIPMsgDefMgr",
+        "Groups": "Collection(modeling.DataPointCollectionGroup)"
+      },
+      "sample_status": "empty"
+    },
+    "UserDataCollectionDefs": {
+      "base_type": "modeling.DataCollectionDef",
+      "keys": [
+        "InstanceID"
+      ],
+      "properties": {
+        "DisplayName": "Edm.String",
+        "InstanceID": "Edm.String",
+        "AssociatedPackages": "Edm.Int32",
+        "Base": "modeling.NamedObjectRef",
+        "Description": "Edm.String",
+        "ECO": "Edm.String",
+        "FilterTags": "Edm.String",
+        "IconId": "Edm.Int32",
+        "InstanceLocked": "Edm.Boolean",
+        "IsFrozen": "Edm.Boolean",
+        "IsRevOfRcd": "Edm.Boolean",
+        "ModelingInstanceLocks": "Collection(modeling.SubentityRef)",
+        "Name": "Edm.String",
+        "Notes": "Edm.String",
+        "Revision": "Edm.String",
+        "Status": "Edm.Int32",
+        "WhereUsed": "Collection(modeling.SubentityRef)",
+        "UseRor": "Edm.Boolean",
+        "isScaleEnabled": "Edm.Boolean",
+        "ParametricDataControl": "Edm.String",
+        "ParametricDataDefType": "Edm.Int32",
+        "SPCChartDefEntries": "Collection(modeling.NamedObjectRef)",
+        "SPCChartDefGroup": "modeling.NamedObjectRef",
+        "WebPart": "modeling.NamedObjectRef",
+        "DataPointLayout": "Edm.Int32",
+        "DisplayLimits": "Edm.Boolean"
+      },
+      "navigation": {
+        "ChangeHistory": "modeling.ChangeHistory",
+        "ESigHistoryDetails": "Collection(modeling.ModelingESigHistoryDetail)",
+        "WIPMsgDefMgr": "modeling.WIPMsgDefMgr",
+        "DataPoints": "Collection(modeling.DataPoint)"
+      },
+      "sample_id": "001c618000000001",
+      "sample_status": "available"
+    }
+  }
+}

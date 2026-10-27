@@ -1,0 +1,3454 @@
+{
+  "checked_date": "2026-10-26",
+  "mes_business_writes": false,
+  "schema": {
+    "openapi": "3.0.1",
+    "info": {
+      "title": "UpdateSamplingLot",
+      "description": "<b>List of events: </b>AccumulateSummaryHistoryData; AddAlertMsgList; AddESigRequirement; AddHistorySummary; AddMassUpdateStatement; AddTrainingRequirmentsToESigRequirements; AfterCommitEventFailure; ApplyBarcodeToDetails; ApplyBarcodeToListOfDetails; ApplyBarcodeToServiceAndDetails; ApplyBarcodeToSingleDetail; ApplyDetails; ApplyParametricDetails; ApplyServiceDetail; ApplyServiceDetails; AuthorizeSigner; CheckRolePermissions; CheckWIPMsgElapsedTime; CheckWIPMsgRetrievalDate; CreateHistoryMainline; CreateParametricData; DataPointConvertListToResultset; DownloadFile; EnforceDispatchRule; EvaluateHierarchyLabels; EvaluateLabelTags; Execute; Execute_User; ExecuteDBService; ExecuteService; ExecuteTransactionTask; ExportInfo_Execute; ExportInfo_Initialize; ExportInfo_Initialize_User; ExportInfo_PreExecute; ExportInfo_Validate; FinishModifyingEntity; GetActions; GetAttributeParent; GetBarcodeData; GetComputation; GetComputationParams; GetComputationParamsForDataPoints; GetDataPointListSelectionValues; GetDataPointObjectGroupSelectionValues; GetDataPointQuerySelectionValues; GetDataPoints; GetDataPointStaticSelectionValues; GetDefaultDispatchList; GetDispatchList; GetDispatchObject; GetESigRequirementFromSpec; GetESigRequirements; GetESigRequirementsFromTxnMap; GetLabelInformation; GetLabelInformationFromLabelMap; GetLabelInformationFromPrinterLabel; GetTrackableOwnerForAuditTrail; GetTrainingRecord; GetTrainingRequirements; GetWIPMsgs; InitDispatchQueryParams; InitializeHistoryMainline; IsOKToUpdateAttachments; LiveAlert_Initialize; LiveConnect_Initialize; LiveRelay_Initialize; Load; LoadESigDetails; ModifyEntity; OverrideDispatchEnforcement; ParseWithSmartScanRule; PreExecute_User; PreValidate; PreValidate_Generic; PreValidate_Specific; PreValidate_User; PrintLabel; ProcessAfterCommit; ProcessAfterCommit_User; ProcessApplicationExtensions; ProcessComputation; ProcessComputationParams; ProcessElectronicProcedures; ProcessElectronicSignatures; ProcessLabelInformation; ProcessMaintenanceMgmt; ProcessMasterRecipe; ProcessNonConformances; ProcessWIPMsgs; RecordMainlinePostHistory; RecordMainlinePreHistory; RecordPostHistory; RecordPreHistory; RecordSummaryPostHistory; RecordSummaryPreHistory; ReplaceHistoryMainline; ReplaceOldHistoryMainline; ResolveParametricData; RetrieveCalendarShift; RoundComputationResult; Sampling_ContainerSampleData; Sampling_EvaluateSwitchingRule; Sampling_GetDistributionListRecipients; Sampling_LotSampleData; Sampling_SendSwitchingRuleNotification; Sampling_SetupSampling; Sampling_SetupSamplingRequirement; SetHistoryMainlineTxnDates; ShopFloor_ControlValidation; StartModifyingEntity; UpdateCompletionMsg_PrintLabelFailure; UpdateCompletionMsg_PrintLabelSuccess; Validate; Validate_Generic; Validate_Specific; Validate_User; ValidateActiveMfgOrder; ValidateApplicationExtensions; ValidateElectronicProcedures; ValidateElectronicSignatures; ValidateESigRequirement; ValidateMaintenanceMgmt; ValidateMaintenanceUOM; ValidateMasterRecipe; ValidateNonConformances; ValidateResourceMaintenance; ValidateResourceToolPlan; ValidateTrainingRequirement; ValidateTrainingRequirements; ValidateVariantExpression; ValidateWIPMsgs; VerifyPasswordSignature; VerifyUser; WriteTxnGUID; ",
+      "version": "UpdateSamplingLot"
+    },
+    "servers": [
+      {
+        "url": "/Shopfloor"
+      }
+    ],
+    "paths": {
+      "/api/UpdateSamplingLot": {
+        "post": {
+          "tags": [
+            "UpdateSamplingLot"
+          ],
+          "operationId": "POST:api/UpdateSamplingLot",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateSamplingLot"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/UpdateSamplingLot/PerformEvent": {
+        "post": {
+          "tags": [
+            "UpdateSamplingLot"
+          ],
+          "operationId": "POST:api/UpdateSamplingLot/PerformEvent",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateSamplingLotShopfloorPerformEventModel"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/UpdateSamplingLot({key})/AdvancedPerformEvent": {
+        "post": {
+          "tags": [
+            "UpdateSamplingLot"
+          ],
+          "operationId": "POST:api/UpdateSamplingLot({key})/AdvancedPerformEvent",
+          "parameters": [
+            {
+              "name": "key",
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateSamplingLotAdvancedPerformEventModel"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/UpdateSamplingLot/{key}/AdvancedPerformEvent": {
+        "post": {
+          "tags": [
+            "UpdateSamplingLot"
+          ],
+          "operationId": "POST:api/UpdateSamplingLot/{key}/AdvancedPerformEvent",
+          "parameters": [
+            {
+              "name": "key",
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateSamplingLotAdvancedPerformEventModel"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/UpdateSamplingLot/AdvancedPerformEvent": {
+        "post": {
+          "tags": [
+            "UpdateSamplingLot"
+          ],
+          "operationId": "POST:api/UpdateSamplingLot/AdvancedPerformEvent",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateSamplingLotAdvancedPerformEventModel"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/UpdateSamplingLot/RequestSelectionValues": {
+        "post": {
+          "tags": [
+            "UpdateSamplingLot"
+          ],
+          "operationId": "POST:api/UpdateSamplingLot/RequestSelectionValues",
+          "parameters": [
+            {
+              "name": "selectionValuesExpression",
+              "in": "query",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateSamplingLot"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/UpdateSamplingLot({key})": {
+        "put": {
+          "tags": [
+            "UpdateSamplingLot"
+          ],
+          "operationId": "PUT:api/UpdateSamplingLot({key})",
+          "parameters": [
+            {
+              "name": "key",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateSamplingLot"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/UpdateSamplingLot/{key}": {
+        "put": {
+          "tags": [
+            "UpdateSamplingLot"
+          ],
+          "operationId": "PUT:api/UpdateSamplingLot/{key}",
+          "parameters": [
+            {
+              "name": "key",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateSamplingLot"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "ActionDetails": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1070; FieldId: 6714; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 1070; FieldId: 5001; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: Subentity",
+              "nullable": true,
+              "readOnly": true
+            },
+            "parent": {
+              "$ref": "#/components/schemas/BaseObjectRef"
+            },
+            "action": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "isEnabled": {
+              "type": "boolean",
+              "description": "CdoId: 8223; FieldId: 19869; Workspace: csi; Flags: ReadOnly; Annotations: Determines, based on Status and Effective From and Thru dates whether a CDO should be considered for processing.\r\nIf a field is not found within the CDO, a positive result is assumed.",
+              "nullable": true,
+              "readOnly": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "BaseObjectRef": {
+          "type": "object",
+          "properties": {
+            "instanceId": {
+              "type": "string",
+              "nullable": true
+            },
+            "cdoTypeName": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "ComputationDetail": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1200; FieldId: 7992; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 1200; FieldId: 20185; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: Subentity",
+              "nullable": true,
+              "readOnly": true
+            },
+            "parent": {
+              "$ref": "#/components/schemas/BaseObjectRef"
+            },
+            "smartBarcode": {
+              "type": "string",
+              "description": "CdoId: 2350; FieldId: 28249; Workspace: csi; Flags: None; Annotations: Barcode with data to set to fields in this service detail",
+              "nullable": true
+            },
+            "attributeName": {
+              "type": "string",
+              "description": "CdoId: 7459; FieldId: 24418; Workspace: csi; Flags: None; Annotations: A unique name for an attribute of a object.",
+              "nullable": true
+            },
+            "booleanFalse": {
+              "type": "string",
+              "description": "CdoId: 7459; FieldId: 29218; Workspace: csi; Flags: None; Annotations: The False pulled from the ComputationDetail",
+              "nullable": true
+            },
+            "booleanTrue": {
+              "type": "string",
+              "description": "CdoId: 7459; FieldId: 29217; Workspace: csi; Flags: None; Annotations: The BooleanTrue pulled from the CompuationDetail",
+              "nullable": true
+            },
+            "computation": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "computationExpression": {
+              "type": "string",
+              "description": "CdoId: 7459; FieldId: 12442; Workspace: csi; Flags: ReadOnly; Annotations: ComputationExpression",
+              "nullable": true,
+              "readOnly": true
+            },
+            "computationName": {
+              "type": "string",
+              "description": "CdoId: 7459; FieldId: 12441; Workspace: csi; Flags: ReadOnly; Annotations: Unique name for this instance",
+              "nullable": true,
+              "readOnly": true
+            },
+            "computationParamDetails": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ComputationParamDetail"
+              },
+              "description": "CdoId: 7459; FieldId: 12448; Workspace: csi; Flags: None; Annotations: Params Details of the Computation",
+              "nullable": true
+            },
+            "decimalScale": {
+              "type": "integer",
+              "description": "CdoId: 7459; FieldId: 27588; Workspace: csi; Flags: None; Annotations: Decimal Scale",
+              "format": "int32",
+              "nullable": true
+            },
+            "displayLimits": {
+              "type": "boolean",
+              "description": "CdoId: 7459; FieldId: 21470; Workspace: csi; Flags: None; Annotations: Controls whether the limits are displayed to the end user.",
+              "nullable": true
+            },
+            "historyDetail": {
+              "$ref": "#/components/schemas/SubentityRef"
+            },
+            "isLimitOverride": {
+              "type": "boolean",
+              "description": "CdoId: 7459; FieldId: 21471; Workspace: csi; Flags: None; Annotations: Indicates that the limit violation has been overridden.",
+              "nullable": true
+            },
+            "isLimitOverrideAllowed": {
+              "type": "boolean",
+              "description": "CdoId: 7459; FieldId: 21472; Workspace: csi; Flags: ReadOnly; Annotations: Identifies whether the limit validation may be overridden.  Overriding a limit violation is a runtime action that will allow a computation to be considered successful even if it fails the limit validation.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "isLimitViolation": {
+              "type": "boolean",
+              "description": "CdoId: 7459; FieldId: 21473; Workspace: csi; Flags: None; Annotations: Indicates whether the limits have been violated.",
+              "nullable": true
+            },
+            "lowerLimit": {
+              "type": "string",
+              "description": "CdoId: 7459; FieldId: 21474; Workspace: csi; Flags: None; Annotations: The lower limit of acceptable values for this computation.",
+              "nullable": true
+            },
+            "mapToContainerAttribute": {
+              "type": "boolean",
+              "description": "CdoId: 7459; FieldId: 24417; Workspace: csi; Flags: None; Annotations: Map to Container Attribute",
+              "nullable": true
+            },
+            "overrideLimits": {
+              "type": "boolean",
+              "description": "CdoId: 7459; FieldId: 21485; Workspace: csi; Flags: None; Annotations: Indicates that there was a LimitViolation and that it was overridden",
+              "nullable": true
+            },
+            "persLowerLimit": {
+              "type": "string",
+              "description": "CdoId: 7459; FieldId: 27590; Workspace: csi; Flags: None; Annotations: Lower Limit",
+              "nullable": true
+            },
+            "persUpperLimit": {
+              "type": "string",
+              "description": "CdoId: 7459; FieldId: 27589; Workspace: csi; Flags: None; Annotations: Upper Limit",
+              "nullable": true
+            },
+            "rangeColor": {
+              "type": "integer",
+              "description": "CdoId: 7459; FieldId: 21508; Workspace: csi; Flags: None; Annotations: Enumeration for the Range Color:\r\n-2 = BelowOuter\r\n-1 = BelowInner\r\n0  = WithinInner\r\n1  = AboveInner\r\n2  = AboveOuter",
+              "format": "int32",
+              "nullable": true
+            },
+            "resultDataType": {
+              "type": "integer",
+              "description": "CdoId: 7459; FieldId: 12444; Workspace: csi; Flags: ReadOnly; Annotations: The Insite data type.\r\n1\tInteger\r\n2\tFloat\r\n3              Fixed\r\n4\tString\r\n5\tObject\r\n6\tTimeStamp\r\n7\tBoolean\r\n9\tDecimal",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "resultName": {
+              "type": "string",
+              "description": "CdoId: 7459; FieldId: 12443; Workspace: csi; Flags: ReadOnly; Annotations: Unique name for this instance",
+              "nullable": true,
+              "readOnly": true
+            },
+            "resultValue": {
+              "type": "string",
+              "description": "CdoId: 7459; FieldId: 12473; Workspace: csi; Flags: ReadOnly; Annotations: Result Value",
+              "nullable": true,
+              "readOnly": true
+            },
+            "roundingRule": {
+              "type": "integer",
+              "description": "CdoId: 7459; FieldId: 27725; Workspace: csi; Flags: None; Annotations: 1 = Round Down (Floor)\r\n2 = Round Up (Ceiling)\r\n3 = Round to Nearest",
+              "format": "int32",
+              "nullable": true
+            },
+            "upperLimit": {
+              "type": "string",
+              "description": "CdoId: 7459; FieldId: 21475; Workspace: csi; Flags: None; Annotations: The upper limit of acceptable values for this computation.",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "ComputationParamDetail": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1200; FieldId: 7992; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 1200; FieldId: 20185; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: Subentity",
+              "nullable": true,
+              "readOnly": true
+            },
+            "parent": {
+              "$ref": "#/components/schemas/BaseObjectRef"
+            },
+            "smartBarcode": {
+              "type": "string",
+              "description": "CdoId: 2350; FieldId: 28249; Workspace: csi; Flags: None; Annotations: Barcode with data to set to fields in this service detail",
+              "nullable": true
+            },
+            "dataType": {
+              "type": "integer",
+              "description": "CdoId: 7460; FieldId: 12447; Workspace: csi; Flags: ReadOnly; Annotations: The Insite data type.\r\n1\tInteger\r\n2\tFloat\r\n3              Fixed\r\n4\tString\r\n5\tObject\r\n6\tTimeStamp\r\n7\tBoolean\r\n9\tDecimal",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "historyDetail": {
+              "$ref": "#/components/schemas/SubentityRef"
+            },
+            "paramName": {
+              "type": "string",
+              "description": "CdoId: 7460; FieldId: 12445; Workspace: csi; Flags: None; Annotations: Unique name for this instance",
+              "nullable": true
+            },
+            "paramValue": {
+              "type": "string",
+              "description": "CdoId: 7460; FieldId: 12458; Workspace: csi; Flags: None; Annotations: Param Value",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "ContainerRef": {
+          "type": "object",
+          "properties": {
+            "instanceId": {
+              "type": "string",
+              "nullable": true
+            },
+            "cdoTypeName": {
+              "type": "string",
+              "nullable": true
+            },
+            "name": {
+              "type": "string",
+              "nullable": true
+            },
+            "level": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        "ESigCaptureDetail": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1200; FieldId: 7992; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 1200; FieldId: 20185; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: Subentity",
+              "nullable": true,
+              "readOnly": true
+            },
+            "parent": {
+              "$ref": "#/components/schemas/BaseObjectRef"
+            },
+            "smartBarcode": {
+              "type": "string",
+              "description": "CdoId: 2350; FieldId: 28249; Workspace: csi; Flags: None; Annotations: Barcode with data to set to fields in this service detail",
+              "nullable": true
+            },
+            "comments": {
+              "type": "string",
+              "description": "CdoId: 7148; FieldId: 9682; Workspace: csi; Flags: None; Annotations: Comments",
+              "nullable": true
+            },
+            "cosigner": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "cosignerFullName": {
+              "type": "string",
+              "description": "CdoId: 7148; FieldId: 9684; Workspace: csi; Flags: ReadOnly; Annotations: The full name of employee that cosigned for the ESigReqDetail.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "cosignReason": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "historyDetail": {
+              "$ref": "#/components/schemas/SubentityRef"
+            },
+            "signer": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "signerFullName": {
+              "type": "string",
+              "description": "CdoId: 7148; FieldId: 9687; Workspace: csi; Flags: ReadOnly; Annotations: The full name of the employee that signed for the ESigReqDetail.",
+              "nullable": true,
+              "readOnly": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "ESigServiceDetail": {
+          "required": [
+            "eSigReqDetail"
+          ],
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1200; FieldId: 7992; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 1200; FieldId: 20185; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: Subentity",
+              "nullable": true,
+              "readOnly": true
+            },
+            "parent": {
+              "$ref": "#/components/schemas/BaseObjectRef"
+            },
+            "smartBarcode": {
+              "type": "string",
+              "description": "CdoId: 2350; FieldId: 28249; Workspace: csi; Flags: None; Annotations: Barcode with data to set to fields in this service detail",
+              "nullable": true
+            },
+            "captureCount": {
+              "type": "integer",
+              "description": "CdoId: 7149; FieldId: 9689; Workspace: csi; Flags: None; Annotations: The number of CaptureDetails collected.",
+              "format": "int32",
+              "nullable": true
+            },
+            "captureDetails": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ESigCaptureDetail"
+              },
+              "description": "CdoId: 7149; FieldId: 9690; Workspace: csi; Flags: None; Annotations: The signatures collected for an ESigReqDetail.",
+              "nullable": true
+            },
+            "container": {
+              "$ref": "#/components/schemas/ContainerRef"
+            },
+            "cosignerRole": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "eSigReqDetail": {
+              "$ref": "#/components/schemas/NamedSubentityRef"
+            },
+            "historyDetail": {
+              "$ref": "#/components/schemas/SubentityRef"
+            },
+            "meaning": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "qty": {
+              "type": "number",
+              "description": "CdoId: 7149; FieldId: 20995; Workspace: csi; Flags: None; Annotations: Container Qty",
+              "format": "double",
+              "nullable": true
+            },
+            "role": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "signatureCount": {
+              "type": "integer",
+              "description": "CdoId: 7149; FieldId: 9695; Workspace: csi; Flags: ReadOnly; Annotations: The number of signatures necessary to fulfill the requirement.",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "spec": {
+              "$ref": "#/components/schemas/RevisionedObjectRef"
+            },
+            "uom": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "verificationMethod": {
+              "type": "integer",
+              "description": "CdoId: 7149; FieldId: 9696; Workspace: csi; Flags: ReadOnly; Annotations: The method that must be used to verify the requirement.  Currently, only Password is supported.",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "EventToPerform": {
+          "type": "object",
+          "properties": {
+            "eventName": {
+              "type": "string",
+              "nullable": true
+            },
+            "parameters": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/QueryParameter"
+              },
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "ExternalSampleData": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1070; FieldId: 6714; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "parent": {
+              "$ref": "#/components/schemas/SubentityRef"
+            },
+            "aqlRejectReasons": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "instructions": {
+              "type": "string",
+              "description": "CdoId: 8454; FieldId: 21922; Workspace: csi; Flags: ReadOnly; Annotations: Instructions for the SampleTest",
+              "nullable": true,
+              "readOnly": true
+            },
+            "passedSamples": {
+              "type": "integer",
+              "description": "CdoId: 8454; FieldId: 21923; Workspace: csi; Flags: ReadOnly; Annotations: PassedSamples",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "sampleTestName": {
+              "type": "string",
+              "description": "CdoId: 8454; FieldId: 21926; Workspace: csi; Flags: ReadOnly; Annotations: Sample Test Name",
+              "nullable": true,
+              "readOnly": true
+            },
+            "sampleTestRevision": {
+              "type": "string",
+              "description": "CdoId: 8454; FieldId: 21927; Workspace: csi; Flags: ReadOnly; Annotations: Revision (unique within the context of the base entity)",
+              "nullable": true,
+              "readOnly": true
+            },
+            "sampleTestStatus": {
+              "type": "string",
+              "description": "CdoId: 8454; FieldId: 21928; Workspace: csi; Flags: ReadOnly; Annotations: SampleTestStatus",
+              "nullable": true,
+              "readOnly": true
+            },
+            "sampleType": {
+              "type": "integer",
+              "description": "CdoId: 8454; FieldId: 21929; Workspace: csi; Flags: ReadOnly; Annotations: Sample Type definition for the Sample Test  for the container being inspected.  \r\nCounted= 1\r\nMeasured = 2",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "externalSampleData": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ExternalSampleData"
+              },
+              "description": "CdoId: 8593; FieldId: 29502; Workspace: csi; Flags: ReadOnly; Annotations: External Sample Data details integration with LIMS.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "allowedRejects": {
+              "type": "integer",
+              "description": "CdoId: 9039; FieldId: 29519; Workspace: csi; Flags: ReadOnly; Annotations: Current number of Allowed Rejects for the Sample Test for the container undergoing inspection.  If the Reject count is greater than this number the SampleTest will be marked as failed.",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "aqlLevel": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "completedSamples": {
+              "type": "integer",
+              "description": "CdoId: 9039; FieldId: 29512; Workspace: csi; Flags: ReadOnly; Annotations: The total number of samples Completed for this Sample Test.  Sampling is completed for a SampleTest when Completed Samples>=TotalSamplesRequired",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "container": {
+              "$ref": "#/components/schemas/ContainerRef"
+            },
+            "dateCompleted": {
+              "type": "string",
+              "description": "CdoId: 9039; FieldId: 29509; Workspace: csi; Flags: ReadOnly; Annotations: Date when Sampling is completed at the External LIMS.",
+              "format": "date-time",
+              "nullable": true,
+              "readOnly": true
+            },
+            "dateCreated": {
+              "type": "string",
+              "description": "CdoId: 9039; FieldId: 29522; Workspace: csi; Flags: ReadOnly; Annotations: Date when Sample is created at the External LIMS.",
+              "format": "date-time",
+              "nullable": true,
+              "readOnly": true
+            },
+            "exportImportKey": {
+              "type": "string",
+              "description": "CdoId: 9039; FieldId: 29505; Workspace: csi; Flags: ReadOnly; Annotations: A unique key used for processing import/exports so subentity lists are not necessarily rebuild during an import.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "externalSampleDataStatus": {
+              "type": "integer",
+              "description": "CdoId: 9039; FieldId: 29520; Workspace: csi; Flags: ReadOnly; Annotations: Enumeration for External Sample Data Status. Use for integration with LIMS.\r\n1 = Created\r\n2 = Pass\r\n3 = Fail",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "inspectAllContQty": {
+              "type": "boolean",
+              "description": "CdoId: 9039; FieldId: 29510; Workspace: csi; Flags: None; Annotations: Indicates that inspection of all the containers' quantity is required for this product",
+              "nullable": true
+            },
+            "inspectAllQtyOnFailure": {
+              "type": "boolean",
+              "description": "CdoId: 9039; FieldId: 29518; Workspace: csi; Flags: None; Annotations: Indicates that the quantity of all container will be inspected if a test fails",
+              "nullable": true
+            },
+            "inspectionLevel": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 9039; FieldId: 29526; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: Subentity",
+              "nullable": true,
+              "readOnly": true
+            },
+            "rejects": {
+              "type": "integer",
+              "description": "CdoId: 9039; FieldId: 29517; Workspace: csi; Flags: ReadOnly; Annotations: Current number of Rejects for the Sample Test for the container undergoing inspection.",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "resource": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "sampleID": {
+              "type": "string",
+              "description": "CdoId: 9039; FieldId: 29524; Workspace: csi; Flags: ReadOnly; Annotations: ID of the Sample created at External LIMS.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "samplesFailed": {
+              "type": "integer",
+              "description": "CdoId: 9039; FieldId: 29507; Workspace: csi; Flags: ReadOnly; Annotations: Number of Samples Failed",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "samplesTested": {
+              "type": "integer",
+              "description": "CdoId: 9039; FieldId: 29503; Workspace: csi; Flags: ReadOnly; Annotations: Number of Samples Tested",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "sampleTest": {
+              "$ref": "#/components/schemas/RevisionedObjectRef"
+            },
+            "samplingPlan": {
+              "$ref": "#/components/schemas/RevisionedObjectRef"
+            },
+            "samplingPlanDetail": {
+              "$ref": "#/components/schemas/SubentityRef"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/RevisionedObjectRef"
+            },
+            "totalSamplesRequired": {
+              "type": "integer",
+              "description": "CdoId: 9039; FieldId: 29506; Workspace: csi; Flags: ReadOnly; Annotations: The total number of samples needing to be inspected for this SampleTest.",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "vendorItem": {
+              "$ref": "#/components/schemas/NamedSubentityRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        "LabelDetails": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1200; FieldId: 7992; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 1200; FieldId: 20185; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: Subentity",
+              "nullable": true,
+              "readOnly": true
+            },
+            "parent": {
+              "$ref": "#/components/schemas/BaseObjectRef"
+            },
+            "smartBarcode": {
+              "type": "string",
+              "description": "CdoId: 2350; FieldId: 28249; Workspace: csi; Flags: None; Annotations: Barcode with data to set to fields in this service detail",
+              "nullable": true
+            },
+            "historyDetail": {
+              "$ref": "#/components/schemas/SubentityRef"
+            },
+            "tagName": {
+              "type": "string",
+              "description": "CdoId: 7306; FieldId: 10925; Workspace: csi; Flags: None; Annotations: Generic String",
+              "nullable": true
+            },
+            "tagValue": {
+              "type": "string",
+              "description": "CdoId: 7306; FieldId: 10926; Workspace: csi; Flags: None; Annotations: Field Expression.",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "LabelSummary": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1200; FieldId: 7992; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 1200; FieldId: 20185; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: Subentity",
+              "nullable": true,
+              "readOnly": true
+            },
+            "parent": {
+              "$ref": "#/components/schemas/BaseObjectRef"
+            },
+            "smartBarcode": {
+              "type": "string",
+              "description": "CdoId: 2350; FieldId: 28249; Workspace: csi; Flags: None; Annotations: Barcode with data to set to fields in this service detail",
+              "nullable": true
+            },
+            "historyDetail": {
+              "$ref": "#/components/schemas/SubentityRef"
+            },
+            "labelCount": {
+              "type": "integer",
+              "description": "CdoId: 7307; FieldId: 10928; Workspace: csi; Flags: None; Annotations: Generic Integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "labelDetails": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/LabelDetails"
+              },
+              "description": "CdoId: 7307; FieldId: 10931; Workspace: csi; Flags: None; Annotations: When a label tag and label value are evaluated (unified expression or a constant) the resolved matching value is placed here for use later.",
+              "nullable": true
+            },
+            "printerLabelDefinition": {
+              "$ref": "#/components/schemas/RevisionedObjectRef"
+            },
+            "printQueue": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        "LiveRelayInfo": {
+          "required": [
+            "documentType",
+            "remoteSite"
+          ],
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1200; FieldId: 7992; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 1200; FieldId: 20185; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: Subentity",
+              "nullable": true,
+              "readOnly": true
+            },
+            "dataTransport": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "documentType": {
+              "type": "string",
+              "description": "CdoId: 6964; FieldId: 8002; Workspace: csi; Flags: Required; Annotations: Outbound XML document type"
+            },
+            "failureResponse": {
+              "$ref": "#/components/schemas/Service"
+            },
+            "parametricData": {
+              "$ref": "#/components/schemas/SubentityRef"
+            },
+            "parent": {
+              "$ref": "#/components/schemas/BaseObjectRef"
+            },
+            "remoteService": {
+              "$ref": "#/components/schemas/Service"
+            },
+            "remoteSite": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "responseSite": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "successResponse": {
+              "$ref": "#/components/schemas/Service"
+            }
+          },
+          "additionalProperties": false
+        },
+        "LotSampleData": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1070; FieldId: 6714; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "parent": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "aqlRejectReasons": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "instructions": {
+              "type": "string",
+              "description": "CdoId: 8454; FieldId: 21922; Workspace: csi; Flags: ReadOnly; Annotations: Instructions for the SampleTest",
+              "nullable": true,
+              "readOnly": true
+            },
+            "passedSamples": {
+              "type": "integer",
+              "description": "CdoId: 8454; FieldId: 21923; Workspace: csi; Flags: ReadOnly; Annotations: PassedSamples",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "sampleTestName": {
+              "type": "string",
+              "description": "CdoId: 8454; FieldId: 21926; Workspace: csi; Flags: ReadOnly; Annotations: Sample Test Name",
+              "nullable": true,
+              "readOnly": true
+            },
+            "sampleTestRevision": {
+              "type": "string",
+              "description": "CdoId: 8454; FieldId: 21927; Workspace: csi; Flags: ReadOnly; Annotations: Revision (unique within the context of the base entity)",
+              "nullable": true,
+              "readOnly": true
+            },
+            "sampleTestStatus": {
+              "type": "string",
+              "description": "CdoId: 8454; FieldId: 21928; Workspace: csi; Flags: ReadOnly; Annotations: SampleTestStatus",
+              "nullable": true,
+              "readOnly": true
+            },
+            "sampleType": {
+              "type": "integer",
+              "description": "CdoId: 8454; FieldId: 21929; Workspace: csi; Flags: ReadOnly; Annotations: Sample Type definition for the Sample Test  for the container being inspected.  \r\nCounted= 1\r\nMeasured = 2",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "allowedRejects": {
+              "type": "integer",
+              "description": "CdoId: 8593; FieldId: 23599; Workspace: csi; Flags: ReadOnly; Annotations: Current number of Allowed Rejects for the Sample Test for the container undergoing inspection.  If the Reject count is greater than this number the SampleTest will be marked as failed.",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "aqlLevel": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "completedSamples": {
+              "type": "integer",
+              "description": "CdoId: 8593; FieldId: 23602; Workspace: csi; Flags: ReadOnly; Annotations: The total number of samples Completed for this Sample Test.  Sampling is completed for a SampleTest when Completed Samples>=TotalSamplesRequired",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "exportImportKey": {
+              "type": "string",
+              "description": "CdoId: 8593; FieldId: 23686; Workspace: csi; Flags: ReadOnly; Annotations: Hexadecimal representation of GUID ( e.g. BDE4B634-153E-4A31-A453-EEA85FE80532)",
+              "nullable": true,
+              "readOnly": true
+            },
+            "externalSampleData": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ExternalSampleData"
+              },
+              "description": "CdoId: 8593; FieldId: 29502; Workspace: csi; Flags: ReadOnly; Annotations: External Sample Data details integration with LIMS.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "inspectAllContQty": {
+              "type": "boolean",
+              "description": "CdoId: 8593; FieldId: 23603; Workspace: csi; Flags: None; Annotations: Indicates that inspection of all the containers' quantity is required for this product",
+              "nullable": true
+            },
+            "inspectAllQtyOnFailure": {
+              "type": "boolean",
+              "description": "CdoId: 8593; FieldId: 23604; Workspace: csi; Flags: None; Annotations: Indicates that the quantity of all container will be inspected if a test fails",
+              "nullable": true
+            },
+            "inspectionLevel": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 8593; FieldId: 23616; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: Subentity",
+              "nullable": true,
+              "readOnly": true
+            },
+            "rejects": {
+              "type": "integer",
+              "description": "CdoId: 8593; FieldId: 23606; Workspace: csi; Flags: ReadOnly; Annotations: Current number of Rejects for the Sample Test for the container undergoing inspection.",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "resource": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "samplesFailed": {
+              "type": "integer",
+              "description": "CdoId: 8593; FieldId: 23608; Workspace: csi; Flags: ReadOnly; Annotations: Number of Samples Failed",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "samplesTested": {
+              "type": "integer",
+              "description": "CdoId: 8593; FieldId: 23609; Workspace: csi; Flags: ReadOnly; Annotations: Number of Samples Tested",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "sampleTest": {
+              "$ref": "#/components/schemas/RevisionedObjectRef"
+            },
+            "samplingPlan": {
+              "$ref": "#/components/schemas/RevisionedObjectRef"
+            },
+            "samplingPlanDetail": {
+              "$ref": "#/components/schemas/SubentityRef"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/RevisionedObjectRef"
+            },
+            "totalSamplesRequired": {
+              "type": "integer",
+              "description": "CdoId: 8593; FieldId: 23614; Workspace: csi; Flags: ReadOnly; Annotations: The total number of samples needing to be inspected for this SampleTest.",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "vendorItem": {
+              "$ref": "#/components/schemas/NamedSubentityRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        "NamedObjectRef": {
+          "type": "object",
+          "properties": {
+            "instanceId": {
+              "type": "string",
+              "nullable": true
+            },
+            "cdoTypeName": {
+              "type": "string",
+              "nullable": true
+            },
+            "name": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "NamedSubentityRef": {
+          "type": "object",
+          "properties": {
+            "instanceId": {
+              "type": "string",
+              "nullable": true
+            },
+            "cdoTypeName": {
+              "type": "string",
+              "nullable": true
+            },
+            "parent": {
+              "$ref": "#/components/schemas/BaseObjectRef"
+            },
+            "name": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "ParametricData": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1200; FieldId: 7992; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 1200; FieldId: 20185; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: Subentity",
+              "nullable": true,
+              "readOnly": true
+            },
+            "parent": {
+              "$ref": "#/components/schemas/BaseObjectRef"
+            },
+            "smartBarcode": {
+              "type": "string",
+              "description": "CdoId: 2350; FieldId: 28249; Workspace: csi; Flags: None; Annotations: Barcode with data to set to fields in this service detail",
+              "nullable": true
+            },
+            "historyDetail": {
+              "$ref": "#/components/schemas/SubentityRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        "QueryParameter": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "nullable": true
+            },
+            "value": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "RevisionedObjectRef": {
+          "type": "object",
+          "properties": {
+            "instanceId": {
+              "type": "string",
+              "nullable": true
+            },
+            "cdoTypeName": {
+              "type": "string",
+              "nullable": true
+            },
+            "name": {
+              "type": "string",
+              "nullable": true
+            },
+            "revision": {
+              "type": "string",
+              "nullable": true
+            },
+            "useROR": {
+              "type": "boolean",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "Service": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1000; FieldId: 6184; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 1000; FieldId: 4927; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: BaseObject",
+              "nullable": true,
+              "readOnly": true
+            },
+            "completionMsg": {
+              "type": "string",
+              "description": "CdoId: 1080; FieldId: 1443; Workspace: csi; Flags: None; Annotations: When the service is executed, this field will be filled out by the system with a message in the terminology of the user and language that describes the successful completion of the service, or describes the error condition if there was an error.  The text for completion messages is stored in labels and can be customized per user if necessary.",
+              "nullable": true
+            },
+            "currentDay": {
+              "type": "string",
+              "description": "CdoId: 1080; FieldId: 29189; Workspace: csi; Flags: None; Annotations: Generic String",
+              "nullable": true
+            },
+            "currentMonth": {
+              "type": "string",
+              "description": "CdoId: 1080; FieldId: 29190; Workspace: csi; Flags: None; Annotations: Generic String",
+              "nullable": true
+            },
+            "currentWeekOfYear": {
+              "type": "integer",
+              "description": "CdoId: 1080; FieldId: 28192; Workspace: csi; Flags: None; Annotations: Holds the current week of the year (1-52)",
+              "format": "int32",
+              "nullable": true
+            },
+            "currentYear": {
+              "type": "string",
+              "description": "CdoId: 1080; FieldId: 29191; Workspace: csi; Flags: None; Annotations: Generic String",
+              "nullable": true
+            },
+            "effectivityDate": {
+              "type": "string",
+              "description": "CdoId: 1080; FieldId: 5781; Workspace: csi; Flags: None; Annotations: This date/time is used in a comparison against EffectiveDates in modeling entities to help determine if the object should be considered for processing.  This value is always specified as GMT time.",
+              "format": "date-time",
+              "nullable": true
+            },
+            "employee": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "factory": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "isRemoteService": {
+              "type": "boolean",
+              "description": "CdoId: 1080; FieldId: 7527; Workspace: csi; Flags: None; Annotations: Allows to alter standard processing of a Service in case it's executed as a Remote Service.",
+              "nullable": true
+            },
+            "liveRelayInfo": {
+              "$ref": "#/components/schemas/LiveRelayInfo"
+            },
+            "mfgProcessOverrides": {
+              "$ref": "#/components/schemas/RevisionedObjectRef"
+            },
+            "password": {
+              "type": "string",
+              "description": "CdoId: 1080; FieldId: 1437; Workspace: csi; Flags: Encrypted; Annotations: NT login password for the user performing the service, if \"User\" was entered.  If \"user\" is not entered security is based on the InSite login.",
+              "nullable": true,
+              "writeOnly": true
+            },
+            "smartBarcode": {
+              "type": "string",
+              "description": "CdoId: 1080; FieldId: 28198; Workspace: csi; Flags: None; Annotations: Barcode to be parsed using a Smart Scan Rule",
+              "nullable": true
+            },
+            "smartScanParseError": {
+              "type": "string",
+              "description": "CdoId: 1080; FieldId: 28195; Workspace: csi; Flags: None; Annotations: Smart parsing from CLF will not throw an error. If any error does occur, a message will be output here. The calling CLF can decide what to do with it.",
+              "nullable": true
+            },
+            "smartScanParseResults": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/SmartScanParseResult"
+              },
+              "description": "CdoId: 1080; FieldId: 28196; Workspace: csi; Flags: None; Annotations: Holds result of parsing one data value from the Smart Barcode",
+              "nullable": true
+            },
+            "smartScanRule": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "strSplitResult": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "CdoId: 1080; FieldId: 28194; Workspace: csi; Flags: None; Annotations: Utility field to hold results of string split.",
+              "nullable": true
+            },
+            "txnDate": {
+              "type": "string",
+              "description": "CdoId: 1080; FieldId: 1438; Workspace: csi; Flags: None; Annotations: The date and time the service was performed.  If left blank InSite uses the database system clock to determine the transaction date.",
+              "format": "date-time",
+              "nullable": true
+            },
+            "txnDateGMT": {
+              "type": "string",
+              "description": "CdoId: 1080; FieldId: 21655; Workspace: csi; Flags: None; Annotations: TxnDateGMT",
+              "format": "date-time",
+              "nullable": true
+            },
+            "user": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "wipMsgMgr": {
+              "$ref": "#/components/schemas/WIPMsgMgr"
+            }
+          },
+          "additionalProperties": false
+        },
+        "SmartScanParseResult": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1070; FieldId: 6714; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 1070; FieldId: 5001; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: Subentity",
+              "nullable": true,
+              "readOnly": true
+            },
+            "parent": {
+              "$ref": "#/components/schemas/BaseObjectRef"
+            },
+            "parsedValue": {
+              "type": "string",
+              "description": "CdoId: 8939; FieldId: 28199; Workspace: csi; Flags: ReadOnly; Annotations: Value of the parsed data",
+              "nullable": true,
+              "readOnly": true
+            },
+            "smartScanType": {
+              "type": "integer",
+              "description": "CdoId: 8939; FieldId: 28200; Workspace: csi; Flags: ReadOnly; Annotations: Type of the parsed data",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "SubentityRef": {
+          "type": "object",
+          "properties": {
+            "instanceId": {
+              "type": "string",
+              "nullable": true
+            },
+            "cdoTypeName": {
+              "type": "string",
+              "nullable": true
+            },
+            "parent": {
+              "$ref": "#/components/schemas/BaseObjectRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        "UpdateSamplingLot": {
+          "required": [
+            "samplingLot"
+          ],
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1000; FieldId: 6184; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 1000; FieldId: 4927; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: BaseObject",
+              "nullable": true,
+              "readOnly": true
+            },
+            "currentDay": {
+              "type": "string",
+              "description": "CdoId: 1080; FieldId: 29189; Workspace: csi; Flags: None; Annotations: Generic String",
+              "nullable": true
+            },
+            "currentMonth": {
+              "type": "string",
+              "description": "CdoId: 1080; FieldId: 29190; Workspace: csi; Flags: None; Annotations: Generic String",
+              "nullable": true
+            },
+            "currentWeekOfYear": {
+              "type": "integer",
+              "description": "CdoId: 1080; FieldId: 28192; Workspace: csi; Flags: None; Annotations: Holds the current week of the year (1-52)",
+              "format": "int32",
+              "nullable": true
+            },
+            "currentYear": {
+              "type": "string",
+              "description": "CdoId: 1080; FieldId: 29191; Workspace: csi; Flags: None; Annotations: Generic String",
+              "nullable": true
+            },
+            "smartBarcode": {
+              "type": "string",
+              "description": "CdoId: 1080; FieldId: 28198; Workspace: csi; Flags: None; Annotations: Barcode to be parsed using a Smart Scan Rule",
+              "nullable": true
+            },
+            "smartScanParseError": {
+              "type": "string",
+              "description": "CdoId: 1080; FieldId: 28195; Workspace: csi; Flags: None; Annotations: Smart parsing from CLF will not throw an error. If any error does occur, a message will be output here. The calling CLF can decide what to do with it.",
+              "nullable": true
+            },
+            "smartScanParseResults": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/SmartScanParseResult"
+              },
+              "description": "CdoId: 1080; FieldId: 28196; Workspace: csi; Flags: None; Annotations: Holds result of parsing one data value from the Smart Barcode",
+              "nullable": true
+            },
+            "smartScanRule": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "strSplitResult": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "CdoId: 1080; FieldId: 28194; Workspace: csi; Flags: None; Annotations: Utility field to hold results of string split.",
+              "nullable": true
+            },
+            "txnDateGMT": {
+              "type": "string",
+              "description": "CdoId: 1080; FieldId: 21655; Workspace: csi; Flags: None; Annotations: TxnDateGMT",
+              "format": "date-time",
+              "nullable": true
+            },
+            "aceMessage": {
+              "type": "string",
+              "description": "CdoId: 1100; FieldId: 10971; Workspace: csi; Flags: ReadOnly; Annotations: ACEMessage field contains the success or failure messages of the after commit events (AfterCommit and AfterCommitFailure)\r\nOn unhandled errors in these events, System automatically populates this field with the resolved error message.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "aceStatus": {
+              "type": "integer",
+              "description": "CdoId: 1100; FieldId: 10972; Workspace: csi; Flags: ReadOnly; Annotations: ACEStatus field indicates the success or failure of the after commit events (AfterCommit and AfterCommitEventFailure)\r\nEnumeration for the after commit event status codes.\r\n\r\nValue\tName\t                Meaning\r\n1\tACESuccess\tafter commit event completed successfully\r\n2\tACEFSuccess\tan unhandled error in the after commit event was caught and after commit event failure event completed successfully\r\n3\tACEFFail\t                an unhandled error in the after commit event was caught and another unhandled error was raised in the after commit event failure event\r\n> 99\t<custom status>\tUser specific status codes (Designer based)",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "serverName": {
+              "type": "string",
+              "description": "CdoId: 1100; FieldId: 28183; Workspace: csi; Flags: None; Annotations: The server name that processed the transaction.",
+              "nullable": true
+            },
+            "actionDetails": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ActionDetails"
+              },
+              "description": "CdoId: 1110; FieldId: 19872; Workspace: csi; Flags: ReadOnly; Annotations: List of actions. It's built based on the ActionType field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "actionSource": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "additionalESigReqs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/NamedObjectRef"
+              },
+              "description": "CdoId: 1110; FieldId: 17037; Workspace: csi; Flags: None; Annotations: Contains the list of ESignature Requirements that should be collected in a single transaction.; OriginalType: ESigRequirement",
+              "nullable": true
+            },
+            "alertMsgList": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "CdoId: 1110; FieldId: 27742; Workspace: csi; Flags: None; Annotations: A string list used holds the additional messages of a transaction",
+              "nullable": true
+            },
+            "alertMsgListDelimiter": {
+              "type": "string",
+              "description": "CdoId: 1110; FieldId: 27741; Workspace: csi; Flags: None; Annotations: A string field used to define the delimiter string to separate the additional messages",
+              "nullable": true
+            },
+            "calledByTransactionTask": {
+              "$ref": "#/components/schemas/NamedSubentityRef"
+            },
+            "comments": {
+              "type": "string",
+              "description": "CdoId: 1110; FieldId: 15704; Workspace: csi; Flags: None; Annotations: Free-form text notes the user can provide when performing a service.",
+              "nullable": true
+            },
+            "completionMsg": {
+              "type": "string",
+              "description": "CdoId: 1110; FieldId: 2101; Workspace: csi; Flags: None; Annotations: When the service is executed, this field will be filled out by the system with a message in the terminology of the user and language that describes the successful completion of the service, or describes the error condition if there was an error.  The text for completion messages is stored in labels and can be customized per user if necessary.",
+              "nullable": true
+            },
+            "computationDetail": {
+              "$ref": "#/components/schemas/ComputationDetail"
+            },
+            "dataCollectionDef": {
+              "$ref": "#/components/schemas/RevisionedObjectRef"
+            },
+            "dispatchItem": {
+              "$ref": "#/components/schemas/SubentityRef"
+            },
+            "dispatchRule": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "effectivityDate": {
+              "type": "string",
+              "description": "CdoId: 1110; FieldId: 7916; Workspace: csi; Flags: None; Annotations: This date/time is used in a comparison against EffectiveDates in modeling entities to help determine if the object should be considered for processing.  This value is always specified as GMT time.",
+              "format": "date-time",
+              "nullable": true
+            },
+            "emailGroup": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "employee": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "enableRPT": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 28404; Workspace: csi; Flags: None; Annotations: A flag to determine whether the service will trigger the RPT calculation.",
+              "nullable": true
+            },
+            "enforceDispatch": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 9770; Workspace: csi; Flags: ReadOnly; Annotations: Boolean flag to override dispatch enforcement.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "eSigDetails": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ESigServiceDetail"
+              },
+              "description": "CdoId: 1110; FieldId: 9641; Workspace: csi; Flags: None; Annotations: The ESigReqDetail used to fulfill all or part of an ESigRequirement.",
+              "nullable": true
+            },
+            "eSigRequirement": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "factory": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "hasDataCollection": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 21504; Workspace: csi; Flags: ReadOnly; Annotations: Returns true if the associated service has a data collection assigned, false otherwise.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "hasDPCollection": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 20963; Workspace: csi; Flags: ReadOnly; Annotations: This flag allows the client to determine if the data collection type is of type DataPointCollection.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "hasUserDataCollection": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 11682; Workspace: csi; Flags: ReadOnly; Annotations: This flag allows the client to determine the type of data collection to process, UserDataCollection or ParametricDataCollection.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "isExternalAppTxnExecution": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 28378; Workspace: csi; Flags: None; Annotations: The flag indicates whether a transaction was initiated by an external application, such as through a REST API call. This field is crucial for managing data broadcasts, like controlling a SignalR broadcast. By default, the flag is set to false, allowing normal broadcasting of data. However, when the flag is set to true, it serves as a control mechanism to prevent broadcasting the transaction data. This indicates that the transaction was executed externally, and therefore, should not be broadcast back.",
+              "nullable": true
+            },
+            "isRemoteService": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 7946; Workspace: csi; Flags: None; Annotations: Allows to alter standard processing of a Service in case it's executed as a Remote Service.",
+              "nullable": true
+            },
+            "labelSummaries": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/LabelSummary"
+              },
+              "description": "CdoId: 1110; FieldId: 10933; Workspace: csi; Flags: ReadOnly; Annotations: When printing labels, the information needed to print as well as the values (details) are resolved and kept here for use later.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "liveRelayInfo": {
+              "$ref": "#/components/schemas/LiveRelayInfo"
+            },
+            "mfgCalendar": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "mfgOrder": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "mfgProcessOverrides": {
+              "$ref": "#/components/schemas/RevisionedObjectRef"
+            },
+            "parametricData": {
+              "$ref": "#/components/schemas/ParametricData"
+            },
+            "parametricDataControl": {
+              "type": "string",
+              "description": "CdoId: 1110; FieldId: 21158; Workspace: csi; Flags: ReadOnly; Annotations: FileName - used for fields that specify files.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "parametricDataDefType": {
+              "type": "integer",
+              "description": "CdoId: 1110; FieldId: 21159; Workspace: csi; Flags: ReadOnly; Annotations: CDO Definition Id",
+              "format": "int32",
+              "nullable": true,
+              "readOnly": true
+            },
+            "password": {
+              "type": "string",
+              "description": "CdoId: 1110; FieldId: 2945; Workspace: csi; Flags: Encrypted; Annotations: NT login password for the user performing the service, if \"User\" was entered.  If \"user\" is not entered security is based on the InSite login.",
+              "nullable": true,
+              "writeOnly": true
+            },
+            "printingResult": {
+              "type": "string",
+              "description": "CdoId: 1110; FieldId: 28107; Workspace: csi; Flags: None; Annotations: Printing Result",
+              "nullable": true
+            },
+            "printLabels": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 10935; Workspace: csi; Flags: None; Annotations: Generic Boolean",
+              "nullable": true
+            },
+            "printQueue": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "processActiveMfgOrder": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 28515; Workspace: csi; Flags: None; Annotations: This field is a flag to enable the processing of active mfg orders, which will validate the resources' active mfg orders with the process container mfg orders.",
+              "nullable": true
+            },
+            "processEProcedures": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 11545; Workspace: csi; Flags: None; Annotations: This field provides a way to turn off all the Electronic Procedures processing (validations and executions) in a single place.",
+              "nullable": true
+            },
+            "processESignatures": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 9643; Workspace: csi; Flags: ReadOnly; Annotations: Identifies whether the Electronic Signatures should be validated and executed for the service.  This is used to turn off the processing in the subservices when they are called from a compound (the Electronic Signature processing should take place in the compound).",
+              "nullable": true,
+              "readOnly": true
+            },
+            "processMaintMgmt": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 11399; Workspace: csi; Flags: ReadOnly; Annotations: This field provides a way to turn off all the Maintenance Management processing (validations and executions) in a single place.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "processMasterRecipe": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 17018; Workspace: csi; Flags: None; Annotations: This field provides a way to turn off all the Master Recipe processing (validations and executions) in a single place.",
+              "nullable": true
+            },
+            "processNCRs": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 11543; Workspace: csi; Flags: None; Annotations: This field provides a way to turn off all the NCRs processing (validations and executions) in a single place.",
+              "nullable": true
+            },
+            "processResourceStatusModel": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 679487033; Workspace: csi; Flags: None; Annotations: Flag used to find and execute a StatusModelDetail with a PreconditionToAutoSet that returns true.",
+              "nullable": true
+            },
+            "processTrainingReqs": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 11544; Workspace: csi; Flags: None; Annotations: This field provides a way to turn off all the Training Requirements processing (validations and executions) in a single place.\r\nNote that this is addition to the CheckTrainingReqs flag. The ProcessTrainingReqs will be used to turn off the feature globally, while the CheckTrainingReqs is used to control it at the individual service level.",
+              "nullable": true
+            },
+            "remainingProcessTime": {
+              "type": "number",
+              "description": "CdoId: 1110; FieldId: 28403; Workspace: csi; Flags: None; Annotations: Remaining Process Time value, used for RPT calculation.",
+              "format": "double",
+              "nullable": true
+            },
+            "sampleQty": {
+              "type": "number",
+              "description": "CdoId: 1110; FieldId: 21856; Workspace: csi; Flags: None; Annotations: Sample Qty",
+              "format": "double",
+              "nullable": true
+            },
+            "samplingPlanDetails": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/SubentityRef"
+              },
+              "description": "CdoId: 1110; FieldId: 21857; Workspace: csi; Flags: None; Annotations: The specific describes the details for a Sampling Plan's Sample Test..  For each  Sample Test, the AQL Level, Inspection Level, Switching Rule, Spec, Vendor and Resoruce can be configured.  Resolved from the Container; OriginalType: SamplingPlanDetails",
+              "nullable": true
+            },
+            "specFilter": {
+              "$ref": "#/components/schemas/RevisionedObjectRef"
+            },
+            "ss_SPCRecipe": {
+              "$ref": "#/components/schemas/RevisionedObjectRef"
+            },
+            "taskContainer": {
+              "$ref": "#/components/schemas/ContainerRef"
+            },
+            "taskTime": {
+              "type": "number",
+              "description": "CdoId: 1110; FieldId: 28880; Workspace: csi; Flags: None; Annotations: Time it took to perform the task",
+              "format": "float",
+              "nullable": true
+            },
+            "trainingRequirements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/RevisionedObjectRef"
+              },
+              "description": "CdoId: 1110; FieldId: 10354; Workspace: csi; Flags: ReadOnly; Annotations: Definition of the training required before a user is allowed to perform a specific task; OriginalType: TrainingRequirement",
+              "nullable": true,
+              "readOnly": true
+            },
+            "txnDate": {
+              "type": "string",
+              "description": "CdoId: 1110; FieldId: 5369; Workspace: csi; Flags: None; Annotations: The date and time the service was performed.  If left blank InSite uses the database system clock to determine the transaction date.",
+              "format": "date-time",
+              "nullable": true
+            },
+            "txnParentServiceName": {
+              "type": "string",
+              "description": "CdoId: 1110; FieldId: 27710; Workspace: csi; Flags: None; Annotations: The name of the parent service that calls a subservice.",
+              "nullable": true
+            },
+            "txnServiceSequence": {
+              "type": "integer",
+              "description": "CdoId: 1110; FieldId: 27531; Workspace: csi; Flags: None; Annotations: Stores the sequence of services being executed within a transaction. In a compound transaction or container transactions that calls other container transactions, multiple services may be called. Since all of them are having the same TxnId and TxnDate, this field is then used to indicate the sequence of services being executed.",
+              "format": "int32",
+              "nullable": true
+            },
+            "useDispatch": {
+              "type": "boolean",
+              "description": "CdoId: 1110; FieldId: 9769; Workspace: csi; Flags: ReadOnly; Annotations: Configures a service to be enabled for using the dispatch functionality",
+              "nullable": true,
+              "readOnly": true
+            },
+            "user": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "webPart": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "wipMsgMgr": {
+              "$ref": "#/components/schemas/WIPMsgMgr"
+            },
+            "allowAdjustToLotSize": {
+              "type": "boolean",
+              "description": "CdoId: 8588; FieldId: 23553; Workspace: csi; Flags: None; Annotations: Indicates if the Lot will be allowed to adjust based on the Sum of the containers asseigned to it",
+              "nullable": true
+            },
+            "containers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "CdoId: 8588; FieldId: 23554; Workspace: csi; Flags: ReadOnly; Annotations: List of all the Containers' Names associated with this Sampling Lot",
+              "nullable": true,
+              "readOnly": true
+            },
+            "lotName": {
+              "type": "string",
+              "description": "CdoId: 8588; FieldId: 23555; Workspace: csi; Flags: None; Annotations: Name that will be used to create the Lot",
+              "nullable": true
+            },
+            "lotSampleData": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/LotSampleData"
+              },
+              "description": "CdoId: 8588; FieldId: 23556; Workspace: csi; Flags: ReadOnly; Annotations: Data used to track the current sample data for each sample test required for a SamplingLot.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "product": {
+              "$ref": "#/components/schemas/RevisionedObjectRef"
+            },
+            "samplingPlan": {
+              "$ref": "#/components/schemas/RevisionedObjectRef"
+            },
+            "uom": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            },
+            "currentSampleRate": {
+              "type": "integer",
+              "description": "CdoId: 8592; FieldId: 24012; Workspace: csi; Flags: None; Annotations: Current sample rate for the lot",
+              "format": "int32",
+              "nullable": true
+            },
+            "qty": {
+              "type": "number",
+              "description": "CdoId: 8592; FieldId: 23589; Workspace: csi; Flags: None; Annotations: Qty that will be used to create the Lot",
+              "format": "double",
+              "nullable": true
+            },
+            "sampleRate": {
+              "type": "integer",
+              "description": "CdoId: 8592; FieldId: 23590; Workspace: csi; Flags: None; Annotations: The default sampling rate for a sampling plan defined for every nth container.  ex. If rate =1 then every container is sampled.  If rate is 3 then ever 3rd container is sampled.",
+              "format": "int32",
+              "nullable": true
+            },
+            "samplingLot": {
+              "$ref": "#/components/schemas/NamedObjectRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        "UpdateSamplingLotAdvancedPerformEventModel": {
+          "type": "object",
+          "properties": {
+            "beforeEventData": {
+              "$ref": "#/components/schemas/UpdateSamplingLot"
+            },
+            "firstEvent": {
+              "$ref": "#/components/schemas/EventToPerform"
+            },
+            "secondEvent": {
+              "$ref": "#/components/schemas/EventToPerform"
+            },
+            "afterEventData": {
+              "$ref": "#/components/schemas/UpdateSamplingLot"
+            }
+          },
+          "additionalProperties": false
+        },
+        "UpdateSamplingLotShopfloorPerformEventModel": {
+          "type": "object",
+          "properties": {
+            "event": {
+              "$ref": "#/components/schemas/EventToPerform"
+            },
+            "inputData": {
+              "$ref": "#/components/schemas/UpdateSamplingLot"
+            }
+          },
+          "additionalProperties": false
+        },
+        "WIPMsg": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1070; FieldId: 6714; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "acknowledgementRequired": {
+              "type": "boolean",
+              "description": "CdoId: 2300; FieldId: 1515; Workspace: csi; Flags: None; Annotations: Indicates whether or not the message must be acknowledged before completing the transaction.",
+              "nullable": true
+            },
+            "document": {
+              "$ref": "#/components/schemas/RevisionedObjectRef"
+            },
+            "enteredPassword": {
+              "type": "string",
+              "description": "CdoId: 2300; FieldId: 1511; Workspace: csi; Flags: Encrypted; Annotations: Password entered by the user",
+              "nullable": true
+            },
+            "enteredUserName": {
+              "type": "string",
+              "description": "CdoId: 2300; FieldId: 1512; Workspace: csi; Flags: None; Annotations: User name entered by the user",
+              "nullable": true
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 2300; FieldId: 5060; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: Subentity",
+              "nullable": true,
+              "readOnly": true
+            },
+            "msgAcknowledged": {
+              "type": "boolean",
+              "description": "CdoId: 2300; FieldId: 1516; Workspace: csi; Flags: None; Annotations: Indicates the user said they read the message",
+              "nullable": true
+            },
+            "msgText": {
+              "type": "string",
+              "description": "CdoId: 2300; FieldId: 1510; Workspace: csi; Flags: None; Annotations: The resolved text of the message.  This would include any text variables that were defined.",
+              "nullable": true
+            },
+            "parent": {
+              "$ref": "#/components/schemas/BaseObjectRef"
+            },
+            "passwordRequired": {
+              "type": "boolean",
+              "description": "CdoId: 2300; FieldId: 1514; Workspace: csi; Flags: None; Annotations: Determines whether a password is required to acknowledge this message.",
+              "nullable": true
+            },
+            "wipMsgDetails": {
+              "$ref": "#/components/schemas/SubentityRef"
+            },
+            "wipMsgHistoryDetail": {
+              "$ref": "#/components/schemas/SubentityRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        "WIPMsgCriteria": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1070; FieldId: 6714; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "parent": {
+              "$ref": "#/components/schemas/SubentityRef"
+            },
+            "containerEffectiveDateGMT": {
+              "type": "string",
+              "description": "CdoId: 2260; FieldId: 1507; Workspace: csi; Flags: None; Annotations: The current time stamp that is compared to the EffectiveFromDateGMT and EffectiveThruDateGMT fields in the WIPMsgDetails",
+              "format": "date-time",
+              "nullable": true
+            },
+            "filterOnServiceType": {
+              "type": "boolean",
+              "description": "CdoId: 2260; FieldId: 7322; Workspace: csi; Flags: None; Annotations: Determines whether or not the \"RelevantService\" filter is applied when retrieving WIP Messages.\r\n0 = Do not apply the filter\r\n1 = Apply the filter",
+              "nullable": true
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 2260; FieldId: 5062; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: Subentity",
+              "nullable": true,
+              "readOnly": true
+            },
+            "wipMsgs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/WIPMsg"
+              },
+              "description": "CdoId: 2260; FieldId: 1497; Workspace: csi; Flags: ReadOnly; Annotations: List of WIPMessageDetails which satisfy the criteria described in this CDO",
+              "nullable": true,
+              "readOnly": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "WIPMsgMgr": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "description": "CdoId: 1070; FieldId: 6714; Workspace: csi; Flags: ReadOnly; Annotations: DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field.",
+              "nullable": true,
+              "readOnly": true
+            },
+            "instanceID": {
+              "type": "string",
+              "description": "CdoId: 1070; FieldId: 5001; Workspace: csi; Flags: ReadOnly; Annotations: Unique ID for an instance of this object, generated by the system.; OriginalType: Subentity",
+              "nullable": true,
+              "readOnly": true
+            },
+            "parent": {
+              "$ref": "#/components/schemas/BaseObjectRef"
+            },
+            "containers": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ContainerRef"
+              },
+              "description": "CdoId: 2280; FieldId: 1542; Workspace: csi; Flags: None; Annotations: List of Containers that have WIP messages; OriginalType: Container",
+              "nullable": true
+            },
+            "filterOnServiceType": {
+              "type": "boolean",
+              "description": "CdoId: 2280; FieldId: 7323; Workspace: csi; Flags: None; Annotations: Determines whether or not the \"RelevantService\" filter is applied when retrieving WIP Messages.\r\n0 = Do not apply the filter\r\n1 = Apply the filter",
+              "nullable": true
+            },
+            "wipMsgCriteria": {
+              "$ref": "#/components/schemas/WIPMsgCriteria"
+            },
+            "wipMsgRetrievalDateGMT": {
+              "type": "string",
+              "description": "CdoId: 2280; FieldId: 7204; Workspace: csi; Flags: None; Annotations: This is the date and time that the messages in this object were retrieved.",
+              "format": "date-time",
+              "nullable": true
+            },
+            "wipMsgs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/WIPMsg"
+              },
+              "description": "CdoId: 2280; FieldId: 2057; Workspace: csi; Flags: ReadOnly; Annotations: Resolved WIP messages",
+              "nullable": true,
+              "readOnly": true
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "securitySchemes": {
+        "Bearer": {
+          "type": "apiKey",
+          "description": "Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
+          "name": "Authorization",
+          "in": "header"
+        }
+      }
+    },
+    "security": [
+      {
+        "Bearer": []
+      }
+    ]
+  },
+  "metadata": {
+    "SamplingLot": {
+      "attributes": {
+        "Name": "SamplingLot",
+        "BaseType": "shopfloor.MfgLot",
+        "{customAttribute}EventList": "GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; "
+      },
+      "fields": [
+        {
+          "Name": "AllowAdjustToLotSize",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "8587",
+          "{customAttribute}FieldId": "23536",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Adjust Sample Size when Lot Qty exceeded"
+        },
+        {
+          "Name": "CreationDate",
+          "Type": "Edm.DateTimeOffset",
+          "{customAttribute}CdoId": "8587",
+          "{customAttribute}FieldId": "23537",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Creation Date"
+        },
+        {
+          "Name": "LotStatus",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "8587",
+          "{customAttribute}FieldId": "23539",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Indicates the status of a Lot:\r\n1 - Active\r\n2 - Closed"
+        },
+        {
+          "Name": "Product",
+          "Type": "shopfloor.RevisionedObjectRef",
+          "{customAttribute}OriginalType": "Product",
+          "{customAttribute}CdoId": "8587",
+          "{customAttribute}FieldId": "23541",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Used to determine what Sampling Plan will be assigned to the Sampling Lot"
+        },
+        {
+          "Name": "SampleRate",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "8587",
+          "{customAttribute}FieldId": "23542",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "The default sampling rate for a sampling plan defined for every nth container.  ex. If rate =1 then every container is sampled.  If rate is 3 then ever 3rd container is sampled."
+        },
+        {
+          "Name": "SamplingCompleted",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "8587",
+          "{customAttribute}FieldId": "23543",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Boolean field used to determine if this Sampling lot has completed Sampling"
+        },
+        {
+          "Name": "SamplingLotResult",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "8587",
+          "{customAttribute}FieldId": "29099",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Used to identify the Sampling Lot Result.\r\n1 = OK\r\n2 = REWORK\r\n3 = SCRAP"
+        },
+        {
+          "Name": "SamplingPassed",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "8587",
+          "{customAttribute}FieldId": "23544",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Indicates if the Sampling has passed for this Lot"
+        },
+        {
+          "Name": "SamplingPlan",
+          "Type": "shopfloor.RevisionedObjectRef",
+          "{customAttribute}OriginalType": "SamplingPlan",
+          "{customAttribute}CdoId": "8587",
+          "{customAttribute}FieldId": "23545",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Used to Define a sampling plan for a Product.  The sample plan contains the details about the Sample Test for a Product such as where it is to be tested, AQL Level, and switching rules."
+        },
+        {
+          "Name": "LotSampleData",
+          "Type": "Collection(shopfloor.LotSampleData)",
+          "{customAttribute}CdoId": "8587",
+          "{customAttribute}FieldId": "23538",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Data used to track the current sample data for each sample test required for a SamplingLot."
+        }
+      ]
+    },
+    "LotSampleData": {
+      "attributes": {
+        "Name": "LotSampleData",
+        "BaseType": "shopfloor.ContainerSampleData",
+        "{customAttribute}EventList": "_DeleteMe; GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; TxnRev_Add; TxnRev_Change; TxnRev_Delete; TxnRev_SaveUnreversedValues; "
+      },
+      "fields": [
+        {
+          "Name": "Resource",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "Resource",
+          "{customAttribute}CdoId": "8593",
+          "{customAttribute}FieldId": "23607",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "A Resource describes any non-material entity within a factory. The common use (and most concrete example) of a Resource is to describe a Machine. Resources are associated with a single factory, to define their physical location. Resources also belong to zero or more Resource Groups, to provide a logical grouping.\r\n\r\nA Resource is a static (modeling) entity. Each Resource can have a Resource Status entry to track the current status for each Status Category defined. The application is delivered with three specific Status Categories. They are Production, Preventative Maintenance and Log. Production is used to determine availability for production. Preventative Maintenance is used to track the current Preventative Maintenance status for a Resource. Log is used to provide a mechanism for logging freeform comments and optionally assigning predefined status and reason codes. Customers can define additional Status categories to concurrently track Resource status is multiple user-defined ways."
+        },
+        {
+          "Name": "SamplesFailed",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "8593",
+          "{customAttribute}FieldId": "23608",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Number of Samples Failed"
+        },
+        {
+          "Name": "SamplesTested",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "8593",
+          "{customAttribute}FieldId": "23609",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Number of Samples Tested"
+        },
+        {
+          "Name": "SamplingPlanDetail",
+          "Type": "shopfloor.SubentityRef",
+          "{customAttribute}OriginalType": "SamplingPlanDetails",
+          "{customAttribute}CdoId": "8593",
+          "{customAttribute}FieldId": "23612",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Referenece to the Sampling Plan Detail (row) Instance being used"
+        },
+        {
+          "Name": "Spec",
+          "Type": "shopfloor.RevisionedObjectRef",
+          "{customAttribute}OriginalType": "Spec",
+          "{customAttribute}CdoId": "8593",
+          "{customAttribute}FieldId": "23613",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "A specification (Spec) describes the processing that takes place at a Step within a Workflow. It references many other Modeling components including an Operation, Setup, Data Collection Definitions and Resources. Specs also include detailed scheduling and processing parameter information. A Spec is referenced (used) by a Step within a Workflow. Many Workflow Steps can use one Spec.\r\n\r\nA Spec is used to define the processing that is to be performed. An Operation is used to define (rules for) the flow or movement of Material through the Factory.\r\n\r\nSee the Operation Definition for Scheduling Details information."
+        },
+        {
+          "Name": "VendorItem",
+          "Type": "shopfloor.NamedSubentityRef",
+          "{customAttribute}OriginalType": "VendorItem",
+          "{customAttribute}CdoId": "8593",
+          "{customAttribute}FieldId": "23615",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Vendor Items are the products the vendor sells.  This item is specified in the Product where, for purchased products, one can relate the product to a list of sources where the product can be purchased.  In addition, when issuing components to a container, one can specify the VendorItem used to fulfill the component requirement."
+        },
+        {
+          "Name": "ExternalSampleData",
+          "Type": "Collection(shopfloor.ExternalSampleData)",
+          "{customAttribute}CdoId": "8593",
+          "{customAttribute}FieldId": "29502",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "External Sample Data details integration with LIMS."
+        }
+      ]
+    },
+    "UpdateSamplingLotHistory": {
+      "attributes": {
+        "Name": "UpdateSamplingLotHistory",
+        "BaseType": "shopfloor.ServiceHistorySummary",
+        "{customAttribute}EventList": "_DeleteMe; GetDetailReport; GetSummaryLine; GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; NegateQtys; NormalizeTimestamps; TxnRev_Add; TxnRev_Change; TxnRev_Delete; TxnRev_SaveUnreversedValues; "
+      },
+      "fields": [
+        {
+          "Name": "Comments",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "8595",
+          "{customAttribute}FieldId": "23639",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Free-form text notes the user can provide when performing a service."
+        },
+        {
+          "Name": "Qty",
+          "Type": "Edm.Double",
+          "{customAttribute}CdoId": "8595",
+          "{customAttribute}FieldId": "23640",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Qty that will be used to create the Lot"
+        },
+        {
+          "Name": "SampleRate",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "8595",
+          "{customAttribute}FieldId": "23641",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "The default sampling rate for a sampling plan defined for every nth container.  ex. If rate =1 then every container is sampled.  If rate is 3 then ever 3rd container is sampled."
+        },
+        {
+          "Name": "SamplingLot",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "SamplingLot",
+          "{customAttribute}CdoId": "8595",
+          "{customAttribute}FieldId": "23642",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Sampling Lot against which the Txn will be executed"
+        }
+      ]
+    },
+    "UpdateSamplingLot": {
+      "attributes": {
+        "Name": "UpdateSamplingLot",
+        "{customAttribute}EventList": "AccumulateSummaryHistoryData; AddAlertMsgList; AddESigRequirement; AddHistorySummary; AddMassUpdateStatement; AddTrainingRequirmentsToESigRequirements; AfterCommitEventFailure; ApplyBarcodeToDetails; ApplyBarcodeToListOfDetails; ApplyBarcodeToServiceAndDetails; ApplyBarcodeToSingleDetail; ApplyDetails; ApplyParametricDetails; ApplyServiceDetail; ApplyServiceDetails; AuthorizeSigner; CheckRolePermissions; CheckWIPMsgElapsedTime; CheckWIPMsgRetrievalDate; CreateHistoryMainline; CreateParametricData; DataPointConvertListToResultset; DownloadFile; EnforceDispatchRule; EvaluateHierarchyLabels; EvaluateLabelTags; Execute; Execute_User; ExecuteDBService; ExecuteService; ExecuteTransactionTask; ExportInfo_Execute; ExportInfo_Initialize; ExportInfo_Initialize_User; ExportInfo_PreExecute; ExportInfo_Validate; FinishModifyingEntity; GetActions; GetAttributeParent; GetBarcodeData; GetComputation; GetComputationParams; GetComputationParamsForDataPoints; GetDataPointListSelectionValues; GetDataPointObjectGroupSelectionValues; GetDataPointQuerySelectionValues; GetDataPoints; GetDataPointStaticSelectionValues; GetDefaultDispatchList; GetDispatchList; GetDispatchObject; GetESigRequirementFromSpec; GetESigRequirements; GetESigRequirementsFromTxnMap; GetLabelInformation; GetLabelInformationFromLabelMap; GetLabelInformationFromPrinterLabel; GetTrackableOwnerForAuditTrail; GetTrainingRecord; GetTrainingRequirements; GetWIPMsgs; InitDispatchQueryParams; InitializeHistoryMainline; IsOKToUpdateAttachments; LiveAlert_Initialize; LiveConnect_Initialize; LiveRelay_Initialize; Load; LoadESigDetails; ModifyEntity; OverrideDispatchEnforcement; ParseWithSmartScanRule; PreExecute_User; PreValidate; PreValidate_Generic; PreValidate_Specific; PreValidate_User; PrintLabel; ProcessAfterCommit; ProcessAfterCommit_User; ProcessApplicationExtensions; ProcessComputation; ProcessComputationParams; ProcessElectronicProcedures; ProcessElectronicSignatures; ProcessLabelInformation; ProcessMaintenanceMgmt; ProcessMasterRecipe; ProcessNonConformances; ProcessWIPMsgs; RecordMainlinePostHistory; RecordMainlinePreHistory; RecordPostHistory; RecordPreHistory; RecordSummaryPostHistory; RecordSummaryPreHistory; ReplaceHistoryMainline; ReplaceOldHistoryMainline; ResolveParametricData; RetrieveCalendarShift; RoundComputationResult; Sampling_ContainerSampleData; Sampling_EvaluateSwitchingRule; Sampling_GetDistributionListRecipients; Sampling_LotSampleData; Sampling_SendSwitchingRuleNotification; Sampling_SetupSampling; Sampling_SetupSamplingRequirement; SetHistoryMainlineTxnDates; ShopFloor_ControlValidation; StartModifyingEntity; UpdateCompletionMsg_PrintLabelFailure; UpdateCompletionMsg_PrintLabelSuccess; Validate; Validate_Generic; Validate_Specific; Validate_User; ValidateActiveMfgOrder; ValidateApplicationExtensions; ValidateElectronicProcedures; ValidateElectronicSignatures; ValidateESigRequirement; ValidateMaintenanceMgmt; ValidateMaintenanceUOM; ValidateMasterRecipe; ValidateNonConformances; ValidateResourceMaintenance; ValidateResourceToolPlan; ValidateTrainingRequirement; ValidateTrainingRequirements; ValidateVariantExpression; ValidateWIPMsgs; VerifyPasswordSignature; VerifyUser; WriteTxnGUID; "
+      },
+      "fields": [
+        {
+          "Name": "CurrentSampleRate",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "8592",
+          "{customAttribute}FieldId": "24012",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Current sample rate for the lot"
+        },
+        {
+          "Name": "Qty",
+          "Type": "Edm.Double",
+          "{customAttribute}CdoId": "8592",
+          "{customAttribute}FieldId": "23589",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Qty that will be used to create the Lot"
+        },
+        {
+          "Name": "SampleRate",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "8592",
+          "{customAttribute}FieldId": "23590",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "The default sampling rate for a sampling plan defined for every nth container.  ex. If rate =1 then every container is sampled.  If rate is 3 then ever 3rd container is sampled."
+        },
+        {
+          "Name": "SamplingLot",
+          "Type": "shopfloor.NamedObjectRef",
+          "Nullable": "false",
+          "{customAttribute}OriginalType": "SamplingLot",
+          "{customAttribute}CdoId": "8592",
+          "{customAttribute}FieldId": "23591",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "Required",
+          "{customAttribute}Annotations": "Sampling Lot against which the Txn will be executed"
+        },
+        {
+          "Name": "AllowAdjustToLotSize",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "8588",
+          "{customAttribute}FieldId": "23553",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Indicates if the Lot will be allowed to adjust based on the Sum of the containers asseigned to it"
+        },
+        {
+          "Name": "Containers",
+          "Type": "Collection(Edm.String)",
+          "{customAttribute}CdoId": "8588",
+          "{customAttribute}FieldId": "23554",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "List of all the Containers' Names associated with this Sampling Lot"
+        },
+        {
+          "Name": "LotName",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "8588",
+          "{customAttribute}FieldId": "23555",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Name that will be used to create the Lot"
+        },
+        {
+          "Name": "Product",
+          "Type": "shopfloor.RevisionedObjectRef",
+          "{customAttribute}OriginalType": "Product",
+          "{customAttribute}CdoId": "8588",
+          "{customAttribute}FieldId": "23557",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Used to determine what Sampling Plan will be assigned to the Sampling Lot"
+        },
+        {
+          "Name": "SamplingPlan",
+          "Type": "shopfloor.RevisionedObjectRef",
+          "{customAttribute}OriginalType": "SamplingPlan",
+          "{customAttribute}CdoId": "8588",
+          "{customAttribute}FieldId": "24005",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Used to Define a sampling plan for a Product.  The sample plan contains the details about the Sample Test for a Product such as where it is to be tested, AQL Level, and switching rules."
+        },
+        {
+          "Name": "UOM",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "UOM",
+          "{customAttribute}CdoId": "8588",
+          "{customAttribute}FieldId": "23561",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "UOM that will be used to create the Lot"
+        },
+        {
+          "Name": "ActionSource",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "UIVirtualPage",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "20788",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Used to filter Actions."
+        },
+        {
+          "Name": "AdditionalESigReqs",
+          "Type": "Collection(shopfloor.NamedObjectRef)",
+          "{customAttribute}OriginalType": "ESigRequirement",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "17037",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Contains the list of ESignature Requirements that should be collected in a single transaction."
+        },
+        {
+          "Name": "AlertMsgList",
+          "Type": "Collection(Edm.String)",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "27742",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "A string list used holds the additional messages of a transaction"
+        },
+        {
+          "Name": "AlertMsgListDelimiter",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "27741",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "A string field used to define the delimiter string to separate the additional messages"
+        },
+        {
+          "Name": "CalledByTransactionTask",
+          "Type": "shopfloor.NamedSubentityRef",
+          "{customAttribute}OriginalType": "TaskItem",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "19788",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "If this transaction is being performed as part of an e-procedure, this is the TransactionTask where it was specified."
+        },
+        {
+          "Name": "Comments",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "15704",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Free-form text notes the user can provide when performing a service."
+        },
+        {
+          "Name": "CompletionMsg",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "2101",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "When the service is executed, this field will be filled out by the system with a message in the terminology of the user and language that describes the successful completion of the service, or describes the error condition if there was an error.  The text for completion messages is stored in labels and can be customized per user if necessary."
+        },
+        {
+          "Name": "DataCollectionDef",
+          "Type": "shopfloor.RevisionedObjectRef",
+          "{customAttribute}OriginalType": "DataCollectionDef",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "1450",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "The Data Collection Definition used to define the parametric data fields to collect and place in ParametricData.  If there is only one reference to this specific service in the Spec TransactionMap, InSite will fill in this field automatically.  If a service exists multiple times in the TransactionMap, the user will need to input which data collection definition they are using.  For instance, the CollectData service might be entered twice on the TransactionMap, once with parameters recorded every hour, and once with parameters recorded every ten minutes.  When the user is performing the ColllectData, the user would then need to specify which kind of data collection they are performing in this field."
+        },
+        {
+          "Name": "DispatchItem",
+          "Type": "shopfloor.SubentityRef",
+          "{customAttribute}OriginalType": "DispatchDetail",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "9768",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Facilitates the configuration of dispatching rules for MfgOrders and Containers on Shopfloor services.  Only one entry per dispatch item type will be allowed to be configured. "
+        },
+        {
+          "Name": "DispatchRule",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "DispatchRule",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "9764",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "This field represents the existence of an order dispatch type within the dispatch rule, used in the enforcement of the Dispatch Rule."
+        },
+        {
+          "Name": "EffectivityDate",
+          "Type": "Edm.DateTimeOffset",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "7916",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "This date/time is used in a comparison against EffectiveDates in modeling entities to help determine if the object should be considered for processing.  This value is always specified as GMT time."
+        },
+        {
+          "Name": "EmailGroup",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "EmailGroup",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "679487045",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Fields that can be used to identify the EmailGroup to send an email to. Some transactions allow the user to set the EmailGroup to send to such as LotHold and LotRelease."
+        },
+        {
+          "Name": "Employee",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "Employee",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "7912",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "The user who will get credit for the work performed.  Not necessarily the user who is logging the transaction."
+        },
+        {
+          "Name": "EnableRPT",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "28404",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "A flag to determine whether the service will trigger the RPT calculation."
+        },
+        {
+          "Name": "EnforceDispatch",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "9770",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Boolean flag to override dispatch enforcement."
+        },
+        {
+          "Name": "ESigRequirement",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "ESigRequirement",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "9642",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "The signature requirement for the spec/service combination.  Only one should be defined for the combination."
+        },
+        {
+          "Name": "Factory",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "Factory",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "7293",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "The factory where the work was performed.  The container must exist in the factory specified here.  Usually this field is not input by the user."
+        },
+        {
+          "Name": "HasDataCollection",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "21504",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Returns true if the associated service has a data collection assigned, false otherwise."
+        },
+        {
+          "Name": "HasDPCollection",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "20963",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "This flag allows the client to determine if the data collection type is of type DataPointCollection.  "
+        },
+        {
+          "Name": "HasUserDataCollection",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "11682",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "This flag allows the client to determine the type of data collection to process, UserDataCollection or ParametricDataCollection."
+        },
+        {
+          "Name": "IsExternalAppTxnExecution",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "28378",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "The flag indicates whether a transaction was initiated by an external application, such as through a REST API call. This field is crucial for managing data broadcasts, like controlling a SignalR broadcast. By default, the flag is set to false, allowing normal broadcasting of data. However, when the flag is set to true, it serves as a control mechanism to prevent broadcasting the transaction data. This indicates that the transaction was executed externally, and therefore, should not be broadcast back."
+        },
+        {
+          "Name": "IsRemoteService",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "7946",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Allows to alter standard processing of a Service in case it's executed as a Remote Service."
+        },
+        {
+          "Name": "MfgCalendar",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "MfgCalendar",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "8448",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Calendar that is used to translate the timestamp of when a transaction was performed into a specific manufacturing date and shift."
+        },
+        {
+          "Name": "MfgOrder",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "MfgOrder",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "9763",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "A Manufacturing Order is a request to manufacture a product. Manufacturing orders are typically originated to fulfill a sales order or inventory requirements and are often a link between MES and an ERP system. \r\n\r\nA Manufacturing Order can contain a list of product containers. The relationship of a container to a manufacturing order is established and maintained in the containers data record. This information is used to provide WIP status by manufacturing order and WIP updates to the ERP system.\r\n\r\n"
+        },
+        {
+          "Name": "MfgProcessOverrides",
+          "Type": "shopfloor.RevisionedObjectRef",
+          "{customAttribute}OriginalType": "BillOfProcess",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "12176",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Bill Of Process is used to specify overrides to a specification (spec), and is assigned to a container, manufacturing order or a product."
+        },
+        {
+          "Name": "ParametricDataControl",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "21158",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "FileName - used for fields that specify files."
+        },
+        {
+          "Name": "ParametricDataDefType",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "21159",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "CDO Definition Id"
+        },
+        {
+          "Name": "Password",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "2945",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "Encrypted",
+          "{customAttribute}Annotations": "NT login password for the user performing the service, if \"User\" was entered.  If \"user\" is not entered security is based on the InSite login."
+        },
+        {
+          "Name": "PrintingResult",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "28107",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Printing Result"
+        },
+        {
+          "Name": "PrintLabels",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "10935",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Generic Boolean"
+        },
+        {
+          "Name": "PrintQueue",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "PrintQueue",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "10934",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Printers InSite can use to print labels."
+        },
+        {
+          "Name": "ProcessActiveMfgOrder",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "28515",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "This field is a flag to enable the processing of active mfg orders, which will validate the resources' active mfg orders with the process container mfg orders."
+        },
+        {
+          "Name": "ProcessEProcedures",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "11545",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "This field provides a way to turn off all the Electronic Procedures processing (validations and executions) in a single place."
+        },
+        {
+          "Name": "ProcessESignatures",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "9643",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Identifies whether the Electronic Signatures should be validated and executed for the service.  This is used to turn off the processing in the subservices when they are called from a compound (the Electronic Signature processing should take place in the compound)."
+        },
+        {
+          "Name": "ProcessMaintMgmt",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "11399",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "This field provides a way to turn off all the Maintenance Management processing (validations and executions) in a single place."
+        },
+        {
+          "Name": "ProcessMasterRecipe",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "17018",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "This field provides a way to turn off all the Master Recipe processing (validations and executions) in a single place."
+        },
+        {
+          "Name": "ProcessNCRs",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "11543",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "This field provides a way to turn off all the NCRs processing (validations and executions) in a single place."
+        },
+        {
+          "Name": "ProcessResourceStatusModel",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "679487033",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Flag used to find and execute a StatusModelDetail with a PreconditionToAutoSet that returns true."
+        },
+        {
+          "Name": "ProcessTrainingReqs",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "11544",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "This field provides a way to turn off all the Training Requirements processing (validations and executions) in a single place.\r\nNote that this is addition to the CheckTrainingReqs flag. The ProcessTrainingReqs will be used to turn off the feature globally, while the CheckTrainingReqs is used to control it at the individual service level."
+        },
+        {
+          "Name": "RemainingProcessTime",
+          "Type": "Edm.Decimal",
+          "Scale": "Variable",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "28403",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Remaining Process Time value, used for RPT calculation."
+        },
+        {
+          "Name": "SampleQty",
+          "Type": "Edm.Double",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "21856",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Sample Qty"
+        },
+        {
+          "Name": "SamplingPlanDetails",
+          "Type": "Collection(shopfloor.SubentityRef)",
+          "{customAttribute}OriginalType": "SamplingPlanDetails",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "21857",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "The specific describes the details for a Sampling Plan's Sample Test..  For each  Sample Test, the AQL Level, Inspection Level, Switching Rule, Spec, Vendor and Resoruce can be configured.  Resolved from the Container"
+        },
+        {
+          "Name": "SpecFilter",
+          "Type": "shopfloor.RevisionedObjectRef",
+          "{customAttribute}OriginalType": "Spec",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "27726",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "This field is getting from Line Assignment and its meant to be used as a filter parameter for shopfloor queries."
+        },
+        {
+          "Name": "ss_SPCRecipe",
+          "Type": "shopfloor.RevisionedObjectRef",
+          "{customAttribute}OriginalType": "Recipe",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "681576148",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "A subclass of Document describes recipe."
+        },
+        {
+          "Name": "TaskContainer",
+          "Type": "shopfloor.ContainerRef",
+          "{customAttribute}OriginalType": "Container",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "19790",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "If this service is being performed as part of a e-procedure task, this is the container for which the e-procedure is being processed. This field is used top populate the ExecuteTaskService.Container field, and for ContainerTxns, this will be the same as the Container field. It is needed for the case where the service is not a Container Transaction, e.g. ResourceSetup."
+        },
+        {
+          "Name": "TaskTime",
+          "Type": "Edm.Single",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "28880",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Time it took to perform the task"
+        },
+        {
+          "Name": "TrainingRequirements",
+          "Type": "Collection(shopfloor.RevisionedObjectRef)",
+          "{customAttribute}OriginalType": "TrainingRequirement",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "10354",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Definition of the training required before a user is allowed to perform a specific task"
+        },
+        {
+          "Name": "TxnDate",
+          "Type": "Edm.DateTimeOffset",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "5369",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "The date and time the service was performed.  If left blank InSite uses the database system clock to determine the transaction date."
+        },
+        {
+          "Name": "TxnParentServiceName",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "27710",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "The name of the parent service that calls a subservice."
+        },
+        {
+          "Name": "TxnServiceSequence",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "27531",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Stores the sequence of services being executed within a transaction. In a compound transaction or container transactions that calls other container transactions, multiple services may be called. Since all of them are having the same TxnId and TxnDate, this field is then used to indicate the sequence of services being executed."
+        },
+        {
+          "Name": "UseDispatch",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "9769",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Configures a service to be enabled for using the dispatch functionality"
+        },
+        {
+          "Name": "User",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "Employee",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "2942",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "The user performing the data entry, used primarily for security validation.  If not input, security is based on the login user."
+        },
+        {
+          "Name": "WebPart",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "WebPart",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "21160",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Unique name for this instance"
+        },
+        {
+          "Name": "ACEMessage",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "1100",
+          "{customAttribute}FieldId": "10971",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "ACEMessage field contains the success or failure messages of the after commit events (AfterCommit and AfterCommitFailure)\r\nOn unhandled errors in these events, System automatically populates this field with the resolved error message."
+        },
+        {
+          "Name": "ACEStatus",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "1100",
+          "{customAttribute}FieldId": "10972",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "ACEStatus field indicates the success or failure of the after commit events (AfterCommit and AfterCommitEventFailure)\r\nEnumeration for the after commit event status codes.\r\n\r\nValue Name                 Meaning\r\n1 ACESuccess after commit event completed successfully\r\n2 ACEFSuccess an unhandled error in the after commit event was caught and after commit event failure event completed successfully\r\n3 ACEFFail                 an unhandled error in the after commit event was caught and another unhandled error was raised in the after commit event failure event\r\n> 99 <custom status> User specific status codes (Designer based)"
+        },
+        {
+          "Name": "ServerName",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "1100",
+          "{customAttribute}FieldId": "28183",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "The server name that processed the transaction."
+        },
+        {
+          "Name": "CurrentDay",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "1080",
+          "{customAttribute}FieldId": "29189",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Generic String"
+        },
+        {
+          "Name": "CurrentMonth",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "1080",
+          "{customAttribute}FieldId": "29190",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Generic String"
+        },
+        {
+          "Name": "CurrentWeekOfYear",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "1080",
+          "{customAttribute}FieldId": "28192",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Holds the current week of the year (1-52)"
+        },
+        {
+          "Name": "CurrentYear",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "1080",
+          "{customAttribute}FieldId": "29191",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Generic String"
+        },
+        {
+          "Name": "SmartBarcode",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "1080",
+          "{customAttribute}FieldId": "28198",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Barcode to be parsed using a Smart Scan Rule"
+        },
+        {
+          "Name": "SmartScanParseError",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "1080",
+          "{customAttribute}FieldId": "28195",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Smart parsing from CLF will not throw an error. If any error does occur, a message will be output here. The calling CLF can decide what to do with it."
+        },
+        {
+          "Name": "SmartScanRule",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "SmartScanRule",
+          "{customAttribute}CdoId": "1080",
+          "{customAttribute}FieldId": "28197",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Rule to use for parsing Smart Barcode"
+        },
+        {
+          "Name": "StrSplitResult",
+          "Type": "Collection(Edm.String)",
+          "{customAttribute}CdoId": "1080",
+          "{customAttribute}FieldId": "28194",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Utility field to hold results of string split."
+        },
+        {
+          "Name": "TxnDateGMT",
+          "Type": "Edm.DateTimeOffset",
+          "{customAttribute}CdoId": "1080",
+          "{customAttribute}FieldId": "21655",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "TxnDateGMT"
+        },
+        {
+          "Name": "DisplayName",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "1000",
+          "{customAttribute}FieldId": "6184",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field."
+        },
+        {
+          "Name": "InstanceID",
+          "Type": "Edm.String",
+          "Nullable": "false",
+          "{customAttribute}OriginalType": "BaseObject",
+          "{customAttribute}CdoId": "1000",
+          "{customAttribute}FieldId": "4927",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Unique ID for an instance of this object, generated by the system."
+        },
+        {
+          "Name": "LotSampleData",
+          "Type": "Collection(shopfloor.LotSampleData)",
+          "{customAttribute}CdoId": "8588",
+          "{customAttribute}FieldId": "23556",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Data used to track the current sample data for each sample test required for a SamplingLot."
+        },
+        {
+          "Name": "ActionDetails",
+          "Type": "Collection(shopfloor.ActionDetails)",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "19872",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "List of actions. It's built based on the ActionType field."
+        },
+        {
+          "Name": "ComputationDetail",
+          "Type": "shopfloor.ComputationDetail",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "12475",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Details of the Computation"
+        },
+        {
+          "Name": "ESigDetails",
+          "Type": "Collection(shopfloor.ESigServiceDetail)",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "9641",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "The ESigReqDetail used to fulfill all or part of an ESigRequirement."
+        },
+        {
+          "Name": "LabelSummaries",
+          "Type": "Collection(shopfloor.LabelSummary)",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "10933",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "When printing labels, the information needed to print as well as the values (details) are resolved and kept here for use later."
+        },
+        {
+          "Name": "LiveRelayInfo",
+          "Type": "shopfloor.LiveRelayInfo",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "7443",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "LiveRelayInfo. Contains all of the information to perform the Remote Service and Response. It is primarily used for communication between InSite sites: for instance when containers are shipped."
+        },
+        {
+          "Name": "ParametricData",
+          "Type": "shopfloor.ParametricData",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "1820",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "This object holds the parametric data fields (measurements, etc.) that need to be collected for this service.  The service determines what parametric data are needed by looking in the Transaction Map of the Spec."
+        },
+        {
+          "Name": "WIPMsgMgr",
+          "Type": "shopfloor.WIPMsgMgr",
+          "{customAttribute}CdoId": "1110",
+          "{customAttribute}FieldId": "2644",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "WIP Message Manager.  Provides functions for retrieval, acknowledgement and writing to history of WIP messages."
+        },
+        {
+          "Name": "SmartScanParseResults",
+          "Type": "Collection(shopfloor.SmartScanParseResult)",
+          "{customAttribute}CdoId": "1080",
+          "{customAttribute}FieldId": "28196",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Holds result of parsing one data value from the Smart Barcode"
+        }
+      ]
+    },
+    "ContainerSampleData": {
+      "attributes": {
+        "Name": "ContainerSampleData",
+        "BaseType": "shopfloor.Subentity",
+        "{customAttribute}EventList": "_DeleteMe; GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; TxnRev_Add; TxnRev_Change; TxnRev_Delete; TxnRev_SaveUnreversedValues; "
+      },
+      "fields": [
+        {
+          "Name": "AllowedRejects",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "21916",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Current number of Allowed Rejects for the Sample Test for the container undergoing inspection.  If the Reject count is greater than this number the SampleTest will be marked as failed."
+        },
+        {
+          "Name": "AQLLevel",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "AQLLevel",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "21917",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Current AQL Level information for the container undergoing inspection"
+        },
+        {
+          "Name": "AQLRejectReasons",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "LossReasonGroup",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "21918",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "List of Reject Reasons for the SampleTest for the container being inspected"
+        },
+        {
+          "Name": "CompletedSamples",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "21920",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "The total number of samples Completed for this Sample Test.  Sampling is completed for a SampleTest when Completed Samples>=TotalSamplesRequired"
+        },
+        {
+          "Name": "ExportImportKey",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "23685",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Hexadecimal representation of GUID ( e.g. BDE4B634-153E-4A31-A453-EEA85FE80532)"
+        },
+        {
+          "Name": "InspectAllContQty",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "23594",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Indicates that inspection of all the containers' quantity is required for this product"
+        },
+        {
+          "Name": "InspectAllQtyOnFailure",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "23595",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Indicates that the quantity of all container will be inspected if a test fails"
+        },
+        {
+          "Name": "InspectionLevel",
+          "Type": "shopfloor.NamedObjectRef",
+          "{customAttribute}OriginalType": "InspectionLevel",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "21921",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Current Inspection Level information for the container undergoing inspection."
+        },
+        {
+          "Name": "Instructions",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "21922",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Instructions for the SampleTest"
+        },
+        {
+          "Name": "PassedSamples",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "21923",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "PassedSamples"
+        },
+        {
+          "Name": "Rejects",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "21924",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Current number of Rejects for the Sample Test for the container undergoing inspection."
+        },
+        {
+          "Name": "SampleTest",
+          "Type": "shopfloor.RevisionedObjectRef",
+          "{customAttribute}OriginalType": "SampleTest",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "21925",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "CurrentSampleTest information for the container undergoing inspection Object used for defining instances of AQL SampleTest that describe the Data to collect and any events that should happen based on the collected data on the sample."
+        },
+        {
+          "Name": "SampleTestName",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "21926",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Sample Test Name"
+        },
+        {
+          "Name": "SampleTestRevision",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "21927",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Revision (unique within the context of the base entity)"
+        },
+        {
+          "Name": "SampleTestStatus",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "21928",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "SampleTestStatus"
+        },
+        {
+          "Name": "SampleType",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "21929",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Sample Type definition for the Sample Test  for the container being inspected.  \r\nCounted= 1\r\nMeasured = 2"
+        },
+        {
+          "Name": "SamplingPlan",
+          "Type": "shopfloor.RevisionedObjectRef",
+          "{customAttribute}OriginalType": "SamplingPlan",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "21930",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Used to Define a sampling plan for a Product.  The sample plan contains the details about the Sample Test for a Product such as where it is to be tested, AQL Level, and switching rules."
+        },
+        {
+          "Name": "TotalSamplesRequired",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "8454",
+          "{customAttribute}FieldId": "21931",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "The total number of samples needing to be inspected for this SampleTest."
+        }
+      ]
+    }
+  },
+  "history_columns": [
+    {
+      "COLUMN_NAME": "CDOTypeId",
+      "DATA_TYPE": "int"
+    },
+    {
+      "COLUMN_NAME": "ChangeCount",
+      "DATA_TYPE": "int"
+    },
+    {
+      "COLUMN_NAME": "Comments",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "COLUMN_NAME": "ExportImportKey",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "COLUMN_NAME": "HistoryId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "COLUMN_NAME": "HistoryMainlineId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "COLUMN_NAME": "Qty",
+      "DATA_TYPE": "float"
+    },
+    {
+      "COLUMN_NAME": "SampleRate",
+      "DATA_TYPE": "int"
+    },
+    {
+      "COLUMN_NAME": "SamplingLotId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "COLUMN_NAME": "TxnId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "COLUMN_NAME": "UpdateSamplingLotHistoryId",
+      "DATA_TYPE": "char"
+    }
+  ]
+}

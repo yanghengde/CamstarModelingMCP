@@ -1,0 +1,6 @@
+{"stage": "execute_accepted", "marker": "Codex issue 5e765242024b4f749c7ab01e6009edb9", "qty": 2}
+{"stage": "receipt_read", "table": "HistoryMainline"}
+{"stage": "receipt_read", "table": "HistoryMainline"}
+{"stage": "receipt_read", "table": "IssueHistoryDetail"}
+{"stage": "receipt_read", "table": "ComponentIssueHistory"}
+{"stage": "receipt_read", "table": "IssueActualsHistory"}

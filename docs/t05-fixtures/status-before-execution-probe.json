@@ -1,0 +1,110 @@
+{
+  "source": "ViewContainerStatus",
+  "complete": true,
+  "pages": {},
+  "missing_fields": [],
+  "warnings": [],
+  "data": {
+    "@odata.context": "https://172.22.154.174/Query/api/$metadata#ViewContainerStatus(ContainerStatusDetails())/$entity",
+    "StrSplitResult": [],
+    "InstanceID": "",
+    "NonconformanceReports": [],
+    "ContainerStatusDetails": {
+      "InstanceID": "001af50000000191",
+      "ContainerLevelName": "BOX",
+      "ContainerName": "CDX-T05-20261024-B-C01",
+      "InProcess": true,
+      "InRework": false,
+      "LastActivityDate": "2026-10-24T11:23:19",
+      "LastMoveDate": "2026-10-24T11:23:19",
+      "NextOperation": "OP-WELDING",
+      "OperationName": "OP-STAMPING",
+      "OriginalStartDate": "2026-10-24T11:23:19",
+      "ProductDescription": "Codex isolated T05 acceptance fixture; no production use.",
+      "ProductIsRevOfRcd": true,
+      "ProductName": "CDX-T05-20261024-B-TARGET",
+      "ProductRev": "1",
+      "Qty": 1.0,
+      "QtyOperator": 0,
+      "Specification": "SP-STAMPING-001",
+      "SpecIsRevOfRcd": true,
+      "SpecRevision": "A",
+      "Status": 1,
+      "StatusName": "Active",
+      "StepName": "SP-STAMPING-001",
+      "WorkflowIsRevOfRcd": true,
+      "WorkflowRev": "A",
+      "ContainerStatus": 1,
+      "MfgOrderName": "CDX-T05-20261024-B-MO",
+      "OwnerName": "PRODUCTION",
+      "StartReasonName": "NORMAL",
+      "UOMName": "EACH",
+      "Container": {
+        "InstanceId": "00041080000000e3",
+        "CDOTypeName": "Container",
+        "Name": "CDX-T05-20261024-B-C01"
+      },
+      "ContainerLevel": {
+        "InstanceId": "0005288000000003",
+        "CDOTypeName": "ContainerLevel",
+        "Name": "BOX"
+      },
+      "MfgOrder": {
+        "InstanceId": "0006548000000084",
+        "CDOTypeName": "MfgOrder",
+        "Name": "CDX-T05-20261024-B-MO"
+      },
+      "Operation": {
+        "InstanceId": "00060e800000001b",
+        "CDOTypeName": "Operation",
+        "Name": "OP-STAMPING"
+      },
+      "Owner": {
+        "InstanceId": "0005468000000002",
+        "CDOTypeName": "Owner",
+        "Name": "PRODUCTION"
+      },
+      "Product": {
+        "InstanceId": "00062c8000000080",
+        "CDOTypeName": "Product",
+        "Name": "CDX-T05-20261024-B-TARGET",
+        "Revision": "1"
+      },
+      "Spec": {
+        "InstanceId": "00071c800000001b",
+        "CDOTypeName": "Spec",
+        "Name": "SP-STAMPING-001",
+        "Revision": "A"
+      },
+      "StartReason": {
+        "InstanceId": "0007808000000002",
+        "CDOTypeName": "StartReason",
+        "Name": "NORMAL"
+      },
+      "Step": {
+        "InstanceId": "00074e800000001b",
+        "CDOTypeName": "SpecStep",
+        "Name": "SP-STAMPING-001",
+        "Parent": {
+          "@odata.type": "#inquiry.RevisionedObjectRef",
+          "InstanceId": "0005aa800000001b",
+          "CDOTypeName": "Workflow",
+          "Name": "WF-WM-900A",
+          "Revision": "A"
+        }
+      },
+      "UOM": {
+        "InstanceId": "0008de8000000002",
+        "CDOTypeName": "UOM",
+        "Name": "EACH"
+      },
+      "Workflow": {
+        "InstanceId": "0005aa800000001b",
+        "CDOTypeName": "Workflow",
+        "Name": "WF-WM-900A",
+        "Revision": "A"
+      }
+    }
+  },
+  "note": "省略 null 字段；未返回/null 不等于业务上未配置。分页 complete=false 时不得宣称全量。"
+}

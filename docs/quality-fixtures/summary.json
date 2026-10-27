@@ -1,0 +1,27 @@
+{
+  "checked_date": "2026-10-25",
+  "new_tools": 15,
+  "quality_group_tools": 19,
+  "legacy_tools_regrouped": 4,
+  "swagger_contracts_fetched": 52,
+  "all_contracts_http_200": true,
+  "offline_tests_passed": 1247,
+  "subtests_passed": 2,
+  "offline_network_report": {
+    "blocked_attempt_count": 0,
+    "attempts": []
+  },
+  "mes_write_performed": false,
+  "running_service_restarted": false,
+  "capa_nonexecuting_plan_ready": true,
+  "capa_repreview_digest_equal": true,
+  "capa_dry_plan_cancelled_locally": true,
+  "dry_target_absent_after_preview": true,
+  "pending": [
+    "NCR failure codes and nonempty report fixtures",
+    "actual NCR/CAPA writes and final receipt linkage",
+    "nonempty quality inquiry/history acceptance",
+    "quality workflows/signatures/client multi-turn acceptance",
+    "generic quality object state changes/NCR escalation/sampling execution/SPC computation/container scrap"
+  ]
+}

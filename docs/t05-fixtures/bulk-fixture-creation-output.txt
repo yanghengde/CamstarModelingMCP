@@ -1,0 +1,86 @@
+2026-10-25 13:55:01,130 [INFO] GET https://172.31.61.144/Modeling/api/Products
+2026-10-25 13:55:01,733 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/Products?%24filter=Name+eq+%27WM-900A%27+and+Revision+eq+%27A%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-25 13:55:01,735 [INFO] GET https://172.31.61.144/Modeling/api/Products/00062c8000000002
+2026-10-25 13:55:01,831 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/Products/00062c8000000002 "HTTP/1.1 200 OK"
+2026-10-25 13:55:01,832 [INFO] GET https://172.31.61.144/Modeling/api/Workflows/0005aa800000001b
+2026-10-25 13:55:02,394 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/Workflows/0005aa800000001b "HTTP/1.1 200 OK"
+2026-10-25 13:55:02,395 [INFO] GET https://172.31.61.144/Modeling/api/ProductTypes/0006228000000004
+2026-10-25 13:55:02,914 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/ProductTypes/0006228000000004 "HTTP/1.1 200 OK"
+2026-10-25 13:55:02,916 [INFO] GET https://172.31.61.144/Modeling/api/UOMs
+2026-10-25 13:55:03,277 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/UOMs?%24filter=Name+eq+%27EACH%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-25 13:55:03,278 [INFO] GET https://172.31.61.144/Modeling/api/UOMs/0008de8000000002
+2026-10-25 13:55:03,351 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/UOMs/0008de8000000002 "HTTP/1.1 200 OK"
+2026-10-25 13:55:03,352 [INFO] GET https://172.31.61.144/Modeling/api/ContainerLevels
+2026-10-25 13:55:03,660 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/ContainerLevels?%24filter=Name+eq+%27BOX%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-25 13:55:03,661 [INFO] GET https://172.31.61.144/Modeling/api/ContainerLevels/0005288000000003
+2026-10-25 13:55:03,746 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/ContainerLevels/0005288000000003 "HTTP/1.1 200 OK"
+2026-10-25 13:55:03,747 [INFO] GET https://172.31.61.144/Modeling/api/OrderStatuses
+2026-10-25 13:55:04,070 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/OrderStatuses?%24filter=Name+eq+%27Released%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-25 13:55:04,071 [INFO] GET https://172.31.61.144/Modeling/api/OrderStatuses/001bd08000000005
+2026-10-25 13:55:04,141 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/OrderStatuses/001bd08000000005 "HTTP/1.1 200 OK"
+2026-10-25 13:55:04,142 [INFO] GET https://172.31.61.144/Modeling/api/MfgOrders
+2026-10-25 13:55:04,580 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/MfgOrders?%24filter=Name+eq+%27MO-100076435%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-25 13:55:04,582 [INFO] GET https://172.31.61.144/Modeling/api/MfgOrders/0006548000000002
+2026-10-25 13:55:04,698 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/MfgOrders/0006548000000002 "HTTP/1.1 200 OK"
+2026-10-25 13:55:04,699 [INFO] GET https://172.31.61.144/Modeling/api/Products
+2026-10-25 13:55:04,739 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/Products?%24filter=Name+eq+%27CDX-T05-20261025-F-COMP%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-25 13:55:04,740 [INFO] GET https://172.31.61.144/Modeling/api/Products
+2026-10-25 13:55:04,778 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/Products?%24filter=Name+eq+%27CDX-T05-20261025-F-TARGET%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-25 13:55:04,780 [INFO] GET https://172.31.61.144/Modeling/api/MfgOrders
+2026-10-25 13:55:04,817 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/MfgOrders?%24filter=Name+eq+%27CDX-T05-20261025-F-SRC-MO%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-25 13:55:04,818 [INFO] GET https://172.31.61.144/Modeling/api/MfgOrders
+2026-10-25 13:55:04,863 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/MfgOrders?%24filter=Name+eq+%27CDX-T05-20261025-F-DST-MO%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-25 13:55:04,864 [INFO] POST https://172.31.61.144/Query/api/AdHoc
+2026-10-25 13:55:05,096 [INFO] HTTP Request: POST https://172.31.61.144/Query/api/AdHoc "HTTP/1.1 200 OK"
+2026-10-25 13:55:05,097 [INFO] POST https://172.31.61.144/Query/api/AdHoc
+2026-10-25 13:55:05,128 [INFO] HTTP Request: POST https://172.31.61.144/Query/api/AdHoc "HTTP/1.1 200 OK"
+2026-10-25 13:55:05,130 [INFO] POST https://172.31.61.144/Shopfloor/api/Start/RequestSelectionValues
+2026-10-25 13:55:06,105 [INFO] HTTP Request: POST https://172.31.61.144/Shopfloor/api/Start/RequestSelectionValues?selectionValuesExpression=Details.Owner "HTTP/1.1 200 OK"
+2026-10-25 13:55:06,106 [INFO] POST https://172.31.61.144/Shopfloor/api/Start/RequestSelectionValues
+2026-10-25 13:55:06,161 [INFO] HTTP Request: POST https://172.31.61.144/Shopfloor/api/Start/RequestSelectionValues?selectionValuesExpression=Details.StartReason "HTTP/1.1 200 OK"
+2026-10-25 13:55:06,164 [INFO] POST https://172.31.61.144/Modeling/api/Products
+2026-10-25 13:55:06,765 [INFO] HTTP Request: POST https://172.31.61.144/Modeling/api/Products "HTTP/1.1 200 OK"
+2026-10-25 13:55:06,770 [INFO] GET https://172.31.61.144/Modeling/api/Products
+2026-10-25 13:55:06,820 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/Products?%24filter=Name+eq+%27CDX-T05-20261025-F-COMP%27+and+Revision+eq+%271%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-25 13:55:06,822 [INFO] GET https://172.31.61.144/Modeling/api/Products/00062c8000000087
+2026-10-25 13:55:07,013 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/Products/00062c8000000087 "HTTP/1.1 200 OK"
+2026-10-25 13:55:07,017 [INFO] POST https://172.31.61.144/Modeling/api/Products
+2026-10-25 13:55:07,253 [INFO] HTTP Request: POST https://172.31.61.144/Modeling/api/Products "HTTP/1.1 200 OK"
+2026-10-25 13:55:07,256 [INFO] GET https://172.31.61.144/Modeling/api/Products
+2026-10-25 13:55:07,340 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/Products?%24filter=Name+eq+%27CDX-T05-20261025-F-TARGET%27+and+Revision+eq+%271%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-25 13:55:07,342 [INFO] GET https://172.31.61.144/Modeling/api/Products/00062c8000000088
+2026-10-25 13:55:07,532 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/Products/00062c8000000088 "HTTP/1.1 200 OK"
+2026-10-25 13:55:07,536 [INFO] POST https://172.31.61.144/Modeling/api/MfgOrders
+2026-10-25 13:55:07,771 [INFO] HTTP Request: POST https://172.31.61.144/Modeling/api/MfgOrders "HTTP/1.1 200 OK"
+2026-10-25 13:55:07,774 [INFO] GET https://172.31.61.144/Modeling/api/MfgOrders
+2026-10-25 13:55:07,830 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/MfgOrders?%24filter=Name+eq+%27CDX-T05-20261025-F-SRC-MO%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-25 13:55:07,831 [INFO] GET https://172.31.61.144/Modeling/api/MfgOrders/0006548000000088
+2026-10-25 13:55:08,082 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/MfgOrders/0006548000000088 "HTTP/1.1 200 OK"
+2026-10-25 13:55:08,087 [INFO] POST https://172.31.61.144/Modeling/api/MfgOrders
+2026-10-25 13:55:08,507 [INFO] HTTP Request: POST https://172.31.61.144/Modeling/api/MfgOrders "HTTP/1.1 200 OK"
+2026-10-25 13:55:08,510 [INFO] GET https://172.31.61.144/Modeling/api/MfgOrders
+2026-10-25 13:55:08,574 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/MfgOrders?%24filter=Name+eq+%27CDX-T05-20261025-F-DST-MO%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-25 13:55:08,576 [INFO] GET https://172.31.61.144/Modeling/api/MfgOrders/0006548000000089
+2026-10-25 13:55:08,966 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/MfgOrders/0006548000000089 "HTTP/1.1 200 OK"
+2026-10-25 13:55:08,967 [INFO] GET https://172.31.61.144/Modeling/api/MfgOrders/0006548000000089
+2026-10-25 13:55:09,248 [INFO] HTTP Request: GET https://172.31.61.144/Modeling/api/MfgOrders/0006548000000089?%24expand=MaterialList "HTTP/1.1 200 OK"
+2026-10-25 13:55:09,252 [INFO] POST https://172.31.61.144/Shopfloor/api/Start/RequestSelectionValues
+2026-10-25 13:55:09,321 [INFO] HTTP Request: POST https://172.31.61.144/Shopfloor/api/Start/RequestSelectionValues?selectionValuesExpression=Details.Owner "HTTP/1.1 200 OK"
+2026-10-25 13:55:09,322 [INFO] POST https://172.31.61.144/Shopfloor/api/Start/RequestSelectionValues
+2026-10-25 13:55:09,393 [INFO] HTTP Request: POST https://172.31.61.144/Shopfloor/api/Start/RequestSelectionValues?selectionValuesExpression=Details.StartReason "HTTP/1.1 200 OK"
+2026-10-25 13:55:09,397 [INFO] POST https://172.31.61.144/Shopfloor/api/Start
+2026-10-25 13:55:09,681 [INFO] HTTP Request: POST https://172.31.61.144/Shopfloor/api/Start "HTTP/1.1 200 OK"
+2026-10-25 13:55:09,684 [INFO] POST https://172.31.61.144/Query/api/ViewContainerStatus
+2026-10-25 13:55:11,483 [INFO] HTTP Request: POST https://172.31.61.144/Query/api/ViewContainerStatus?execute=true&%24expand=ContainerStatusDetails "HTTP/1.1 200 OK"
+2026-10-25 13:55:11,488 [INFO] POST https://172.31.61.144/Shopfloor/api/Start/RequestSelectionValues
+2026-10-25 13:55:11,537 [INFO] HTTP Request: POST https://172.31.61.144/Shopfloor/api/Start/RequestSelectionValues?selectionValuesExpression=Details.Owner "HTTP/1.1 200 OK"
+2026-10-25 13:55:11,538 [INFO] POST https://172.31.61.144/Shopfloor/api/Start/RequestSelectionValues
+2026-10-25 13:55:11,581 [INFO] HTTP Request: POST https://172.31.61.144/Shopfloor/api/Start/RequestSelectionValues?selectionValuesExpression=Details.StartReason "HTTP/1.1 200 OK"
+2026-10-25 13:55:11,583 [INFO] POST https://172.31.61.144/Shopfloor/api/Start
+2026-10-25 13:55:11,742 [INFO] HTTP Request: POST https://172.31.61.144/Shopfloor/api/Start "HTTP/1.1 200 OK"
+2026-10-25 13:55:11,745 [INFO] POST https://172.31.61.144/Query/api/ViewContainerStatus
+2026-10-25 13:55:11,871 [INFO] HTTP Request: POST https://172.31.61.144/Query/api/ViewContainerStatus?execute=true&%24expand=ContainerStatusDetails "HTTP/1.1 200 OK"
+2026-10-25 13:55:11,875 [INFO] POST https://172.31.61.144/Query/api/ComponentIssueInquiry
+2026-10-25 13:55:12,536 [INFO] HTTP Request: POST https://172.31.61.144/Query/api/ComponentIssueInquiry?execute=true&%24select=ParentContainer%2CObjectName&%24expand=IssueDetails "HTTP/1.1 200 OK"
+2026-10-25 13:55:12,540 [INFO] Shared HTTP client connection pool closed.
+{"state": "fixtures_created_mode2_requirement_matched", "names": {"component": "CDX-T05-20261025-F-COMP", "target": "CDX-T05-20261025-F-TARGET", "source_order": "CDX-T05-20261025-F-SRC-MO", "target_order": "CDX-T05-20261025-F-DST-MO", "source": "CDX-T05-20261025-F-SRC", "destination": "CDX-T05-20261025-F-DST"}, "count": 6, "source_quantity": 3, "destination_quantity": 1, "level": "BOX", "owner": "PRODUCTION", "start_reason": "NORMAL"}

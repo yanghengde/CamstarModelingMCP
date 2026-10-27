@@ -1,0 +1,7 @@
+{
+  "rejected": true,
+  "reason": "Execution journal exists; never replay a submitted or uncertain probe.",
+  "journal_unchanged": true,
+  "network_attempts": 0,
+  "component_issue_submitted": false
+}

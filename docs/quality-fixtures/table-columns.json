@@ -1,0 +1,1717 @@
+[
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "AttachmentsId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "BriefDescription",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "CAPACustomDataId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "CAPAId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "CAPAName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "CARResolutionAction",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "CARSeverityId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "Category",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "CDOTypeId",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "ChangeCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "ClassificationId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "CloseDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "CloseDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "ClosedById",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "CloseDescription",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "Description",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "InitiatorId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "InitiatorOrganizationId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "IsFrozen",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "IsSubmitted",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "OccurrenceDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "OccurrenceDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "OrganizationId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "OrigProcessModelTemplateId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "OwnerId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "PriorityLevelId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "ProcessModelId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "ProposedResolution",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "QualityResolutionCodeId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "ReportedDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "ReportedDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "ReporterId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "ReporterOrganizationId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "RiskAssessmentId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "RoleId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "Status",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "SubClassificationId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "SystemicIssue",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "CAPA",
+    "COLUMN_NAME": "TriageComplete",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "BatchComments",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "BatchId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "BatchStatus",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "BillOfProcessId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "BinSize",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "BOMId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "CDOTypeId",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ChangeCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ChildCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ConsumingOrder",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ContainerComments",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ContainerId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ContainerName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ContainerStartGUID",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "CurrentHoldCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "CurrentStatusId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "CurrentThruputChildCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "CurrentThruputQty",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "CurrentThruputQty2",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "CurrentThruputUnitCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "CustomerId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "DateCode",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "Description",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "DetailId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "Direction",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "DueDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "DueDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ExpirationDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ExpirationDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "FactoryStartDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "FactoryStartDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "FactoryStartQty",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "FactoryStartQty2",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "FactoryStartUOM2Id",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "FactoryStartUOMId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "HoldMessage",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "HoldReasonId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "InQualityControl",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "IssuedToContainerId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "LastActivityDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "LastActivityDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "LastCarrierId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "LastCompletionDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "LastCompletionDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "LastRevTxnId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "LeadFree",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "LevelId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "MasterRecipeId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "MfgOrderId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "MfgPartNumber",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "NickName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "OnHoldDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "OriginalContainerId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "OriginalFactoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "OriginalQty",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "OriginalQty2",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "OriginalStartDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "OriginalStartDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "OriginalUOM2Id",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "OriginalUOMId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "OwnerId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ParentContainerId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "PlannedProductId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "PlannedQty",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "PlannedQty2",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "PlannedQtyUOM2Id",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "PlannedQtyUOMId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "PlannedStartDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "PlannedStartDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "PriorityCodeId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ProductId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ProductionComplete",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "Qty",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "Qty2",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "RelativePriority",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "RemainingProcessTime",
+    "DATA_TYPE": "decimal"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "RequestDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "RequestDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "SalesOrderId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "SamplingLotId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "SamplingPassed",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "SamplingRequired",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ShapeName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "SPCChartSaveOptionsEnumId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "SpecStatusId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "SplitFromId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "StartParentContainerId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "StartReasonId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "Status",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "Supplier",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "SupplyFromName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "SupplyFromType",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ThisContainerLost",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ThruputAdjustmentChildCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ThruputAdjustmentQty",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ThruputAdjustmentQty2",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ThruputAdjustmentUnitCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "UnitCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "UOM2Id",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "UOMId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "VendorItemId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "WIPMsgDefMgrId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "CustomerSerialNumber",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_HoldType",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_IsVirtualSN",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_LastSystemDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_LastSystemDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_ManufacturingDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_MaterialExposureDuration",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_NFFDefectCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_PCBNumber",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_PreventRework",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_PrimarySerialNumber",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_Scrapped",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_SerialNumber2",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_SerialNumber3",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_WaitTime",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_WorkflowId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_WorkflowstepId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ES_XOut",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "FeederId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "isAssociatedCarrierId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "isAutoStart",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "isCarrier",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "isCarrierSlot",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "isFailed",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "isHoldReasonName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "isInventoryDetailsId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "isInventoryLocationId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "isMaterialManageEnabled",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "isProductName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "isProductRevision",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "isRepairedDefectCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "isTrackedCarrierId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "LastIntegrationTxnId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "LineNumber",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "MaterialExposureOffset",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "MaterialTotalExposure",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "MaterialTotalReturns",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "MaterialWithdrawalDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "MaterialWithdrawalDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "MfgLineId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "MoveInQty",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "MoveInQty2",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ParentName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "PONumber",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ReceivedDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "ReferenceContainerName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "RMANumber",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "VendorLotNumber",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "Container",
+    "COLUMN_NAME": "VendorName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "ContainerSampleData",
+    "COLUMN_NAME": "AllowedRejects",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "ContainerSampleData",
+    "COLUMN_NAME": "AQLLevelId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "ContainerSampleData",
+    "COLUMN_NAME": "CDOTypeId",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "ContainerSampleData",
+    "COLUMN_NAME": "ChangeCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "ContainerSampleData",
+    "COLUMN_NAME": "CompletedSamples",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "ContainerSampleData",
+    "COLUMN_NAME": "ContainerId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "ContainerSampleData",
+    "COLUMN_NAME": "ContainerSampleDataId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "ContainerSampleData",
+    "COLUMN_NAME": "ExportImportKey",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "ContainerSampleData",
+    "COLUMN_NAME": "InspectAllContQty",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "ContainerSampleData",
+    "COLUMN_NAME": "InspectAllQtyOnFailure",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "ContainerSampleData",
+    "COLUMN_NAME": "InspectionLevelId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "ContainerSampleData",
+    "COLUMN_NAME": "Rejects",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "ContainerSampleData",
+    "COLUMN_NAME": "SampleTestId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "ContainerSampleData",
+    "COLUMN_NAME": "SamplingPlanId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "ContainerSampleData",
+    "COLUMN_NAME": "TotalSamplesRequired",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "Application",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "BaseTxnType",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "BatchId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "BinningIncluded",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "BonusIncluded",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "CalendarShiftId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "CarrierId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "CDOTypeId",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ChangeCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "Client",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "Comments",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "CompoundTxnType",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ComputationHistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ContainerId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "DefectIncluded",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "EmployeeId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ESigRequirementId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "FactoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "HistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "HistoryMainlineId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "IconId",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "Implicit",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "InRework",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "LocalReworkIncluded",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "LoginId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "LossIncluded",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "MfgDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "MfgProcessOverridesId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "OperationId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "OwnerId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ParametricDetailId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ProductId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "QualityESigConfirmed",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "RemainingProcessTime",
+    "DATA_TYPE": "decimal"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ResourceAvailability",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ResourceId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ResourceStatusCodeId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ResourceStatusReasonId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ReversalStatus",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "Server",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ShiftName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "SpecId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "Status",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "StepEntryTxnId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "StepPass",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "SystemDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "SystemDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnServiceName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnServiceSequence",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnType",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "UserId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "WorkflowStepId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "WorkstationId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ChildCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "CIOMessageID",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "CIOMessageIDOutbound",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ComputerName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ContainerChangeCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ContainerName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ES_RecipeId",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "IntegrationTxnId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "isFailed",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "LastMoveDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "LastMoveDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "LastMoveOutDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "LastMoveOutDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "MoveInDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "MoveInDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "MoveInQty",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "MoveInQty2",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ParentContainerId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ParentContainerName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "Qty",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "Qty2",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ServerName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ToQty",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ToQty2",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnHistorySequence",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnParentTypeName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnSequence",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnTypeName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "NCRFailureCode",
+    "COLUMN_NAME": "CDOTypeId",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "NCRFailureCode",
+    "COLUMN_NAME": "ChangeCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "NCRFailureCode",
+    "COLUMN_NAME": "ChangeHistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NCRFailureCode",
+    "COLUMN_NAME": "Description",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "NCRFailureCode",
+    "COLUMN_NAME": "FilterTags",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "NCRFailureCode",
+    "COLUMN_NAME": "IconId",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "NCRFailureCode",
+    "COLUMN_NAME": "IsFrozen",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "NCRFailureCode",
+    "COLUMN_NAME": "NCRFailureCodeId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NCRFailureCode",
+    "COLUMN_NAME": "NCRFailureCodeName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "NCRFailureCode",
+    "COLUMN_NAME": "Notes",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "NCRFailureCode",
+    "COLUMN_NAME": "SetupAccessId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "AttachmentsId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "CDOTypeId",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "ChangeCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "ChargeToStepId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "CloseDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "CloseDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "ContainerId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "CorrectiveActionCommentsId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "CreationDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "CreationDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "EscalatedById",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "EscalatedEventId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "EscalationDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "EscalationDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "FailureInvestigationCommentsId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "LastRevTxnId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "NCRCauseCodeGroupId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "NCRCauseCodeId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "NCRComment",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "NCRFailureTypeId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "NCRResolutionCodeId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "NCRStatus",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "NonconformanceReportId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "NonconformanceReportName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "PreventiveActionCommentsId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "RelatedNonconformanceId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "NonconformanceReport",
+    "COLUMN_NAME": "TaskId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "QualityObject",
+    "COLUMN_NAME": "QualityObjectType",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "QualityObject",
+    "COLUMN_NAME": "Type",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "QualityObject",
+    "COLUMN_NAME": "Id",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "QualityObject",
+    "COLUMN_NAME": "Owner",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "QualityObject",
+    "COLUMN_NAME": "Role",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "QualityObject",
+    "COLUMN_NAME": "Reporter",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "QualityObject",
+    "COLUMN_NAME": "Status",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "QualityObject",
+    "COLUMN_NAME": "Category",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "QualityObject",
+    "COLUMN_NAME": "ClassificationId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "QualityObject",
+    "COLUMN_NAME": "SubclassificationId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "QualityObject",
+    "COLUMN_NAME": "Organization",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "QualityObject",
+    "COLUMN_NAME": "PriorityLevel",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "QualityObject",
+    "COLUMN_NAME": "ProcessModel",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "QualityObject",
+    "COLUMN_NAME": "TriageComplete",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "QualityObject",
+    "COLUMN_NAME": "ReportedDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "QualityObject",
+    "COLUMN_NAME": "ReportedDateGMT",
+    "DATA_TYPE": "datetime"
+  }
+]

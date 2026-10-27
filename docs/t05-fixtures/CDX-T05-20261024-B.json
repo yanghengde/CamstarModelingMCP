@@ -1,0 +1,340 @@
+{
+  "created_at_utc": "2026-10-24T03:23:16.879068+00:00",
+  "environment": "https://172.22.154.174/Modeling",
+  "authorization": "User explicitly delegated creation of isolated test fixtures.",
+  "names": {
+    "component": "CDX-T05-20261024-B-COMP",
+    "target": "CDX-T05-20261024-B-TARGET",
+    "order": "CDX-T05-20261024-B-MO",
+    "container": "CDX-T05-20261024-B-C01"
+  },
+  "count": 4,
+  "quantity_per_container": 1,
+  "material_quantity": 2,
+  "issue_control": 5,
+  "source_workflow": {
+    "Name": "WF-WM-900A",
+    "Revision": "A",
+    "InstanceID": "0005aa800000001b"
+  },
+  "product_type": "BOX",
+  "uom": "EACH",
+  "level": "BOX",
+  "owner": "PRODUCTION",
+  "start_reason": "NORMAL",
+  "order_status": "Released",
+  "material_row": {
+    "name": "T05-QTY",
+    "product": {
+      "name": "CDX-T05-20261024-B-COMP",
+      "revision": "1"
+    },
+    "qtyRequired": 2,
+    "qty2Required": 0,
+    "issueControl": 5,
+    "UOM": {
+      "name": "EACH"
+    }
+  },
+  "attempts": [
+    {
+      "kind": "Product",
+      "name": "CDX-T05-20261024-B-COMP",
+      "arguments": {
+        "name": "CDX-T05-20261024-B-COMP",
+        "revision": "1",
+        "product_type_name": "BOX",
+        "status": 1,
+        "description": "Codex isolated T05 acceptance fixture; no production use.",
+        "body_json": "{\"StdStartUOM\": {\"name\": \"EACH\"}}"
+      },
+      "state": "created_and_read_verified",
+      "response": "{\n  \"@odata.context\": \"https://172.22.154.174/api/$metadata#Products/$entity\",\n  \"value\": \"Product \\\"CDX-T05-20261024-B-COMP (1)*\\\" added on 10/24/2026 11:16:50 AM\"\n}",
+      "verified_object": {
+        "Name": "CDX-T05-20261024-B-COMP",
+        "Revision": "1",
+        "InstanceID": "00062c800000007f",
+        "StdStartUOM": {
+          "InstanceId": "0008de8000000002",
+          "CDOTypeName": "UOM",
+          "Name": "EACH"
+        },
+        "Workflow": null
+      }
+    },
+    {
+      "kind": "Product",
+      "name": "CDX-T05-20261024-B-TARGET",
+      "arguments": {
+        "name": "CDX-T05-20261024-B-TARGET",
+        "revision": "1",
+        "product_type_name": "BOX",
+        "status": 1,
+        "description": "Codex isolated T05 acceptance fixture; no production use.",
+        "body_json": "{\"StdStartUOM\": {\"name\": \"EACH\"}, \"workflow\": {\"name\": \"WF-WM-900A\", \"revision\": \"A\"}}"
+      },
+      "state": "created_and_read_verified",
+      "response": "{\n  \"@odata.context\": \"https://172.22.154.174/api/$metadata#Products/$entity\",\n  \"value\": \"Product \\\"CDX-T05-20261024-B-TARGET (1)*\\\" added on 10/24/2026 11:16:51 AM\"\n}",
+      "verified_object": {
+        "Name": "CDX-T05-20261024-B-TARGET",
+        "Revision": "1",
+        "InstanceID": "00062c8000000080",
+        "StdStartUOM": {
+          "InstanceId": "0008de8000000002",
+          "CDOTypeName": "UOM",
+          "Name": "EACH"
+        },
+        "Workflow": {
+          "InstanceId": "0005aa800000001b",
+          "CDOTypeName": "Workflow",
+          "Name": "WF-WM-900A",
+          "Revision": "A",
+          "UseROR": null
+        }
+      }
+    },
+    {
+      "kind": "MfgOrder",
+      "name": "CDX-T05-20261024-B-MO",
+      "arguments": {
+        "name": "CDX-T05-20261024-B-MO",
+        "product_name": "CDX-T05-20261024-B-TARGET",
+        "product_revision": "1",
+        "qty": 1,
+        "description": "Codex isolated T05 test order; quantity-only material requirement.",
+        "order_status_name": "Released",
+        "body_json": "{\"UOM\": {\"name\": \"EACH\"}, \"materialList\": [{\"name\": \"T05-QTY\", \"product\": {\"name\": \"CDX-T05-20261024-B-COMP\", \"revision\": \"1\"}, \"qtyRequired\": 2, \"qty2Required\": 0, \"issueControl\": 5, \"UOM\": {\"name\": \"EACH\"}, \"isPhantom\": false, \"allowSubstitution\": false, \"allowAllRevisionsAsSubstitute\": false, \"allowOverConsumption\": false}]}"
+      },
+      "state": "unknown_or_failed",
+      "response": "❌ HTTP 400 Error\nURL: https://172.22.154.174/Modeling/api/MfgOrders\nResponse: {\"ErrorCode\":\"13369346\",\"Message\":\"A server error occurred.\",\"Target\":null,\"Details\":[{\"ErrorCode\":\"13369346\",\"Message\":\"Write access denied on field IsPhantom\",\"Target\":null}],\"InnerError\":null,\"InstanceAnnotations\":[],\"TypeAnnotation\":null}",
+      "error": "ValueError: MfgOrders 引用未唯一匹配：CDX-T05-20261024-B-MO / None。"
+    },
+    {
+      "kind": "MfgOrder",
+      "name": "CDX-T05-20261024-B-MO",
+      "arguments": {
+        "name": "CDX-T05-20261024-B-MO",
+        "product_name": "CDX-T05-20261024-B-TARGET",
+        "product_revision": "1",
+        "qty": 1,
+        "description": "Codex isolated T05 test order; quantity-only material requirement.",
+        "order_status_name": "Released",
+        "body_json": "{\"UOM\": {\"name\": \"EACH\"}, \"materialList\": [{\"name\": \"T05-QTY\", \"product\": {\"name\": \"CDX-T05-20261024-B-COMP\", \"revision\": \"1\"}, \"qtyRequired\": 2, \"qty2Required\": 0, \"issueControl\": 5, \"UOM\": {\"name\": \"EACH\"}}]}"
+      },
+      "state": "created_and_read_verified",
+      "response": "{\n  \"@odata.context\": \"https://172.22.154.174/api/$metadata#MfgOrders/$entity\",\n  \"value\": \"Mfg Order \\\"CDX-T05-20261024-B-MO\\\" added on 10/24/2026 11:20:00 AM\"\n}",
+      "error": "AttributeError: 'NoneType' object has no attribute 'get'",
+      "original_verification_error": "AttributeError: 'NoneType' object has no attribute 'get'",
+      "verified_object": {
+        "Name": "CDX-T05-20261024-B-MO",
+        "InstanceID": "0006548000000084",
+        "Product": {
+          "InstanceId": "00062c8000000080",
+          "CDOTypeName": "Product",
+          "Name": "CDX-T05-20261024-B-TARGET",
+          "Revision": "1",
+          "UseROR": null
+        },
+        "Qty": 1.0,
+        "MaterialList": [
+          {
+            "DisplayName": null,
+            "InstanceID": "001b7b8000000002",
+            "IsFrozen": false,
+            "Name": "T05-QTY",
+            "ParentName": null,
+            "PhantomQueryName": null,
+            "QueryName1": null,
+            "TypeName": null,
+            "ActualQtyRequired": null,
+            "AdjustmentType": null,
+            "AdjustmentValue": null,
+            "AllowAllRevisionsAsSubstitute": false,
+            "AllowOverConsumption": true,
+            "AllowSubstitution": false,
+            "AllowUnderConsumption": false,
+            "AssemblySequence": null,
+            "Description": null,
+            "EffectiveFromDate": null,
+            "EffectiveFromDateGMT": null,
+            "EffectiveThruDate": null,
+            "EffectiveThruDateGMT": null,
+            "IsPhantom": false,
+            "IssueControl": 5,
+            "ObjectTypeName": null,
+            "ParentRevision": null,
+            "ProducingOrder": null,
+            "Qty2Required": 0.0,
+            "QtyIssued": null,
+            "QtyRequired": 2.0,
+            "ReferenceDesignator": null,
+            "ResolvedAllowAllRevisions": false,
+            "ScrapPercent": null,
+            "SetupQty": null,
+            "SetupQty2": null,
+            "UnverifiedProductName": null,
+            "UnverifiedProductRevision": null,
+            "VendorControl": false,
+            "DefaultLot": null,
+            "DefaultStockPoint": null,
+            "ERPLineItem": null,
+            "ERPReportingFlag": false,
+            "SubFactory": null,
+            "ListItemToChange": null,
+            "ObjectToChange": null,
+            "Parent": null,
+            "isImage": null,
+            "IssuePoint": null,
+            "PhantomBill": null,
+            "Product": {
+              "InstanceId": "00062c800000007f",
+              "CDOTypeName": "Product",
+              "Name": "CDX-T05-20261024-B-COMP",
+              "Revision": "1",
+              "UseROR": null
+            },
+            "UOM": {
+              "InstanceId": "0008de8000000002",
+              "CDOTypeName": "UOM",
+              "Name": "EACH"
+            },
+            "UOM2": null,
+            "RouteStep": null
+          }
+        ]
+      },
+      "verification_repaired_without_reposting": true
+    },
+    {
+      "kind": "Container",
+      "name": "CDX-T05-20261024-B-C01",
+      "arguments": {
+        "mfg_order_name": "CDX-T05-20261024-B-MO",
+        "product_name": "CDX-T05-20261024-B-TARGET",
+        "product_revision": "1",
+        "qty": 1,
+        "level_name": "BOX",
+        "owner_name": "PRODUCTION",
+        "start_reason_name": "NORMAL",
+        "container_name": "CDX-T05-20261024-B-C01",
+        "comments": "Isolated Codex T05 acceptance fixture."
+      },
+      "state": "created_and_read_verified",
+      "response": "{\n  \"@odata.context\": \"https://172.22.154.174/api/$metadata#Start/$entity\",\n  \"value\": \"CDX-T05-20261024-B-C01 started at SP-STAMPING-001 on 10/24/2026 11:23:19 AM by Camstar Administrator.\"\n}",
+      "verified_object": {
+        "InstanceID": "001af50000000190",
+        "ContainerLevelName": "BOX",
+        "ContainerName": "CDX-T05-20261024-B-C01",
+        "InProcess": true,
+        "InRework": false,
+        "LastActivityDate": "2026-10-24T11:23:19",
+        "LastMoveDate": "2026-10-24T11:23:19",
+        "NextOperation": "OP-WELDING",
+        "OperationName": "OP-STAMPING",
+        "OriginalStartDate": "2026-10-24T11:23:19",
+        "ProductDescription": "Codex isolated T05 acceptance fixture; no production use.",
+        "ProductIsRevOfRcd": true,
+        "ProductName": "CDX-T05-20261024-B-TARGET",
+        "ProductRev": "1",
+        "Qty": 1.0,
+        "QtyOperator": 0,
+        "Specification": "SP-STAMPING-001",
+        "SpecIsRevOfRcd": true,
+        "SpecRevision": "A",
+        "Status": 1,
+        "StatusName": "Active",
+        "StepName": "SP-STAMPING-001",
+        "WorkflowIsRevOfRcd": true,
+        "WorkflowRev": "A",
+        "ContainerStatus": 1,
+        "MfgOrderName": "CDX-T05-20261024-B-MO",
+        "OwnerName": "PRODUCTION",
+        "StartReasonName": "NORMAL",
+        "UOMName": "EACH",
+        "Container": {
+          "InstanceId": "00041080000000e3",
+          "CDOTypeName": "Container",
+          "Name": "CDX-T05-20261024-B-C01"
+        },
+        "ContainerLevel": {
+          "InstanceId": "0005288000000003",
+          "CDOTypeName": "ContainerLevel",
+          "Name": "BOX"
+        },
+        "MfgOrder": {
+          "InstanceId": "0006548000000084",
+          "CDOTypeName": "MfgOrder",
+          "Name": "CDX-T05-20261024-B-MO"
+        },
+        "Operation": {
+          "InstanceId": "00060e800000001b",
+          "CDOTypeName": "Operation",
+          "Name": "OP-STAMPING"
+        },
+        "Owner": {
+          "InstanceId": "0005468000000002",
+          "CDOTypeName": "Owner",
+          "Name": "PRODUCTION"
+        },
+        "Product": {
+          "InstanceId": "00062c8000000080",
+          "CDOTypeName": "Product",
+          "Name": "CDX-T05-20261024-B-TARGET",
+          "Revision": "1"
+        },
+        "Spec": {
+          "InstanceId": "00071c800000001b",
+          "CDOTypeName": "Spec",
+          "Name": "SP-STAMPING-001",
+          "Revision": "A"
+        },
+        "StartReason": {
+          "InstanceId": "0007808000000002",
+          "CDOTypeName": "StartReason",
+          "Name": "NORMAL"
+        },
+        "Step": {
+          "InstanceId": "00074e800000001b",
+          "CDOTypeName": "SpecStep",
+          "Name": "SP-STAMPING-001",
+          "Parent": {
+            "@odata.type": "#inquiry.RevisionedObjectRef",
+            "InstanceId": "0005aa800000001b",
+            "CDOTypeName": "Workflow",
+            "Name": "WF-WM-900A",
+            "Revision": "A"
+          }
+        },
+        "UOM": {
+          "InstanceId": "0008de8000000002",
+          "CDOTypeName": "UOM",
+          "Name": "EACH"
+        },
+        "Workflow": {
+          "InstanceId": "0005aa800000001b",
+          "CDOTypeName": "Workflow",
+          "Name": "WF-WM-900A",
+          "Revision": "A"
+        }
+      }
+    }
+  ],
+  "note": "No ComponentIssue consumption. No source edits, mutation retries or automatic deletion.",
+  "requirement_result": {
+    "source": "Query/ComponentIssueInquiry",
+    "complete": false,
+    "status": "unknown",
+    "note": "单条需求匹配，不是全部需求或本次实际消耗；QtyIssued 为累计量。",
+    "error": "响应未确认目标父容器身份。"
+  },
+  "state": "fixtures_created_requirement_matched_business_execution_unverified",
+  "final_verification": {
+    "requirement_status": "matched",
+    "requirement_complete": true,
+    "valid_sequence": false,
+    "serialization_verified": true,
+    "transaction_verified": false,
+    "business_execution_allowed": false,
+    "quantity_state_unchanged": true
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "checked_at": "2026-10-23T09:54:35.314407+08:00",
+  "method": "GET only; no business writes",
+  "result": {
+    "complete": false,
+    "ready_to_start": null,
+    "checks": [
+      {
+        "area": "工单产品关联",
+        "object": "MO-100076435",
+        "status": "通过",
+        "source": "Modeling/MfgOrders -> Products",
+        "detail": "已唯一解析工单及产品版本。",
+        "next_action": "无需处理此关联。"
+      },
+      {
+        "area": "工艺配置",
+        "object": "00062c8000000002",
+        "status": "通过",
+        "source": "get_product_process + inspect_structure",
+        "detail": {
+          "complete": true,
+          "issues": [],
+          "error": null
+        },
+        "next_action": "有待核对项时查看工艺完整性明细。"
+      },
+      {
+        "area": "标准BOM",
+        "object": "MO-100076435",
+        "status": "未知",
+        "source": "get_product_material_requirements/standard_bom",
+        "detail": {
+          "read_complete": false,
+          "returned_rows": null,
+          "error": "BOMs 引用未返回，不能推断关联对象。",
+          "note": "仅确认清单可读取；空清单是否允许需现场规则。"
+        },
+        "next_action": "核对清单适用性、数量单位；库存和损耗不在本次结论内。"
+      },
+      {
+        "area": "工单物料",
+        "object": "MO-100076435",
+        "status": "未知",
+        "source": "get_product_material_requirements/order_materials",
+        "detail": {
+          "read_complete": true,
+          "returned_rows": 0,
+          "error": null,
+          "note": "仅确认清单可读取；空清单是否允许需现场规则。"
+        },
+        "next_action": "核对清单适用性、数量单位；库存和损耗不在本次结论内。"
+      },
+      {
+        "area": "工序资源",
+        "object": "00071c800000001b",
+        "status": "未知",
+        "source": "get_spec_resource_context",
+        "detail": {
+          "read_complete": false,
+          "candidate_count": 0,
+          "warnings": [
+            "Spec ResourceGroup 未返回或为空，无法确认资源配置。"
+          ],
+          "error": null
+        },
+        "next_action": "候选配置不代表设备实时可用；核对缺失引用及现场限制。"
+      },
+      {
+        "area": "工序采集",
+        "object": "00071c800000001b",
+        "status": "未知",
+        "source": "Specs/TxnMap",
+        "detail": {
+          "read_complete": true,
+          "mapping_count": 0,
+          "unexamined_mapping_count": 0,
+          "dynamic_requirements_verified": false,
+          "constraints_complete": false,
+          "mappings": []
+        },
+        "next_action": "按具体事务核对采集定义、点约束及动态要求。"
+      },
+      {
+        "area": "工序资源",
+        "object": "00071c800000001c",
+        "status": "未知",
+        "source": "get_spec_resource_context",
+        "detail": {
+          "read_complete": false,
+          "candidate_count": 0,
+          "warnings": [
+            "Spec ResourceGroup 未返回或为空，无法确认资源配置。"
+          ],
+          "error": null
+        },
+        "next_action": "候选配置不代表设备实时可用；核对缺失引用及现场限制。"
+      },
+      {
+        "area": "工序采集",
+        "object": "00071c800000001c",
+        "status": "未知",
+        "source": "Specs/TxnMap",
+        "detail": {
+          "read_complete": true,
+          "mapping_count": 0,
+          "unexamined_mapping_count": 0,
+          "dynamic_requirements_verified": false,
+          "constraints_complete": false,
+          "mappings": []
+        },
+        "next_action": "按具体事务核对采集定义、点约束及动态要求。"
+      },
+      {
+        "area": "工序检查范围",
+        "object": "00062c8000000002",
+        "status": "未知",
+        "source": "get_product_process/specs",
+        "detail": {
+          "resolved_specs": 6,
+          "unexamined_specs": [
+            "00071c800000001d",
+            "00071c800000001e",
+            "00071c800000001f",
+            "00071c8000000020"
+          ]
+        },
+        "next_action": "未解析工序或达到上限；分范围继续检查。"
+      },
+      {
+        "area": "现场开工条件",
+        "object": "MO-100076435",
+        "status": "未知",
+        "source": "未接入的业务检查",
+        "detail": "库存、人员资质、设备实时状态、动态采集规则及开工事务前置条件未验证。",
+        "next_action": "结合现场系统规则核验。"
+      }
+    ],
+    "scope": "工单关联及已读取范围的静态配置；不是开工许可或全部业务规则验收。",
+    "limits": {
+      "max_specs": 2,
+      "max_depth": 1,
+      "concurrency": 2,
+      "max_definitions_per_spec": 5,
+      "point_limit": 20,
+      "logical_request_upper_bound": 274,
+      "note": "复用各领域请求预算之和；HTTP 层 GET 重试最多使实际尝试数翻倍。"
+    },
+    "unexamined_specs": [
+      "00071c800000001d",
+      "00071c800000001e",
+      "00071c800000001f",
+      "00071c8000000020"
+    ],
+    "order": {
+      "InstanceID": "0006548000000002",
+      "Name": "MO-100076435",
+      "Qty": 80.0
+    },
+    "product": {
+      "InstanceID": "00062c8000000002",
+      "Name": "WM-900A",
+      "Revision": "A"
+    },
+    "summary": "已完成本次有界静态检查；存在未知或未检查条件，不能据此认定允许开工。",
+    "status_counts": {
+      "通过": 2,
+      "缺失": 0,
+      "未知": 8,
+      "不适用": 0
+    }
+  }
+}

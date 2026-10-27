@@ -1,0 +1,36 @@
+{
+  "complete": true,
+  "verified_success": true,
+  "reads": [
+    {
+      "table": "HistoryMainline",
+      "query": "SELECT TOP 2 HistoryMainlineId,TxnId,ContainerId,TxnTypeName,SpecId,OperationId,Comments FROM HistoryMainline WHERE ContainerId='00041080000000e8' AND Comments='Codex bulk fe318933c04c42bda855ee5c016f4cff'",
+      "response": "[{\"HistoryMainlineId\": \"00098880000001f2\", \"TxnId\": \"400000000000f21b\", \"ContainerId\": \"00041080000000e8\", \"TxnTypeName\": \"ComponentIssue\", \"SpecId\": \"00071c800000001b\", \"OperationId\": \"00060e800000001b\", \"Comments\": \"Codex bulk fe318933c04c42bda855ee5c016f4cff\"}]"
+    },
+    {
+      "table": "IssueHistoryDetail",
+      "query": "SELECT TOP 2 IssueHistoryDetailId,ComponentIssueHistoryId,TxnId,IntegrationTxnId,HistoryId,ProductMaterialListItemId,ProductId,IssueControl,UOMId,QtyRequired,Qty2Required,ActualQtyIssued,ActualQty2Issued FROM IssueHistoryDetail WHERE TxnId='400000000000f21b'",
+      "response": "[{\"IssueHistoryDetailId\": \"0019be8000000007\", \"ComponentIssueHistoryId\": \"0019b48000000007\", \"TxnId\": \"400000000000f21b\", \"IntegrationTxnId\": \"00098880000001f2\", \"HistoryId\": \"00041080000000e8\", \"ProductMaterialListItemId\": \"001b7b8000000006\", \"ProductId\": \"00062c8000000087\", \"IssueControl\": \"2\", \"UOMId\": \"0008de8000000002\", \"QtyRequired\": \"2\", \"Qty2Required\": \"0\", \"ActualQtyIssued\": \"2\", \"ActualQty2Issued\": \"0\"}]"
+    },
+    {
+      "table": "ComponentIssueHistory",
+      "query": "SELECT TOP 2 ComponentIssueHistoryId,HistoryMainlineId,IntegrationTxnId,HistoryId FROM ComponentIssueHistory WHERE ComponentIssueHistoryId='0019b48000000007'",
+      "response": "[{\"ComponentIssueHistoryId\": \"0019b48000000007\", \"HistoryMainlineId\": \"00098880000001f2\", \"IntegrationTxnId\": \"00098880000001f2\", \"HistoryId\": \"00041080000000e8\"}]"
+    },
+    {
+      "table": "IssueActualsHistory",
+      "query": "SELECT TOP 2 IssueActualsHistoryId,CDOTypeId,IssueHistoryDetailId,TxnId,HistoryId,ToContainerId,FromContainerId,FromLot,FromStockPoint,ProductId,Qty,Qty2 FROM IssueActualsHistory WHERE TxnId='400000000000f21b'",
+      "response": "[{\"IssueActualsHistoryId\": \"001b1b8000000002\", \"CDOTypeId\": \"6939\", \"IssueHistoryDetailId\": \"0019be8000000007\", \"TxnId\": \"400000000000f21b\", \"HistoryId\": \"00041080000000e8\", \"ToContainerId\": \"00041080000000e8\", \"FromContainerId\": \"00041080000000e7\", \"FromLot\": \"\", \"FromStockPoint\": \"\", \"ProductId\": \"00062c8000000087\", \"Qty\": \"2\", \"Qty2\": \"0\"}]"
+    }
+  ],
+  "mes_write_performed": false,
+  "original_probe_reusable": false,
+  "scope": "original mode-2 committed transaction; later source/balance changes are outside this proof",
+  "transaction_id": "400000000000f21b",
+  "mainline_id": "00098880000001f2",
+  "issue_detail_id": "0019be8000000007",
+  "actual_issue_id": "001b1b8000000002",
+  "source_container_id": "00041080000000e7",
+  "target_container_id": "00041080000000e8",
+  "verification_method": "unique_marker_mode2_bulk_source_history_chain"
+}

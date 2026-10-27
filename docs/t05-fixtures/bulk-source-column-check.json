@@ -1,0 +1,5 @@
+{
+  "query": "SELECT TOP 2 ContainerId,ContainerName,ProductId,Qty,Qty2,UOMId,UOM2Id,Status,ParentContainerId FROM Container WHERE ContainerId='00041080000000e3'",
+  "response": "[{\"ContainerId\": \"00041080000000e3\", \"ContainerName\": \"CDX-T05-20261024-B-C01\", \"ProductId\": \"00062c8000000080\", \"Qty\": \"1\", \"Qty2\": \"\", \"UOMId\": \"0008de8000000002\", \"UOM2Id\": \"\", \"Status\": \"1\", \"ParentContainerId\": \"\"}]",
+  "execute": false
+}

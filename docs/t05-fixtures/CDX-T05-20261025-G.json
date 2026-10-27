@@ -1,0 +1,678 @@
+{
+  "created_at_utc": "2026-10-25T06:28:35.183702+00:00",
+  "environment": "https://172.31.61.144/Modeling",
+  "names": {
+    "component": "CDX-T05-20261025-G-COMP",
+    "target": "CDX-T05-20261025-G-TARGET",
+    "source_order": "CDX-T05-20261025-G-SRC-MO",
+    "target_order": "CDX-T05-20261025-G-DST-MO",
+    "source": "CDX-T05-20261025-G-SRC",
+    "destination": "CDX-T05-20261025-G-DST"
+  },
+  "count": 6,
+  "issue_control": 2,
+  "source_quantity": 3,
+  "destination_quantity": 1,
+  "material_quantity": 2,
+  "level": "BOX",
+  "owner": "PRODUCTION",
+  "start_reason": "NORMAL",
+  "product_revision": "1",
+  "unit": "EACH",
+  "workflow": {
+    "name": "WF-WM-900A",
+    "revision": "A"
+  },
+  "material": {
+    "name": "T05-BULK",
+    "product": {
+      "name": "CDX-T05-20261025-G-COMP",
+      "revision": "1"
+    },
+    "qtyRequired": 2,
+    "qty2Required": 0,
+    "issueControl": 2,
+    "UOM": {
+      "name": "EACH"
+    }
+  },
+  "attempts": [
+    {
+      "kind": "Product",
+      "name": "CDX-T05-20261025-G-COMP",
+      "arguments": {
+        "name": "CDX-T05-20261025-G-COMP",
+        "revision": "1",
+        "product_type_name": "BOX",
+        "status": 1,
+        "description": "TEST DATA ONLY: isolated mode-2 source preview; not production.",
+        "body_json": "{\"StdStartUOM\": {\"name\": \"EACH\"}, \"workflow\": {\"name\": \"WF-WM-900A\", \"revision\": \"A\"}}"
+      },
+      "state": "created_and_read_verified",
+      "response": "{\n  \"@odata.context\": \"https://172.31.61.144/api/$metadata#Products/$entity\",\n  \"value\": \"Product \\\"CDX-T05-20261025-G-COMP (1)*\\\" added on 10/25/2026 2:28:35 PM\"\n}",
+      "verified_object": {
+        "Name": "CDX-T05-20261025-G-COMP",
+        "Revision": "1",
+        "InstanceID": "00062c8000000089",
+        "StdStartUOM": {
+          "InstanceId": "0008de8000000002",
+          "CDOTypeName": "UOM",
+          "Name": "EACH"
+        },
+        "Workflow": {
+          "InstanceId": "0005aa800000001b",
+          "CDOTypeName": "Workflow",
+          "Name": "WF-WM-900A",
+          "Revision": "A",
+          "UseROR": null
+        }
+      }
+    },
+    {
+      "kind": "Product",
+      "name": "CDX-T05-20261025-G-TARGET",
+      "arguments": {
+        "name": "CDX-T05-20261025-G-TARGET",
+        "revision": "1",
+        "product_type_name": "BOX",
+        "status": 1,
+        "description": "TEST DATA ONLY: isolated mode-2 source preview; not production.",
+        "body_json": "{\"StdStartUOM\": {\"name\": \"EACH\"}, \"workflow\": {\"name\": \"WF-WM-900A\", \"revision\": \"A\"}}"
+      },
+      "state": "created_and_read_verified",
+      "response": "{\n  \"@odata.context\": \"https://172.31.61.144/api/$metadata#Products/$entity\",\n  \"value\": \"Product \\\"CDX-T05-20261025-G-TARGET (1)*\\\" added on 10/25/2026 2:28:36 PM\"\n}",
+      "verified_object": {
+        "Name": "CDX-T05-20261025-G-TARGET",
+        "Revision": "1",
+        "InstanceID": "00062c800000008a",
+        "StdStartUOM": {
+          "InstanceId": "0008de8000000002",
+          "CDOTypeName": "UOM",
+          "Name": "EACH"
+        },
+        "Workflow": {
+          "InstanceId": "0005aa800000001b",
+          "CDOTypeName": "Workflow",
+          "Name": "WF-WM-900A",
+          "Revision": "A",
+          "UseROR": null
+        }
+      }
+    },
+    {
+      "kind": "MfgOrder",
+      "name": "CDX-T05-20261025-G-SRC-MO",
+      "arguments": {
+        "name": "CDX-T05-20261025-G-SRC-MO",
+        "product_name": "CDX-T05-20261025-G-COMP",
+        "product_revision": "1",
+        "qty": 3,
+        "order_status_name": "Released",
+        "description": "TEST DATA ONLY: mode-2 preview fixture.",
+        "body_json": "{\"UOM\": {\"name\": \"EACH\"}}"
+      },
+      "state": "created_and_read_verified",
+      "response": "{\n  \"@odata.context\": \"https://172.31.61.144/api/$metadata#MfgOrders/$entity\",\n  \"value\": \"Mfg Order \\\"CDX-T05-20261025-G-SRC-MO\\\" added on 10/25/2026 2:28:36 PM\"\n}",
+      "verified_object": {
+        "@odata.context": "https://172.31.61.144/Modeling/api/$metadata#MfgOrders/$entity",
+        "ConsumingOrder": null,
+        "Containers": [],
+        "DefaultLot": null,
+        "DefaultPutawayStockPoint": null,
+        "ExternallyControlled": false,
+        "HasMaterialList": null,
+        "Name": "CDX-T05-20261025-G-SRC-MO",
+        "PlannedCompletionDate": null,
+        "PlannedCompletionDateGMT": null,
+        "PlannedStartDate": null,
+        "PlannedStartDateGMT": null,
+        "PostProductionCompleteDateGMT": null,
+        "PostProductionProcedureState": null,
+        "PostProductionStartDateGMT": null,
+        "PreProductionCompleteDateGMT": null,
+        "PreProductionProcedureRequired": null,
+        "PreProductionProcedureState": null,
+        "PreProductionStartDateGMT": null,
+        "ProductionCompleteDateGMT": null,
+        "ProductionStartDateGMT": null,
+        "Qty": 3.0,
+        "Qty2": null,
+        "ReleaseDate": null,
+        "ReleaseDateGMT": null,
+        "AssociatedPackages": 0,
+        "AttachAsRORProxy": [],
+        "Description": "TEST DATA ONLY: mode-2 preview fixture.",
+        "DisplayName": null,
+        "FilterTags": null,
+        "IconId": null,
+        "InstanceID": "000654800000008a",
+        "InstanceLocked": false,
+        "isAttachImage": false,
+        "IsFrozen": false,
+        "Notes": null,
+        "ReplaceDetails": false,
+        "ReplaceDetailsSubentityListNames": null,
+        "SkipSubentityListsToSequence": false,
+        "UseROR": [],
+        "UseRORProxy": [],
+        "Attributes-Expanded": [],
+        "BeginProduct": null,
+        "BillOfProcess": null,
+        "ContainerNumberingRule": null,
+        "Containers-Expanded": [],
+        "DefaultProductType": null,
+        "ERPBOM": null,
+        "ERPRoute": null,
+        "MatchingProds": [],
+        "MatchingProds-Expanded": [],
+        "MaterialList-Expanded": [],
+        "MaterialList_Tmp-Expanded": [],
+        "MfgOrderExecutedTask-Expanded": [],
+        "MfgOrderExecutedTaskList-Expanded": [],
+        "ObjectToChange": null,
+        "OrderStatus": {
+          "InstanceId": "001bd08000000005",
+          "CDOTypeName": "OrderStatus",
+          "Name": "Released"
+        },
+        "OrderType": null,
+        "PostProductionProcedure": null,
+        "PreProductionProcedure": null,
+        "Priority": null,
+        "Product": {
+          "InstanceId": "00062c8000000089",
+          "CDOTypeName": "Product",
+          "Name": "CDX-T05-20261025-G-COMP",
+          "Revision": "1",
+          "UseROR": null
+        },
+        "ReportingFactory": null,
+        "UOM": {
+          "InstanceId": "0008de8000000002",
+          "CDOTypeName": "UOM",
+          "Name": "EACH"
+        },
+        "UOM2": null,
+        "AttachAsRORProxy-Expanded": [],
+        "AttachDocumentDetails-Expanded": [],
+        "UseROR-Expanded": [],
+        "UseRORProxy-Expanded": []
+      }
+    },
+    {
+      "kind": "MfgOrder",
+      "name": "CDX-T05-20261025-G-DST-MO",
+      "arguments": {
+        "name": "CDX-T05-20261025-G-DST-MO",
+        "product_name": "CDX-T05-20261025-G-TARGET",
+        "product_revision": "1",
+        "qty": 1,
+        "order_status_name": "Released",
+        "description": "TEST DATA ONLY: mode-2 preview fixture.",
+        "body_json": "{\"UOM\": {\"name\": \"EACH\"}, \"materialList\": [{\"name\": \"T05-BULK\", \"product\": {\"name\": \"CDX-T05-20261025-G-COMP\", \"revision\": \"1\"}, \"qtyRequired\": 2, \"qty2Required\": 0, \"issueControl\": 2, \"UOM\": {\"name\": \"EACH\"}}]}"
+      },
+      "state": "created_and_read_verified",
+      "response": "{\n  \"@odata.context\": \"https://172.31.61.144/api/$metadata#MfgOrders/$entity\",\n  \"value\": \"Mfg Order \\\"CDX-T05-20261025-G-DST-MO\\\" added on 10/25/2026 2:28:37 PM\"\n}",
+      "verified_object": {
+        "@odata.context": "https://172.31.61.144/Modeling/api/$metadata#MfgOrders/$entity",
+        "ConsumingOrder": null,
+        "Containers": [],
+        "DefaultLot": null,
+        "DefaultPutawayStockPoint": null,
+        "ExternallyControlled": false,
+        "HasMaterialList": null,
+        "Name": "CDX-T05-20261025-G-DST-MO",
+        "PlannedCompletionDate": null,
+        "PlannedCompletionDateGMT": null,
+        "PlannedStartDate": null,
+        "PlannedStartDateGMT": null,
+        "PostProductionCompleteDateGMT": null,
+        "PostProductionProcedureState": null,
+        "PostProductionStartDateGMT": null,
+        "PreProductionCompleteDateGMT": null,
+        "PreProductionProcedureRequired": null,
+        "PreProductionProcedureState": null,
+        "PreProductionStartDateGMT": null,
+        "ProductionCompleteDateGMT": null,
+        "ProductionStartDateGMT": null,
+        "Qty": 1.0,
+        "Qty2": null,
+        "ReleaseDate": null,
+        "ReleaseDateGMT": null,
+        "AssociatedPackages": 0,
+        "AttachAsRORProxy": [],
+        "Description": "TEST DATA ONLY: mode-2 preview fixture.",
+        "DisplayName": null,
+        "FilterTags": null,
+        "IconId": null,
+        "InstanceID": "000654800000008b",
+        "InstanceLocked": false,
+        "isAttachImage": false,
+        "IsFrozen": false,
+        "Notes": null,
+        "ReplaceDetails": false,
+        "ReplaceDetailsSubentityListNames": null,
+        "SkipSubentityListsToSequence": false,
+        "UseROR": [],
+        "UseRORProxy": [],
+        "Attributes-Expanded": [],
+        "BeginProduct": null,
+        "BillOfProcess": null,
+        "ContainerNumberingRule": null,
+        "Containers-Expanded": [],
+        "DefaultProductType": null,
+        "ERPBOM": null,
+        "ERPRoute": null,
+        "MatchingProds": [],
+        "MatchingProds-Expanded": [],
+        "MaterialList-Expanded": [],
+        "MaterialList_Tmp-Expanded": [],
+        "MfgOrderExecutedTask-Expanded": [],
+        "MfgOrderExecutedTaskList-Expanded": [],
+        "ObjectToChange": null,
+        "OrderStatus": {
+          "InstanceId": "001bd08000000005",
+          "CDOTypeName": "OrderStatus",
+          "Name": "Released"
+        },
+        "OrderType": null,
+        "PostProductionProcedure": null,
+        "PreProductionProcedure": null,
+        "Priority": null,
+        "Product": {
+          "InstanceId": "00062c800000008a",
+          "CDOTypeName": "Product",
+          "Name": "CDX-T05-20261025-G-TARGET",
+          "Revision": "1",
+          "UseROR": null
+        },
+        "ReportingFactory": null,
+        "UOM": {
+          "InstanceId": "0008de8000000002",
+          "CDOTypeName": "UOM",
+          "Name": "EACH"
+        },
+        "UOM2": null,
+        "AttachAsRORProxy-Expanded": [],
+        "AttachDocumentDetails-Expanded": [],
+        "UseROR-Expanded": [],
+        "UseRORProxy-Expanded": [],
+        "MaterialList": [
+          {
+            "DisplayName": null,
+            "InstanceID": "001b7b8000000007",
+            "IsFrozen": false,
+            "Name": "T05-BULK",
+            "ParentName": null,
+            "PhantomQueryName": null,
+            "QueryName1": null,
+            "TypeName": null,
+            "ActualQtyRequired": null,
+            "AdjustmentType": null,
+            "AdjustmentValue": null,
+            "AllowAllRevisionsAsSubstitute": false,
+            "AllowOverConsumption": true,
+            "AllowSubstitution": false,
+            "AllowUnderConsumption": false,
+            "AssemblySequence": null,
+            "Description": null,
+            "EffectiveFromDate": null,
+            "EffectiveFromDateGMT": null,
+            "EffectiveThruDate": null,
+            "EffectiveThruDateGMT": null,
+            "IsPhantom": false,
+            "IssueControl": 2,
+            "ObjectTypeName": null,
+            "ParentRevision": null,
+            "ProducingOrder": null,
+            "Qty2Required": 0.0,
+            "QtyIssued": null,
+            "QtyRequired": 2.0,
+            "ReferenceDesignator": null,
+            "ResolvedAllowAllRevisions": false,
+            "ScrapPercent": null,
+            "SetupQty": null,
+            "SetupQty2": null,
+            "UnverifiedProductName": null,
+            "UnverifiedProductRevision": null,
+            "VendorControl": false,
+            "DefaultLot": null,
+            "DefaultStockPoint": null,
+            "ERPLineItem": null,
+            "ERPReportingFlag": false,
+            "SubFactory": null,
+            "ListItemToChange": null,
+            "ObjectToChange": null,
+            "Parent": null,
+            "isImage": null,
+            "IssuePoint": null,
+            "PhantomBill": null,
+            "Product": {
+              "InstanceId": "00062c8000000089",
+              "CDOTypeName": "Product",
+              "Name": "CDX-T05-20261025-G-COMP",
+              "Revision": "1",
+              "UseROR": null
+            },
+            "UOM": {
+              "InstanceId": "0008de8000000002",
+              "CDOTypeName": "UOM",
+              "Name": "EACH"
+            },
+            "UOM2": null,
+            "RouteStep": null
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Container",
+      "name": "CDX-T05-20261025-G-SRC",
+      "arguments": {
+        "mfg_order_name": "CDX-T05-20261025-G-SRC-MO",
+        "product_name": "CDX-T05-20261025-G-COMP",
+        "product_revision": "1",
+        "qty": 3,
+        "level_name": "BOX",
+        "owner_name": "PRODUCTION",
+        "start_reason_name": "NORMAL",
+        "container_name": "CDX-T05-20261025-G-SRC",
+        "comments": "TEST DATA ONLY: isolated bulk source preview."
+      },
+      "state": "created_and_read_verified",
+      "response": "{\n  \"@odata.context\": \"https://172.31.61.144/api/$metadata#Start/$entity\",\n  \"value\": \"CDX-T05-20261025-G-SRC started at SP-STAMPING-001 on 10/25/2026 2:28:38 PM by Camstar Administrator.\"\n}",
+      "verified_object": {
+        "InstanceID": "001af500000001bb",
+        "ContainerLevelName": "BOX",
+        "ContainerName": "CDX-T05-20261025-G-SRC",
+        "InProcess": true,
+        "InRework": false,
+        "LastActivityDate": "2026-10-25T14:28:38",
+        "LastMoveDate": "2026-10-25T14:28:38",
+        "NextOperation": "OP-WELDING",
+        "OperationName": "OP-STAMPING",
+        "OriginalStartDate": "2026-10-25T14:28:38",
+        "ProductDescription": "TEST DATA ONLY: isolated mode-2 source preview; not production.",
+        "ProductIsRevOfRcd": true,
+        "ProductName": "CDX-T05-20261025-G-COMP",
+        "ProductRev": "1",
+        "Qty": 3.0,
+        "QtyOperator": 0,
+        "Specification": "SP-STAMPING-001",
+        "SpecIsRevOfRcd": true,
+        "SpecRevision": "A",
+        "Status": 1,
+        "StatusName": "Active",
+        "StepName": "SP-STAMPING-001",
+        "WorkflowIsRevOfRcd": true,
+        "WorkflowRev": "A",
+        "ContainerStatus": 1,
+        "MfgOrderName": "CDX-T05-20261025-G-SRC-MO",
+        "OwnerName": "PRODUCTION",
+        "StartReasonName": "NORMAL",
+        "UOMName": "EACH",
+        "Container": {
+          "InstanceId": "00041080000000e9",
+          "CDOTypeName": "Container",
+          "Name": "CDX-T05-20261025-G-SRC"
+        },
+        "ContainerLevel": {
+          "InstanceId": "0005288000000003",
+          "CDOTypeName": "ContainerLevel",
+          "Name": "BOX"
+        },
+        "MfgOrder": {
+          "InstanceId": "000654800000008a",
+          "CDOTypeName": "MfgOrder",
+          "Name": "CDX-T05-20261025-G-SRC-MO"
+        },
+        "Operation": {
+          "InstanceId": "00060e800000001b",
+          "CDOTypeName": "Operation",
+          "Name": "OP-STAMPING"
+        },
+        "Owner": {
+          "InstanceId": "0005468000000002",
+          "CDOTypeName": "Owner",
+          "Name": "PRODUCTION"
+        },
+        "Product": {
+          "InstanceId": "00062c8000000089",
+          "CDOTypeName": "Product",
+          "Name": "CDX-T05-20261025-G-COMP",
+          "Revision": "1"
+        },
+        "Spec": {
+          "InstanceId": "00071c800000001b",
+          "CDOTypeName": "Spec",
+          "Name": "SP-STAMPING-001",
+          "Revision": "A"
+        },
+        "StartReason": {
+          "InstanceId": "0007808000000002",
+          "CDOTypeName": "StartReason",
+          "Name": "NORMAL"
+        },
+        "Step": {
+          "InstanceId": "00074e800000001b",
+          "CDOTypeName": "SpecStep",
+          "Name": "SP-STAMPING-001",
+          "Parent": {
+            "@odata.type": "#inquiry.RevisionedObjectRef",
+            "InstanceId": "0005aa800000001b",
+            "CDOTypeName": "Workflow",
+            "Name": "WF-WM-900A",
+            "Revision": "A"
+          }
+        },
+        "UOM": {
+          "InstanceId": "0008de8000000002",
+          "CDOTypeName": "UOM",
+          "Name": "EACH"
+        },
+        "Workflow": {
+          "InstanceId": "0005aa800000001b",
+          "CDOTypeName": "Workflow",
+          "Name": "WF-WM-900A",
+          "Revision": "A"
+        }
+      }
+    },
+    {
+      "kind": "Container",
+      "name": "CDX-T05-20261025-G-DST",
+      "arguments": {
+        "mfg_order_name": "CDX-T05-20261025-G-DST-MO",
+        "product_name": "CDX-T05-20261025-G-TARGET",
+        "product_revision": "1",
+        "qty": 1,
+        "level_name": "BOX",
+        "owner_name": "PRODUCTION",
+        "start_reason_name": "NORMAL",
+        "container_name": "CDX-T05-20261025-G-DST",
+        "comments": "TEST DATA ONLY: isolated bulk source preview."
+      },
+      "state": "created_and_read_verified",
+      "response": "{\n  \"@odata.context\": \"https://172.31.61.144/api/$metadata#Start/$entity\",\n  \"value\": \"CDX-T05-20261025-G-DST started at SP-STAMPING-001 on 10/25/2026 2:28:39 PM by Camstar Administrator.\"\n}",
+      "verified_object": {
+        "InstanceID": "001af500000001bc",
+        "ContainerLevelName": "BOX",
+        "ContainerName": "CDX-T05-20261025-G-DST",
+        "InProcess": true,
+        "InRework": false,
+        "LastActivityDate": "2026-10-25T14:28:39",
+        "LastMoveDate": "2026-10-25T14:28:39",
+        "NextOperation": "OP-WELDING",
+        "OperationName": "OP-STAMPING",
+        "OriginalStartDate": "2026-10-25T14:28:39",
+        "ProductDescription": "TEST DATA ONLY: isolated mode-2 source preview; not production.",
+        "ProductIsRevOfRcd": true,
+        "ProductName": "CDX-T05-20261025-G-TARGET",
+        "ProductRev": "1",
+        "Qty": 1.0,
+        "QtyOperator": 0,
+        "Specification": "SP-STAMPING-001",
+        "SpecIsRevOfRcd": true,
+        "SpecRevision": "A",
+        "Status": 1,
+        "StatusName": "Active",
+        "StepName": "SP-STAMPING-001",
+        "WorkflowIsRevOfRcd": true,
+        "WorkflowRev": "A",
+        "ContainerStatus": 1,
+        "MfgOrderName": "CDX-T05-20261025-G-DST-MO",
+        "OwnerName": "PRODUCTION",
+        "StartReasonName": "NORMAL",
+        "UOMName": "EACH",
+        "Container": {
+          "InstanceId": "00041080000000ea",
+          "CDOTypeName": "Container",
+          "Name": "CDX-T05-20261025-G-DST"
+        },
+        "ContainerLevel": {
+          "InstanceId": "0005288000000003",
+          "CDOTypeName": "ContainerLevel",
+          "Name": "BOX"
+        },
+        "MfgOrder": {
+          "InstanceId": "000654800000008b",
+          "CDOTypeName": "MfgOrder",
+          "Name": "CDX-T05-20261025-G-DST-MO"
+        },
+        "Operation": {
+          "InstanceId": "00060e800000001b",
+          "CDOTypeName": "Operation",
+          "Name": "OP-STAMPING"
+        },
+        "Owner": {
+          "InstanceId": "0005468000000002",
+          "CDOTypeName": "Owner",
+          "Name": "PRODUCTION"
+        },
+        "Product": {
+          "InstanceId": "00062c800000008a",
+          "CDOTypeName": "Product",
+          "Name": "CDX-T05-20261025-G-TARGET",
+          "Revision": "1"
+        },
+        "Spec": {
+          "InstanceId": "00071c800000001b",
+          "CDOTypeName": "Spec",
+          "Name": "SP-STAMPING-001",
+          "Revision": "A"
+        },
+        "StartReason": {
+          "InstanceId": "0007808000000002",
+          "CDOTypeName": "StartReason",
+          "Name": "NORMAL"
+        },
+        "Step": {
+          "InstanceId": "00074e800000001b",
+          "CDOTypeName": "SpecStep",
+          "Name": "SP-STAMPING-001",
+          "Parent": {
+            "@odata.type": "#inquiry.RevisionedObjectRef",
+            "InstanceId": "0005aa800000001b",
+            "CDOTypeName": "Workflow",
+            "Name": "WF-WM-900A",
+            "Revision": "A"
+          }
+        },
+        "UOM": {
+          "InstanceId": "0008de8000000002",
+          "CDOTypeName": "UOM",
+          "Name": "EACH"
+        },
+        "Workflow": {
+          "InstanceId": "0005aa800000001b",
+          "CDOTypeName": "Workflow",
+          "Name": "WF-WM-900A",
+          "Revision": "A"
+        }
+      }
+    }
+  ],
+  "state": "fixtures_created_mode2_requirement_matched",
+  "numbering": "explicit names, autoNumber=false",
+  "component_issue_submitted": false,
+  "requirement": {
+    "source": "Query/ComponentIssueInquiry",
+    "complete": true,
+    "status": "matched",
+    "note": "单条需求匹配，不是全部需求或本次实际消耗；QtyIssued 为累计量。",
+    "data": {
+      "@odata.context": "https://172.31.61.144/Query/api/$metadata#ComponentIssueInquiry(ParentContainer,ObjectName,IssueDetails())/$entity",
+      "ObjectName": "CDX-T05-20261025-G-SRC",
+      "ParentContainer": {
+        "InstanceId": "00041080000000ea",
+        "CDOTypeName": "Container",
+        "Name": "CDX-T05-20261025-G-DST",
+        "Level": null
+      },
+      "IssueDetails": {
+        "@odata.type": "#inquiry.IssueDetailsBulk",
+        "DisplayName": null,
+        "InstanceID": "001b260000000011",
+        "SmartBarcode": null,
+        "ActualQty2Issued": 0.0,
+        "ActualQtyIssued": 0.0,
+        "AdjustmentType": null,
+        "AdjustmentValue": null,
+        "AllowManualWeighOverride": false,
+        "AllowSubstitution": false,
+        "AssemblySequence": null,
+        "CloseWhenEmpty": false,
+        "Comments": null,
+        "IsManualReadingOnly": false,
+        "IsRecipeQtyEvaluated": true,
+        "IssueControl": 2,
+        "IssueControlName": "Issue Container (Bulk)",
+        "NetQty2Required": 0.0,
+        "NetQtyRequired": 2.0,
+        "ProductDescription": "TEST DATA ONLY: isolated mode-2 source preview; not production.",
+        "Qty2Issued": 0.0,
+        "Qty2Required": 0.0,
+        "QtyIssued": 0.0,
+        "QtyLowerLimit": null,
+        "QtyRequired": 2.0,
+        "QtyUpperLimit": null,
+        "RecipeQtyMessage": null,
+        "ReferenceDesignator": null,
+        "TaskQtyRequired": 2.0,
+        "ValidateQtyDifference": true,
+        "ValidSequence": false,
+        "AdjustActualQtyIssued": false,
+        "Parent": null,
+        "HistoryDetail": null,
+        "BOMLineItem": {
+          "InstanceId": "001b7b8000000007",
+          "CDOTypeName": "MfgOrderMaterialListItem",
+          "Name": "T05-BULK",
+          "Parent": {
+            "@odata.type": "#inquiry.NamedObjectRef",
+            "InstanceId": "000654800000008b",
+            "CDOTypeName": "MfgOrder",
+            "Name": "CDX-T05-20261025-G-DST-MO"
+          }
+        },
+        "IssueActualsHistory": [],
+        "IssueDifferenceReason": null,
+        "Product": {
+          "InstanceId": "00062c8000000089",
+          "CDOTypeName": "Product",
+          "Name": "CDX-T05-20261025-G-COMP",
+          "Revision": "1",
+          "UseROR": null
+        },
+        "ProductSubstitutes": [],
+        "RemovalHistoryDetails": [],
+        "UOM": {
+          "InstanceId": "0008de8000000002",
+          "CDOTypeName": "UOM",
+          "Name": "EACH"
+        },
+        "UOM2": null
+      }
+    }
+  }
+}

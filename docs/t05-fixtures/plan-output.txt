@@ -1,0 +1,33 @@
+2026-10-24 11:11:42,786 [INFO] GET https://172.22.154.174/Modeling/api/Products
+2026-10-24 11:11:43,252 [INFO] HTTP Request: GET https://172.22.154.174/Modeling/api/Products?%24filter=Name+eq+%27WM-900A%27+and+Revision+eq+%27A%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-24 11:11:43,254 [INFO] GET https://172.22.154.174/Modeling/api/Products/00062c8000000002
+2026-10-24 11:11:43,309 [INFO] HTTP Request: GET https://172.22.154.174/Modeling/api/Products/00062c8000000002 "HTTP/1.1 200 OK"
+2026-10-24 11:11:43,310 [INFO] GET https://172.22.154.174/Modeling/api/Workflows/0005aa800000001b
+2026-10-24 11:11:43,558 [INFO] HTTP Request: GET https://172.22.154.174/Modeling/api/Workflows/0005aa800000001b "HTTP/1.1 200 OK"
+2026-10-24 11:11:43,560 [INFO] GET https://172.22.154.174/Modeling/api/ProductTypes/0006228000000004
+2026-10-24 11:11:43,766 [INFO] HTTP Request: GET https://172.22.154.174/Modeling/api/ProductTypes/0006228000000004 "HTTP/1.1 200 OK"
+2026-10-24 11:11:43,767 [INFO] GET https://172.22.154.174/Modeling/api/UOMs
+2026-10-24 11:11:43,915 [INFO] HTTP Request: GET https://172.22.154.174/Modeling/api/UOMs?%24filter=Name+eq+%27EACH%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-24 11:11:43,916 [INFO] GET https://172.22.154.174/Modeling/api/UOMs/0008de8000000002
+2026-10-24 11:11:44,031 [INFO] HTTP Request: GET https://172.22.154.174/Modeling/api/UOMs/0008de8000000002 "HTTP/1.1 200 OK"
+2026-10-24 11:11:44,034 [INFO] GET https://172.22.154.174/Modeling/api/ContainerLevels
+2026-10-24 11:11:44,180 [INFO] HTTP Request: GET https://172.22.154.174/Modeling/api/ContainerLevels?%24filter=Name+eq+%27BOX%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-24 11:11:44,181 [INFO] GET https://172.22.154.174/Modeling/api/ContainerLevels/0005288000000003
+2026-10-24 11:11:44,234 [INFO] HTTP Request: GET https://172.22.154.174/Modeling/api/ContainerLevels/0005288000000003 "HTTP/1.1 200 OK"
+2026-10-24 11:11:44,235 [INFO] GET https://172.22.154.174/Modeling/api/OrderStatuses
+2026-10-24 11:11:44,417 [INFO] HTTP Request: GET https://172.22.154.174/Modeling/api/OrderStatuses?%24filter=Name+eq+%27Released%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-24 11:11:44,417 [INFO] GET https://172.22.154.174/Modeling/api/OrderStatuses/001bd08000000005
+2026-10-24 11:11:44,488 [INFO] HTTP Request: GET https://172.22.154.174/Modeling/api/OrderStatuses/001bd08000000005 "HTTP/1.1 200 OK"
+2026-10-24 11:11:44,489 [INFO] GET https://172.22.154.174/Modeling/api/Products
+2026-10-24 11:11:44,509 [INFO] HTTP Request: GET https://172.22.154.174/Modeling/api/Products?%24filter=Name+eq+%27CDX-T05-20261024-A-COMP%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-24 11:11:44,509 [INFO] GET https://172.22.154.174/Modeling/api/Products
+2026-10-24 11:11:44,529 [INFO] HTTP Request: GET https://172.22.154.174/Modeling/api/Products?%24filter=Name+eq+%27CDX-T05-20261024-A-TARGET%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-24 11:11:44,529 [INFO] GET https://172.22.154.174/Modeling/api/MfgOrders
+2026-10-24 11:11:44,679 [INFO] HTTP Request: GET https://172.22.154.174/Modeling/api/MfgOrders?%24filter=Name+eq+%27CDX-T05-20261024-A-MO%27&%24top=2 "HTTP/1.1 200 OK"
+2026-10-24 11:11:44,680 [INFO] POST https://172.22.154.174/Query/api/AdHoc
+2026-10-24 11:11:44,848 [INFO] HTTP Request: POST https://172.22.154.174/Query/api/AdHoc "HTTP/1.1 200 OK"
+2026-10-24 11:11:44,849 [INFO] POST https://172.22.154.174/Shopfloor/api/Start/RequestSelectionValues
+2026-10-24 11:11:44,999 [INFO] HTTP Request: POST https://172.22.154.174/Shopfloor/api/Start/RequestSelectionValues?selectionValuesExpression=Details.Owner "HTTP/1.1 200 OK"
+2026-10-24 11:11:45,000 [INFO] POST https://172.22.154.174/Shopfloor/api/Start/RequestSelectionValues
+2026-10-24 11:11:45,024 [INFO] HTTP Request: POST https://172.22.154.174/Shopfloor/api/Start/RequestSelectionValues?selectionValuesExpression=Details.StartReason "HTTP/1.1 200 OK"
+{"created_at_utc": "2026-10-24T03:11:45.025263+00:00", "environment": "https://172.22.154.174/Modeling", "authorization": "User explicitly delegated creation of isolated test fixtures.", "names": {"component": "CDX-T05-20261024-A-COMP", "target": "CDX-T05-20261024-A-TARGET", "order": "CDX-T05-20261024-A-MO", "container": "CDX-T05-20261024-A-C01"}, "count": 4, "quantity_per_container": 1, "material_quantity": 2, "issue_control": 5, "source_workflow": {"Name": "WF-WM-900A", "Revision": "A", "InstanceID": "0005aa800000001b"}, "product_type": "BOX", "uom": "EACH", "level": "BOX", "owner": "PRODUCTION", "start_reason": "NORMAL", "order_status": "Released", "material_row": {"name": "T05-QTY", "product": {"name": "CDX-T05-20261024-A-COMP", "revision": "1"}, "qtyRequired": 2, "qty2Required": 0, "issueControl": 5, "uom": {"name": "EACH"}, "isPhantom": false, "allowSubstitution": false, "allowAllRevisionsAsSubstitute": false, "allowOverConsumption": false}, "attempts": [], "note": "No ComponentIssue consumption. No source edits, mutation retries or automatic deletion."}

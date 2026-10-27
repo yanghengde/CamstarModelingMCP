@@ -1,0 +1,8 @@
+2026-10-24 11:35:07,317 [INFO] POST https://172.22.154.174/Query/api/ComponentIssueInquiry
+2026-10-24 11:35:08,095 [INFO] HTTP Request: POST https://172.22.154.174/Query/api/ComponentIssueInquiry?execute=true&%24select=ParentContainer%2CObjectName&%24expand=IssueDetails "HTTP/1.1 200 OK"
+2026-10-24 11:35:08,098 [INFO] POST https://172.22.154.174/Shopfloor/api/ComponentIssue
+2026-10-24 11:35:08,816 [INFO] HTTP Request: POST https://172.22.154.174/Shopfloor/api/ComponentIssue?execute=false&%24select=Container%2CPreventOverIssue&%24expand=ServiceDetails%2CIssueActualDetails "HTTP/1.1 200 OK"
+2026-10-24 11:35:08,817 [INFO] POST https://172.22.154.174/Query/api/ComponentIssueInquiry
+2026-10-24 11:35:08,988 [INFO] HTTP Request: POST https://172.22.154.174/Query/api/ComponentIssueInquiry?execute=true&%24select=ParentContainer%2CObjectName&%24expand=IssueDetails "HTTP/1.1 200 OK"
+2026-10-24 11:35:08,993 [INFO] Shared HTTP client connection pool closed.
+{"serialization_verified": false, "transaction_verified": false, "request_sent": true, "error": "ValueError: Target or flags changed in echo."}

@@ -1,0 +1,551 @@
+{
+  "environment": "https://172.31.61.144/Shopfloor",
+  "fixture": "D:\\Deepseek\\camstar\\CamstarModelingMCP\\tmp\\quality-phase2-regression\\test_default_plans_only_and_su0\\F.json",
+  "created_at_utc": "2026-10-25T13:06:03.546972+00:00",
+  "marker": "Codex bulk af80f851ceae4e82ac06671945c90ea2",
+  "state": "unknown_evidence_collected",
+  "request_sent": true,
+  "retry_allowed": false,
+  "verified_success": false,
+  "preview": {
+    "executable": false,
+    "complete": false,
+    "submitted": false,
+    "issue_control": 2,
+    "source_checks_passed": true,
+    "serialization_verified": true,
+    "blockers": [
+      "来源冻结、现场可消费性及其他业务规则未验收。",
+      "使用实时EDM的IssueDetailsBulk/ActualsBulk派生类型，单组Actuals记录来源；实际扣减仍须独立验收。",
+      "模式2库存扣减及请求到来源历史链尚未验证；没有执行计划。"
+    ],
+    "note": "当前读取不是一致性快照或库存预留；不执行投料，不转换为模式5。",
+    "target_status": {
+      "source": "ViewContainerStatus",
+      "complete": true,
+      "pages": {},
+      "missing_fields": [],
+      "warnings": [],
+      "data": {
+        "@odata.context": "https://172.31.61.144/Query/api/$metadata#ViewContainerStatus(ContainerStatusDetails())/$entity",
+        "StrSplitResult": [],
+        "InstanceID": "",
+        "NonconformanceReports": [],
+        "ContainerStatusDetails": {
+          "InstanceID": "001af500000001b3",
+          "ContainerLevelName": "BOX",
+          "ContainerName": "CDX-T05-20261025-F-DST",
+          "InProcess": true,
+          "InRework": false,
+          "LastActivityDate": "2026-10-25T13:55:11",
+          "LastMoveDate": "2026-10-25T13:55:11",
+          "NextOperation": "OP-WELDING",
+          "OperationName": "OP-STAMPING",
+          "OriginalStartDate": "2026-10-25T13:55:11",
+          "ProductDescription": "TEST DATA ONLY: isolated mode-2 source preview; not production.",
+          "ProductIsRevOfRcd": true,
+          "ProductName": "CDX-T05-20261025-F-TARGET",
+          "ProductRev": "1",
+          "Qty": 1.0,
+          "QtyOperator": 0,
+          "Specification": "SP-STAMPING-001",
+          "SpecIsRevOfRcd": true,
+          "SpecRevision": "A",
+          "Status": 1,
+          "StatusName": "Active",
+          "StepName": "SP-STAMPING-001",
+          "WorkflowIsRevOfRcd": true,
+          "WorkflowRev": "A",
+          "ContainerStatus": 1,
+          "MfgOrderName": "CDX-T05-20261025-F-DST-MO",
+          "OwnerName": "PRODUCTION",
+          "StartReasonName": "NORMAL",
+          "UOMName": "EACH",
+          "Container": {
+            "InstanceId": "00041080000000e8",
+            "CDOTypeName": "Container",
+            "Name": "CDX-T05-20261025-F-DST"
+          },
+          "ContainerLevel": {
+            "InstanceId": "0005288000000003",
+            "CDOTypeName": "ContainerLevel",
+            "Name": "BOX"
+          },
+          "MfgOrder": {
+            "InstanceId": "0006548000000089",
+            "CDOTypeName": "MfgOrder",
+            "Name": "CDX-T05-20261025-F-DST-MO"
+          },
+          "Operation": {
+            "InstanceId": "00060e800000001b",
+            "CDOTypeName": "Operation",
+            "Name": "OP-STAMPING"
+          },
+          "Owner": {
+            "InstanceId": "0005468000000002",
+            "CDOTypeName": "Owner",
+            "Name": "PRODUCTION"
+          },
+          "Product": {
+            "InstanceId": "00062c8000000088",
+            "CDOTypeName": "Product",
+            "Name": "CDX-T05-20261025-F-TARGET",
+            "Revision": "1"
+          },
+          "Spec": {
+            "InstanceId": "00071c800000001b",
+            "CDOTypeName": "Spec",
+            "Name": "SP-STAMPING-001",
+            "Revision": "A"
+          },
+          "StartReason": {
+            "InstanceId": "0007808000000002",
+            "CDOTypeName": "StartReason",
+            "Name": "NORMAL"
+          },
+          "Step": {
+            "InstanceId": "00074e800000001b",
+            "CDOTypeName": "SpecStep",
+            "Name": "SP-STAMPING-001",
+            "Parent": {
+              "@odata.type": "#inquiry.RevisionedObjectRef",
+              "InstanceId": "0005aa800000001b",
+              "CDOTypeName": "Workflow",
+              "Name": "WF-WM-900A",
+              "Revision": "A"
+            }
+          },
+          "UOM": {
+            "InstanceId": "0008de8000000002",
+            "CDOTypeName": "UOM",
+            "Name": "EACH"
+          },
+          "Workflow": {
+            "InstanceId": "0005aa800000001b",
+            "CDOTypeName": "Workflow",
+            "Name": "WF-WM-900A",
+            "Revision": "A"
+          }
+        }
+      },
+      "note": "省略 null 字段；未返回/null 不等于业务上未配置。分页 complete=false 时不得宣称全量。"
+    },
+    "source_status": {
+      "source": "ViewContainerStatus",
+      "complete": true,
+      "pages": {},
+      "missing_fields": [],
+      "warnings": [],
+      "data": {
+        "@odata.context": "https://172.31.61.144/Query/api/$metadata#ViewContainerStatus(ContainerStatusDetails())/$entity",
+        "StrSplitResult": [],
+        "InstanceID": "",
+        "NonconformanceReports": [],
+        "ContainerStatusDetails": {
+          "InstanceID": "001af500000001b4",
+          "ContainerLevelName": "BOX",
+          "ContainerName": "CDX-T05-20261025-F-SRC",
+          "InProcess": true,
+          "InRework": false,
+          "LastActivityDate": "2026-10-25T13:55:09",
+          "LastMoveDate": "2026-10-25T13:55:09",
+          "NextOperation": "OP-WELDING",
+          "OperationName": "OP-STAMPING",
+          "OriginalStartDate": "2026-10-25T13:55:09",
+          "ProductDescription": "TEST DATA ONLY: isolated mode-2 source preview; not production.",
+          "ProductIsRevOfRcd": true,
+          "ProductName": "CDX-T05-20261025-F-COMP",
+          "ProductRev": "1",
+          "Qty": 3.0,
+          "QtyOperator": 0,
+          "Specification": "SP-STAMPING-001",
+          "SpecIsRevOfRcd": true,
+          "SpecRevision": "A",
+          "Status": 1,
+          "StatusName": "Active",
+          "StepName": "SP-STAMPING-001",
+          "WorkflowIsRevOfRcd": true,
+          "WorkflowRev": "A",
+          "ContainerStatus": 1,
+          "MfgOrderName": "CDX-T05-20261025-F-SRC-MO",
+          "OwnerName": "PRODUCTION",
+          "StartReasonName": "NORMAL",
+          "UOMName": "EACH",
+          "Container": {
+            "InstanceId": "00041080000000e7",
+            "CDOTypeName": "Container",
+            "Name": "CDX-T05-20261025-F-SRC"
+          },
+          "ContainerLevel": {
+            "InstanceId": "0005288000000003",
+            "CDOTypeName": "ContainerLevel",
+            "Name": "BOX"
+          },
+          "MfgOrder": {
+            "InstanceId": "0006548000000088",
+            "CDOTypeName": "MfgOrder",
+            "Name": "CDX-T05-20261025-F-SRC-MO"
+          },
+          "Operation": {
+            "InstanceId": "00060e800000001b",
+            "CDOTypeName": "Operation",
+            "Name": "OP-STAMPING"
+          },
+          "Owner": {
+            "InstanceId": "0005468000000002",
+            "CDOTypeName": "Owner",
+            "Name": "PRODUCTION"
+          },
+          "Product": {
+            "InstanceId": "00062c8000000087",
+            "CDOTypeName": "Product",
+            "Name": "CDX-T05-20261025-F-COMP",
+            "Revision": "1"
+          },
+          "Spec": {
+            "InstanceId": "00071c800000001b",
+            "CDOTypeName": "Spec",
+            "Name": "SP-STAMPING-001",
+            "Revision": "A"
+          },
+          "StartReason": {
+            "InstanceId": "0007808000000002",
+            "CDOTypeName": "StartReason",
+            "Name": "NORMAL"
+          },
+          "Step": {
+            "InstanceId": "00074e800000001b",
+            "CDOTypeName": "SpecStep",
+            "Name": "SP-STAMPING-001",
+            "Parent": {
+              "@odata.type": "#inquiry.RevisionedObjectRef",
+              "InstanceId": "0005aa800000001b",
+              "CDOTypeName": "Workflow",
+              "Name": "WF-WM-900A",
+              "Revision": "A"
+            }
+          },
+          "UOM": {
+            "InstanceId": "0008de8000000002",
+            "CDOTypeName": "UOM",
+            "Name": "EACH"
+          },
+          "Workflow": {
+            "InstanceId": "0005aa800000001b",
+            "CDOTypeName": "Workflow",
+            "Name": "WF-WM-900A",
+            "Revision": "A"
+          }
+        }
+      },
+      "note": "省略 null 字段；未返回/null 不等于业务上未配置。分页 complete=false 时不得宣称全量。"
+    },
+    "requirement": {
+      "source": "Query/ComponentIssueInquiry",
+      "complete": true,
+      "status": "matched",
+      "note": "单条需求匹配，不是全部需求或本次实际消耗；QtyIssued 为累计量。",
+      "data": {
+        "@odata.context": "https://172.31.61.144/Query/api/$metadata#ComponentIssueInquiry(ParentContainer,ObjectName,IssueDetails())/$entity",
+        "ObjectName": "CDX-T05-20261025-F-SRC",
+        "ParentContainer": {
+          "InstanceId": "00041080000000e8",
+          "CDOTypeName": "Container",
+          "Name": "CDX-T05-20261025-F-DST",
+          "Level": null
+        },
+        "IssueDetails": {
+          "@odata.type": "#inquiry.IssueDetailsBulk",
+          "DisplayName": null,
+          "InstanceID": "001b260000000009",
+          "SmartBarcode": null,
+          "ActualQty2Issued": 0.0,
+          "ActualQtyIssued": 0.0,
+          "AdjustmentType": null,
+          "AdjustmentValue": null,
+          "AllowManualWeighOverride": false,
+          "AllowSubstitution": false,
+          "AssemblySequence": null,
+          "CloseWhenEmpty": false,
+          "Comments": null,
+          "IsManualReadingOnly": false,
+          "IsRecipeQtyEvaluated": true,
+          "IssueControl": 2,
+          "IssueControlName": "Issue Container (Bulk)",
+          "NetQty2Required": 0.0,
+          "NetQtyRequired": 2.0,
+          "ProductDescription": "TEST DATA ONLY: isolated mode-2 source preview; not production.",
+          "Qty2Issued": 0.0,
+          "Qty2Required": 0.0,
+          "QtyIssued": 0.0,
+          "QtyLowerLimit": null,
+          "QtyRequired": 2.0,
+          "QtyUpperLimit": null,
+          "RecipeQtyMessage": null,
+          "ReferenceDesignator": null,
+          "TaskQtyRequired": 2.0,
+          "ValidateQtyDifference": true,
+          "ValidSequence": false,
+          "AdjustActualQtyIssued": false,
+          "Parent": null,
+          "HistoryDetail": null,
+          "BOMLineItem": {
+            "InstanceId": "001b7b8000000006",
+            "CDOTypeName": "MfgOrderMaterialListItem",
+            "Name": "T05-BULK",
+            "Parent": {
+              "@odata.type": "#inquiry.NamedObjectRef",
+              "InstanceId": "0006548000000089",
+              "CDOTypeName": "MfgOrder",
+              "Name": "CDX-T05-20261025-F-DST-MO"
+            }
+          },
+          "IssueActualsHistory": [],
+          "IssueDifferenceReason": null,
+          "Product": {
+            "InstanceId": "00062c8000000087",
+            "CDOTypeName": "Product",
+            "Name": "CDX-T05-20261025-F-COMP",
+            "Revision": "1",
+            "UseROR": null
+          },
+          "ProductSubstitutes": [],
+          "RemovalHistoryDetails": [],
+          "UOM": {
+            "InstanceId": "0008de8000000002",
+            "CDOTypeName": "UOM",
+            "Name": "EACH"
+          },
+          "UOM2": null
+        }
+      }
+    },
+    "source_balance": {
+      "ContainerId": "00041080000000e7",
+      "ContainerName": "CDX-T05-20261025-F-SRC",
+      "ProductId": "00062c8000000087",
+      "Qty": "3",
+      "Qty2": "",
+      "UOMId": "0008de8000000002",
+      "UOM2Id": "",
+      "Status": "1",
+      "ParentContainerId": ""
+    },
+    "current_children": [],
+    "stage": "serialization_preview",
+    "quantity_context": {
+      "available_observed": "3",
+      "quantity_this_request": "2",
+      "projected_source_quantity": "1",
+      "unit": {
+        "name": "EACH",
+        "instanceId": "0008de8000000002"
+      },
+      "note": "预测不是库存预留；未提交事务，不证明未冻结/可被现场消费。"
+    },
+    "request_preview": {
+      "container": {
+        "name": "CDX-T05-20261025-F-DST",
+        "instanceId": "00041080000000e8"
+      },
+      "preventOverIssue": true,
+      "serviceDetails": [
+        {
+          "bomLineItem": {
+            "name": "T05-BULK",
+            "instanceId": "001b7b8000000006",
+            "parent": {
+              "instanceId": "0006548000000089"
+            }
+          },
+          "product": {
+            "name": "CDX-T05-20261025-F-COMP",
+            "instanceId": "00062c8000000087",
+            "revision": "1"
+          },
+          "uom": {
+            "name": "EACH",
+            "instanceId": "0008de8000000002"
+          },
+          "issueControl": 2,
+          "qtyRequired": 2.0,
+          "actualQtyIssued": 2,
+          "actualQty2Issued": 0,
+          "actuals": [
+            {
+              "product": {
+                "name": "CDX-T05-20261025-F-COMP",
+                "instanceId": "00062c8000000087",
+                "revision": "1"
+              },
+              "toContainer": {
+                "name": "CDX-T05-20261025-F-DST",
+                "instanceId": "00041080000000e8"
+              },
+              "qtyIssued": 2,
+              "qty2Issued": 0,
+              "@odata.type": "#shopfloor.ActualsBulk",
+              "fromContainer": {
+                "name": "CDX-T05-20261025-F-SRC",
+                "instanceId": "00041080000000e7"
+              }
+            }
+          ],
+          "@odata.type": "#shopfloor.IssueDetailsBulk"
+        }
+      ]
+    },
+    "service_echo": {
+      "@odata.context": "https://172.31.61.144/api/$metadata#ComponentIssue/$entity",
+      "value": "",
+      "data": {
+        "Container": {
+          "Name": "CDX-T05-20261025-F-DST",
+          "Level": {
+            "Name": "BOX"
+          },
+          "InstanceId": "00041080000000e8"
+        },
+        "PreventOverIssue": "true",
+        "ServiceDetails": [
+          {
+            "Parent": {
+              "InstanceId": "001928000000001f"
+            },
+            "InstanceId": "001b26000000000a",
+            "BOMLineItem": {
+              "Name": "T05-BULK",
+              "Parent": {
+                "Name": "CDX-T05-20261025-F-DST-MO",
+                "InstanceId": "0006548000000089"
+              },
+              "InstanceId": "001b7b8000000006"
+            },
+            "Product": {
+              "Name": "CDX-T05-20261025-F-COMP",
+              "Revision": "1",
+              "UseRor": "false",
+              "InstanceId": "00062c8000000087"
+            },
+            "IssueControl": "2",
+            "UOM": {
+              "Name": "EACH",
+              "InstanceId": "0008de8000000002"
+            },
+            "QtyRequired": "2",
+            "ActualQtyIssued": "2",
+            "ActualQty2Issued": "0",
+            "Actuals": [
+              {
+                "Parent": {
+                  "Parent": {
+                    "InstanceId": "001928000000001f"
+                  },
+                  "InstanceId": "001b26000000000a"
+                },
+                "InstanceId": "00198c0000000003",
+                "Product": {
+                  "Name": "CDX-T05-20261025-F-COMP",
+                  "Revision": "1",
+                  "UseRor": "false",
+                  "InstanceId": "00062c8000000087"
+                },
+                "QtyIssued": "2",
+                "Qty2Issued": "0",
+                "FromContainer": {
+                  "Name": "CDX-T05-20261025-F-SRC",
+                  "Level": {
+                    "Name": "BOX"
+                  },
+                  "InstanceId": "00041080000000e7"
+                },
+                "ToContainer": {
+                  "Name": "CDX-T05-20261025-F-DST",
+                  "Level": {
+                    "Name": "BOX"
+                  },
+                  "InstanceId": "00041080000000e8"
+                },
+                "CDOTypeId": "6540",
+                "IsAutoWeightEntry": "false",
+                "ManualOverride": "false",
+                "ProductDescription": "TEST DATA ONLY: isolated mode-2 source preview; not production.",
+                "IsDeleted": "false"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "body": {
+    "container": {
+      "name": "CDX-T05-20261025-F-DST",
+      "instanceId": "00041080000000e8"
+    },
+    "preventOverIssue": true,
+    "serviceDetails": [
+      {
+        "bomLineItem": {
+          "name": "T05-BULK",
+          "instanceId": "001b7b8000000006",
+          "parent": {
+            "instanceId": "0006548000000089"
+          }
+        },
+        "product": {
+          "name": "CDX-T05-20261025-F-COMP",
+          "instanceId": "00062c8000000087",
+          "revision": "1"
+        },
+        "uom": {
+          "name": "EACH",
+          "instanceId": "0008de8000000002"
+        },
+        "issueControl": 2,
+        "qtyRequired": 2.0,
+        "actualQtyIssued": 2,
+        "actualQty2Issued": 0,
+        "actuals": [
+          {
+            "product": {
+              "name": "CDX-T05-20261025-F-COMP",
+              "instanceId": "00062c8000000087",
+              "revision": "1"
+            },
+            "toContainer": {
+              "name": "CDX-T05-20261025-F-DST",
+              "instanceId": "00041080000000e8"
+            },
+            "qtyIssued": 2,
+            "qty2Issued": 0,
+            "@odata.type": "#shopfloor.ActualsBulk",
+            "fromContainer": {
+              "name": "CDX-T05-20261025-F-SRC",
+              "instanceId": "00041080000000e7"
+            }
+          }
+        ],
+        "@odata.type": "#shopfloor.IssueDetailsBulk"
+      }
+    ],
+    "comments": "Codex bulk af80f851ceae4e82ac06671945c90ea2"
+  },
+  "history_before": {
+    "complete": true,
+    "rows": []
+  },
+  "body_digest": "fa2ddb250184f9b58e39ccf53a17649061f762dfba1d37df2fff67aa33dcd030",
+  "http_status": 200,
+  "raw_response": "{\"value\":\"Completed\"}",
+  "response": {
+    "value": "Completed"
+  },
+  "source_after": {},
+  "requirement_after": {},
+  "actual_history_after": {
+    "complete": true,
+    "rows": []
+  },
+  "mainline_after": {}
+}

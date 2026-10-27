@@ -1,0 +1,30 @@
+........................................................................ [ 10%]
+........................................................................ [ 20%]
+........................................................................ [ 30%]
+........................................................................ [ 40%]
+.......................................................F................ [ 50%]
+........................................................................ [ 61%]
+........................................................................ [ 71%]
+...................................................................... [ 81%]
+........................................................................ [ 91%]
+.............................................................            [100%]
+================================== FAILURES ===================================
+__________________________ test_registry_and_loading __________________________
+
+    def test_registry_and_loading():
+        names = {'get_data_collection_details', 'get_container_collection_requirements', 'validate_collection_values', 'get_container_collection_history', 'preview_container_data_collection', 'get_collection_submission_plan', 'collect_container_data', 'reconcile_collection_submission'}
+        assert names <= {t.name for t in asyncio.run(mcp.list_tools())}
+        assert all(get_tool_func(n) and (TOOL_POLICIES[n].effect == 'read' or n == 'collect_container_data') for n in names)
+        assert set(run(load_tool_group('collection'))['tools']) == names - {'collect_container_data'}
+>       assert set(run(load_tool_group('collection', include_writes=True))['tools']) == names
+E       AssertionError: assert {'collect_con...lection', ...} == {'collect_con...lection', ...}
+E         
+E         Extra items in the left set:
+E         'resolve_collection_submission_outcome'
+E         'recover_collection_submission_attempt'
+E         Use -v to get more diff
+
+tests\test_data_collection.py:137: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_data_collection.py::test_registry_and_loading - AssertionEr...
+1 failed, 706 passed, 2 subtests passed in 53.42s

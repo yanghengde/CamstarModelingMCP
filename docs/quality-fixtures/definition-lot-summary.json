@@ -1,0 +1,43 @@
+{
+  "checked_date": "2026-10-26",
+  "quality_tool_count": 29,
+  "new_tools": [
+    "prepare_inspection_definition",
+    "prepare_product_sampling_plan",
+    "get_sampling_lot_details",
+    "prepare_sampling_lot_create"
+  ],
+  "supported": [
+    "numeric inspection point, counted/measured test and sampling plan create/update/current-ROR revision plans",
+    "product-version to plan-version direct binding",
+    "SamplingLot read with type and parent verification",
+    "CreateSamplingLot plan with explicit product, quantity, UOM and reviewed options"
+  ],
+  "regression": {
+    "passed": 1433,
+    "subtests_passed": 2,
+    "quality_tests": 227,
+    "added_since_inspection_round": 48,
+    "httpx_real_network_attempts": 0,
+    "simulated_mcp_modeling_and_lot_sessions": true
+  },
+  "live_evidence": "definition-lot-read-validation.json",
+  "contracts": "definition-lot-contracts.json",
+  "modeling_static_prepare_verified": true,
+  "modeling_rebuild_digest_identical": true,
+  "modeling_execute_false_echo_verified": false,
+  "modeling_target_created": false,
+  "local_dry_plan_cancelled": true,
+  "nonempty_definition_read_verified": false,
+  "complete_lot_create_preview_verified": false,
+  "mes_business_writes": false,
+  "service_restarted": false,
+  "remaining": [
+    "real Modeling CRUD and revision acceptance",
+    "nonempty lot context and complete CreateSamplingLot target preview",
+    "CollectLotSamplingData submissions",
+    "ExecuteSamplingLot dispositions, rework or scrap",
+    "AQL table and inspection-level range maintenance",
+    "signatures, permissions and final causal audit chain"
+  ]
+}

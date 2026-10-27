@@ -1,0 +1,99 @@
+{
+  "ordinary": {
+    "Name": "CDX-T05-20261024-B-MO",
+    "InstanceID": "0006548000000084",
+    "Product": {
+      "InstanceId": "00062c8000000080",
+      "CDOTypeName": "Product",
+      "Name": "CDX-T05-20261024-B-TARGET",
+      "Revision": "1",
+      "UseROR": null
+    },
+    "Qty": 1.0,
+    "UOM": {
+      "InstanceId": "0008de8000000002",
+      "CDOTypeName": "UOM",
+      "Name": "EACH"
+    },
+    "OrderStatus": {
+      "InstanceId": "001bd08000000005",
+      "CDOTypeName": "OrderStatus",
+      "Name": "Released"
+    },
+    "MaterialList": null
+  },
+  "expanded": {
+    "Name": "CDX-T05-20261024-B-MO",
+    "InstanceID": "0006548000000084",
+    "Product": null,
+    "Qty": null,
+    "UOM": null,
+    "OrderStatus": null,
+    "MaterialList": [
+      {
+        "DisplayName": null,
+        "InstanceID": "001b7b8000000002",
+        "IsFrozen": false,
+        "Name": "T05-QTY",
+        "ParentName": null,
+        "PhantomQueryName": null,
+        "QueryName1": null,
+        "TypeName": null,
+        "ActualQtyRequired": null,
+        "AdjustmentType": null,
+        "AdjustmentValue": null,
+        "AllowAllRevisionsAsSubstitute": false,
+        "AllowOverConsumption": true,
+        "AllowSubstitution": false,
+        "AllowUnderConsumption": false,
+        "AssemblySequence": null,
+        "Description": null,
+        "EffectiveFromDate": null,
+        "EffectiveFromDateGMT": null,
+        "EffectiveThruDate": null,
+        "EffectiveThruDateGMT": null,
+        "IsPhantom": false,
+        "IssueControl": 5,
+        "ObjectTypeName": null,
+        "ParentRevision": null,
+        "ProducingOrder": null,
+        "Qty2Required": 0.0,
+        "QtyIssued": null,
+        "QtyRequired": 2.0,
+        "ReferenceDesignator": null,
+        "ResolvedAllowAllRevisions": false,
+        "ScrapPercent": null,
+        "SetupQty": null,
+        "SetupQty2": null,
+        "UnverifiedProductName": null,
+        "UnverifiedProductRevision": null,
+        "VendorControl": false,
+        "DefaultLot": null,
+        "DefaultStockPoint": null,
+        "ERPLineItem": null,
+        "ERPReportingFlag": false,
+        "SubFactory": null,
+        "ListItemToChange": null,
+        "ObjectToChange": null,
+        "Parent": null,
+        "isImage": null,
+        "IssuePoint": null,
+        "PhantomBill": null,
+        "Product": {
+          "InstanceId": "00062c800000007f",
+          "CDOTypeName": "Product",
+          "Name": "CDX-T05-20261024-B-COMP",
+          "Revision": "1",
+          "UseROR": null
+        },
+        "UOM": {
+          "InstanceId": "0008de8000000002",
+          "CDOTypeName": "UOM",
+          "Name": "EACH"
+        },
+        "UOM2": null,
+        "RouteStep": null
+      }
+    ]
+  }
+}

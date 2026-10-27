@@ -1,0 +1,49 @@
+{
+  "request": {
+    "organization": {
+      "name": "Corporate",
+      "instanceId": "001d778000000001"
+    },
+    "submit": false,
+    "comments": "MCP-QUAL:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "capaName": "CDX-QUAL-DRY-20261025-A",
+    "category": 5,
+    "serviceDetail": {
+      "briefDescription": "MCP read-only CAPA serialization preview",
+      "isSystemicIssue": false
+    }
+  },
+  "response": {
+    "@odata.context": "https://172.31.61.144/api/$metadata#CreateCAPA/$entity",
+    "value": "Update completed successfully",
+    "data": {
+      "Organization": {
+        "Name": "Corporate",
+        "InstanceId": "001d778000000001"
+      },
+      "Submit": "false",
+      "Comments": "MCP-QUAL:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "CAPAName": "CDX-QUAL-DRY-20261025-A",
+      "Category": "5",
+      "ServiceDetail": {
+        "Parent": {
+          "InstanceId": "001de10000000003"
+        },
+        "InstanceId": "001e360000000003",
+        "CDOTypeId": "7734",
+        "BriefDescription": "MCP read-only CAPA serialization preview",
+        "Reporter": {
+          "Name": "CamstarAdmin",
+          "InstanceId": "0004748000000004"
+        },
+        "Initiator": {
+          "Name": "CamstarAdmin",
+          "InstanceId": "0004748000000004"
+        },
+        "IsSystemicIssue": "false",
+        "IsDeleted": "false"
+      }
+    }
+  },
+  "transaction_executed": false
+}

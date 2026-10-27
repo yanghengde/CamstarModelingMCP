@@ -1,0 +1,4 @@
+{
+  "query": "SELECT TOP 1 * FROM IssueHistoryDetail WHERE IssueHistoryDetailId='0019be8000000004'",
+  "response": "[{\"ActualQty2Issued\": \"0\", \"ActualQtyIssued\": \"2\", \"AllowManualWeighOverride\": \"false\", \"CDOTypeId\": \"6590\", \"ChangeCount\": \"1\", \"CloseWhenEmpty\": \"false\", \"ComponentIssueHistoryId\": \"0019b48000000004\", \"ExportImportKey\": \"7D143E5F-394D-41e5-BC06-A62E43E7095A\", \"HistoryId\": \"00041080000000e5\", \"IsManualReadingOnly\": \"false\", \"IssueControl\": \"5\", \"IssueDifferenceReasonId\": \"\", \"IssueHistoryDetailId\": \"0019be8000000004\", \"Notes\": \"\", \"ProductId\": \"00062c8000000083\", \"ProductMaterialListItemId\": \"001b7b8000000004\", \"Qty2Required\": \"0\", \"QtyLowerLimit\": \"\", \"QtyRequired\": \"2\", \"QtyUpperLimit\": \"\", \"ReferenceDesignator\": \"\", \"TxnId\": \"400000000000f0f7\", \"UOM2Id\": \"\", \"UOMId\": \"0008de8000000002\", \"IntegrationTxnId\": \"00098880000001ec\"}]"
+}

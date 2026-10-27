@@ -1,0 +1,24 @@
+{
+  "checked_date": "2026-10-26",
+  "mes_business_writes": false,
+  "service_restarted": false,
+  "available_lot_probe": [],
+  "readiness_missing_target": {
+    "complete": false,
+    "ok_preconditions_satisfied": false,
+    "error": "抽样批不存在。"
+  },
+  "collection_missing_target": {
+    "submitted": false,
+    "error": "抽样批不存在。"
+  },
+  "completion_missing_target": {
+    "submitted": false,
+    "error": "抽样批不存在。"
+  },
+  "history_join_empty_probe": [],
+  "quality_tool_count": 33,
+  "all_quality_tools_registered": true,
+  "complete_target_preview_verified": false,
+  "real_lot_execution_verified": false
+}

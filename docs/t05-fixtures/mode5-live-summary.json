@@ -1,0 +1,60 @@
+{
+  "scope": "isolated quantity-only mode5 full-demand component issue",
+  "fixtures_created_this_continuation": 8,
+  "created_by_batch": {
+    "C": 4,
+    "D": 4
+  },
+  "creation_failed": 0,
+  "creation_skipped": 0,
+  "creation_not_attempted": 0,
+  "service_execution_count": 2,
+  "production_objects_modified": false,
+  "batches": {
+    "C": {
+      "quantity_issued": 2.0,
+      "net_required": 0.0,
+      "actual_history": [
+        {
+          "IssueActualsHistoryId": "0019e68000000002",
+          "IssueHistoryDetailId": "0019be8000000003",
+          "HistoryId": "00041080000000e4",
+          "TxnId": "400000000000f0f0",
+          "ToContainerId": "00041080000000e4",
+          "FromContainerId": "",
+          "FromLot": "",
+          "FromStockPoint": "",
+          "ProductId": "00062c8000000081",
+          "Qty": "2",
+          "Qty2": "0"
+        }
+      ],
+      "auto_verified_success": false,
+      "retry_allowed": false,
+      "formal_plan_state": null
+    },
+    "D": {
+      "quantity_issued": 2.0,
+      "net_required": 0.0,
+      "actual_history": [
+        {
+          "IssueActualsHistoryId": "0019e68000000003",
+          "IssueHistoryDetailId": "0019be8000000004",
+          "HistoryId": "00041080000000e5",
+          "TxnId": "400000000000f0f7",
+          "ToContainerId": "00041080000000e5",
+          "FromContainerId": "",
+          "FromLot": "",
+          "FromStockPoint": "",
+          "ProductId": "00062c8000000083",
+          "Qty": "2",
+          "Qty2": "0"
+        }
+      ],
+      "auto_verified_success": false,
+      "retry_allowed": false,
+      "formal_plan_state": "unknown"
+    }
+  },
+  "outstanding": "Automatic request-to-demand-line transaction verification remains unfinished. Formal D plan stays unknown and occupied pending final human evidence review; no automatic resolution or replay."
+}

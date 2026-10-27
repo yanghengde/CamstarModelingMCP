@@ -1,0 +1,11 @@
+{
+  "checked_at": "2026-10-23T09:57:46.165094+08:00",
+  "purpose": "read-only synthetic intent probe, not authorized business issue",
+  "executable": false,
+  "stage": "intent_preview",
+  "product_resolved": true,
+  "target_resolved": true,
+  "target_query_complete": false,
+  "blocker_count": 4,
+  "error_present": false
+}

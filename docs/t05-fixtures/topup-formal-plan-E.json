@@ -1,0 +1,74 @@
+{
+  "plan_id": "33b2963a7af548e28aac496fc9c82613",
+  "plan_digest": "3d5dfc0a32c4413be46c62b41f007a56e5661d58d7d00812e653e18cdaab89bd",
+  "state": "ready",
+  "request_preview": {
+    "container": {
+      "name": "CDX-T05-20261024-E-C01",
+      "instanceId": "00041080000000e6"
+    },
+    "preventOverIssue": true,
+    "serviceDetails": [
+      {
+        "bomLineItem": {
+          "name": "T05-QTY",
+          "instanceId": "001b7b8000000005",
+          "parent": {
+            "instanceId": "0006548000000087"
+          }
+        },
+        "product": {
+          "name": "CDX-T05-20261024-E-COMP",
+          "instanceId": "00062c8000000085",
+          "revision": "1"
+        },
+        "issueControl": 5,
+        "uom": {
+          "name": "EACH",
+          "instanceId": "0008de8000000002"
+        },
+        "qtyRequired": 2.0,
+        "actualQtyIssued": 1,
+        "actualQty2Issued": 0,
+        "actuals": [
+          {
+            "product": {
+              "name": "CDX-T05-20261024-E-COMP",
+              "instanceId": "00062c8000000085",
+              "revision": "1"
+            },
+            "toContainer": {
+              "name": "CDX-T05-20261024-E-C01",
+              "instanceId": "00041080000000e6"
+            },
+            "qtyIssued": 1,
+            "qty2Issued": 0,
+            "issueDifferenceReason": {
+              "name": "CDX-T05-20261024-E-PARTIAL",
+              "instanceId": "0019c8800000001b"
+            }
+          }
+        ],
+        "issueDifferenceReason": {
+          "name": "CDX-T05-20261024-E-PARTIAL",
+          "instanceId": "0019c8800000001b"
+        }
+      }
+    ]
+  },
+  "quantity_context": {
+    "scope": "incremental_issue",
+    "required": "2.0",
+    "cumulative_issued_before": "1.0",
+    "net_required_before": "1.0",
+    "quantity_this_request": "1",
+    "projected_cumulative_issued": "2.0",
+    "projected_net_required": "0.0",
+    "note": "预测仅供审阅；实际提交及历史仍须由服务端校验，不把累计量写回请求。"
+  },
+  "serialization_verified": true,
+  "submitted": false,
+  "confirmation_required": true,
+  "expires_in_seconds": 3600,
+  "note": "服务端执行仍校验现场规则。计划不代表已投料；仅支持窄范围模式5。"
+}

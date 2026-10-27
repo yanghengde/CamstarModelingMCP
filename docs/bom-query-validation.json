@@ -1,0 +1,44 @@
+{
+  "checked_at": "2026-10-23T09:34:57.258063+08:00",
+  "method": "GET only; no writes",
+  "checks": {
+    "BOMs": {
+      "returned_count": 0,
+      "fields": []
+    },
+    "Products": {
+      "returned_count": 1,
+      "fields": [
+        "Name",
+        "InstanceID"
+      ]
+    },
+    "product_materials": {
+      "complete": false,
+      "product": {
+        "InstanceID": "00062c8000000002",
+        "Name": "WM-900A",
+        "Revision": "A"
+      },
+      "has_standard_bom": true,
+      "standard_complete": false,
+      "error_present": true
+    },
+    "MfgOrders": {
+      "returned_count": 1,
+      "fields": [
+        "Name",
+        "InstanceID"
+      ]
+    },
+    "missing_bom": {
+      "complete": false,
+      "error_present": true
+    }
+  },
+  "registered_tools": [
+    "get_bom_details",
+    "get_product_material_requirements",
+    "compare_bom_versions"
+  ]
+}

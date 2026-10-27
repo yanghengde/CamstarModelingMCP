@@ -1,0 +1,828 @@
+{
+  "http_status": 200,
+  "entities": [
+    {
+      "name": "DocumentEntity",
+      "base": null,
+      "properties": [
+        {
+          "Name": "AuthenticationType",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "25862",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Enumeration for the Authentication Type:\r\n10 = Basic\r\n20 = None"
+        },
+        {
+          "Name": "Base",
+          "Type": "modeling.NamedObjectRef",
+          "{customAttribute}OriginalType": "DocumentBase",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "5361",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Id of the base entity for this revision"
+        },
+        {
+          "Name": "BrowseMode",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "26015",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "BrowseMode"
+        },
+        {
+          "Name": "FileLocation",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "17886",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "File directory path"
+        },
+        {
+          "Name": "FileName",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "17887",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "FileName - used for fields that specify files."
+        },
+        {
+          "Name": "FileVersion",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "17888",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "File Version"
+        },
+        {
+          "Name": "Identifier",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "5125",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "External identifier for the document (Path and file name, URL, etc.)"
+        },
+        {
+          "Name": "IsAttachment",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "23062",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Determines if the document attached will not be reused, IsAttachment = true, document will NOT be reused."
+        },
+        {
+          "Name": "IsFrozen",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "7873",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Determines if changes are allowed to this instance"
+        },
+        {
+          "Name": "Name",
+          "Type": "Edm.String",
+          "Nullable": "false",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "7938",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "Required",
+          "{customAttribute}Annotations": "Name for this instance"
+        },
+        {
+          "Name": "ObjectToChange",
+          "Type": "modeling.RevisionedObjectRef",
+          "{customAttribute}OriginalType": "Document",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "5124",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "This object ref contains the CDO Id of the Object to change"
+        },
+        {
+          "Name": "UploadFile",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "17889",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Boolean flag to control uploading the file to database"
+        },
+        {
+          "Name": "Viewer",
+          "Type": "modeling.NamedObjectRef",
+          "{customAttribute}OriginalType": "DocumentViewer",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "5127",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "This is a reference to the CDO that describes how to launch the program used for presenting this document."
+        },
+        {
+          "Name": "XShareCollabspaceId",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "27316",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Hexadecimal representation of GUID ( e.g. BDE4B634-153E-4A31-A453-EEA85FE80532)"
+        },
+        {
+          "Name": "XShareContainerId",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "27321",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Hexadecimal representation of GUID ( e.g. BDE4B634-153E-4A31-A453-EEA85FE80532)"
+        },
+        {
+          "Name": "XShareContainerName",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "27317",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "XShare Container Name"
+        },
+        {
+          "Name": "XShareContainerType",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "27320",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Container Type"
+        },
+        {
+          "Name": "XShareParentFolder",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "27319",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "FolderPath"
+        },
+        {
+          "Name": "XShareURN",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "5220",
+          "{customAttribute}FieldId": "27318",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "URN"
+        },
+        {
+          "Name": "UseRor",
+          "Type": "Edm.Boolean"
+        },
+        {
+          "Name": "AssociatedPackages",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "24214",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Count of Associated Packages"
+        },
+        {
+          "Name": "AttachDocumentDetails-Expanded",
+          "Type": "Collection(modeling.ExpandedListItem_1OfAttachDocumentDetails)",
+          "{customAttribute}Annotations": "Expanded property for working with Key functionality."
+        },
+        {
+          "Name": "CanChangeRevOfRcd",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "4489",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Should be false if the object was RevOfRcd when it was loaded and true if it wasnt. Used by the user interface to decide whether to allow the user to set the IsRevOfRcd flag."
+        },
+        {
+          "Name": "Description",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "3409",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Description of this entity. Defaults to the name of this entity if not specified"
+        },
+        {
+          "Name": "ECO",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "11672",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Engineering Change Order"
+        },
+        {
+          "Name": "FilterTags",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "25605",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "FilterTags comma seperated list"
+        },
+        {
+          "Name": "IconId",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "3410",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Identifier for the icon associated with this Base Entity"
+        },
+        {
+          "Name": "InstanceID",
+          "Type": "Edm.String",
+          "Nullable": "false",
+          "{customAttribute}OriginalType": "BaseObject",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "8047",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Unique ID for an instance of this object, generated by the system."
+        },
+        {
+          "Name": "InstanceLocked",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "24411",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Determines if the instance is locked by Change Management"
+        },
+        {
+          "Name": "isAttachImage",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "702547741",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Flag to indicated that doc attachments are images so use isImage table."
+        },
+        {
+          "Name": "IsRevOfRcd",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "3413",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Determines if this instance is the current Revision of Record (by comparing ID to BaseEntity.RevisionOfRecord)"
+        },
+        {
+          "Name": "Notes",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "9069",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Notations and comments associated with this object."
+        },
+        {
+          "Name": "ReplaceDetails",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "28187",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Flag indicating whether to remove existing sub-entities (e.g. Details) before adding new ones."
+        },
+        {
+          "Name": "ReplaceDetailsSubentityListNames",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "27992",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Internal field used to identify a list of comma delimited subentities to Delete before any processing takes place. This field will be considered in the Maintenance ValidateChange event if ReplaceDetailsRequired returns true. I.e.\r\n <ListName>+[,]"
+        },
+        {
+          "Name": "Revision",
+          "Type": "Edm.String",
+          "Nullable": "false",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "3408",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "Required",
+          "{customAttribute}Annotations": "Revision (unique within the context of the base entity)"
+        },
+        {
+          "Name": "SkipSubentityListsToSequence",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "28188",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Flag indicating whether to skip the automated logic to set the sequence of a sub-entity list."
+        },
+        {
+          "Name": "Status",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "3415",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Determines the current status (Active, In-Active) of this instance. Valid values and their meanings are:\r\n\r\n1 = Active\r\n2 = Inactive"
+        },
+        {
+          "Name": "DisplayName",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "1000",
+          "{customAttribute}FieldId": "6184",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field."
+        },
+        {
+          "Name": "AttachDocumentDetails",
+          "Type": "Collection(modeling.AttachDocumentDetails)",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "23049",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "The details used to display the attached documents."
+        },
+        {
+          "Name": "ChangeHistory",
+          "Type": "modeling.ChangeHistoryChanges",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "3414",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Every modeling entity includes a Change Status. It is used to record the current Change (Maintenance) Status (i.e., maintenance is currently in progress for a specific Product Definition) and to track who made the last change and when. This should be extendible to a complete history over time."
+        },
+        {
+          "Name": "WIPMsgDefMgr",
+          "Type": "modeling.WIPMsgEntity",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "7270",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "This allows the maintenance of WIP Messages for this modeling entity."
+        }
+      ]
+    },
+    {
+      "name": "DocumentSetEntity",
+      "base": null,
+      "properties": [
+        {
+          "Name": "DocSetModelObjectTypeName",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "5650",
+          "{customAttribute}FieldId": "27600",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Name of the type of object the doc set is attached to"
+        },
+        {
+          "Name": "DocumentEntries-Expanded",
+          "Type": "Collection(modeling.ExpandedListItem_1OfDocumentEntryChanges)",
+          "Nullable": "false",
+          "{customAttribute}Annotations": "Expanded property for working with Key functionality."
+        },
+        {
+          "Name": "Name",
+          "Type": "Edm.String",
+          "Nullable": "false",
+          "{customAttribute}CdoId": "5650",
+          "{customAttribute}FieldId": "9158",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "Required",
+          "{customAttribute}Annotations": "Unique name for this instance"
+        },
+        {
+          "Name": "ObjectToChange",
+          "Type": "modeling.NamedObjectRef",
+          "{customAttribute}OriginalType": "DocumentSet",
+          "{customAttribute}CdoId": "5650",
+          "{customAttribute}FieldId": "5137",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "This object ref contains the CDO Id of the Object to change"
+        },
+        {
+          "Name": "AssociatedPackages",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "24184",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Count of Associated Packages"
+        },
+        {
+          "Name": "AttachAsRORProxy",
+          "Type": "Collection(Edm.Boolean)",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "23042",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Proxy list needed to request Attach as ROR value from Doc Attach history"
+        },
+        {
+          "Name": "AttachAsRORProxy-Expanded",
+          "Type": "Collection(modeling.ExpandedListItem_1OfNullable_1OfBoolean)",
+          "{customAttribute}Annotations": "Expanded property for working with Key functionality."
+        },
+        {
+          "Name": "AttachDocumentDetails-Expanded",
+          "Type": "Collection(modeling.ExpandedListItem_1OfAttachDocumentDetails)",
+          "{customAttribute}Annotations": "Expanded property for working with Key functionality."
+        },
+        {
+          "Name": "Description",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "3390",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Description of this entity. Defaults to the name of this entity if not specified"
+        },
+        {
+          "Name": "DisplayName",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "26059",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "DisplayName is the field generally used to represent an object in a user interface, especially when the user interface needs to represent an object with just one data element.  For example, to represent a revisioned object one would ordinarily need to show both the name and the revision of the object.   The display name will include enough necessary elements to represent the object--in the example of a revisioned object it will include both the name and the revision, with a separator character.   This is especially useful when viewing objects in combo boxes and other one-column lists, the display name should be used.  DisplayName is usually a non-persistent field."
+        },
+        {
+          "Name": "FilterTags",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "25604",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "FilterTags comma seperated list"
+        },
+        {
+          "Name": "IconId",
+          "Type": "Edm.Int32",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "3389",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Identifier for the icon associated with this Base Entity"
+        },
+        {
+          "Name": "InstanceID",
+          "Type": "Edm.String",
+          "Nullable": "false",
+          "{customAttribute}OriginalType": "BaseObject",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "7601",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Unique ID for an instance of this object, generated by the system."
+        },
+        {
+          "Name": "InstanceLocked",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "24381",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Determines if the instance is locked by Change Management"
+        },
+        {
+          "Name": "isAttachImage",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "702547740",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Flag to indicated that doc attachments are images so use isImage table."
+        },
+        {
+          "Name": "IsFrozen",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "3387",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Determines if changes are allowed to this instance (or any of its revisions)"
+        },
+        {
+          "Name": "Notes",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "9057",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Notations and comments associated with this object."
+        },
+        {
+          "Name": "ReplaceDetails",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "28185",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Flag indicating whether to remove existing sub-entities (e.g. Details) before adding new ones."
+        },
+        {
+          "Name": "ReplaceDetailsSubentityListNames",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "679477331",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Internal field used to identify a list of comma delimited subentities to Delete before any processing takes place. This field will be considered in the Maintenance ValidateChange event if ReplaceDetailsRequired returns true. I.e.\r\n <ListName>+[,]"
+        },
+        {
+          "Name": "SkipSubentityListsToSequence",
+          "Type": "Edm.Boolean",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "679477333",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Flag indicating whether to skip the automated logic to set the sequence of a subentity list."
+        },
+        {
+          "Name": "UseROR",
+          "Type": "Collection(Edm.Boolean)",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "23047",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Proxy list needed to request Use ROR value from Doc Attach history"
+        },
+        {
+          "Name": "UseROR-Expanded",
+          "Type": "Collection(modeling.ExpandedListItem_1OfNullable_1OfBoolean)",
+          "{customAttribute}Annotations": "Expanded property for working with Key functionality."
+        },
+        {
+          "Name": "UseRORProxy",
+          "Type": "Collection(Edm.Boolean)",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "23048",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Proxy list needed to request Use ROR value from Doc Attach history"
+        },
+        {
+          "Name": "UseRORProxy-Expanded",
+          "Type": "Collection(modeling.ExpandedListItem_1OfNullable_1OfBoolean)",
+          "{customAttribute}Annotations": "Expanded property for working with Key functionality."
+        },
+        {
+          "Name": "DocumentEntries",
+          "Type": "Collection(modeling.DocumentEntryChanges)",
+          "{customAttribute}CdoId": "5650",
+          "{customAttribute}FieldId": "5139",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "Required",
+          "{customAttribute}Annotations": "This is a list of Document Entries. Each Document Entry provides a reference to a Document and a description of its use within this Document Set."
+        },
+        {
+          "Name": "DocumentEntryItem",
+          "Type": "modeling.DocumentEntryChanges",
+          "{customAttribute}CdoId": "5650",
+          "{customAttribute}FieldId": "5145",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "DocumentEntryItem"
+        },
+        {
+          "Name": "AttachDocumentDetails",
+          "Type": "Collection(modeling.AttachDocumentDetails)",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "23043",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "The details used to display the attached documents."
+        },
+        {
+          "Name": "ChangeHistory",
+          "Type": "modeling.ChangeHistoryChanges",
+          "{customAttribute}CdoId": "3590",
+          "{customAttribute}FieldId": "3391",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Details of the last change."
+        }
+      ]
+    },
+    {
+      "name": "DocumentEntryChanges",
+      "base": "modeling.NamedSubentityChanges",
+      "properties": [
+        {
+          "Name": "Description",
+          "Type": "Edm.String",
+          "{customAttribute}CdoId": "5660",
+          "{customAttribute}FieldId": "5141",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Description of this entry. Defaults to the name of this entry if not specified. This value is used, for example, to build a selection list of documents within the set."
+        },
+        {
+          "Name": "Document",
+          "Type": "modeling.RevisionedObjectRef",
+          "{customAttribute}OriginalType": "Document",
+          "{customAttribute}CdoId": "5660",
+          "{customAttribute}FieldId": "5142",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Reference to the Document. "
+        },
+        {
+          "Name": "DocumentSet",
+          "Type": "modeling.NamedObjectRef",
+          "{customAttribute}OriginalType": "DocumentSet",
+          "{customAttribute}CdoId": "5660",
+          "{customAttribute}FieldId": "5143",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Reference to the Document Set with which this Document Entry is associated."
+        }
+      ]
+    },
+    {
+      "name": "SpecEntity",
+      "base": null,
+      "properties": [
+        {
+          "Name": "DocumentSet",
+          "Type": "modeling.NamedObjectRef",
+          "{customAttribute}OriginalType": "DocumentSet",
+          "{customAttribute}CdoId": "4650",
+          "{customAttribute}FieldId": "3959",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "false",
+          "{customAttribute}Flags": "None",
+          "{customAttribute}Annotations": "Reference to a Document that provides additional information relating to processing with this Spec. This Document may be displayed (upon Operator request) as part of a service that is referencing this Spec."
+        },
+        {
+          "Name": "Name",
+          "Type": "Edm.String",
+          "Nullable": "false",
+          "{customAttribute}CdoId": "4650",
+          "{customAttribute}FieldId": "9242",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "Required",
+          "{customAttribute}Annotations": "Name for this instance"
+        },
+        {
+          "Name": "AttachDocumentDetails-Expanded",
+          "Type": "Collection(modeling.ExpandedListItem_1OfAttachDocumentDetails)",
+          "{customAttribute}Annotations": "Expanded property for working with Key functionality."
+        },
+        {
+          "Name": "InstanceID",
+          "Type": "Edm.String",
+          "Nullable": "false",
+          "{customAttribute}OriginalType": "BaseObject",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "8047",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "Unique ID for an instance of this object, generated by the system."
+        },
+        {
+          "Name": "Revision",
+          "Type": "Edm.String",
+          "Nullable": "false",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "3408",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "Required",
+          "{customAttribute}Annotations": "Revision (unique within the context of the base entity)"
+        },
+        {
+          "Name": "AttachDocumentDetails",
+          "Type": "Collection(modeling.AttachDocumentDetails)",
+          "{customAttribute}CdoId": "3620",
+          "{customAttribute}FieldId": "23049",
+          "{customAttribute}Workspace": "csi",
+          "{customAttribute}Inherited": "true",
+          "{customAttribute}Flags": "ReadOnly",
+          "{customAttribute}Annotations": "The details used to display the attached documents."
+        }
+      ]
+    }
+  ],
+  "sets": [
+    {
+      "Name": "Documents",
+      "EntityType": "modeling.DocumentEntity"
+    },
+    {
+      "Name": "DocumentEntity",
+      "EntityType": "modeling.DocumentEntity"
+    },
+    {
+      "Name": "DocumentViewers",
+      "EntityType": "modeling.DocumentViewerEntity"
+    },
+    {
+      "Name": "DocumentViewerEntity",
+      "EntityType": "modeling.DocumentViewerEntity"
+    },
+    {
+      "Name": "DocumentSets",
+      "EntityType": "modeling.DocumentSetEntity"
+    },
+    {
+      "Name": "DocumentSetEntity",
+      "EntityType": "modeling.DocumentSetEntity"
+    },
+    {
+      "Name": "DocumentMaint",
+      "EntityType": "modeling.DocumentMaint"
+    },
+    {
+      "Name": "DocumentViewerMaint",
+      "EntityType": "modeling.DocumentViewerMaint"
+    },
+    {
+      "Name": "DocumentSetMaint",
+      "EntityType": "modeling.DocumentSetMaint"
+    }
+  ],
+  "source": "GET /api/$metadata",
+  "business_write_performed": false,
+  "record_updated_at_utc": "2026-10-24T02:41:02.029961+00:00"
+}

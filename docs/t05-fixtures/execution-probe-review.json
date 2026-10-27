@@ -1,0 +1,59 @@
+{
+  "scope": "isolated mode-5 contract experiment, not a general issue tool",
+  "http_status": 400,
+  "server_error": {
+    "ErrorCode": "13500677",
+    "Message": "A server error occurred.",
+    "Target": null,
+    "Details": [
+      {
+        "ErrorCode": "13500677",
+        "Message": "Issue Difference Reason is required if the actual quantity issued differs from the quantity required.",
+        "Target": null
+      }
+    ],
+    "InnerError": null,
+    "InstanceAnnotations": [],
+    "TypeAnnotation": null
+  },
+  "request_count_in_business_service": 1,
+  "prior_attempt": "OData rejected before action, exact response preserved in prior_attempt",
+  "compared_quantities": {
+    "QtyRequired": {
+      "before": 2.0,
+      "after": 2.0
+    },
+    "QtyIssued": {
+      "before": 0.0,
+      "after": 0.0
+    },
+    "ActualQtyIssued": {
+      "before": 0.0,
+      "after": 0.0
+    },
+    "NetQtyRequired": {
+      "before": 2.0,
+      "after": 2.0
+    }
+  },
+  "quantity_observation_unchanged": true,
+  "actual_history_after": {
+    "complete": true,
+    "source": "Query/AdHoc IssueActualsHistory",
+    "scope": "direct_to_container_actual_issues",
+    "note": "不扣除移除/退料，不推断净消耗；ID排序不是时间排序，并发变化时分页非一致快照。空页不能证明某次请求失败或安全重试。",
+    "container": {
+      "InstanceId": "00041080000000e3",
+      "CDOTypeName": "Container",
+      "Name": "CDX-T05-20261024-B-C01"
+    },
+    "rows": [],
+    "has_more": false,
+    "next_offset": null,
+    "offset": 0,
+    "page_complete": true
+  },
+  "transaction_verified": false,
+  "retry_allowed": false,
+  "outcome_note": "Business rejection observed; current quantity and empty history are not unique request-to-transaction proof. No business retry or automatic unlocking."
+}

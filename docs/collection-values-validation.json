@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-23",
+  "mode": "read_only_static_validation",
+  "sample_values_are_not_submitted": true,
+  "result": {
+    "complete": false,
+    "executable": false,
+    "static_valid": true,
+    "errors": [],
+    "warnings": [
+      {
+        "point": "Thickness",
+        "code": "lower_limit_unknown"
+      },
+      {
+        "point": "Thickness",
+        "code": "upper_limit_unknown"
+      },
+      {
+        "code": "dynamic_constraints_unverified",
+        "detail": "枚举、单位、动态必填和越限处理未验证；静态校验通过不代表可提交或质量合格。"
+      }
+    ],
+    "checks": [
+      {
+        "point": "Thickness",
+        "value": 1,
+        "type_valid": true,
+        "limits": {
+          "lower": {
+            "raw": null,
+            "status": "unknown"
+          },
+          "upper": {
+            "raw": null,
+            "status": "unknown"
+          }
+        },
+        "limit_override_allowed": true
+      }
+    ],
+    "quality_verdict": null,
+    "submission_contract_verified": false,
+    "definition": {
+      "InstanceID": "001c618000000001",
+      "Name": "SPCTesterPageUDC",
+      "Revision": "1"
+    }
+  }
+}

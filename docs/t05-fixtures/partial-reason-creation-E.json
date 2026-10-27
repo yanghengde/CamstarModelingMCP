@@ -1,0 +1,32 @@
+{
+  "name": "CDX-T05-20261024-E-PARTIAL",
+  "state": "created_and_read_verified",
+  "attempt_count": 1,
+  "environment": "https://172.22.154.174/Modeling",
+  "http_status": 200,
+  "response": "{\"@odata.context\":\"https://172.22.154.174/api/$metadata#IssueDifferenceReasons/$entity\",\"value\":\"Issue Difference Reason \\u0022CDX-T05-20261024-E-PARTIAL\\u0022 added on 10/24/2026 3:37:11 PM\"}",
+  "verified_object": {
+    "Name": "CDX-T05-20261024-E-PARTIAL",
+    "FilterTags": null,
+    "InstanceID": "0019c8800000001b",
+    "AssociatedPackages": null,
+    "AttachAsRORProxy": [],
+    "Description": "TEST DATA ONLY: partial quantity issue acceptance; not for production.",
+    "DisplayName": null,
+    "IconId": null,
+    "InstanceLocked": null,
+    "isAttachImage": null,
+    "IsFrozen": false,
+    "Notes": null,
+    "ReplaceDetails": null,
+    "ReplaceDetailsSubentityListNames": null,
+    "SkipSubentityListsToSequence": null,
+    "UseROR": [],
+    "UseRORProxy": [],
+    "ObjectToChange": null,
+    "AttachAsRORProxy-Expanded": [],
+    "AttachDocumentDetails-Expanded": [],
+    "UseROR-Expanded": [],
+    "UseRORProxy-Expanded": []
+  }
+}

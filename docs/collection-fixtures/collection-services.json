@@ -1,0 +1,64 @@
+{
+  "CollectDataPoints": {
+    "base": null,
+    "fields": [
+      {
+        "Name": "DataPointCollection",
+        "Type": "shopfloor.NamedSubentityRef",
+        "{customAttribute}OriginalType": "DataPointCollection",
+        "{customAttribute}CdoId": "8147",
+        "{customAttribute}FieldId": "18930",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Identifies the definition of the data points that are to be collected for the trackable object."
+      },
+      {
+        "Name": "Instructions",
+        "Type": "Edm.String",
+        "{customAttribute}CdoId": "8147",
+        "{customAttribute}FieldId": "18931",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "ReadOnly",
+        "{customAttribute}Annotations": "The instructions to display when collecting the data points."
+      },
+      {
+        "Name": "Submit",
+        "Type": "Edm.Boolean",
+        "{customAttribute}CdoId": "8147",
+        "{customAttribute}FieldId": "19301",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "Indicates that the collection of data is complete"
+      },
+      {
+        "Name": "ServiceDetails",
+        "Type": "Collection(shopfloor.DPCollectionGroupDetail)",
+        "{customAttribute}CdoId": "8147",
+        "{customAttribute}FieldId": "18956",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The groups of data points to be passed in by the client.  It is also used to return the groups of data points to be collected on a \"load\"."
+      }
+    ]
+  },
+  "CollectData": {
+    "base": null,
+    "fields": [
+      {
+        "Name": "Resource",
+        "Type": "shopfloor.NamedObjectRef",
+        "{customAttribute}OriginalType": "Resource",
+        "{customAttribute}CdoId": "2200",
+        "{customAttribute}FieldId": "1453",
+        "{customAttribute}Workspace": "csi",
+        "{customAttribute}Inherited": "false",
+        "{customAttribute}Flags": "None",
+        "{customAttribute}Annotations": "The resource that collected the data."
+      }
+    ]
+  }
+}

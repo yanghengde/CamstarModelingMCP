@@ -1,0 +1,792 @@
+[
+  {
+    "TABLE_NAME": "DPCollectionGroupHistory",
+    "COLUMN_NAME": "CDOTypeId",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DPCollectionGroupHistory",
+    "COLUMN_NAME": "ChangeCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DPCollectionGroupHistory",
+    "COLUMN_NAME": "CollectDataPointsHistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DPCollectionGroupHistory",
+    "COLUMN_NAME": "DPCollectionGroupHistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DPCollectionGroupHistory",
+    "COLUMN_NAME": "ExportImportKey",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "DPCollectionGroupHistory",
+    "COLUMN_NAME": "GroupId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DPCollectionGroupHistory",
+    "COLUMN_NAME": "GroupLayout",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DPCollectionGroupHistory",
+    "COLUMN_NAME": "HistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DPCollectionGroupHistory",
+    "COLUMN_NAME": "MinimumSamples",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DPCollectionGroupHistory",
+    "COLUMN_NAME": "Name",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "DPCollectionGroupHistory",
+    "COLUMN_NAME": "Sequence",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DPCollectionGroupHistory",
+    "COLUMN_NAME": "TxnId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "CDOTypeId",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "ChangeCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "DataType",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "DPCollectionGroupHistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "DPCollectionPointHistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "ExportImportKey",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "HistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "InnerLowerLimit",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "InnerUpperLimit",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "MinimumSamples",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "Name",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "OuterLowerLimit",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "OuterUpperLimit",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "PointId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "Sequence",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "TxnId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DPCollectionPointHistory",
+    "COLUMN_NAME": "UOMId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DPCollectionSampleHistory",
+    "COLUMN_NAME": "BooleanValue",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "DPCollectionSampleHistory",
+    "COLUMN_NAME": "CDOTypeId",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DPCollectionSampleHistory",
+    "COLUMN_NAME": "CellName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "DPCollectionSampleHistory",
+    "COLUMN_NAME": "ChangeCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DPCollectionSampleHistory",
+    "COLUMN_NAME": "DataPointCollectionRangeColor",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DPCollectionSampleHistory",
+    "COLUMN_NAME": "DataValue",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "DPCollectionSampleHistory",
+    "COLUMN_NAME": "DecimalValue",
+    "DATA_TYPE": "decimal"
+  },
+  {
+    "TABLE_NAME": "DPCollectionSampleHistory",
+    "COLUMN_NAME": "DPCollectionPointsHistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DPCollectionSampleHistory",
+    "COLUMN_NAME": "DPCollectionSampleHistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DPCollectionSampleHistory",
+    "COLUMN_NAME": "ExportImportKey",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "DPCollectionSampleHistory",
+    "COLUMN_NAME": "HistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DPCollectionSampleHistory",
+    "COLUMN_NAME": "IntegerValue",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DPCollectionSampleHistory",
+    "COLUMN_NAME": "TimestampValue",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "DPCollectionSampleHistory",
+    "COLUMN_NAME": "TxnId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "Application",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "BaseTxnType",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "BatchId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "BinningIncluded",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "BonusIncluded",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "CalendarShiftId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "CarrierId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "CDOTypeId",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ChangeCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "Client",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "Comments",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "CompoundTxnType",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ComputationHistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ContainerId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "DefectIncluded",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "EmployeeId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ESigRequirementId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "FactoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "HistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "HistoryMainlineId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "IconId",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "Implicit",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "InRework",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "LocalReworkIncluded",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "LoginId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "LossIncluded",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "MfgDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "MfgProcessOverridesId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "OperationId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "OwnerId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ParametricDetailId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ProductId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "QualityESigConfirmed",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "RemainingProcessTime",
+    "DATA_TYPE": "decimal"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ResourceAvailability",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ResourceId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ResourceStatusCodeId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ResourceStatusReasonId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ReversalStatus",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "Server",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ShiftName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "SpecId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "Status",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "StepEntryTxnId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "StepPass",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "SystemDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "SystemDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnServiceName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnServiceSequence",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnType",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "UserId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "WorkflowStepId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "WorkstationId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ChildCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "CIOMessageID",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "CIOMessageIDOutbound",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ComputerName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ContainerChangeCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ContainerName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ES_RecipeId",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "IntegrationTxnId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "isFailed",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "LastMoveDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "LastMoveDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "LastMoveOutDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "LastMoveOutDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "MoveInDate",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "MoveInDateGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "MoveInQty",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "MoveInQty2",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ParentContainerId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ParentContainerName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "Qty",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "Qty2",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ServerName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ToQty",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "ToQty2",
+    "DATA_TYPE": "float"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnHistorySequence",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnParentTypeName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnSequence",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "HistoryMainline",
+    "COLUMN_NAME": "TxnTypeName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "CollectDataPointsHistory",
+    "COLUMN_NAME": "CDOTypeId",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "CollectDataPointsHistory",
+    "COLUMN_NAME": "ChangeCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "CollectDataPointsHistory",
+    "COLUMN_NAME": "CollectDataPointsHistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CollectDataPointsHistory",
+    "COLUMN_NAME": "DataPointCollectionId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CollectDataPointsHistory",
+    "COLUMN_NAME": "ExportImportKey",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "CollectDataPointsHistory",
+    "COLUMN_NAME": "HistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CollectDataPointsHistory",
+    "COLUMN_NAME": "HistoryMainlineId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "CollectDataPointsHistory",
+    "COLUMN_NAME": "TxnId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DataPointCollectionGroup",
+    "COLUMN_NAME": "CDOTypeId",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DataPointCollectionGroup",
+    "COLUMN_NAME": "ChangeCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DataPointCollectionGroup",
+    "COLUMN_NAME": "DataPointCollectionGroupId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DataPointCollectionGroup",
+    "COLUMN_NAME": "DataPointCollectionGroupName",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "DataPointCollectionGroup",
+    "COLUMN_NAME": "DataPointCollectionId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DataPointCollectionGroup",
+    "COLUMN_NAME": "ExportImportKey",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "DataPointCollectionGroup",
+    "COLUMN_NAME": "GroupLayout",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DataPointCollectionGroup",
+    "COLUMN_NAME": "IsFrozen",
+    "DATA_TYPE": "bit"
+  },
+  {
+    "TABLE_NAME": "DataPointCollectionGroup",
+    "COLUMN_NAME": "LastEnteredById",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DataPointCollectionGroup",
+    "COLUMN_NAME": "LastEnteredByRoleId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DataPointCollectionGroup",
+    "COLUMN_NAME": "LastEnteredOn",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "DataPointCollectionGroup",
+    "COLUMN_NAME": "LastEnteredOnGMT",
+    "DATA_TYPE": "datetime"
+  },
+  {
+    "TABLE_NAME": "DataPointCollectionGroup",
+    "COLUMN_NAME": "MinimumSamples",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DataPointCollectionGroup",
+    "COLUMN_NAME": "Sequence",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DataPointHistory",
+    "COLUMN_NAME": "CDOTypeId",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DataPointHistory",
+    "COLUMN_NAME": "ChangeCount",
+    "DATA_TYPE": "int"
+  },
+  {
+    "TABLE_NAME": "DataPointHistory",
+    "COLUMN_NAME": "DataCollectionDefId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DataPointHistory",
+    "COLUMN_NAME": "DataPointHistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DataPointHistory",
+    "COLUMN_NAME": "ExportImportKey",
+    "DATA_TYPE": "nvarchar"
+  },
+  {
+    "TABLE_NAME": "DataPointHistory",
+    "COLUMN_NAME": "HistoryId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DataPointHistory",
+    "COLUMN_NAME": "HistoryMainlineId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DataPointHistory",
+    "COLUMN_NAME": "TxnId",
+    "DATA_TYPE": "char"
+  },
+  {
+    "TABLE_NAME": "DataPointHistory",
+    "COLUMN_NAME": "IntegrationTxnId",
+    "DATA_TYPE": "char"
+  }
+]

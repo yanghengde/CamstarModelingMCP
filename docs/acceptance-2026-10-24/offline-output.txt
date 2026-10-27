@@ -1,0 +1,75 @@
+........................................................................ [ 10%]
+........................................................................ [ 21%]
+........................................................................ [ 32%]
+........................................................................ [ 43%]
+.........................................F.............................. [ 54%]
+........................................................................ [ 65%]
+........................................................................ [ 76%]
+........................................................................ [ 86%]
+........................................................................ [ 97%]
+...............                                                          [100%]
+================================== FAILURES ===================================
+___________ test_async_sqlite_checkpointer_can_initialize_and_read ____________
+
+tmp_path = WindowsPath('C:/Users/yanghe/AppData/Local/Temp/pytest-of-yanghe/pytest-233/test_async_sqlite_checkpointer0')
+
+    def test_async_sqlite_checkpointer_can_initialize_and_read(tmp_path):
+        async def scenario() -> None:
+            manager = AsyncSqliteSaver.from_conn_string(
+                str(tmp_path / "checkpoint.sqlite")
+            )
+            saver = await manager.__aenter__()
+            try:
+                await saver.setup()
+                result = await saver.aget_tuple(
+                    {"configurable": {"thread_id": "compatibility-test"}}
+                )
+                assert result is None
+            finally:
+                await manager.__aexit__(None, None, None)
+    
+>       asyncio.run(scenario())
+
+tests\test_langgraph_checkpoint.py:23: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\yanghe\AppData\Local\Programs\Python\Python313\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+C:\Users\yanghe\AppData\Local\Programs\Python\Python313\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+C:\Users\yanghe\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py:725: in run_until_complete
+    return future.result()
+tests\test_langgraph_checkpoint.py:15: in scenario
+    await saver.setup()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <langgraph.checkpoint.sqlite.aio.AsyncSqliteSaver object at 0x0000019B04245BE0>
+
+    async def setup(self) -> None:
+        """Set up the checkpoint database asynchronously.
+    
+        This method creates the necessary tables in the SQLite database if they don't
+        already exist. It is called automatically when needed and should not be called
+        directly by the user.
+        """
+        async with self.lock:
+            if self.is_setup:
+                return
+>           if not self.conn.is_alive():
+E           AttributeError: 'Connection' object has no attribute 'is_alive'
+
+C:\Users\yanghe\AppData\Local\Programs\Python\Python313\Lib\site-packages\langgraph\checkpoint\sqlite\aio.py:283: AttributeError
+- generated xml file: D:\Deepseek\camstar\CamstarModelingMCP\docs\acceptance-2026-10-24\offline-junit.xml -
+=========================== short test summary info ===========================
+FAILED tests/test_langgraph_checkpoint.py::test_async_sqlite_checkpointer_can_initialize_and_read
+1 failed, 662 passed in 45.25s
+Exception ignored in atexit callback <function cleanup_numbered_dir at 0x0000019B634E49A0>:
+Traceback (most recent call last):
+  File "C:\Users\yanghe\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\pathlib.py", line 374, in cleanup_numbered_dir
+    cleanup_dead_symlinks(root)
+  File "C:\Users\yanghe\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\pathlib.py", line 359, in cleanup_dead_symlinks
+    if not left_dir.resolve().exists():
+  File "C:\Users\yanghe\AppData\Local\Programs\Python\Python313\Lib\pathlib\_abc.py", line 450, in exists
+    self.stat(follow_symlinks=follow_symlinks)
+  File "C:\Users\yanghe\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 515, in stat
+    return os.stat(self, follow_symlinks=follow_symlinks)
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\yanghe\\AppData\\Local\\Temp\\pytest-of-yanghe\\pytest-current'

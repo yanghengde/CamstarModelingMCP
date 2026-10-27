@@ -1,0 +1,3134 @@
+{
+  "actual_subtypes": [
+    {
+      "CDODefID": 6530,
+      "CDOName": "ActualsSerial",
+      "ParentCDOID": 6460,
+      "WorkspaceCode": "csi"
+    },
+    {
+      "CDODefID": 6540,
+      "CDOName": "ActualsBulk",
+      "ParentCDOID": 6460,
+      "WorkspaceCode": "csi"
+    },
+    {
+      "CDODefID": 6550,
+      "CDOName": "ActualsLotStock",
+      "ParentCDOID": 6460,
+      "WorkspaceCode": "csi"
+    },
+    {
+      "CDODefID": 6560,
+      "CDOName": "ActualsStock",
+      "ParentCDOID": 6460,
+      "WorkspaceCode": "csi"
+    },
+    {
+      "CDODefID": 6570,
+      "CDOName": "ActualsQuantity",
+      "ParentCDOID": 6460,
+      "WorkspaceCode": "csi"
+    },
+    {
+      "CDODefID": 6892,
+      "CDOName": "ActualsDisplayOnly",
+      "ParentCDOID": 6460,
+      "WorkspaceCode": "csi"
+    }
+  ],
+  "CLFDefinition_columns": [
+    "CLFID",
+    "CLFName",
+    "CLFType",
+    "CLFDescription",
+    "FunctionID",
+    "Visibility",
+    "SourceCLFID",
+    "FeatureId",
+    "WorkspaceCode"
+  ],
+  "CLFFunctions_columns": [
+    "CLFFunctionID",
+    "CLFID",
+    "Sequence",
+    "FunctionID",
+    "IsActive",
+    "WorkspaceCode"
+  ],
+  "CLFFunParmVal_columns": [
+    "CLFFunctionParmValueID",
+    "SequenceNumber",
+    "ParmValue",
+    "ParmValueString",
+    "WorkspaceCode"
+  ],
+  "FunctionDefinition_columns": [
+    "FunctionID",
+    "Name",
+    "Description",
+    "OCXGUID",
+    "OCXVersion",
+    "Notes",
+    "FunctionTypeID",
+    "SignatureID",
+    "FeatureId",
+    "WorkspaceCode"
+  ],
+  "ActualsSerial": {
+    "cdo_name": "ActualsSerial",
+    "definitions": [
+      {
+        "CDODefID": 6530,
+        "ParentCDOID": 6460,
+        "CDOName": "ActualsSerial",
+        "CDODescription": "Used for Serialized Container Issues",
+        "ObjectsToCache": 0,
+        "ReadOverride": "",
+        "WriteOverride": "",
+        "SecurityTypeID": 0,
+        "DefaultTableID": 0,
+        "CDOUsageMask": 4288,
+        "MaintenanceTypeID": 0,
+        "RevisionTypeId": 0,
+        "EnforceIntegrity": false,
+        "UseInstanceSecurity": false,
+        "UIDetailsId": 0,
+        "IsAbstract": false,
+        "IsExposedToClientUI": false,
+        "DisplayNameLabelId": 8388778,
+        "IsWSExposedStd": false,
+        "Visibility": 1,
+        "InheritMask": 2624,
+        "SelValQueryDefId": 0,
+        "StorageCategoryId": 8,
+        "FeatureId": 0,
+        "WorkspaceCode": "csi"
+      }
+    ],
+    "fields": [
+      {
+        "FieldID": 6442,
+        "CDODefID": 6530,
+        "SequenceNumber": 5,
+        "FieldDefID": 212,
+        "CPPDataTypeID": 5,
+        "FieldName": "Product",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "The component product that was actuall used to satisfy this material requirement\r\n",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "This_Value;FromContainer.Product",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049450,
+        "InheritedID": 5884,
+        "InheritMask": 512,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 3,
+        "SelValQueryDefId": 0,
+        "Required": 1,
+        "WorkspaceCode": "60",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 212,
+            "FieldDefName": "Product",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 16920,
+        "CDODefID": 6530,
+        "SequenceNumber": 0,
+        "FieldDefID": 2062,
+        "CPPDataTypeID": 5,
+        "FieldName": "FromBatch",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "A Batch represents the materials that are the final result of the production process. The Batch contains or references all the information about the specific Containers that represent the tracked materials that are the final result of the process.",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "FromContainer.Batch",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": false,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1051864,
+        "InheritedID": 0,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 2062,
+            "FieldDefName": "Batch",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 16921,
+        "CDODefID": 6530,
+        "SequenceNumber": 0,
+        "FieldDefID": 2024,
+        "CPPDataTypeID": 5,
+        "FieldName": "FromCarrier",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "A carrier is a physical entity that holds material which is used in batch processing.  Carriers are resources like: Vessels, Vats, drums, trays etc. \r\n\r\n",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "This_Value; FromContainer.CurrentStatus.Carrier",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1051865,
+        "InheritedID": 0,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 3,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 2024,
+            "FieldDefName": "Carrier",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 7484,
+        "CDODefID": 6530,
+        "SequenceNumber": 0,
+        "FieldDefID": 121,
+        "CPPDataTypeID": 5,
+        "FieldName": "ToContainer",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Assembly container to which issued",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "This_Value;Parent.Parent.Container",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049400,
+        "InheritedID": 7346,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 1,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 121,
+            "FieldDefName": "Container",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 7486,
+        "CDODefID": 6530,
+        "SequenceNumber": 0,
+        "FieldDefID": 203,
+        "CPPDataTypeID": 5,
+        "FieldName": "ToLocation",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Assembly location to which issued",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "This_Value;ToContainer.Location;Parent.Parent.Container.Location",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049216,
+        "InheritedID": 7347,
+        "InheritMask": 262144,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 3,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 203,
+            "FieldDefName": "Location",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 7351,
+        "CDODefID": 6530,
+        "SequenceNumber": 1,
+        "FieldDefID": 933,
+        "CPPDataTypeID": 5,
+        "FieldName": "HistoryDetail",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Summary of the changes caused by a single ServiceDetail CDO.",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": false,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049825,
+        "InheritedID": 6401,
+        "InheritMask": 2,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 0,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 933,
+            "FieldDefName": "IssueActualsHistorySerial",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 5915,
+        "CDODefID": 6530,
+        "SequenceNumber": 2,
+        "FieldDefID": 121,
+        "CPPDataTypeID": 5,
+        "FieldName": "FromContainer",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "The InSite container consisting of this component material",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049456,
+        "InheritedID": 0,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 3,
+        "SelValQueryDefId": 0,
+        "Required": 2,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 121,
+            "FieldDefName": "Container",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 5916,
+        "CDODefID": 6530,
+        "SequenceNumber": 3,
+        "FieldDefID": 203,
+        "CPPDataTypeID": 5,
+        "FieldName": "FromLocation",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Used to record a reference to the actual InSite location if the source container is maintained in InSite at the time of issue. Primarily used for Component Issue analysis since a source container could change locations multiple times after an issue.  .\r\n",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "This_Value;FromContainer.Location",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049689,
+        "InheritedID": 0,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 3,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 203,
+            "FieldDefName": "Location",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 6442,
+        "CDODefID": 6530,
+        "SequenceNumber": 5,
+        "FieldDefID": 212,
+        "CPPDataTypeID": 5,
+        "FieldName": "Product",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "The component product that was actuall used to satisfy this material requirement\r\n",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "This_Value;FromContainer.Product",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1048625,
+        "InheritedID": 5884,
+        "InheritMask": 512,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 3,
+        "SelValQueryDefId": 0,
+        "Required": 1,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 212,
+            "FieldDefName": "Product",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 7427,
+        "CDODefID": 6530,
+        "SequenceNumber": 6,
+        "FieldDefID": 289,
+        "CPPDataTypeID": 3,
+        "FieldName": "Qty2Issued",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Records the actual quantity issued for a particular ComponentIssueDetail record if multiple container quantities are used. This may not be equal to the QtyRequired depending on source lot availability , operator quantity overrides and over-issues.\r\n",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "FromContainer.Qty2",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": false,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049452,
+        "InheritedID": 5894,
+        "InheritMask": 2560,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": true,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Fixed",
+        "field_type_versions": [
+          {
+            "FieldDefID": 289,
+            "FieldDefName": "Qty2",
+            "CPPDataTypeID": 3,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 7426,
+        "CDODefID": 6530,
+        "SequenceNumber": 7,
+        "FieldDefID": 196,
+        "CPPDataTypeID": 3,
+        "FieldName": "QtyIssued",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Records the actual quantity issued for a particular ComponentIssueDetail record. This may not be equal to the QtyRequired depending on source lot availability , operator quantity overrides and over-issues.\r\n",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "FromContainer.Qty",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": false,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049451,
+        "InheritedID": 5893,
+        "InheritMask": 2560,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": true,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Fixed",
+        "field_type_versions": [
+          {
+            "FieldDefID": 196,
+            "FieldDefName": "Qty",
+            "CPPDataTypeID": 3,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      }
+    ],
+    "total_field_versions": 11,
+    "offset": 0,
+    "has_more": false,
+    "workspaces": [
+      {
+        "WorkspaceCode": "csi",
+        "Sequence": 1,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "10",
+        "Sequence": 10,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "12",
+        "Sequence": 12,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "15",
+        "Sequence": 15,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "18",
+        "Sequence": 18,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "20",
+        "Sequence": 20,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "25",
+        "Sequence": 25,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "30",
+        "Sequence": 30,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "35",
+        "Sequence": 35,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "40",
+        "Sequence": 40,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "45",
+        "Sequence": 45,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "50",
+        "Sequence": 50,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "55",
+        "Sequence": 55,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "60",
+        "Sequence": 60,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "65",
+        "Sequence": 65,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "75",
+        "Sequence": 75,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "80",
+        "Sequence": 80,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "99",
+        "Sequence": 99,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "100",
+        "Sequence": 100,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "110",
+        "Sequence": 110,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "120",
+        "Sequence": 120,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "180",
+        "Sequence": 180,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "190",
+        "Sequence": 190,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "200",
+        "Sequence": 200,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "220",
+        "Sequence": 220,
+        "IsActive": false
+      }
+    ],
+    "workspace_resolution": "raw_versions_not_merged",
+    "read_only": true,
+    "warning": "仅展示该 CDO 的原始定义和字段版本；尚未合并工作区覆盖、继承掩码或父对象字段。不能作为完整有效定义或自动生成 XML 的依据。"
+  },
+  "ActualsBulk": {
+    "cdo_name": "ActualsBulk",
+    "definitions": [
+      {
+        "CDODefID": 6540,
+        "ParentCDOID": 6460,
+        "CDOName": "ActualsBulk",
+        "CDODescription": "Used for Bulk Container Issues\r\nDo not decrement the qty for RecipeIssues where the UOM's don't match",
+        "ObjectsToCache": 0,
+        "ReadOverride": "",
+        "WriteOverride": "",
+        "SecurityTypeID": 0,
+        "DefaultTableID": 0,
+        "CDOUsageMask": 4288,
+        "MaintenanceTypeID": 0,
+        "RevisionTypeId": 0,
+        "EnforceIntegrity": false,
+        "UseInstanceSecurity": false,
+        "UIDetailsId": 0,
+        "IsAbstract": false,
+        "IsExposedToClientUI": false,
+        "DisplayNameLabelId": 8388779,
+        "IsWSExposedStd": false,
+        "Visibility": 1,
+        "InheritMask": 2624,
+        "SelValQueryDefId": 0,
+        "StorageCategoryId": 8,
+        "FeatureId": 0,
+        "WorkspaceCode": "csi"
+      }
+    ],
+    "fields": [
+      {
+        "FieldID": 689969777,
+        "CDODefID": 6540,
+        "SequenceNumber": 0,
+        "FieldDefID": 679477250,
+        "CPPDataTypeID": 4,
+        "FieldName": "ES_BulkUID",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Store Bulk UID for validation, only applicable to issue control bulk",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 689969322,
+        "InheritedID": 0,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "60",
+        "data_type_name": "String",
+        "field_type_versions": [
+          {
+            "FieldDefID": 679477250,
+            "FieldDefName": "String100",
+            "CPPDataTypeID": 4,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 6443,
+        "CDODefID": 6540,
+        "SequenceNumber": 5,
+        "FieldDefID": 212,
+        "CPPDataTypeID": 5,
+        "FieldName": "Product",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "The component product that was actuall used to satisfy this material requirement\r\n",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "This_Value;FromContainer.Product",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049450,
+        "InheritedID": 5884,
+        "InheritMask": 512,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 3,
+        "SelValQueryDefId": 0,
+        "Required": 1,
+        "WorkspaceCode": "60",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 212,
+            "FieldDefName": "Product",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 16916,
+        "CDODefID": 6540,
+        "SequenceNumber": 0,
+        "FieldDefID": 2062,
+        "CPPDataTypeID": 5,
+        "FieldName": "FromBatch",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "A Batch represents the materials that are the final result of the production process. The Batch contains or references all the information about the specific Containers that represent the tracked materials that are the final result of the process.",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "FromContainer.Batch",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": false,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1051864,
+        "InheritedID": 0,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 2062,
+            "FieldDefName": "Batch",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 16917,
+        "CDODefID": 6540,
+        "SequenceNumber": 0,
+        "FieldDefID": 2024,
+        "CPPDataTypeID": 5,
+        "FieldName": "FromCarrier",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "A carrier is a physical entity that holds material which is used in batch processing.  Carriers are resources like: Vessels, Vats, drums, trays etc. \r\n\r\n",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "This_Value; FromContainer.CurrentStatus.Carrier",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1051865,
+        "InheritedID": 0,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 3,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 2024,
+            "FieldDefName": "Carrier",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 7491,
+        "CDODefID": 6540,
+        "SequenceNumber": 0,
+        "FieldDefID": 121,
+        "CPPDataTypeID": 5,
+        "FieldName": "ToContainer",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Assembly container to which issued",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "This_Value;Parent.Parent.Container",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049400,
+        "InheritedID": 7346,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 1,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 121,
+            "FieldDefName": "Container",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 7493,
+        "CDODefID": 6540,
+        "SequenceNumber": 0,
+        "FieldDefID": 203,
+        "CPPDataTypeID": 5,
+        "FieldName": "ToLocation",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Assembly location to which issued",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "This_Value;ToContainer.Location;Parent.Parent.Container.Location",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049216,
+        "InheritedID": 7347,
+        "InheritMask": 262144,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 3,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 203,
+            "FieldDefName": "Location",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 7348,
+        "CDODefID": 6540,
+        "SequenceNumber": 1,
+        "FieldDefID": 930,
+        "CPPDataTypeID": 5,
+        "FieldName": "HistoryDetail",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Summary of the changes caused by a single ServiceDetail CDO.",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": false,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049825,
+        "InheritedID": 6401,
+        "InheritMask": 2,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 0,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 930,
+            "FieldDefName": "IssueActualsHistoryBulk",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 5918,
+        "CDODefID": 6540,
+        "SequenceNumber": 2,
+        "FieldDefID": 121,
+        "CPPDataTypeID": 5,
+        "FieldName": "FromContainer",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "The InSite container consisting of this component material",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049456,
+        "InheritedID": 0,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 3,
+        "SelValQueryDefId": 0,
+        "Required": 2,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 121,
+            "FieldDefName": "Container",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 5919,
+        "CDODefID": 6540,
+        "SequenceNumber": 3,
+        "FieldDefID": 203,
+        "CPPDataTypeID": 5,
+        "FieldName": "FromLocation",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Used to record a reference to the actual InSite location if the source container is maintained in InSite at the time of issue. Primarily used for Component Issue analysis since a source container could change locations multiple times after an issue.  .\r\n",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "This_Value;FromContainer.Location",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049689,
+        "InheritedID": 0,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 3,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 203,
+            "FieldDefName": "Location",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 6443,
+        "CDODefID": 6540,
+        "SequenceNumber": 5,
+        "FieldDefID": 212,
+        "CPPDataTypeID": 5,
+        "FieldName": "Product",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "The component product that was actuall used to satisfy this material requirement\r\n",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "This_Value;FromContainer.Product",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1048625,
+        "InheritedID": 5884,
+        "InheritMask": 512,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 3,
+        "SelValQueryDefId": 0,
+        "Required": 1,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 212,
+            "FieldDefName": "Product",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 7495,
+        "CDODefID": 6540,
+        "SequenceNumber": 10,
+        "FieldDefID": 715,
+        "CPPDataTypeID": 5,
+        "FieldName": "Vendor",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Used to determine vendor items",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049565,
+        "InheritedID": 6399,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 1,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 715,
+            "FieldDefName": "Vendor",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      }
+    ],
+    "total_field_versions": 11,
+    "offset": 0,
+    "has_more": false,
+    "workspaces": [
+      {
+        "WorkspaceCode": "csi",
+        "Sequence": 1,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "10",
+        "Sequence": 10,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "12",
+        "Sequence": 12,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "15",
+        "Sequence": 15,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "18",
+        "Sequence": 18,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "20",
+        "Sequence": 20,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "25",
+        "Sequence": 25,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "30",
+        "Sequence": 30,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "35",
+        "Sequence": 35,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "40",
+        "Sequence": 40,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "45",
+        "Sequence": 45,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "50",
+        "Sequence": 50,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "55",
+        "Sequence": 55,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "60",
+        "Sequence": 60,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "65",
+        "Sequence": 65,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "75",
+        "Sequence": 75,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "80",
+        "Sequence": 80,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "99",
+        "Sequence": 99,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "100",
+        "Sequence": 100,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "110",
+        "Sequence": 110,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "120",
+        "Sequence": 120,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "180",
+        "Sequence": 180,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "190",
+        "Sequence": 190,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "200",
+        "Sequence": 200,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "220",
+        "Sequence": 220,
+        "IsActive": false
+      }
+    ],
+    "workspace_resolution": "raw_versions_not_merged",
+    "read_only": true,
+    "warning": "仅展示该 CDO 的原始定义和字段版本；尚未合并工作区覆盖、继承掩码或父对象字段。不能作为完整有效定义或自动生成 XML 的依据。"
+  },
+  "ActualsLotStock": {
+    "cdo_name": "ActualsLotStock",
+    "definitions": [
+      {
+        "CDODefID": 6550,
+        "ParentCDOID": 6460,
+        "CDOName": "ActualsLotStock",
+        "CDODescription": "Used for external lot / location issues\r\n",
+        "ObjectsToCache": 0,
+        "ReadOverride": "",
+        "WriteOverride": "",
+        "SecurityTypeID": 0,
+        "DefaultTableID": 0,
+        "CDOUsageMask": 4288,
+        "MaintenanceTypeID": 0,
+        "RevisionTypeId": 0,
+        "EnforceIntegrity": false,
+        "UseInstanceSecurity": false,
+        "UIDetailsId": 0,
+        "IsAbstract": false,
+        "IsExposedToClientUI": false,
+        "DisplayNameLabelId": 8388780,
+        "IsWSExposedStd": false,
+        "Visibility": 1,
+        "InheritMask": 2624,
+        "SelValQueryDefId": 0,
+        "StorageCategoryId": 8,
+        "FeatureId": 0,
+        "WorkspaceCode": "csi"
+      }
+    ],
+    "fields": [
+      {
+        "FieldID": 689967970,
+        "CDODefID": 6550,
+        "SequenceNumber": 0,
+        "FieldDefID": 689963378,
+        "CPPDataTypeID": 4,
+        "FieldName": "ES_FromLot2",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Records the 2nd container or other manufacturing unit when the component is not tracked in InSite",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 689966402,
+        "InheritedID": 0,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "60",
+        "data_type_name": "String",
+        "field_type_versions": [
+          {
+            "FieldDefID": 689963378,
+            "FieldDefName": "ES_String255",
+            "CPPDataTypeID": 4,
+            "WorkspaceCode": "60"
+          }
+        ]
+      },
+      {
+        "FieldID": 689967969,
+        "CDODefID": 6550,
+        "SequenceNumber": 0,
+        "FieldDefID": 689963378,
+        "CPPDataTypeID": 4,
+        "FieldName": "ES_FromLot3",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Records the 3rd container or other manufacturing unit when the component is not tracked in InSite",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 689966403,
+        "InheritedID": 0,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "60",
+        "data_type_name": "String",
+        "field_type_versions": [
+          {
+            "FieldDefID": 689963378,
+            "FieldDefName": "ES_String255",
+            "CPPDataTypeID": 4,
+            "WorkspaceCode": "60"
+          }
+        ]
+      },
+      {
+        "FieldID": 5929,
+        "CDODefID": 6550,
+        "SequenceNumber": 1,
+        "FieldDefID": 689963378,
+        "CPPDataTypeID": 4,
+        "FieldName": "FromLot",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Records the container or other manufacturing unit when the component is not tracked in InSite\r\n",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049458,
+        "InheritedID": 0,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 2,
+        "WorkspaceCode": "60",
+        "data_type_name": "String",
+        "field_type_versions": [
+          {
+            "FieldDefID": 689963378,
+            "FieldDefName": "ES_String255",
+            "CPPDataTypeID": 4,
+            "WorkspaceCode": "60"
+          }
+        ]
+      },
+      {
+        "FieldID": 5929,
+        "CDODefID": 6550,
+        "SequenceNumber": 1,
+        "FieldDefID": 114,
+        "CPPDataTypeID": 4,
+        "FieldName": "FromLot",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Records the container or other manufacturing unit when the component is not tracked in InSite\r\n",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049458,
+        "InheritedID": 0,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 2,
+        "WorkspaceCode": "csi",
+        "data_type_name": "String",
+        "field_type_versions": [
+          {
+            "FieldDefID": 114,
+            "FieldDefName": "[String]",
+            "CPPDataTypeID": 4,
+            "WorkspaceCode": "60"
+          },
+          {
+            "FieldDefID": 114,
+            "FieldDefName": "[String]",
+            "CPPDataTypeID": 4,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 7349,
+        "CDODefID": 6550,
+        "SequenceNumber": 1,
+        "FieldDefID": 931,
+        "CPPDataTypeID": 5,
+        "FieldName": "HistoryDetail",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Summary of the changes caused by a single ServiceDetail CDO.",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": false,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049825,
+        "InheritedID": 6401,
+        "InheritMask": 2,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 0,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 931,
+            "FieldDefName": "IssueActualsHistoryLotStock",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 5928,
+        "CDODefID": 6550,
+        "SequenceNumber": 2,
+        "FieldDefID": 114,
+        "CPPDataTypeID": 4,
+        "FieldName": "FromStockPoint",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Used to record material location if the source material is not lot/container controlled and if the location of the source material is maintained outside of InSite.\r\n",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049457,
+        "InheritedID": 0,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "String",
+        "field_type_versions": [
+          {
+            "FieldDefID": 114,
+            "FieldDefName": "[String]",
+            "CPPDataTypeID": 4,
+            "WorkspaceCode": "60"
+          },
+          {
+            "FieldDefID": 114,
+            "FieldDefName": "[String]",
+            "CPPDataTypeID": 4,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      }
+    ],
+    "total_field_versions": 6,
+    "offset": 0,
+    "has_more": false,
+    "workspaces": [
+      {
+        "WorkspaceCode": "csi",
+        "Sequence": 1,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "10",
+        "Sequence": 10,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "12",
+        "Sequence": 12,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "15",
+        "Sequence": 15,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "18",
+        "Sequence": 18,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "20",
+        "Sequence": 20,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "25",
+        "Sequence": 25,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "30",
+        "Sequence": 30,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "35",
+        "Sequence": 35,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "40",
+        "Sequence": 40,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "45",
+        "Sequence": 45,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "50",
+        "Sequence": 50,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "55",
+        "Sequence": 55,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "60",
+        "Sequence": 60,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "65",
+        "Sequence": 65,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "75",
+        "Sequence": 75,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "80",
+        "Sequence": 80,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "99",
+        "Sequence": 99,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "100",
+        "Sequence": 100,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "110",
+        "Sequence": 110,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "120",
+        "Sequence": 120,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "180",
+        "Sequence": 180,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "190",
+        "Sequence": 190,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "200",
+        "Sequence": 200,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "220",
+        "Sequence": 220,
+        "IsActive": false
+      }
+    ],
+    "workspace_resolution": "raw_versions_not_merged",
+    "read_only": true,
+    "warning": "仅展示该 CDO 的原始定义和字段版本；尚未合并工作区覆盖、继承掩码或父对象字段。不能作为完整有效定义或自动生成 XML 的依据。"
+  },
+  "ActualsStock": {
+    "cdo_name": "ActualsStock",
+    "definitions": [
+      {
+        "CDODefID": 6560,
+        "ParentCDOID": 6460,
+        "CDOName": "ActualsStock",
+        "CDODescription": "Used for floor stock ( location ) issues\r\n",
+        "ObjectsToCache": 0,
+        "ReadOverride": "",
+        "WriteOverride": "",
+        "SecurityTypeID": 0,
+        "DefaultTableID": 0,
+        "CDOUsageMask": 4288,
+        "MaintenanceTypeID": 0,
+        "RevisionTypeId": 0,
+        "EnforceIntegrity": false,
+        "UseInstanceSecurity": false,
+        "UIDetailsId": 0,
+        "IsAbstract": false,
+        "IsExposedToClientUI": false,
+        "DisplayNameLabelId": 8388781,
+        "IsWSExposedStd": false,
+        "Visibility": 1,
+        "InheritMask": 2624,
+        "SelValQueryDefId": 0,
+        "StorageCategoryId": 8,
+        "FeatureId": 0,
+        "WorkspaceCode": "csi"
+      }
+    ],
+    "fields": [
+      {
+        "FieldID": 5927,
+        "CDODefID": 6560,
+        "SequenceNumber": 1,
+        "FieldDefID": 114,
+        "CPPDataTypeID": 4,
+        "FieldName": "FromStockPoint",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Used to record material location if the source material is not lot/container controlled and if the location of the source material is maintained outside of InSite.\r\n",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049457,
+        "InheritedID": 0,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "String",
+        "field_type_versions": [
+          {
+            "FieldDefID": 114,
+            "FieldDefName": "[String]",
+            "CPPDataTypeID": 4,
+            "WorkspaceCode": "60"
+          },
+          {
+            "FieldDefID": 114,
+            "FieldDefName": "[String]",
+            "CPPDataTypeID": 4,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 7352,
+        "CDODefID": 6560,
+        "SequenceNumber": 1,
+        "FieldDefID": 934,
+        "CPPDataTypeID": 5,
+        "FieldName": "HistoryDetail",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Summary of the changes caused by a single ServiceDetail CDO.",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": false,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049825,
+        "InheritedID": 6401,
+        "InheritMask": 2,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 0,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 934,
+            "FieldDefName": "IssueActualsHistoryStock",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      }
+    ],
+    "total_field_versions": 2,
+    "offset": 0,
+    "has_more": false,
+    "workspaces": [
+      {
+        "WorkspaceCode": "csi",
+        "Sequence": 1,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "10",
+        "Sequence": 10,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "12",
+        "Sequence": 12,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "15",
+        "Sequence": 15,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "18",
+        "Sequence": 18,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "20",
+        "Sequence": 20,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "25",
+        "Sequence": 25,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "30",
+        "Sequence": 30,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "35",
+        "Sequence": 35,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "40",
+        "Sequence": 40,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "45",
+        "Sequence": 45,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "50",
+        "Sequence": 50,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "55",
+        "Sequence": 55,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "60",
+        "Sequence": 60,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "65",
+        "Sequence": 65,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "75",
+        "Sequence": 75,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "80",
+        "Sequence": 80,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "99",
+        "Sequence": 99,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "100",
+        "Sequence": 100,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "110",
+        "Sequence": 110,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "120",
+        "Sequence": 120,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "180",
+        "Sequence": 180,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "190",
+        "Sequence": 190,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "200",
+        "Sequence": 200,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "220",
+        "Sequence": 220,
+        "IsActive": false
+      }
+    ],
+    "workspace_resolution": "raw_versions_not_merged",
+    "read_only": true,
+    "warning": "仅展示该 CDO 的原始定义和字段版本；尚未合并工作区覆盖、继承掩码或父对象字段。不能作为完整有效定义或自动生成 XML 的依据。"
+  },
+  "ActualsQuantity": {
+    "cdo_name": "ActualsQuantity",
+    "definitions": [
+      {
+        "CDODefID": 6570,
+        "ParentCDOID": 6460,
+        "CDOName": "ActualsQuantity",
+        "CDODescription": "Used for recording issue quantities but no container of location information\r\n",
+        "ObjectsToCache": 0,
+        "ReadOverride": "",
+        "WriteOverride": "",
+        "SecurityTypeID": 0,
+        "DefaultTableID": 0,
+        "CDOUsageMask": 4288,
+        "MaintenanceTypeID": 0,
+        "RevisionTypeId": 0,
+        "EnforceIntegrity": false,
+        "UseInstanceSecurity": false,
+        "UIDetailsId": 0,
+        "IsAbstract": false,
+        "IsExposedToClientUI": false,
+        "DisplayNameLabelId": 8388782,
+        "IsWSExposedStd": false,
+        "Visibility": 1,
+        "InheritMask": 2624,
+        "SelValQueryDefId": 0,
+        "StorageCategoryId": 8,
+        "FeatureId": 0,
+        "WorkspaceCode": "csi"
+      }
+    ],
+    "fields": [
+      {
+        "FieldID": 7350,
+        "CDODefID": 6570,
+        "SequenceNumber": 1,
+        "FieldDefID": 932,
+        "CPPDataTypeID": 5,
+        "FieldName": "HistoryDetail",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Summary of the changes caused by a single ServiceDetail CDO.",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": false,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049825,
+        "InheritedID": 6401,
+        "InheritMask": 2,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 0,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 932,
+            "FieldDefName": "IssueActualsHistoryQuantity",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      }
+    ],
+    "total_field_versions": 1,
+    "offset": 0,
+    "has_more": false,
+    "workspaces": [
+      {
+        "WorkspaceCode": "csi",
+        "Sequence": 1,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "10",
+        "Sequence": 10,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "12",
+        "Sequence": 12,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "15",
+        "Sequence": 15,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "18",
+        "Sequence": 18,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "20",
+        "Sequence": 20,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "25",
+        "Sequence": 25,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "30",
+        "Sequence": 30,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "35",
+        "Sequence": 35,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "40",
+        "Sequence": 40,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "45",
+        "Sequence": 45,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "50",
+        "Sequence": 50,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "55",
+        "Sequence": 55,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "60",
+        "Sequence": 60,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "65",
+        "Sequence": 65,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "75",
+        "Sequence": 75,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "80",
+        "Sequence": 80,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "99",
+        "Sequence": 99,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "100",
+        "Sequence": 100,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "110",
+        "Sequence": 110,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "120",
+        "Sequence": 120,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "180",
+        "Sequence": 180,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "190",
+        "Sequence": 190,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "200",
+        "Sequence": 200,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "220",
+        "Sequence": 220,
+        "IsActive": false
+      }
+    ],
+    "workspace_resolution": "raw_versions_not_merged",
+    "read_only": true,
+    "warning": "仅展示该 CDO 的原始定义和字段版本；尚未合并工作区覆盖、继承掩码或父对象字段。不能作为完整有效定义或自动生成 XML 的依据。"
+  },
+  "ActualsDisplayOnly": {
+    "cdo_name": "ActualsDisplayOnly",
+    "definitions": [
+      {
+        "CDODefID": 6892,
+        "ParentCDOID": 6460,
+        "CDOName": "ActualsDisplayOnly",
+        "CDODescription": "Used as comments, and are not recorded to history.",
+        "ObjectsToCache": 0,
+        "ReadOverride": "",
+        "WriteOverride": "",
+        "SecurityTypeID": 0,
+        "DefaultTableID": 0,
+        "CDOUsageMask": 4288,
+        "MaintenanceTypeID": 0,
+        "RevisionTypeId": 0,
+        "EnforceIntegrity": false,
+        "UseInstanceSecurity": false,
+        "UIDetailsId": 0,
+        "IsAbstract": false,
+        "IsExposedToClientUI": false,
+        "DisplayNameLabelId": 8388783,
+        "IsWSExposedStd": false,
+        "Visibility": 1,
+        "InheritMask": 2624,
+        "SelValQueryDefId": 0,
+        "StorageCategoryId": 8,
+        "FeatureId": 0,
+        "WorkspaceCode": "csi"
+      }
+    ],
+    "fields": [],
+    "total_field_versions": 0,
+    "offset": 0,
+    "has_more": false,
+    "workspaces": [
+      {
+        "WorkspaceCode": "csi",
+        "Sequence": 1,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "10",
+        "Sequence": 10,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "12",
+        "Sequence": 12,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "15",
+        "Sequence": 15,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "18",
+        "Sequence": 18,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "20",
+        "Sequence": 20,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "25",
+        "Sequence": 25,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "30",
+        "Sequence": 30,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "35",
+        "Sequence": 35,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "40",
+        "Sequence": 40,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "45",
+        "Sequence": 45,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "50",
+        "Sequence": 50,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "55",
+        "Sequence": 55,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "60",
+        "Sequence": 60,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "65",
+        "Sequence": 65,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "75",
+        "Sequence": 75,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "80",
+        "Sequence": 80,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "99",
+        "Sequence": 99,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "100",
+        "Sequence": 100,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "110",
+        "Sequence": 110,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "120",
+        "Sequence": 120,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "180",
+        "Sequence": 180,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "190",
+        "Sequence": 190,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "200",
+        "Sequence": 200,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "220",
+        "Sequence": 220,
+        "IsActive": false
+      }
+    ],
+    "workspace_resolution": "raw_versions_not_merged",
+    "read_only": true,
+    "warning": "仅展示该 CDO 的原始定义和字段版本；尚未合并工作区覆盖、继承掩码或父对象字段。不能作为完整有效定义或自动生成 XML 的依据。"
+  },
+  "IssueDetailsBulk": {
+    "cdo_name": "IssueDetailsBulk",
+    "definitions": [
+      {
+        "CDODefID": 6950,
+        "ParentCDOID": 6450,
+        "CDOName": "IssueDetailsBulk",
+        "CDODescription": "Contains the defined BOM requirements for a particular level of the BOM for issue type bulk.",
+        "ObjectsToCache": 0,
+        "ReadOverride": "",
+        "WriteOverride": "",
+        "SecurityTypeID": 0,
+        "DefaultTableID": 0,
+        "CDOUsageMask": 4288,
+        "MaintenanceTypeID": 0,
+        "RevisionTypeId": 0,
+        "EnforceIntegrity": false,
+        "UseInstanceSecurity": false,
+        "UIDetailsId": 0,
+        "IsAbstract": false,
+        "IsExposedToClientUI": false,
+        "DisplayNameLabelId": 8389174,
+        "IsWSExposedStd": true,
+        "Visibility": 1,
+        "InheritMask": 2624,
+        "SelValQueryDefId": 0,
+        "StorageCategoryId": 8,
+        "FeatureId": 0,
+        "WorkspaceCode": "csi"
+      }
+    ],
+    "fields": [
+      {
+        "FieldID": 28339,
+        "CDODefID": 6950,
+        "SequenceNumber": 0,
+        "FieldDefID": 7,
+        "CPPDataTypeID": 7,
+        "FieldName": "AdjustActualQtyIssued",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Adjust the actual qty issued of this component if it falls within the net required qty's  adjustment range.",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "0",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 16780671,
+        "InheritedID": 0,
+        "InheritMask": 0,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Boolean",
+        "field_type_versions": [
+          {
+            "FieldDefID": 7,
+            "FieldDefName": "[Boolean]",
+            "CPPDataTypeID": 7,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 7368,
+        "CDODefID": 6950,
+        "SequenceNumber": 5,
+        "FieldDefID": 761,
+        "CPPDataTypeID": 5,
+        "FieldName": "Actuals",
+        "IsListType": true,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "Records the actual shop floor material issues. These may differ from the defined requirements ... substitute items may be used, greater or lessor quantities may be used. Actuals are correlated back to BOM requirements using the BillLineItem field.\r\n",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049642,
+        "InheritedID": 5930,
+        "InheritMask": 2,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 2,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Object",
+        "field_type_versions": [
+          {
+            "FieldDefID": 761,
+            "FieldDefName": "ActualsBulk",
+            "CPPDataTypeID": 5,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      },
+      {
+        "FieldID": 7477,
+        "CDODefID": 6950,
+        "SequenceNumber": 10,
+        "FieldDefID": 1112,
+        "CPPDataTypeID": 1,
+        "FieldName": "IssueControl",
+        "IsListType": false,
+        "IsResolveOnRequest": false,
+        "IsTypeUnique": false,
+        "IsDerivedUnique": false,
+        "WriteCurrentValue": false,
+        "FieldDescription": "1 - Container is tracked in InSite at the serial level\r\n2 - Container is tracked in InSite at the bulk level\r\n3 - Container is not tracked in InSite ... quantity and lot are recorded\r\n4 - non lot controlled ( floor stock ) stock point is recorded no lot info\r\n5 - recording quantities only\r\n6 - issue quantities are displayed but not recorded\r\n",
+        "DBTableID": 0,
+        "DBColumnID": 0,
+        "DefaultValue": "2",
+        "DefaultValueExpression": "",
+        "CurrentValueExpression": "",
+        "AllowClientToRead": true,
+        "AllowClientToUpdate": true,
+        "MinItemCount": 0,
+        "MaxItemCount": 0,
+        "LabelID": 1049463,
+        "InheritedID": 5935,
+        "InheritMask": 128,
+        "CDOFieldUsageId": 0,
+        "ListFieldParent": 0,
+        "ListFieldReferenced": 0,
+        "ListFieldSequence": 0,
+        "RetainValue": false,
+        "IsNonpersistent": false,
+        "AllowROR": false,
+        "Visibility": 1,
+        "Ownership": 0,
+        "Serialization": 3,
+        "CreateOnInitialize": false,
+        "ExposeToUI": false,
+        "Negate": false,
+        "ProcessTextVariable": false,
+        "Reverse": true,
+        "AllowSubtypes": false,
+        "SelValMode": 0,
+        "SelValQueryDefId": 0,
+        "Required": 0,
+        "WorkspaceCode": "csi",
+        "data_type_name": "Integer",
+        "field_type_versions": [
+          {
+            "FieldDefID": 1112,
+            "FieldDefName": "IssueControl",
+            "CPPDataTypeID": 1,
+            "WorkspaceCode": "csi"
+          }
+        ]
+      }
+    ],
+    "total_field_versions": 3,
+    "offset": 0,
+    "has_more": false,
+    "workspaces": [
+      {
+        "WorkspaceCode": "csi",
+        "Sequence": 1,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "10",
+        "Sequence": 10,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "12",
+        "Sequence": 12,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "15",
+        "Sequence": 15,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "18",
+        "Sequence": 18,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "20",
+        "Sequence": 20,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "25",
+        "Sequence": 25,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "30",
+        "Sequence": 30,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "35",
+        "Sequence": 35,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "40",
+        "Sequence": 40,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "45",
+        "Sequence": 45,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "50",
+        "Sequence": 50,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "55",
+        "Sequence": 55,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "60",
+        "Sequence": 60,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "65",
+        "Sequence": 65,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "75",
+        "Sequence": 75,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "80",
+        "Sequence": 80,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "99",
+        "Sequence": 99,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "100",
+        "Sequence": 100,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "110",
+        "Sequence": 110,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "120",
+        "Sequence": 120,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "180",
+        "Sequence": 180,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "190",
+        "Sequence": 190,
+        "IsActive": false
+      },
+      {
+        "WorkspaceCode": "200",
+        "Sequence": 200,
+        "IsActive": true
+      },
+      {
+        "WorkspaceCode": "220",
+        "Sequence": 220,
+        "IsActive": false
+      }
+    ],
+    "workspace_resolution": "raw_versions_not_merged",
+    "read_only": true,
+    "warning": "仅展示该 CDO 的原始定义和字段版本；尚未合并工作区覆盖、继承掩码或父对象字段。不能作为完整有效定义或自动生成 XML 的依据。"
+  }
+}

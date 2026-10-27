@@ -1,0 +1,26 @@
+2026-10-24 15:05:24,184 [INFO] POST https://172.22.154.174/Query/api/ViewContainerStatus
+2026-10-24 15:05:24,751 [INFO] HTTP Request: POST https://172.22.154.174/Query/api/ViewContainerStatus?execute=true&%24expand=ContainerStatusDetails "HTTP/1.1 200 OK"
+2026-10-24 15:05:24,753 [INFO] POST https://172.22.154.174/Query/api/ComponentIssueInquiry
+2026-10-24 15:05:25,217 [INFO] HTTP Request: POST https://172.22.154.174/Query/api/ComponentIssueInquiry?execute=true&%24select=ParentContainer%2CObjectName&%24expand=IssueDetails "HTTP/1.1 200 OK"
+2026-10-24 15:05:25,218 [INFO] POST https://172.22.154.174/Query/api/ContainerInfoInquiry
+2026-10-24 15:05:25,526 [INFO] HTTP Request: POST https://172.22.154.174/Query/api/ContainerInfoInquiry?execute=true&%24select=Container%2CContainerInfo%2CCurrentSpec%2CCurrentRouteStep "HTTP/1.1 200 OK"
+2026-10-24 15:05:25,527 [INFO] POST https://172.22.154.174/Query/api/AdHoc
+2026-10-24 15:05:25,897 [INFO] HTTP Request: POST https://172.22.154.174/Query/api/AdHoc "HTTP/1.1 200 OK"
+2026-10-24 15:05:25,962 [INFO] HTTP Request: POST https://172.22.154.174/Shopfloor/api/ComponentIssue?execute=false&%24select=Container%2CPreventOverIssue&%24expand=ServiceDetails%28%24select%3DBOMLineItem%2CProduct%2CIssueControl%2CUOM%2CQtyRequired%2CActualQtyIssued%2CActualQty2Issued%3B%24expand%3DActuals%29 "HTTP/1.1 200 OK"
+2026-10-24 15:05:25,964 [INFO] POST https://172.22.154.174/Query/api/ViewContainerStatus
+2026-10-24 15:05:26,039 [INFO] HTTP Request: POST https://172.22.154.174/Query/api/ViewContainerStatus?execute=true&%24expand=ContainerStatusDetails "HTTP/1.1 200 OK"
+2026-10-24 15:05:26,040 [INFO] POST https://172.22.154.174/Query/api/ComponentIssueInquiry
+2026-10-24 15:05:26,139 [INFO] HTTP Request: POST https://172.22.154.174/Query/api/ComponentIssueInquiry?execute=true&%24select=ParentContainer%2CObjectName&%24expand=IssueDetails "HTTP/1.1 200 OK"
+2026-10-24 15:05:26,459 [INFO] HTTP Request: POST https://172.22.154.174/Shopfloor/api/ComponentIssue?execute=true&%24select=Container%2CCompletionMsg "HTTP/1.1 200 OK"
+2026-10-24 15:05:26,463 [INFO] POST https://172.22.154.174/Query/api/ComponentIssueInquiry
+2026-10-24 15:05:26,773 [INFO] HTTP Request: POST https://172.22.154.174/Query/api/ComponentIssueInquiry?execute=true&%24select=ParentContainer%2CObjectName&%24expand=IssueDetails "HTTP/1.1 200 OK"
+2026-10-24 15:05:26,774 [INFO] POST https://172.22.154.174/Query/api/ContainerInfoInquiry
+2026-10-24 15:05:26,802 [INFO] HTTP Request: POST https://172.22.154.174/Query/api/ContainerInfoInquiry?execute=true&%24select=Container%2CContainerInfo%2CCurrentSpec%2CCurrentRouteStep "HTTP/1.1 200 OK"
+2026-10-24 15:05:26,803 [INFO] POST https://172.22.154.174/Query/api/AdHoc
+2026-10-24 15:05:26,835 [INFO] HTTP Request: POST https://172.22.154.174/Query/api/AdHoc "HTTP/1.1 200 OK"
+2026-10-24 15:05:26,836 [INFO] POST https://172.22.154.174/Query/api/ViewContainerStatus
+2026-10-24 15:05:26,900 [INFO] HTTP Request: POST https://172.22.154.174/Query/api/ViewContainerStatus?execute=true&%24expand=ContainerStatusDetails "HTTP/1.1 200 OK"
+2026-10-24 15:05:26,902 [INFO] POST https://172.22.154.174/Query/api/AdHoc
+2026-10-24 15:05:26,930 [INFO] HTTP Request: POST https://172.22.154.174/Query/api/AdHoc "HTTP/1.1 200 OK"
+2026-10-24 15:05:26,935 [INFO] Shared HTTP client connection pool closed.
+{"state": "evidence_collected_requires_review", "serialization_verified": true, "http_status": 200, "service_accepted": true, "error": null}

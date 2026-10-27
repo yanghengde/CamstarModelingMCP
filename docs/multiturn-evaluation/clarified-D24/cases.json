@@ -1,0 +1,25 @@
+[
+  {
+    "id": "D24",
+    "title": "缺少定义版本须补充不得猜测",
+    "fixture": {},
+    "turns": [
+      {
+        "text": "帮我新建一个名叫新检验采集的用户采集定义，温度是decimal小数并且必填",
+        "expect": {
+          "no_config_plan": true
+        }
+      },
+      {
+        "text": "版本是3，先生成计划，不执行",
+        "expect": {
+          "stage": "config_preview",
+          "config_revision": "3",
+          "forbid_proposals": [
+            "execute_data_collection_change"
+          ]
+        }
+      }
+    ]
+  }
+]

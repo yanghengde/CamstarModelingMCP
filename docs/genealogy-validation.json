@@ -1,0 +1,36 @@
+{
+  "sample": "BOX-0001",
+  "read_only": true,
+  "runs": [
+    {
+      "seconds": 0.803,
+      "node_count": 1,
+      "edge_count": 0,
+      "traversal_complete": true,
+      "complete": false,
+      "boundaries": [],
+      "failures": [],
+      "error": null
+    },
+    {
+      "seconds": 0.324,
+      "node_count": 1,
+      "edge_count": 0,
+      "traversal_complete": true,
+      "complete": false,
+      "boundaries": [],
+      "failures": [],
+      "error": null
+    },
+    {
+      "seconds": 0.248,
+      "node_count": 1,
+      "edge_count": 0,
+      "traversal_complete": true,
+      "complete": false,
+      "boundaries": [],
+      "failures": [],
+      "error": null
+    }
+  ]
+}

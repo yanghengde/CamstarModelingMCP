@@ -1,0 +1,175 @@
+# T07 拆合批与父子关联开发记录
+
+## 当前交付（2026-10-23）
+
+四个独立的只读意图预览已注册到 container 能力组和能力列表，聊天路由支持拆批、合批、装箱、拆箱关键词。
+
+| 工具 | 范围 |
+|---|---|
+| preview_container_split | 明确来源、新容器名及数量；展示 reduceQty/closeWhenEmpty 效果，不生成系统历史字段 |
+| preview_container_combine | 单来源到现有目标的明确数量；比较产品、层级、单位、工序，显示条件余额 |
+| preview_container_associate | 明确1..10个子容器，显示当前和预期父关系；已有父关系/直接关系环提示阻塞 |
+| preview_container_disassociate | 明确1..10个直属子容器；disassociateAll固定false，不隐式拆全部 |
+
+使用现有 ViewContainerStatus 和 current_family 追溯查询核对身份与当前状态。输出保留原始状态、未知字段和阻塞项，所有工具 complete=false、executable=false，没有 Shopfloor 写入。数量仅为条件计算，不是服务认可的变化；第二数量、单位、深层关系环、容量/层级及事务兼容规则尚待核对。
+
+## 契约发现
+
+[实时元数据](container-transfer-metadata.json) 与归档四份 Swagger 分别确认服务和字段。Split.toContainerDetails 的说明明确为系统生成历史，用户不应设置；Split 顶层也没有普通 Qty 输入。因此当前未将 qty 拼到该字段，也没有用 sampleQty 替代。实际数量拆批应继续核对服务事件/受支持客户端请求方式。
+
+Combine.fromContainerDetails 是必填列表，包含 fromContainer、qty/qty2、combineAllQty、closeWhenEmpty；顶层 closeWhenEmpty 与明细项可能交互，写入前必须验证。Associate/Disassociate 使用 childContainers；父子关联不能等同数量合并/拆分。
+
+## 验证
+
+27项相关测试通过（预览、能力发现与Agent安全）；覆盖非法数量、未知单位、重复/自关联、已有父关系、非完整关系、中文路由等。现场只读验证 SN0000001：Qty=1，示例拆出0.25时条件余额0.75；T07-PREVIEW-ONLY仅为意图名称，没有创建容器。见 [证据](container-transfer-preview-validation.json)。
+
+## 后续开发
+
+1. 验证数量拆批的实际输入路径及新名称存在性；不能仅凭系统历史结构构造请求。
+2. 增加完整单位/第二数量、层级/产品/工序/状态兼容性和深层祖先环校验。查询受限必须保留未知。
+3. 对已确认契约的操作增加服务不执行预览、不可变单次计划、确认展示及提交前重读。
+4. 执行与按事务核实必须区分当前状态和历史证据，覆盖部分失败、超时和重试；不提供自动回滚。
+5. 所有真实事务测试按用户要求统一延期，见集中验收清单。T07当前仅完成预览层，不标为执行能力或阶段完成。
+
+
+## 第二步：可选服务回显预览（2026-10-23）
+
+Combine / Associate / Disassociate 三个现有预览工具新增 verify_service（默认 false）。开启后只调用固定服务路径，强制 execute=false，不调用 PerformEvent，不执行事务，不重试；只发送契约定义的用户输入字段。Split 未开放此参数，继续禁止猜测数量输入。
+
+合批核对目标/来源名称和ID、唯一明细、数量、combineAllQty=false及顶层/明细closeWhenEmpty；父子操作核对全部子容器名称和ID且无重复，拆箱额外要求回显disassociateAll=false。服务错误、漏项、错误身份、数量/标志差异或分页不完整均返回server_echo_verified=false。回显成功只改变stage=server_preview，complete/executable仍为false，保留业务规则阻塞项，不生成执行计划。
+
+37项相关模拟测试通过，覆盖三个固定路径、execute=false、默认不请求服务、错误/重复/不完整回显。本轮未对现场发起预览或写入；三类非空现场回显尚待集中验收。后续仍需深层关系与兼容规则验证后再生成可执行计划。
+
+
+## 第三步：当前祖先链校验（2026-10-23）
+
+装箱与拆箱预览新增当前父链检查，仅查询 Container.ParentContainerId，不混用历史父关系或拆合批记录。每次查询按已验证16位ID限定最多2行，必须唯一返回且包含父字段；null/空字符串表示已读取的根，字段缺失仍为未知。最多20节点、30秒，循环/截断/查询失败保留不完整状态。
+
+选中子容器位于目标父容器祖先链时报告冲突；初次状态读取和父链读取的直接父ID不同时提示状态变化。relationship_checks_complete仅表示当前读取范围完整，不是事务许可；所有预览仍executable=false，层级规则、容量、数量单位及实际执行待补。逐次读取不是一致性快照，执行前仍需重新校验。
+
+47项相关测试通过，包括三层父链、循环、深层祖先冲突、缺项/错ID/重复记录、节点上限、非法ID和读取间关系变化。现场只读证据见 container-ancestor-validation.json；无业务写入。下一步继续层级/容量及服务兼容规则，不能仅靠无环结果生成执行计划。
+
+
+## 第四步：双向静态层级规则（2026-10-23）
+
+实时归档 Modeling-ContainerLevels.json，ChildLevels 为允许子层级，ParentLevels 为允许父层级。装箱/拆箱预览按明确层级引用读取配置，双向对照允许列表，缓存相同层级读取；展开身份或分页不完整则报告未知。空列表不推断无限制，同名但ID冲突不视为匹配。装箱不在双方允许列表内显示阻塞；拆箱保留配置事实，不据此禁止解除已有关系。
+
+容量契约尚未确认，capacity_verified=false，所有预览仍不可执行。49项相关测试通过，新增列表缺失/空、名称ID冲突、双向匹配、读取缓存及错误展开测试。无业务写入。现场非空层级配置与容量/第二数量规则继续按集中验收计划补齐。
+
+
+## 第五步：明确拆箱单次执行（2026-10-23）
+
+新增 prepare_container_disassociation / get_container_transfer_plan / execute_container_disassociation，已注册能力列表。计划包含明确子容器列表（disassociateAll=false）、所有涉及容器状态及当前关系、祖先链、环境摘要；有效1小时。只对直属关系和Active状态完整、execute=false回显通过的请求生成计划。拆箱不套用装箱容量许可，但保留服务端全部业务校验。
+
+写入口在应用内always_confirm，确认展示实际body。提交前重新预览并对照摘要；SQLite原子领取后才POST，不重试。相同环境内任何涉及容器与unknown/in_flight计划重叠，禁止新计划绕过锁。响应丢失、服务错误、回读失败均保留unknown；当前关系证据不被当作已核实事务成功。真实写入按用户要求未进行。
+
+仍不能将T07声明完成：Split缺少已确认数量输入路径，Combine第二数量及完整兼容规则未确认，Associate容量等规则未确认；三类执行没有开放。拆箱的请求到历史事务关联及未知锁解除仍待现场契约。所需外部证据是脱敏成功请求/接口说明（非新增生产测试）：数量拆批、带Qty2合批、装箱容量配置；有了这些才能完成相应实现。不能以猜测字段替代。
+
+
+## 第六步：第二数量与拆箱请求完整性（2026-10-23）
+
+preview_container_combine新增可选qty2，单独校验有限非负数；明确0与省略不同。展示来源/目标Qty2及条件变化，不按Qty比例换算，未知余额或余额不足保留阻塞。execute=false预览仅在明确指定时发送qty2，并要求回显值精确数值一致。此为数据字段和预览支持，不证明现场第二计量单位及合批业务规则已验收，实际合批仍未开放。
+
+拆箱计划进一步要求body与审阅对象逐字段一致，只能包含明确父/子引用及disassociateAll=false；拒绝多余字段、错误子项、全部拆箱标志和布尔伪装的Active状态。执行前同时核对数据库存储快照摘要，避免仅比较新预览而遗漏存储请求变化。
+
+本次无现场写入。数量拆批入口、装箱容量规则、合批完整执行和事务结果关联仍是剩余工作，T07不勾选完成。
+
+本轮验证：81项相关测试通过，git diff --check通过；pytest退出时提示临时目录清理权限不足，不影响测试结果。
+
+
+## 第七步：窄范围数量合批单次计划（2026-10-23）
+
+新增 prepare_container_combination 和 execute_container_combination，已接入能力列表和always_confirm确认流程。只允许一个来源到一个现有目标：Active、无父容器且无子容器；产品版本、层级、UOM/UOM2、Spec版本必须具备明确引用且双方一致；必须明确Qty和Qty2且余额充足，不换算单位，不启用combineAllQty。
+
+服务execute=false回显通过后生成1小时不可变计划。执行前重新读取状态和服务回显，比对摘要；原子领取后仅POST一次。合批与拆箱使用同一数据库和涉及容器锁，unknown/in_flight禁止跨计划再次使用。错误工具执行另一类计划也被拒绝。确认展示真实字段，包括数量、第二数量和关闭选项。
+
+执行后读取两侧combines历史作为证据，尚无验证后的请求到事务关联，仍返回unknown，不把HTTP200或历史列表当作verified_success。无自动重试/回滚/解锁。本轮仅模拟测试，未执行现场业务写入；此范围属于保守实现，不等同覆盖全部现场合批规则。
+
+剩余主要缺口：数量Split输入路径、Associate容量规则及执行、请求历史准确关联与未知状态恢复、集中现场验收。T07仍不能勾选全部完成。
+
+本轮验证：93项相关测试通过，git diff --check通过；pytest退出时仍有临时目录清理权限提示，不影响通过结果。
+
+
+## 第八步：受限装箱执行（2026-10-23）
+
+新增 prepare_container_association / execute_container_association，接入能力目录、确认摘要和统一涉及容器锁。仅明确叶子子容器、无已有父级、Active、当前祖先链完整且无冲突、双方层级允许列表明确匹配；父容器已有子项可保留，但父容器自身不得已有父级。执行前重读全部条件，变化则拒绝。
+
+容量处理明确调整：发现ProductStockLevelChanges.maxQty/maxQty2是库存水平，不能解释为装箱容量。没有验证客户端容量契约，因此capacity_verified=false，确认摘要明确提示服务可能拒绝。请求只含container和childContainers，不添加任何跳过服务校验的选项；最终容量及业务规则交给Associate事务处理。这不是宣称容量无限或预验证通过。
+
+单次1小时计划、原子领取、跨装箱/拆箱/合批的容器锁、错误入口拒绝、提交不重试，复用统一流程。提交后的当前关系仅为证据，不证明本次请求成功，unknown锁不自动解除。现场业务写入未进行，实际服务拒绝/部分失败与历史关联留到集中验收。
+
+剩余：Split数量输入及执行尚未确认；请求到历史事务的准确关联和未知状态恢复仍未实现。T07尚未端到端完成。
+
+本轮验证：103项相关测试通过，git diff --check通过；pytest退出时有临时目录清理权限提示，不影响通过结果。
+
+
+## 第九步：计划与当前状态重核（2026-10-24）
+
+新增reconcile_container_transfer_plan，注册为只读能力。校验计划摘要/环境及unknown或in_flight状态，60秒内重读原容器身份；装箱/拆箱比较当前父关系，合批逐一比较Qty/Qty2与原计划条件变化。单位变化、数量缺失、身份变化、查询失败保留未知，分项读取失败不掩盖其他结果。
+
+返回current_state_matches/current_state_differs/incomplete及逐项对照。任何结果都不证明本次事务因果，不解除锁、不更改计划、不重试。拆批契约查询本轮未取得可用结果，仍未生成猜测的数量拆批请求。本次没有现场业务写入。
+
+剩余限制没有变化：数量Split执行尚未实现；精确事务关联和可审计解除未知状态仍待确认契约，不能以本入口代替恢复闭环。
+
+本轮113项相关测试通过，git diff --check通过；pytest仍提示临时目录清理权限不足，不影响测试通过。
+
+
+## 第十步：Split契约矛盾与可重复诊断（2026-10-24）
+
+进一步检索本地Designer User Guide（tmp/pdfs/designer.txt，正文4-64）发现：服务明细说明将ToContainerDetails作为Split的等效明细字段。它与Swagger的“系统生成、用户不应设置”注释存在矛盾，不能继续把先前注释单独当作最终结论，也不能直接认定该字段可用于执行。
+
+已按REST手册的execute=false模式发送一次非执行序列化检查，现场连接返回ConnectTimeout，没有收到服务响应。证据：split-nonexecuting-contract-check.json。未请求Execute节点；不能声称序列化通过或事务验证完成。
+
+新增scripts/verify_split_contract.py诊断脚本，必须明确source/source-id/target/qty/qty2/output；路径固定Split、execute固定false、无事件调用、无自动重试。校验容器身份、唯一明细、新名称、Qty/Qty2以及自动编号/扣减/关闭标志回显，输出独立serialization_verified和恒为false的transaction_verified。未加入Agent可执行工具，不能通过参数切换执行。
+
+后续现场服务恢复时运行该诊断取得真实回显，并用Designer事件参数或已有成功客户端请求确认执行语义；即便HTTP200回显正确也不宣称实际拆批成功。当前阻塞是服务不可连与相互矛盾的契约证据，不是缺少一段可直接编写的POST封装。
+
+
+## 第十一步：人工核实未知结果（2026-10-24）
+
+重试固定execute=false的Split诊断仍为ConnectError，未取得服务回显，未执行业务写入。
+
+新增resolve_container_transfer_outcome本地管理工具，always_confirm=true。仅处理unknown计划，明确committed或not_committed、证据引用、人工核实说明；确认摘要展示原请求和解除占用的后果。人工必须核对服务端事务/审计证据，不应凭当前状态或空历史推断。工具记录的是human_attestation，automatically_verified=false、verified_success=false，不伪装自动核实。
+
+使用同一SQLite事务保存唯一审计记录和终态，保留原始结果。拒绝ready/in_flight、摘要/环境不符和重复核实。终态为manually_confirmed_committed或manually_confirmed_not_committed，释放该计划涉及容器的未知锁，但原计划不可重用；后续操作仍需新的预览、状态复核及确认。无MES请求、无自动重试、无回滚。
+
+崩溃遗留in_flight不开放此入口，防止并发执行与人工核实竞态；需先确认原请求已终止并进行运维处理。自动事务关联仍未验证。此工具通过应用确认保护，直接MCP调用方必须自行执行同等人工审批。
+
+本轮66项相关测试通过，git diff --check通过；pytest退出临时目录清理权限提示仍在，不影响测试通过。
+
+
+## 第十二步：连接恢复与受限数量拆批（2026-10-24）
+
+更新连接后固定execute=false检查HTTP200，ToContainerDetails中目标名称、Qty/Qty2及自动编号/扣减/关闭标志完整回显。见split-nonexecuting-contract-check.json。这确认服务接受序列化结构，结合Designer将其作为服务明细的说明，现提供受限实现；仍未验证Execute语义或真实事务成功，原Swagger注释矛盾保留在集中验收项中。
+
+新增prepare_container_split和execute_container_split，接入能力目录及always_confirm。仅单个明确新名称，Qty正数、Qty2非负、明确单位/产品及Spec版本，来源Active且无父子关系，主/第二余额充足。固定reduceQty=true、autoNumber=false，closeWhenEmpty显式展示。名称通过固定只读查询检查当前未占用；并发外部创建仍必须由服务端处理。
+
+计划有效1小时，执行前重查来源、双数量、名称占用和execute=false回显；快照变化拒绝。原子领取、防重复提交沿用统一流程，新增新名称预留冲突（包括未知计划中新名与其他操作现有对象名交叉冲突，大小写保守比较）。提交一次不重试，读取来源splits历史为证据，结果仍unknown，需要人工核实或后续经过验证的自动关联。
+
+真实写入按约定未执行。四类操作现均已有受限计划/执行入口，T07不能标为全部验收完成：自动事务历史关联、in_flight运维恢复及非空现场成功/失败/部分失败案例仍待集中验证。Split当前状态核对工具尚未覆盖新容器自动定位，应以历史与人工证据核实。
+
+本轮67项相关测试通过；加强名称交叉锁后再跑46项四类计划测试通过。git diff --check通过。pytest仍有临时目录清理权限提示。
+
+
+## 第十三步：拆批来源与新容器状态核对（2026-10-24）
+
+reconcile_container_transfer_plan现支持受限Split计划：仅单个明确新名称、autoNumber=false、reduceQty=true且无子明细。重读来源并核对原ID，按计划新名称读取当前目标；目标不得解析为来源或其他名称，返回当前发现的ID及identity_basis=current_name_lookup_only。该ID没有经过本次请求到历史事务的关联，不能证明目标由本次拆批创建。
+
+来源Qty/Qty2按原余额减计划数量核对，新容器按计划数量核对；两侧分别与来源计划中的UOM/UOM2比较。数量缺失、非法值、单位变化、目标未找到或身份不符均保留incomplete；一侧读取失败继续保留另一侧结果。合批复用双数量比较，非法计划数量不会产生匹配结论。
+
+只读结果仍不修改计划或审计表、不解除unknown/in_flight锁、不允许重试，verified_success始终false。未调用现场服务或执行业务写入。新增19项测试覆盖拆批双数量、单位、身份、分项失败、范围限制及锁保留；四类计划、状态核对、人工核实、预览和Agent安全共132项测试通过，git diff --check通过。pytest退出时仍有既有临时目录清理权限提示，退出码为0。
+
+剩余：自动事务历史关联、in_flight运维恢复和集中现场成功/失败/部分失败验收。拆批当前状态读取缺口已补齐，不能因此将T07标为全部验收完成。
+
+
+## 第十四步：中断尝试记录与受限in_flight恢复（2026-10-24）
+
+四类执行增加本机非阻塞进程互斥，覆盖重读、原子领取、提交、证据回读和结果保存。领取时同一SQLite事务写入transfer_attempts；结束时保存本地结束时间。取消任务会先保存unknown和已取得证据，再传播CancelledError。崩溃或最终保存失败仍保留in_flight占用。
+
+新增recover_container_transfer_attempt，注册container组并always_confirm，确认展示原请求与证据引用。仅在取得同计划进程锁、摘要/环境一致且有新版尝试记录时，将in_flight改为unknown；恢复记录与状态原子写入，保留之前结果。活跃执行拒绝恢复，旧版无互斥记录的遗留计划拒绝在线处理。此入口不调用MES、不重发、不解除容器/新名称占用、不宣称事务结束；人工核实最终结果仍需独立服务端证据和确认。
+
+适用范围仅同一本机磁盘数据库。必须停止旧版执行进程，不能删除锁文件或混用数据库副本。操作步骤及边界见[恢复说明](container-transfer-recovery.md)。本轮未执行现场业务写入。
+
+新增20项测试，包括独立子进程锁冲突/异常退出、取消持久化、活跃请求恢复拒绝、最终保存失败、恢复事务回滚、恢复后重叠计划仍被阻塞与单独人工核实。四类计划、核对、人工核实、预览及Agent安全共152项测试通过；pytest退出时仍有既有临时目录清理权限提示，退出码为0。
+
+剩余：精确请求到历史事务的自动关联、旧版in_flight离线运维，以及集中现场成功/失败/部分失败和进程故障验收。T07不标为全部验收完成。

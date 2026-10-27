@@ -1,0 +1,68 @@
+{
+  "mes_write_performed": false,
+  "result": {
+    "plan_id": "0661a11d0af44b0986eb798d1f9eca70",
+    "plan_digest": "6ba49602e7c256c96aa3d7e180166aaa781d2947f62658bf630d6983da9473ff",
+    "state": "ready",
+    "submitted": false,
+    "confirmation_required": true,
+    "expires_in_seconds": 3600,
+    "request_preview": {
+      "method": "POST",
+      "path": "/api/CreateCAPA",
+      "body": {
+        "organization": {
+          "name": "Corporate",
+          "instanceId": "001d778000000001"
+        },
+        "submit": false,
+        "comments": "MCP-QUAL:0ff58fe5788e458b8b67da250d23c925",
+        "capaName": "CDX-QUAL-DRY-20261025-A",
+        "category": 5,
+        "serviceDetail": {
+          "briefDescription": "MCP read-only CAPA serialization preview",
+          "isSystemicIssue": false
+        }
+      }
+    },
+    "before": null,
+    "server_context": {
+      "params": {
+        "execute": "false",
+        "$select": "Organization,Submit,Comments,CAPAName,Category,ServiceDetail",
+        "$expand": "ServiceDetail"
+      },
+      "verified_input_echo": {
+        "organization": {
+          "name": "Corporate",
+          "instanceId": "001d778000000001"
+        },
+        "submit": false,
+        "comments": "MCP-QUAL:0ff58fe5788e458b8b67da250d23c925",
+        "capaName": "CDX-QUAL-DRY-20261025-A",
+        "category": 5,
+        "serviceDetail": {
+          "briefDescription": "MCP read-only CAPA serialization preview",
+          "isSystemicIssue": false
+        }
+      },
+      "detail_type": "7734",
+      "server_actor_defaults": {
+        "Reporter": {
+          "Name": "CamstarAdmin",
+          "InstanceId": "0004748000000004"
+        },
+        "Initiator": {
+          "Name": "CamstarAdmin",
+          "InstanceId": "0004748000000004"
+        }
+      },
+      "dynamic_validation_verified": false
+    },
+    "static_and_echo_verified": true,
+    "dynamic_validation_verified": false,
+    "note": "非执行回显不是业务批准、签名或质量判定。执行后先unknown；当前需最终证据人工核实。",
+    "repreview_digest_identical": true,
+    "dry_plan_cancelled_locally": true
+  }
+}

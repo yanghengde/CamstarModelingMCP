@@ -1,0 +1,68 @@
+{
+  "checked_date": "2026-10-26",
+  "quality_tool_count": 41,
+  "new_tools": [
+    "prepare_sampling_lot_update",
+    "get_sampling_lot_maintenance_history"
+  ],
+  "extended_tools": [
+    "inspect_quality_transaction",
+    "find_quality_execution_candidates",
+    "reconcile_quality_execution"
+  ],
+  "regression": {
+    "passed": 1724,
+    "subtests_passed": 2,
+    "junit_testcases": 1724,
+    "quality_tests": 518,
+    "new_lot_maintenance_tests": 83,
+    "httpx_real_network_attempts": 0,
+    "simulated_mcp_prepare_execute_unknown_inspect_candidate_reconcile_lifecycle": true
+  },
+  "implemented": [
+    "UpdateSamplingLot quantity and sample rate update plans",
+    "zero current sampling/reject counters plus absence of Active sampling history",
+    "full bounded member and task snapshots before and after preview",
+    "unchanged fields and AllowAdjustToLotSize explicitly preserved",
+    "quantity bounded by full member total with exact Decimal summation",
+    "complete input echo, original task counters and empty external sample data",
+    "same-lot and affected-member conflict claims plus sampling configuration gate",
+    "history target SamplingLotId and persisted summary Comments correlation",
+    "read-only stored quantity and rate reconciliation with reversal status"
+  ],
+  "live_read_validation": {
+    "nonexecuting_empty_probe_status": 200,
+    "positive_target_echo_verified": false,
+    "valid_sql_queries": 4,
+    "nonempty_target_found": false
+  },
+  "mes_business_writes": false,
+  "service_restarted": false,
+  "real_maintenance_submission_verified": false,
+  "projected_task_requirements_verified": false,
+  "actual_member_sampling_effects_verified": false,
+  "completion_causal_chain_verified": false,
+  "limits": {
+    "max_members": 50,
+    "max_tasks": 50,
+    "max_quantity": "1e12",
+    "max_comment_utf16_units": 180,
+    "server_conditional_write_verified": false
+  },
+  "not_supported": [
+    "post-start active sampling maintenance",
+    "membership changes or container creation",
+    "rework/scrap dispositions",
+    "full inspection transitions",
+    "external LIMS sample updates",
+    "prediction or automatic acceptance of recalculated sampling requirements",
+    "automatic success/unlock/replay on matching history"
+  ],
+  "evidence": {
+    "contracts": "lot-maintenance-contracts.json",
+    "live_reads": "lot-maintenance-read-validation.json",
+    "junit": "lot-maintenance-junit.xml",
+    "output": "lot-maintenance-test-output.txt",
+    "network": "lot-maintenance-network.json"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "units": {
+    "@odata.context": "https://172.22.154.174/Modeling/api/$metadata#UOMs(Name,InstanceID)",
+    "value": [
+      {
+        "Name": "EACH",
+        "InstanceID": "0008de8000000002"
+      },
+      {
+        "Name": "UNIT",
+        "InstanceID": "0008de8000000003"
+      }
+    ]
+  },
+  "level": {
+    "Name": "BOX",
+    "InstanceID": "0005288000000003",
+    "NumberingRule": null,
+    "AllowStart": null
+  }
+}
