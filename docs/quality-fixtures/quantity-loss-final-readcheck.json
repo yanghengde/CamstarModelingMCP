@@ -1,0 +1,12 @@
+{
+  "sampling_lot_count_rows": [
+    {
+      "SamplingLotCount": "0"
+    }
+  ],
+  "real_quality_journal_readonly_states": {
+    "cancelled": 2
+  },
+  "business_writes_performed": false,
+  "journal_cleared": false
+}

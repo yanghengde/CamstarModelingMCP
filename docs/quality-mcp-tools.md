@@ -1,10 +1,12 @@
 # Camstar质量API与MCP工具
 
-先前47工具收尾快照见[阶段交付说明](quality-delivery.md)。后续高级功能已开始开发，当前48个工具；第一阶段为[受限批返工](quality-lot-rework.md)，完整顺序与交付边界见[高级功能计划](quality-advanced-roadmap.md)。不是全部质量功能或MES验收完成。
+先前47工具收尾快照见[阶段交付说明](quality-delivery.md)。后续高级功能已开始开发，当前50个工具；第二阶段新增[数量损失准备与批报废前置检查](quality-quantity-loss.md)，第一阶段为[受限批返工](quality-lot-rework.md)，完整顺序与交付边界见[高级功能计划](quality-advanced-roadmap.md)。不是全部质量功能或MES验收完成。
 
-2026-10-28更新：quality分组共48个工具，新增prepare_sampling_lot_rework批返工准备入口。既有范围包括关联Event已Closed、原NCR仍Open时的质量侧关闭收尾计划。新增既有NCR升级质量事件的组织选项查询和提交计划。新增产品当前采样状态查询及明确选择的计数器/手动检验水平调整计划。已支持检验计划只读配置检查。已支持零采样计数且无有效采样历史批的数量/频率维护、维护历史及原请求核对。既有范围包括AQL/检验水平维护与查表、单容器检验、定义维护、产品关联、建批、批采样、MES已通过批的OK执行及逐点追溯。工具注册、契约验证和模拟测试不代表现场质量事务验收完成。参数见[批维护](quality-lot-maintenance.md)、[AQL与检验水平](quality-sampling-references.md)、[单容器检验](quality-inspection.md)、[定义和建批](quality-definitions-lots.md)、[批采样与整批OK执行](quality-lot-execution.md)、[历史追溯与请求核对](quality-history.md)。
+2026-10-28更新：quality分组共50个工具，新增prepare_sampling_lot_rework批返工准备入口。既有范围包括关联Event已Closed、原NCR仍Open时的质量侧关闭收尾计划。新增既有NCR升级质量事件的组织选项查询和提交计划。新增产品当前采样状态查询及明确选择的计数器/手动检验水平调整计划。已支持检验计划只读配置检查。已支持零采样计数且无有效采样历史批的数量/频率维护、维护历史及原请求核对。既有范围包括AQL/检验水平维护与查表、单容器检验、定义维护、产品关联、建批、批采样、MES已通过批的OK执行及逐点追溯。工具注册、契约验证和模拟测试不代表现场质量事务验收完成。参数见[批维护](quality-lot-maintenance.md)、[AQL与检验水平](quality-sampling-references.md)、[单容器检验](quality-inspection.md)、[定义和建批](quality-definitions-lots.md)、[批采样与整批OK执行](quality-lot-execution.md)、[历史追溯与请求核对](quality-history.md)。
 
 ## 实际发现的接口与本轮范围
+
+高级功能第二阶段：新增96项测试，全量2279项、2项子测试通过，质量相关1073项，父pytest离线HTTPX真实网络尝试0。新增原生LossDetails数量损失准备及只读抽样批报废阻塞检查，旧直接损失入口改为拒绝，避免普通明细类型的错误方向。真实目标非执行回显已验证，但主单位/冻结数/Operation原因组不满足完整准备，真实扣量、关闭和历史未验收；多成员抽样批结果3仍未开放。见[功能说明](quality-quantity-loss.md)及[阶段摘要](quality-fixtures/quantity-loss-summary.json)。
 
 高级功能第一阶段：新增96项测试，全量2183项、2项子测试通过，质量相关977项，父pytest离线HTTPX真实网络尝试0。新增受限批返工准备，固定单次原生整批请求；标准csi映射及单路径规则、现场分层读取已核对，真实批、数量/历史及部署覆盖仍待验收。见[功能说明](quality-lot-rework.md)及[阶段摘要](quality-fixtures/lot-rework-summary.json)。
 
@@ -34,14 +36,16 @@
 | 检验/抽样 | SamplingPlans、SampleTests、SampleDataPoints、InspectionLevels；CollectSamplingData、CollectLotSamplingData、CreateSamplingLot、ExecuteSamplingLot、UpdateSamplingLot | 定义维护、产品关联、单容器及批计数/测量计划、建批、批历史及MES已完成通过批的OK执行计划；新增单路径受限整批返工计划；整批报废、自动扣量/全检转换仍未开放 |
 | SPC | SPCControls、SPCChartDefs、RecordSPCViolation、InlineSPCTxn等 | 控制/控制图定义查询；不计算判异、不记录违例或自动放行 |
 | 不良/返工/冻结 | ContainerDefect、Rework、Hold、Release | 保留已有工具名，归入quality并确认后执行；不是新版NCR/CAPA journal流程 |
-| 报废 | PartScrap、ScrapReasons | PartScrap要求resource和scrapQty，不能据此推出Container报废；未新增scrap_container |
+| 报废 | PartScrap、ScrapReasons | 已新增基础Container的受限LossDetails数量损失准备与只读抽样批报废阻塞检查；PartScrap不能代替Container报废，未开放多成员抽样批报废 |
 
 首轮读取了52份相关Swagger，以及Shopfloor/Query EDM和SQL列元数据；2026-10-26又核对定义CRUD、建批契约及MfgLot存储。发现记录：[首轮目录](quality-fixtures/inventory.json)、[首轮契约](quality-fixtures/contracts.json)、[EDM](quality-fixtures/metadata.json)、[表字段](quality-fixtures/table-columns.json)、[本轮契约](quality-fixtures/definition-lot-contracts.json)。Swagger存在只说明接口被发布，不能证明当前账号有执行许可、模块流程配置完整或已验收。
 
-## 48个工具
+## 50个工具
 
 | 工具 | 用途 |
 |---|---|
+| prepare_container_quantity_loss | 明确本次数量或全量模式、归零关闭和生产数量选项；单个基础Container的LossDetails数量损失计划，确认单次执行，未知结果不重复扣量 |
+| get_sampling_lot_scrap_readiness | 抽样批完整成员/任务与报废契约阻塞检查，只读且执行就绪固定false；不开放结果3或成员循环扣量 |
 | prepare_quality_ncr_closure | 原关联Event已Closed且原NCR仍Open时的NCRCloseQuality收尾计划，明确NCR解决代码，不替代事件关闭/审批或普通NCRClose |
 | get_ncr_escalation_options | 指定组织完整分类/子分类组合及签名设置，不自动选首行，不证明目标许可 |
 | prepare_ncr_escalation | Open且未关联升级事件的原NCR升级计划；唯一组织组合、明确优先级、原容器及回显核对，统一确认单次执行 |
@@ -181,5 +185,5 @@ HTTP响应成功或“Update completed successfully”不代表本次质量事�
 - NCR创建/更新/关闭和CAPA真实提交、非空详情/历史、账号权限、流程审批、电子签名及客户端多轮联合验收仍待完成；本轮没有创建、更新或关闭真实质量记录。
 - 第二轮现场只读证据：[关闭动作及新增契约/列定义](quality-fixtures/phase2-contracts.json)、[关联查询与21个工具注册](quality-fixtures/phase2-read-validation.json)。关联查询使用不存在的固定ID，只验证SQL结构，不证明非空业务正确。没有创建、更新或关闭真实质量对象。
 - 第三轮新增单容器计数/测量检验工具，详见[检验说明](quality-inspection.md)。现场测试定义及任务样本为空，完整目标预览和真实提交仍待验收；不能将模拟测试或无目标预览报错称为验收完成。
-- CAPA仅开放Close处置的关闭准备；整批提供MES已通过后的OK计划和独立受限批返工计划。通用质量对象开启/关闭、挂接/创建CAPA、流程分派、批报废、自动扣量/事件、SPC计算/判异和通用质量放行仍未开放。
+- CAPA仅开放Close处置的关闭准备；整批提供MES已通过后的OK计划和独立受限批返工计划。通用质量对象开启/关闭、挂接/创建CAPA、流程分派、多成员抽样批报废、检验自动扣量/事件、SPC计算/判异和通用质量放行仍未开放。
 - 运行服务未重启，新增工具需要部署重启并刷新客户端清单后生效。

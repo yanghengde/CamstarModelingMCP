@@ -244,6 +244,9 @@ async def build(kind,args,marker):
     if kind=='lot_rework':
         from tools.quality_lot_rework import build_rework
         return await build_rework(args,marker)
+    if kind=='quantity_loss':
+        from tools.quality_quantity_loss import build_loss
+        return await build_loss(args,marker)
     if kind in ('inspection_definition','sampling_binding'):
         from tools.quality_definitions import build_definition,build_binding
         return await (build_definition(args,marker) if kind=='inspection_definition' else build_binding(args,marker))
@@ -320,8 +323,10 @@ def transport(snapshot):
             raise ValueError('当前采样维护计划必须使用CurrentSamplingStatusUpdate。')
         if snapshot.get('kind')=='lot_rework' and snapshot.get('service')!='ExecuteSamplingLot':
             raise ValueError('批返工计划必须使用ExecuteSamplingLot。')
+        if snapshot.get('kind')=='quantity_loss' and snapshot.get('service')!='ChangeQty':
+            raise ValueError('数量损失计划必须使用ChangeQty。')
         if snapshot.get('service') not in ('NCRCreate','NCRUpdate','NCRClose','NCRCloseQuality','NCREscalate','CreateCAPA','UpdateCAPA','CloseQualityObject',
-                'CollectSamplingData','CreateSamplingLot','CollectLotSamplingData','ExecuteSamplingLot','UpdateSamplingLot','CurrentSamplingStatusUpdate'):
+                'CollectSamplingData','CreateSamplingLot','CollectLotSamplingData','ExecuteSamplingLot','UpdateSamplingLot','CurrentSamplingStatusUpdate','ChangeQty'):
             raise ValueError('质量服务不在执行白名单。')
         if snapshot.get('service')=='NCRCloseQuality':
             from tools.quality_ncr_closure import validate_transport
@@ -331,6 +336,9 @@ def transport(snapshot):
             validate_transport(snapshot)
         if snapshot.get('service')=='CurrentSamplingStatusUpdate':
             from tools.quality_current_sampling import validate_transport
+            validate_transport(snapshot)
+        if snapshot.get('service')=='ChangeQty':
+            from tools.quality_quantity_loss import validate_transport
             validate_transport(snapshot)
         if snapshot.get('service')=='ExecuteSamplingLot' and snapshot.get('kind')=='lot_rework':
             from tools.quality_lot_rework import validate_transport
@@ -383,7 +391,7 @@ def resource_sets(snap):
     # Keep a conservative shared gate until that dependency chain is verified.
     gate='modeling:sampling-reference-config:gate'
     if snap['kind']=='sampling_reference':writes.add(gate)
-    elif snap['kind'] in ('inspection','lot_inspection','lot_completion','lot_rework','lot_maintenance','current_sampling','sampling_lot','inspection_definition','sampling_binding'):
+    elif snap['kind'] in ('inspection','lot_inspection','lot_completion','lot_rework','quantity_loss','lot_maintenance','current_sampling','sampling_lot','inspection_definition','sampling_binding'):
         reads_set.add(gate)
     if snap['kind']=='inspection':
         from tools.quality_definitions import resources
@@ -477,6 +485,9 @@ async def inspect_quality_transaction(plan_id:str,plan_digest:str)->str:
                 return encode(await inspect_snapshot(snap))
             if snap['kind']=='lot_rework':
                 from tools.quality_lot_rework import inspect_snapshot
+                return encode(await inspect_snapshot(snap))
+            if snap['kind']=='quantity_loss':
+                from tools.quality_quantity_loss import inspect_snapshot
                 return encode(await inspect_snapshot(snap))
             if snap['kind']=='lot_maintenance':
                 from tools.quality_lots import get_sampling_lot_details

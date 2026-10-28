@@ -1,6 +1,6 @@
 # 第一阶段：受限整批返工
 
-2026-10-28新增 `prepare_sampling_lot_rework`，质量分组由47增至48个工具。正式执行复用 `execute_quality_transaction`，只提交一次 `ExecuteSamplingLot`、结果固定2；逐成员 `Rework` 请求全部为 `execute=false` 输入探测。本阶段未对真实批执行返工，不能标记为现场验收完成。[后续阶段](quality-advanced-roadmap.md)
+2026-10-28新增 `prepare_sampling_lot_rework`，该阶段质量分组由47增至48个工具；后续[数量损失阶段](quality-quantity-loss.md)增至50。正式执行复用 `execute_quality_transaction`，只提交一次 `ExecuteSamplingLot`、结果固定2；逐成员 `Rework` 请求全部为 `execute=false` 输入探测。本阶段未对真实批执行返工，不能标记为现场验收完成。[后续阶段](quality-advanced-roadmap.md)
 
 ## 参数与执行流程
 

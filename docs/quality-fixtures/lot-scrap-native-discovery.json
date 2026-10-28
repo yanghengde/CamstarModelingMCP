@@ -1,0 +1,439 @@
+{
+  "Scrap": {
+    "source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+    "source_file": "D:\\Deepseek\\camstar\\CamstarDesignerMCP\\data\\designer\\server_snapshot\\Base_InSite.mdb",
+    "read_only": true,
+    "workspace_resolution": "vendor_metadata_model",
+    "total": 5,
+    "records": [
+      {
+        "name": "ExecuteSamplingLot_ExecuteScrap",
+        "description": "ExecuteSamplingLot_StartModifyingEntity",
+        "workspace": "csi",
+        "id": 3590
+      },
+      {
+        "name": "IntegrationScrapInfo_ProcessDetails",
+        "description": "Maps necessary information during a scrap for ExportInfo.",
+        "workspace": "csi",
+        "id": 1418
+      },
+      {
+        "name": "IntegrationScrapInfo_SetSerialId",
+        "description": "Sets information as necessary for use in the ExportInfo object when a moves occur.",
+        "workspace": "csi",
+        "id": 1420
+      },
+      {
+        "name": "PartScrap_StartModifyingEntity",
+        "description": "PartScrap_StartModifyingEntity",
+        "workspace": "csi",
+        "id": 679478604
+      },
+      {
+        "name": "PartScrap_Validate_User",
+        "description": "PartScrap_Validate_User",
+        "workspace": "csi",
+        "id": 679478605
+      }
+    ],
+    "offset": 0,
+    "limit": 100,
+    "has_more": false
+  },
+  "Loss": {
+    "source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+    "source_file": "D:\\Deepseek\\camstar\\CamstarDesignerMCP\\data\\designer\\server_snapshot\\Base_InSite.mdb",
+    "read_only": true,
+    "workspace_resolution": "vendor_metadata_model",
+    "total": 1,
+    "records": [
+      {
+        "name": "LossDetails_LiveConnect_Initialize",
+        "description": "Creates an ExportInfo in its parents provided certain requirments are met.",
+        "workspace": "csi",
+        "id": 1419
+      }
+    ],
+    "offset": 0,
+    "limit": 100,
+    "has_more": false
+  },
+  "execute_scrap": {
+    "format": "designer_clf_v1",
+    "status": "read",
+    "read_only": true,
+    "source_file": "D:\\Deepseek\\camstar\\CamstarDesignerMCP\\data\\designer\\server_snapshot\\Base_InSite.mdb",
+    "source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+    "name": "ExecuteSamplingLot_ExecuteScrap",
+    "description": "ExecuteSamplingLot_StartModifyingEntity",
+    "id": 3590,
+    "workspace": "csi",
+    "active_workspace": "csi",
+    "clf_type": "ServiceProcessing",
+    "calls": [
+      {
+        "call_id": 40062,
+        "sequence": 1,
+        "function": "CreateCDO",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "CDOTypeName",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "UseFieldType",
+            "value": "true",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "OverwriteExistingCDO",
+            "value": "true",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "NewCDO",
+            "value": "ChangeQty",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 40064,
+        "sequence": 2,
+        "function": "setfieldex",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "From",
+            "value": "CLF::Container",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "To",
+            "value": "ChangeQty.Container",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 40065,
+        "sequence": 3,
+        "function": "mapex",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "MapFrom",
+            "value": "CLF::__CDOID",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "MapTo",
+            "value": "ChangeQty",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "MapID",
+            "value": "ExecuteSamplingLotToChangeQty",
+            "dynamic": false,
+            "usage": "FieldMapId"
+          }
+        ]
+      },
+      {
+        "call_id": 40066,
+        "sequence": 4,
+        "function": "CreateListItem",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "ListCDO",
+            "value": "ChangeQty",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ListField",
+            "value": "ServiceDetails",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ItemType",
+            "value": "\"LossDetails\"",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ItemValue",
+            "value": "CLF::ServiceDetails",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ItemIndex",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 40067,
+        "sequence": 5,
+        "function": "setfieldex",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "From",
+            "value": "2",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "To",
+            "value": "CLF::ServiceDetails.ChangeQtyType",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 40068,
+        "sequence": 6,
+        "function": "setfieldex",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "From",
+            "value": "true",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "To",
+            "value": "CLF::ServiceDetails.RecordAllQty",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 40069,
+        "sequence": 7,
+        "function": "setfieldex",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "From",
+            "value": "ScrapReason",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "To",
+            "value": "CLF::ServiceDetails.ReasonCode",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 40063,
+        "sequence": 8,
+        "function": "call",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "CDO",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Event",
+            "value": "ExecuteService",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Name1",
+            "value": "SubService",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Value1",
+            "value": "ChangeQty",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Name2",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Value2",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Name3",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Value3",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Name4",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Value4",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Name5",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Value5",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 40070,
+        "sequence": 9,
+        "function": "call",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "CDO",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Event",
+            "value": "RemoveContainerSampleData",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Name1",
+            "value": "Container",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Value1",
+            "value": "CLF::Container",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Name2",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Value2",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Name3",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Value3",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Name4",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Value4",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Name5",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Value5",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      }
+    ],
+    "declared_parameters": [],
+    "references": {
+      "available": true,
+      "rows": [
+        {
+          "CDOName": "ExecuteSamplingLot",
+          "FieldName": "",
+          "EventName": "",
+          "MethodName": "ExecuteScrap"
+        }
+      ],
+      "total": 1,
+      "truncated": false,
+      "error": "",
+      "scope": "vendor_where_used",
+      "runtime_usage_verified": false
+    }
+  }
+}

@@ -29,7 +29,11 @@ def test_reason_contract(monkeypatch,kind,entity):
 @pytest.mark.parametrize('kind',range(1,7))
 def test_quantity_contract(monkeypatch,kind):
     call=AsyncMock(return_value='ok'); monkeypatch.setattr(p,'request_shopfloor',call)
-    asyncio.run(p.change_container_quantity('BOX',kind,'reason',2,qty2=3))
+    out=asyncio.run(p.change_container_quantity('BOX',kind,'reason',2,qty2=3))
+    if kind==2:
+        assert out.startswith('Error:') and 'prepare_container_quantity_loss' in out
+        call.assert_not_awaited()
+        return
     body=call.await_args.kwargs['body']
     assert body=={'container':{'name':'BOX'},'serviceDetails':[{'changeQtyType':kind,'reasonCode':{'name':'reason'},'qty':2,'qty2':3}]}
     assert call.await_args.args==('POST','/api/ChangeQty')

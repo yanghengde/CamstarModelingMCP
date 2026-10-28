@@ -63,8 +63,8 @@ async def get_quality_api_inventory()->str:
              'tools':['list_quality_references','get_quality_reference_details'],'limitations':'只读配置，不执行SPC计算/判异或自动放行。'},
             {'domain':'不良/返工/冻结','discovered':['ContainerDefect','Rework','Hold','Release'],
              'tools':['container_defect','rework','hold_container','release_container'],'limitations':'已有直接封装，不能假定具备新NCR/CAPA事务journal。需确认、现场写入验收待完成，不盲重试。'},
-            {'domain':'报废','discovered':['PartScrap','ScrapReasons'],'tools':[],
-             'limitations':'PartScrap要求resource/scrapQty，不等于生产Container报废；未新增scrap_container。'},
+            {'domain':'报废','checked_date':'2026-10-28','discovered':['PartScrap','ScrapReasons','ChangeQty','LossReasons','ExecuteSamplingLot'],'tools':['prepare_container_quantity_loss','get_sampling_lot_scrap_readiness'],
+             'limitations':'单个基础Container支持原生LossDetails的部分损失/明确全量报废准备；不支持Batch/抽样批成员/层级/双单位/载具。PartScrap要求resource/scrapQty，不等于Container报废。抽样批报废仅只读前置检查，原因类型冲突及部署效果未核实，结果3仍阻断，真实写入待验收。'},
         ]})
 
 

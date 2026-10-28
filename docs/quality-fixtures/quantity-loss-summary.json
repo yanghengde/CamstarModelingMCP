@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-28",
+  "phase": "advanced_quality_2_restricted_quantity_loss_and_blocked_lot_scrap",
+  "quality_tool_count": 50,
+  "new_tools": [
+    "prepare_container_quantity_loss",
+    "get_sampling_lot_scrap_readiness"
+  ],
+  "new_test_count": 96,
+  "full_test_count": 2279,
+  "quality_test_count": 1073,
+  "subtests_passed": 2,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "httpx_real_network_attempts_in_parent_pytest": 0,
+  "business_writes_performed": false,
+  "service_restart_performed": false,
+  "positive_quantity_loss_plan_accepted": false,
+  "positive_quantity_loss_execution_accepted": false,
+  "live_typed_loss_target_nonexecuting_echo_verified": true,
+  "sampling_lot_execution_supported": false,
+  "sampling_lot_readiness_can_create_plan": false,
+  "live_sampling_lot_count_rows": [
+    {
+      "SamplingLotCount": "0"
+    }
+  ],
+  "real_quality_journal_readonly_states": {
+    "cancelled": 2
+  },
+  "standard_csi_snapshot_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+  "deployed_logic_overrides_verified": false,
+  "verified_contracts": {
+    "generic_detail_type": 4010,
+    "generic_direction": 1,
+    "explicit_loss_detail_type": 4030,
+    "explicit_loss_direction": -1,
+    "loss_counts_against_production": true,
+    "scrap_reason_type": 4170,
+    "loss_reason_type": 4140,
+    "native_batch_type_rejected_by_changeqty": 7939,
+    "supported_base_container_type": 1040
+  },
+  "legacy_behavior_change": "change_container_quantity(type=2) now refuses before HTTP and directs callers to the typed quality plan",
+  "not_completed": [
+    "multi-container SamplingLot scrap",
+    "real quantity loss/close/throughput and history acceptance",
+    "inspection automatic deductions and full-inspection conversion",
+    "SPC calculation/rule evaluation and writes",
+    "generic quality event transitions",
+    "complex approvals and electronic signatures",
+    "custom ES_Scrapped process acceptance"
+  ],
+  "evidence": [
+    "quantity-loss-junit.xml",
+    "quantity-loss-test-output.txt",
+    "quantity-loss-network.json",
+    "quantity-loss-contract-probes.json",
+    "quantity-loss-target-probe.json",
+    "quantity-loss-live-readcheck.json",
+    "quantity-loss-final-readcheck.json",
+    "quantity-loss-tool-manifest.json",
+    "lot-scrap-reason-types.json",
+    "lot-scrap-native-contracts.json"
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "operation": {
+    "@odata.context": "https://172.31.197.121/Modeling/api/$metadata#Operations",
+    "value": []
+  },
+  "reason": {
+    "@odata.context": "https://172.31.197.121/Modeling/api/$metadata#LossReasons/$entity",
+    "Name": "SCRAP",
+    "FilterTags": null,
+    "InstanceID": "00102c8000000002",
+    "AssociatedPackages": 0,
+    "AttachAsRORProxy": [],
+    "Description": null,
+    "DisplayName": null,
+    "IconId": null,
+    "InstanceLocked": false,
+    "isAttachImage": false,
+    "IsFrozen": false,
+    "Notes": null,
+    "ReplaceDetails": false,
+    "ReplaceDetailsSubentityListNames": null,
+    "SkipSubentityListsToSequence": false,
+    "UseROR": [],
+    "UseRORProxy": [],
+    "ObjectToChange": null,
+    "AttachAsRORProxy-Expanded": [],
+    "AttachDocumentDetails-Expanded": [],
+    "UseROR-Expanded": [],
+    "UseRORProxy-Expanded": []
+  },
+  "target_echo": {
+    "status": 200,
+    "response": {
+      "@odata.context": "https://172.31.197.121/api/$metadata#ChangeQty/$entity",
+      "value": "",
+      "data": {
+        "Container": {
+          "Name": "SN0000001",
+          "Level": {
+            "Name": "BOX"
+          },
+          "InstanceId": "0004108000000052"
+        },
+        "CloseWhenZero": "false",
+        "DisassociateWhenClosed": "false",
+        "GenerateRollups": "false",
+        "RecordAllQtySummaryOnly": "false",
+        "Comments": "readonly quantity contract probe",
+        "ServiceDetails": [
+          {
+            "Parent": {
+              "InstanceId": "000fa00000000005"
+            },
+            "InstanceId": "000fbe0000000003",
+            "Container": {
+              "Name": "SN0000001",
+              "Level": {
+                "Name": "BOX"
+              },
+              "InstanceId": "0004108000000052"
+            },
+            "ReasonCode": {
+              "Name": "SCRAP",
+              "InstanceId": "00102c8000000002"
+            },
+            "ChargeToStep": {
+              "Name": "010-CELL-INSP",
+              "Parent": {
+                "Name": "WF-PACK-01",
+                "Revision": "A",
+                "UseRor": "false",
+                "InstanceId": "0005aa800000004d"
+              },
+              "InstanceId": "00074e800000004d"
+            },
+            "Qty": "0.25",
+            "AdjustThruput": "false",
+            "RecordAllQty": "false",
+            "ChangeQtyType": "2",
+            "QtyMultiplier": "-1",
+            "CountsAgainstProduction": "true",
+            "CDOTypeId": "4030",
+            "TypeSortOrder": "10",
+            "IsDeleted": "false",
+            "ES_Scrapped": "false",
+            "isReasonCodeName": "SCRAP"
+          }
+        ]
+      }
+    }
+  }
+}

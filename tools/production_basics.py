@@ -74,6 +74,8 @@ async def change_container_quantity(container_name: str, change_qty_type: Litera
                                     qty2: float | None = None, comments: str | None = None) -> str:
     """POST Shopfloor /api/ChangeQty with one ChangeQtyDetails entry.
     Product enum: 1=defect, 2=loss, 3=sell, 4=adjust, 5=bonus, 6=buy.
+    Loss type 2 is blocked here: use prepare_container_quantity_loss and the
+    confirmed quality plan so an untyped detail cannot change the loss direction.
     qty is the transaction quantity, NOT a target balance. No inferred scrap,
     completion, throughput adjustment or full-container loss. Server validates
     reason compatibility and quantity semantics; do not retry blindly.
@@ -82,6 +84,8 @@ async def change_container_quantity(container_name: str, change_qty_type: Litera
         ref = _container(container_name, container_instance_id)
         if type(change_qty_type) is not int or change_qty_type not in range(1, 7):
             raise ValueError('change_qty_type must be 1..6')
+        if change_qty_type == 2:
+            raise ValueError('Loss type 2 requires prepare_container_quantity_loss and confirmed execute_quality_transaction; no direct request sent')
         if not reason_name.strip():
             raise ValueError('reason_name must not be empty')
         if not math.isfinite(qty) or (qty2 is not None and not math.isfinite(qty2)):

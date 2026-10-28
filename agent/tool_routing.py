@@ -5,7 +5,7 @@ import re
 from core.tool_catalog import TOOL_POLICIES
 
 GROUP_TERMS = {
-    "quality": r"质量|挂起|释放|不合格|缺陷|纠正|预防|处置|抽检|抽样|检验|批采样|采样状态|采样计数器|采样频率|采样计划|检验水平|接收数|拒收数|样本量|批量区间|冻结|解冻|隔离|报废|不良|返工|quality|ncr|capa|spc|sampling|sampletest|inspection|sampledatapoint|aql|defect|rework|hold|release",
+    "quality": r"质量|损失|扣量|scrap|loss|changeqty|挂起|释放|不合格|缺陷|纠正|预防|处置|抽检|抽样|检验|批采样|采样状态|采样计数器|采样频率|采样计划|检验水平|接收数|拒收数|样本量|批量区间|冻结|解冻|隔离|报废|不良|返工|quality|ncr|capa|spc|sampling|sampletest|inspection|sampledatapoint|aql|defect|rework|hold|release",
     "collection": r"采集|采样|测量|collection|datapoint",
     "material": r"bom|物料|用料|耗料|投料|补投",
     "resource": r"resource|设备|资源|机台",
@@ -19,8 +19,9 @@ GROUP_TERMS = {
     "query": r"query|inquiry|sql|历史|状态|进度|在制|追溯",
     "excel": r"excel|csv|表格|附件|导入|上传",
 }
-WRITE_TERMS = re.compile(r"冻结|解冻|关闭|登记|创建|新建|新增|修改|更新|调整|调到|变更|改成|改为|删除|重建|绑定|解绑|升版|导入|启动|开工|移站|过站|进站|出站|返工|不良|投料|补投|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
+WRITE_TERMS = re.compile(r"损失|扣量|报废|scrap|loss|冻结|解冻|关闭|登记|创建|新建|新增|修改|更新|调整|调到|变更|改成|改为|删除|重建|绑定|解绑|升版|导入|启动|开工|移站|过站|进站|出站|返工|不良|投料|补投|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
 ROUTING_INSTRUCTION = (
+    "报废/扣量先区分基础Container和多成员SamplingLot，名称不能证明对象类型。单个基础Container数量损失或全量报废用prepare_container_quantity_loss，明确container_name、loss_reason_name、close_when_zero和adjust_throughput；loss_quantity是当前主单位的本次正数增量，全量须record_all_quantity=true且省略loss_quantity，不能把全量隐式当部分数量。损失原因用list_quality_references(kind=loss_reason)，须属于当前Operation完整LossReasons组，不能用ScrapReason同名替换。仅Active无冻结、未返工、无层级/载具/第二单位且不属于抽样批；Batch子类型不支持。不代选关闭或生产数量选项，不猜默认单位，不调用PartScrap。准备强制LossDetails类型4030、损失方向-1，确认后execute_quality_transaction单次ChangeQty，unknown不重新扣量；inspect只读原容器ID，候选历史核对暂不支持，最终证据人工review。多成员抽样批报废先get_sampling_lot_scrap_readiness，只读完整批和明确阻塞，不生成结果3计划；入口ScrapReason标注未实现且与LossDetails的LossReason类型不同，不能改走成员循环扣量。"
     "抽样失败后的整批返工用prepare_sampling_lot_rework，明确lot_name及rework_reason_name，歧义时加lot_instance_id。第一阶段完整1..20成员、Active无冻结、无层级/非零第二数量、尚未返工，MES未通过且任务拒收超阈值；仅当前同Workflow恰好一条ReworkPath且无动态选择器，目标Spec允许返工，原因属于成员当前Operation原因组。原生映射不转发Spec，不提供目标工序覆盖，不循环提交单容器Rework。分层读取及SQL静态核对路径，逐成员Rework仅非执行输入回显，缺失路线不当已验证。预览展示标准csi逻辑清理ContainerSampleData及标记批完成/返工结果的影响；实际数量/后续影响和签名待验收。execute_quality_transaction系统确认后单次ExecuteSamplingLot结果2；unknown不重试，inspect_quality_transaction只读原批及原成员，不跟随替换成员，不自动解锁。find_quality_execution_candidates/reconcile_quality_execution暂不支持批返工，需最终审计证据人工review。批报废、全检转换、自动扣量尚未开放。"
     "已升级NCR的质量侧收尾用prepare_quality_ncr_closure，明确report_name和NCR解决代码resolution_code_name。此受限入口只接受仍Open的原NCR、原容器Active、原EscalatedEvent关联的Event已Closed=5并有关闭时间和关闭人；这是本工具保守范围，不代表所有部署都需手动收尾。不关闭或修改关联质量事件，不绕过其审批/签名，不把Deleted或InReview当Closed；普通关闭仍用prepare_nonconformance_report(close)，不自动换NCRCloseQuality。复用统一确认单次提交，unknown不重试；inspect_quality_transaction只读原NCR及原关联事件，不跟随被改写的事件关联、不自动解锁，最终证据人工review。"
     "将既有NCR升级为质量事件用get_ncr_escalation_options核对明确组织的分类/子分类组合，priority用list_quality_references(kind=priority)，全部名称明确后prepare_ncr_escalation。仅Open、无升级事件关联、原容器Active且失败码完整的报告；冻结容器不自动解冻。组织组合必须唯一，重复映射先修正配置，接口没有可指定映射ID的字段。不自动挑分类/优先级，不创建替代报告，不指定生成事件名称，不额外调用NCRClose，原报告最终状态由MES决定，不覆盖签名/审批/流程。execute_quality_transaction确认单次执行，unknown不重试，inspect_quality_transaction只给原报告及历史证据，最终审计才人工review。"
@@ -132,6 +133,8 @@ def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
         name = tool["function"]["name"]
         policy = TOOL_POLICIES.get(name)
         if not policy or not policy.default_visible:
+            continue
+        if name == "change_container_quantity" and re.search(r"报废|损失|扣量|scrap|loss", context, re.I):
             continue
         if name in base or (policy.group in groups and (policy.effect == "read" or policy.group in write_groups)):
             selected.append(tool)
