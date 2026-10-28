@@ -1,0 +1,72 @@
+{
+  "checked_date": "2026-10-28",
+  "code_handoff_complete": true,
+  "all_quality_development_complete": false,
+  "mes_business_acceptance_complete": false,
+  "runtime_code_changed_this_wrapup": false,
+  "new_tools_this_wrapup": [],
+  "quality_tool_count": 47,
+  "fresh_local_registry_audit": {
+    "failures": [],
+    "closed_root_parameter_schemas": 47,
+    "confirmation_required_write_entrypoints": [
+      "container_defect",
+      "execute_quality_transaction",
+      "hold_container",
+      "release_container",
+      "review_quality_transaction",
+      "rework"
+    ],
+    "running_server_or_deployment_verified": false
+  },
+  "latest_full_regression": {
+    "artifact": "ncr-quality-close-junit.xml",
+    "passed": 2087,
+    "subtests_passed": 2,
+    "quality_tests": 881,
+    "failed_or_skipped_testcases": [],
+    "parent_pytest_real_httpx_attempts": 0,
+    "reused_existing_full_regression": true,
+    "full_regression_rerun_this_wrapup": false
+  },
+  "journal_read_only_check": {
+    "file_exists": true,
+    "opened_read_only": true,
+    "state_counts": {
+      "cancelled": 2
+    }
+  },
+  "mes_business_writes_this_wrapup": false,
+  "service_restarted": false,
+  "deployment_performed": false,
+  "git_commit_command_run": false,
+  "git_push_performed": false,
+  "delivered_documents": [
+    "README.md",
+    "docs/quality-delivery.md",
+    "docs/quality-mcp-tools.md"
+  ],
+  "remaining_development": [
+    "batch rework/scrap",
+    "full inspection transitions and automatic effects",
+    "SPC calculation/violation/annotation writes",
+    "general quality-event workflows, approvals and electronic signatures"
+  ],
+  "remaining_acceptance": [
+    "real target end-to-end MES transactions and final effects",
+    "nonempty historical ownership and request causal linkage",
+    "quality-specific live LLM multi-turn evaluation"
+  ],
+  "evidence": {
+    "tool_manifest": "delivery-tool-manifest.json",
+    "journal_readcheck": "delivery-journal-readcheck.json",
+    "latest_junit": "ncr-quality-close-junit.xml",
+    "latest_test_output": "ncr-quality-close-test-output.txt",
+    "latest_network": "ncr-quality-close-network.json"
+  },
+  "local_document_link_audit": {
+    "documents_checked": 15,
+    "links_checked": 110,
+    "broken_links": []
+  }
+}

@@ -1,7 +1,7 @@
 # Camstar Modeling MCP Agent
 
 质量功能入口：[NCR、CAPA、质量对象与抽检/SPC工具及现场验证范围](docs/quality-mcp-tools.md)。
-质量分组现有33个工具，支持[单容器质量检验](docs/quality-inspection.md)、[定义维护与建批](docs/quality-definitions-lots.md)、[批采样及MES已通过批的OK执行计划](docs/quality-lot-execution.md)；真实写入及业务流程验收仍待完成。
+质量分组现有47个工具，覆盖NCR/CAPA、检验定义与抽样表、单容器/批采样、当前采样状态与默认检验水平复位，以及已关闭关联事件后的NCR收尾计划。阶段交付、测试证据、部署步骤和未完成范围见[质量交付说明](docs/quality-delivery.md)；真实MES验收及部分高级功能仍待完成。
 
 多轮调用评测：[38段问法、真实模型结果与已修复/待修复问题](docs/multiturn-evaluation/README.md)。
 

@@ -1,5 +1,7 @@
 # Camstar质量API与MCP工具
 
+本轮代码交付收尾完成。交付边界、47个工具核对结果、部署接续及待开发/待验收清单见[阶段交付说明](quality-delivery.md)；不是全部质量功能或MES验收完成。
+
 2026-10-28更新：quality分组共47个工具，新增关联Event已Closed、原NCR仍Open时的质量侧关闭收尾计划。新增既有NCR升级质量事件的组织选项查询和提交计划。新增产品当前采样状态查询及明确选择的计数器/手动检验水平调整计划。已支持检验计划只读配置检查。已支持零采样计数且无有效采样历史批的数量/频率维护、维护历史及原请求核对。既有范围包括AQL/检验水平维护与查表、单容器检验、定义维护、产品关联、建批、批采样、MES已通过批的OK执行及逐点追溯。工具注册、契约验证和模拟测试不代表现场质量事务验收完成。参数见[批维护](quality-lot-maintenance.md)、[AQL与检验水平](quality-sampling-references.md)、[单容器检验](quality-inspection.md)、[定义和建批](quality-definitions-lots.md)、[批采样与整批OK执行](quality-lot-execution.md)、[历史追溯与请求核对](quality-history.md)。
 
 ## 实际发现的接口与本轮范围
