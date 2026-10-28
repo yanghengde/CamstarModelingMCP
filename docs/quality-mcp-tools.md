@@ -4,9 +4,11 @@
 
 ## 实际发现的接口与本轮范围
 
+最新检验水平复位轮：新增37项测试，全量2023项测试、2项子测试通过，其中质量相关817项，父pytest离线HTTPX真实网络尝试0。扩展现有prepare_current_sampling_status_update的reset_inspection_level参数，不新增工具，总数46。恢复计划默认与命名水平互斥；未请求的计数器不发送，不猜有效默认或切换结果。绑定计划及候选表配置、重读防变化，沿用确认/单次提交/unknown占用。现场无目标非执行回显通过，状态记录仍为空，真实效果待验收。见[功能说明](quality-sampling-reset.md)及[本轮摘要](quality-fixtures/sampling-level-reset-summary.json)。
+
 最新NCR升级轮：新增68项测试，全量1986项测试、2项子测试通过，其中质量相关780项，父pytest离线HTTPX真实网络尝试0。正式NCREscalate请求按组织唯一分类/子分类组合核对，明确优先级，绑定Open原报告、失败代码与原容器；不指定生成事件名称、不覆盖签名或额外调用关闭服务。原报告最终状态待MES验收。同时支持NCR失败码关联的SQL整数文本。现场组织选项查询成功，但已检查组织映射和优先级列表为空，正目标及真实升级仍待验收。见[功能说明](quality-ncr-escalation.md)及[本轮摘要](quality-fixtures/ncr-escalation-summary.json)。
 
-最新当前采样状态轮：新增70项测试，全量1918项测试、2项子测试通过，其中质量相关712项，父pytest离线HTTPX真实网络尝试0。现场连接恢复，核对CurrentSamplingStatusUpdate契约及SamplingCurrentStatus列，新增状态查询和明确1..20条容器采样状态调整计划。计数器不是频率，不改已有任务；不全选、不处理批采样或复位模式。未执行预览返回200，真实状态表仍为空，正目标和真实调整验收待补。见[功能说明](quality-current-sampling.md)及[本轮摘要](quality-fixtures/current-sampling-summary.json)。
+最新当前采样状态轮：新增70项测试，全量1918项测试、2项子测试通过，其中质量相关712项，父pytest离线HTTPX真实网络尝试0。现场连接恢复，核对CurrentSamplingStatusUpdate契约及SamplingCurrentStatus列，新增状态查询和明确1..20条容器采样状态调整计划。计数器不是频率，不改已有任务；不全选、不处理批采样。该首轮未开放复位，后续已扩展。未执行预览返回200，真实状态表仍为空，正目标和真实调整验收待补。见[功能说明](quality-current-sampling.md)及[本轮摘要](quality-fixtures/current-sampling-summary.json)。
 
 2026-10-27新增检验计划只读配置检查，复用既有接口契约；新增67项测试，全量1848项测试、2项子测试通过，质量相关642项，父pytest离线HTTPX真实网络尝试0。测试和边界见[配置检查说明](quality-configuration-check.md)及[本轮摘要](quality-fixtures/configuration-audit-summary.json)。该配置检查轮现场连接超时，未新增现场契约验证或MES业务写入；后续当前采样状态轮已恢复并补齐接口，见上文。
 
@@ -38,7 +40,7 @@
 | prepare_ncr_escalation | Open且未关联升级事件的原NCR升级计划；唯一组织组合、明确优先级、原容器及回显核对，统一确认单次执行 |
 | get_quality_api_inventory | 已发现API、已封装工具和未开放范围；有核查日期，不是实时健康检查 |
 | get_current_sampling_status | 固定产品版本当前状态分页，真实ID、当前频率与独立计数器、检验水平和批归属 |
-| prepare_current_sampling_status_update | 明确选择容器采样状态，准备计数器或手动检验水平调整，不全选、不改已有任务，统一确认单次提交 |
+| prepare_current_sampling_status_update | 明确选择容器采样状态，准备计数器、命名检验水平或原生恢复计划默认，不全选、不猜有效默认、不改已有任务，统一确认单次提交 |
 | check_sampling_plan_configuration | 固定计划版本的测试/数值点及AQL-检验水平配置诊断，区分问题与工具限制，不替代运行时任务或质量判定 |
 | prepare_sampling_lot_update | 全量核对原批、成员、零计数任务及有效采样历史，准备数量/频率调整，保留其他选项 |
 | get_sampling_lot_maintenance_history | 按历史批ID查询UpdateSamplingLot维护值、完整评论、事务及冲销状态，非最终成功证明 |

@@ -49,7 +49,7 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
         'get_ncr_escalation_options': '明确组织的完整分类/子分类映射与签名设置。组合必须唯一；映射ID仅作追溯，接口不支持用它选择。不是NCR升级许可。',
         'prepare_ncr_escalation': '既有Open NCR升级质量事件计划，明确组织/分类/子分类/优先级，核对原报告/容器/完整组织映射及非执行回显。不额外调用关闭服务或绕过签名，统一确认单次执行，unknown不重试。',
         'get_current_sampling_status': '固定产品版本当前采样状态分页，展示真实选择ID、当前频率与独立计数器、当前/手动检验水平和批归属；不推算下个容器必检或不检。',
-        'prepare_current_sampling_status_update': '容器采样明确1..20状态记录计数器/手动检验水平调整计划，核对AQL映射及非执行回显；不全选、不改频率、不回填已有任务或处理批采样。统一确认单次提交，unknown需最终证据人工核实。',
+        'prepare_current_sampling_status_update': '容器采样明确1..20状态记录计数器/命名检验水平或reset_inspection_level恢复计划默认调整计划；命名与复位互斥，不猜默认或切换结果，核对AQL映射及非执行回显；不全选、不改频率、不回填已有任务或处理批采样。统一确认单次提交，unknown需最终证据人工核实。',
         'check_sampling_plan_configuration': '完整有界的计划/测试/数值点及AQL-检验水平代码关联静态检查，报告缺项、未知和当前提交工具限制。重读依赖，不写MES；冻结不等于不可检验，不验证运行时任务或产品绑定，不判合格。',
         'prepare_sampling_lot_update': 'UpdateSamplingLot数量/频率计划，仅当前计数全零且无有效采样历史的Active批，完整核对最多50成员/50任务；保留原调整选项，不改成员。非执行回显不是任务重算或业务验收。',
         'get_sampling_lot_maintenance_history': '历史SamplingLotId关联的维护数量/频率/评论、事务和冲销状态，非增量及最终成功证据。',

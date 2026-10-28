@@ -1,0 +1,25 @@
+{
+  "checked_date": "2026-10-28",
+  "mes_business_writes": false,
+  "schema_http": 200,
+  "reset_property": {
+    "type": "boolean",
+    "description": "CdoId: 8590; FieldId: 23578; Workspace: csi; Flags: None; Annotations: This Boolean field allows the user to reset the current inspection level of the selected Sampling Current Status record back to the value defined in the Sample Plan modeling object.",
+    "nullable": true
+  },
+  "no_target_preview": {
+    "body": {
+      "resetInspectionLevel": true,
+      "comments": "MCP-READONLY-RESET-CONTRACT-PROBE"
+    },
+    "params": {
+      "execute": "false",
+      "$select": "ResetInspectionLevel,NewSampleRateCounterValue,NewInspectionLevel,Product,SamplingCurrentStatus,Comments"
+    },
+    "status": 200,
+    "response": "{\"@odata.context\":\"https://172.31.197.121/api/$metadata#CurrentSamplingStatusUpdate/$entity\",\"value\":\"\",\"data\":{\"ResetInspectionLevel\":\"true\",\"Comments\":\"MCP-READONLY-RESET-CONTRACT-PROBE\"}}",
+    "selected_record": false
+  },
+  "status_top1": [],
+  "positive_target_preview_verified": false
+}

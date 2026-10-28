@@ -22,7 +22,7 @@ GROUP_TERMS = {
 WRITE_TERMS = re.compile(r"冻结|解冻|关闭|登记|创建|新建|新增|修改|更新|调整|调到|变更|改成|改为|删除|重建|绑定|解绑|升版|导入|启动|开工|移站|过站|进站|出站|返工|不良|投料|补投|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
 ROUTING_INSTRUCTION = (
     "将既有NCR升级为质量事件用get_ncr_escalation_options核对明确组织的分类/子分类组合，priority用list_quality_references(kind=priority)，全部名称明确后prepare_ncr_escalation。仅Open、无升级事件关联、原容器Active且失败码完整的报告；冻结容器不自动解冻。组织组合必须唯一，重复映射先修正配置，接口没有可指定映射ID的字段。不自动挑分类/优先级，不创建替代报告，不指定生成事件名称，不额外调用NCRClose，原报告最终状态由MES决定，不覆盖签名/审批/流程。execute_quality_transaction确认单次执行，unknown不重试，inspect_quality_transaction只给原报告及历史证据，最终审计才人工review。"
-    "产品当前采样状态先get_current_sampling_status，明确产品名称/版本，区分CurrentSampleRate频率和SampleRateCounter计数器；只调整明确1..20个无SamplingLotId记录，用prepare_current_sampling_status_update的status_instance_ids及new_sample_rate_counter非负整数或new_inspection_level_name。不能按测试名称猜状态ID，不默认全选，不用批采样频率维护替代，不推算下个容器是否必检。仅后续符合条件容器生效，不回填在制任务、不改原计划或频率、不执行ResetInspectionLevel；手动水平可能影响切换规则。execute_quality_transaction确认单次提交，unknown不重试；inspect_quality_transaction只读原选择当前状态，最终历史链未验证，find_quality_execution_candidates暂不支持此类计划，需最终审计证据人工review。"
+    "产品当前采样状态先get_current_sampling_status，明确产品名称/版本，区分CurrentSampleRate频率和SampleRateCounter计数器；只调整明确1..20个无SamplingLotId记录，用prepare_current_sampling_status_update的status_instance_ids及new_sample_rate_counter非负整数或new_inspection_level_name。不能按测试名称猜状态ID，不默认全选，不用批采样频率维护替代，不推算下个容器是否必检。仅后续符合条件容器生效，不回填在制任务、不改原计划或频率、恢复计划默认水平用reset_inspection_level=true，不与new_inspection_level_name同时传入，可同时明确计数器；实际默认及切换结果由MES决定，不猜默认表，不以当前/手动水平相同判无变化。手动水平可能影响切换规则。execute_quality_transaction确认单次提交，unknown不重试；inspect_quality_transaction只读原选择当前状态，最终历史链未验证，find_quality_execution_candidates暂不支持此类计划，需最终审计证据人工review。"
     "检验计划配置是否完整、测试/检验点缺项、数值上下限或AQL与检验水平代码关联检查用check_sampling_plan_configuration，明确sampling_plan_name及sampling_plan_revision。先查配置再准备维护计划；不凭检查结果代填样本值或判定质量合格。complete只覆盖静态检查范围，submission_limitations是现有工具限制，不等同MES配置错误；冻结表示配置不可修改，不表示不能检验。该工具不验证产品绑定或当前任务、切换规则、频率运行时解析，不能替代MES要求或放行。"
     "计数检验多组沿用prepare_container_inspection或prepare_lot_inspection的counted_groups，逐组明确samples_collected、rejects及非零拒收原因，组必须不重叠；不与根级计数、原因或测量samples混用，不自动分摊总数、不重复原因或零拒收组，合计<=100。原因用规范子明细提交，一次计划一次请求，不按原因循环执行。多组实际累计、样本分区和原因历史仍未现场验收；原请求核对最多partial_match，不自动解锁。"
     "抽样批数量或频率调整用prepare_sampling_lot_update，new_quantity为正数字符串，new_sample_rate为正整数；仅当前采样计数全零且无有效采样历史的批，不对已开始检验的批强改要求。作用于完整批，成员只读，不回填或裁剪成员。保留原数量/频率中未改项及原批量调整选项，确认后统一单次执行；维护历史用get_sampling_lot_maintenance_history，unknown候选和数量/频率核对复用find_quality_execution_candidates及reconcile_quality_execution，不自动解锁。"
@@ -83,7 +83,9 @@ def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
         re.search(r"(?:^|请|帮我)\s*(?:提交|录入|记录)", current)
         and re.search(GROUP_TERMS['quality'], context)
     )
-    wants_write = bool(WRITE_TERMS.search(current) or task_submission or collection_submission or inspection_submission)
+    level_reset = (re.search(r"恢复|复位|重置|撤销", current)
+                   and re.search(r"检验水平|采样状态", context))
+    wants_write = bool(WRITE_TERMS.search(current) or task_submission or collection_submission or inspection_submission or level_reset)
     if re.search(r"查询|查看|追溯|了解|有哪些|历史", current) and not re.search(
         r"执行|创建|新建|新增|修改|更新|删除|重建|绑定|解绑|升版|导入|启动|开工|请将|请把|帮我把|create|update|delete|patch|import", current, re.I
     ):

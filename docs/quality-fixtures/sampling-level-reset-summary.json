@@ -1,0 +1,75 @@
+{
+  "checked_date": "2026-10-28",
+  "quality_tool_count": 46,
+  "new_tools": [],
+  "extended_tools": [
+    "prepare_current_sampling_status_update",
+    "execute_quality_transaction"
+  ],
+  "new_parameter": {
+    "name": "reset_inspection_level",
+    "type": "StrictBool",
+    "default": false,
+    "position": "appended after existing comments"
+  },
+  "regression": {
+    "passed": 2023,
+    "subtests_passed": 2,
+    "quality_tests": 817,
+    "new_reset_tests": 37,
+    "httpx_real_network_attempts_parent_pytest": 0,
+    "actual_mcp_sdk_simulated_prepare_execute_inspect": true,
+    "natural_language_reset_intent_visibility": true,
+    "live_llm_routing_evaluation": false
+  },
+  "implemented": [
+    "native ResetInspectionLevel=true only for explicit selected container-based status records",
+    "reset alone or combined with explicit nonnegative sample-rate counter",
+    "mutually exclusive named inspection level and reset; no silent integer/string boolean coercion",
+    "omitted counter and named level stay omitted in request and nonexecuting echo",
+    "bind complete bounded configured plan/root and same-test detail AQL/level candidates without guessing effective precedence",
+    "candidate tables captured raw, including formulas, without lookup evaluation or standard-compliance claim",
+    "default-table changes invalidate prepare/execution digest",
+    "reset necessity and resulting effective level remain unverified, including when manual level is null",
+    "legacy positional argument order and omitted reset false semantics preserved",
+    "native reset allowed by strict transport while conflicting named-level injection refused",
+    "same unknown/read-write conflict and single-attempt protections retained"
+  ],
+  "live_evidence": {
+    "schema_http": 200,
+    "reset_property_description_verified": true,
+    "nonexecuting_no_target_reset_echo_http": 200,
+    "reset_true_echoed": true,
+    "unrequested_counter_and_named_level_absent": true,
+    "status_top1_rows": 0,
+    "positive_target_preview_verified": false,
+    "actual_reset_verified": false
+  },
+  "limits": {
+    "selected_statuses": 20,
+    "configured_table_rows": 50,
+    "total_dependencies_max": 100
+  },
+  "mes_business_writes": false,
+  "service_restarted": false,
+  "resolved_default_level_verified": false,
+  "effective_default_level": null,
+  "reset_necessity_verified": false,
+  "switching_rule_effects_verified": false,
+  "standard_compliance_verified": false,
+  "automatic_retry_allowed": false,
+  "not_covered": [
+    "real reset and next eligible container acceptance",
+    "effective runtime default, switching rules or frequency outcomes",
+    "existing container task backfill",
+    "lot sampling reset",
+    "automatic final history correlation or unlock",
+    "batch rework/scrap/full inspection/SPC advanced workflows"
+  ],
+  "evidence": {
+    "contract_and_no_target_probe": "sampling-level-reset-contracts.json",
+    "junit": "sampling-level-reset-junit.xml",
+    "output": "sampling-level-reset-test-output.txt",
+    "network": "sampling-level-reset-network.json"
+  }
+}

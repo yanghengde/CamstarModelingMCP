@@ -2,7 +2,7 @@
 import json
 from typing import Annotated
 
-from pydantic import Field, StrictInt
+from pydantic import Field, StrictBool, StrictInt
 from tools import mcp, quality as q, quality_inspection as i, quality_definitions as d
 from tools import quality_sampling_references as tables
 from tools.process_context import ReadContext
@@ -105,8 +105,11 @@ def validate_transport(snapshot):
     changes = {'newSampleRateCounterValue', 'newInspectionLevel'}
     product = body.get('product'); selected = body.get('samplingCurrentStatus')
     if (snapshot.get('kind') != 'current_sampling' or snapshot.get('action') != 'update'
-            or not fields <= set(body) or set(body)-fields-changes or not set(body) & changes
-            or body.get('resetInspectionLevel') is not False or not isinstance(product, dict)
+            or not fields <= set(body) or set(body)-fields-changes
+            or type(body.get('resetInspectionLevel')) is not bool
+            or (not set(body) & changes and body['resetInspectionLevel'] is not True)
+            or (body['resetInspectionLevel'] is True and 'newInspectionLevel' in body)
+            or not isinstance(product, dict)
             or set(product) != {'name', 'revision', 'instanceId'} or not q.valid_id(snapshot.get('target_id'))
             or product.get('instanceId') != snapshot['target_id'] or product.get('name') != snapshot.get('name')
             or product.get('revision') != snapshot.get('revision') or not isinstance(selected, list)
@@ -171,11 +174,38 @@ async def table_state(kind, key):
     return state
 
 
+async def bind_reset_configuration(plan, test_id, dependencies, ctx):
+    """Bind all configured table candidates without guessing MES precedence.
+
+    Runtime defaults can also depend on spec/resource/vendor and switching
+    context. These are dependency snapshots, never a resolved default level.
+    """
+    sources = [plan] + [row for row in plan['SamplingPlanDetails']
+                        if q.identifier(row.get('SampleTest')) == test_id]
+    for row in sources:
+        for field, kind in (('InspectionLevel', 'inspection_level'), ('AQLLevel', 'aql_level')):
+            ref = row.get(field)
+            if not i.present(ref): continue
+            root = await ctx.resolve(tables.CONFIG[kind][0], ref, False)
+            key = root['InstanceID']; pair = (kind, key)
+            if not q.valid_id(key): raise ValueError('复位关联配置ID无效。')
+            if pair not in dependencies:
+                if len(dependencies) >= 100: raise ValueError('复位关联依赖超过100个，不能用子集准备。')
+                state = await tables.read_state(kind, root['Name'], key)
+                if not state: raise ValueError('复位关联配置不存在。')
+                # Do not evaluate formulas or claim literal lookup rules are
+                # the effective MES default. Keep full, bounded raw tables.
+                dependencies[pair] = state
+
+
 async def build_update(args, marker):
     from tools import quality_plans as plans
     ids = selection(args['status_instance_ids']); counter = args.get('new_sample_rate_counter')
     level_name = args.get('new_inspection_level_name')
-    if counter is None and level_name is None: raise ValueError('必须明确新采样计数器或新检验水平。')
+    reset = args.get('reset_inspection_level', False)
+    if type(reset) is not bool: raise ValueError('reset_inspection_level须为明确布尔值。')
+    if reset and level_name is not None: raise ValueError('恢复计划默认检验水平不能同时指定新的命名检验水平。')
+    if counter is None and level_name is None and not reset: raise ValueError('必须明确新采样计数器、新检验水平或恢复计划默认。')
     if counter is not None: i.int32(counter, '新采样计数器')
     comment = i.inspection_comment(args.get('comments', ''))
     product = await product_state(args['product_name'], args['product_revision']); ref = product['reference']; pid = ref['instanceId']
@@ -200,20 +230,28 @@ async def build_update(args, marker):
         plan = dependencies[('sampling_plan', row['SamplingPlanId'])]
         if not any(q.identifier(detail.get('SampleTest')) == row['SampleTestId'] for detail in plan['SamplingPlanDetails']):
             raise ValueError('当前计划已不包含所选状态的测试。')
+        if reset:
+            await bind_reset_configuration(plan, row['SampleTestId'], dependencies, ctx)
         if level is not None:
             pair = ('aql_level', row['AQLLevelId'])
             if pair not in dependencies: dependencies[pair] = await table_state(*pair)
             codes = {r['SampleSizeCode'] for r in dependencies[pair]['SampleSizeDetails']}
             if {r['SampleSizeCode'] for r in level['LotSizeDetails']} - codes:
                 raise ValueError('新检验水平包含当前状态AQL表无法原样匹配的样本量代码。')
-    if all((counter is None or counter == row['SampleRateCounter']) and
+    if not reset and all((counter is None or counter == row['SampleRateCounter']) and
            (level is None or level['InstanceID'] == row['SamplePlanInspectionLevelId']) for row in rows):
         raise ValueError('全部所选记录均无实际调整。')
     body = {'product': ref, 'samplingCurrentStatus': [{'instanceId': key} for key in ids],
-            'resetInspectionLevel': False, 'comments': marker+(' '+comment if comment else '')}
+            'resetInspectionLevel': reset, 'comments': marker+(' '+comment if comment else '')}
     if counter is not None: body['newSampleRateCounterValue'] = counter
     if level is not None: body['newInspectionLevel'] = {'name': level['Name'], 'instanceId': level['InstanceID']}
     context = await preview(body)
+    if reset:
+        context.update(reset_inspection_level_requested=True, resolved_default_level_verified=False,
+                       effective_default_level=None, reset_necessity_verified=False,
+                       switching_rule_effects_verified=False, standard_compliance_verified=False,
+                       note='仅请求MES恢复计划默认；不发送命名水平或未请求的计数器，不修改原计划、不回填已有任务。最终水平、切换及后续频率影响待验收。',
+                       reset_semantics='native MES reset to sampling-plan definition; no locally predicted default or switching outcome')
     if await selected_rows(pid, ids) != rows or await product_state(args['product_name'], args['product_revision']) != product:
         raise ValueError('准备期间所选状态或产品发生变化。')
     for (kind, key), before in dependencies.items():
@@ -233,9 +271,9 @@ async def build_update(args, marker):
 async def prepare_current_sampling_status_update(product_name: str, product_revision: str,
         status_instance_ids: Annotated[list[str], Field(min_length=1, max_length=20)],
         new_sample_rate_counter: StrictInt | None = None, new_inspection_level_name: str | None = None,
-        comments: str = '') -> str:
-    """准备CurrentSamplingStatusUpdate，不写MES。先get_current_sampling_status取明确产品版本下1..20个状态ID；只支持SamplingLotId为空的容器采样记录。新计数器为非负整数，不是采样频率；或明确命名检验水平，完整验证当前AQL代码映射。省略未修改字段且核对回显不会自动填值。仅后续符合条件的容器生效，不回填已有任务、不改抽样计划、不选全部记录、不重置检验水平或处理批采样。execute_quality_transaction确认单次提交，unknown不重试，inspect只提供当前状态证据。"""
+        comments: str = '', reset_inspection_level: StrictBool = False) -> str:
+    """准备CurrentSamplingStatusUpdate，不写MES。先get_current_sampling_status取明确产品版本下1..20个状态ID；只支持SamplingLotId为空的容器采样记录。新计数器为非负整数，不是频率；或指定命名检验水平；或reset_inspection_level=true请求MES恢复计划默认，不能同时指定新命名水平，可同时明确计数器。复位绑定计划及候选表配置，不猜有效默认、切换结果或是否有实际变化。省略未修改字段且回显不得自动填值。仅后续符合条件容器生效，不回填已有任务、不改原计划、不全选、不处理批采样。统一确认单次执行，unknown不重试；inspect只读证据。"""
     from tools import quality_plans as plans
     return await plans.prepare('current_sampling', dict(product_name=product_name, product_revision=product_revision,
         status_instance_ids=status_instance_ids, new_sample_rate_counter=new_sample_rate_counter,
-        new_inspection_level_name=new_inspection_level_name, comments=comments))
+        new_inspection_level_name=new_inspection_level_name, comments=comments, reset_inspection_level=reset_inspection_level))

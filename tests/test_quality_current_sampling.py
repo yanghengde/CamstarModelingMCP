@@ -246,7 +246,7 @@ def test_transport_binds_service_to_plan_kind(env, kind, service):
 @pytest.mark.parametrize('mode', ['reset', 'extra', 'selection', 'counter_bool', 'level_null', 'product', 'missing_change'])
 def test_transport_rejects_overrides_and_mismatched_targets(env, mode):
     snap = snapshot(prepare(new_sample_rate_counter=0)); body = snap['body']
-    if mode == 'reset': body['resetInspectionLevel'] = True
+    if mode == 'reset': body['resetInspectionLevel'] = 'true'
     if mode == 'extra': body['currentSampleRate'] = 99
     if mode == 'selection': body['samplingCurrentStatus'] = [{'instanceId': STATUS2}]
     if mode == 'counter_bool': body['newSampleRateCounterValue'] = False
@@ -307,7 +307,7 @@ def test_registry_routing_and_actual_mcp_prepare_execute_inspect_multi_turn(env)
                     'status_instance_ids': [STATUS], 'new_sample_rate_counter': bad}, raise_on_error=False)
                 assert failed.is_error
             failed = await client.call_tool('prepare_current_sampling_status_update', {'product_name': 'Product', 'product_revision': 'A',
-                'status_instance_ids': [STATUS], 'new_sample_rate_counter': 0, 'reset_inspection_level': True}, raise_on_error=False)
+                'status_instance_ids': [STATUS], 'new_sample_rate_counter': 0, 'reset_inspection_level': 'true'}, raise_on_error=False)
             assert failed.is_error
     asyncio.run(run())
     env['client'].request.assert_awaited_once()

@@ -9,6 +9,8 @@
 
 复用 `execute_quality_transaction` 确认后单次提交、`get_quality_transaction_plan` 查看原计划、`inspect_quality_transaction` 读取原选择的当前状态，以及 `review_quality_transaction` 人工最终证据审计。
 
+2026-10-28补充：现已支持 `reset_inspection_level=true` 恢复计划默认检验水平，不能与命名新水平同时使用，可同时明确计数器；不猜有效默认或切换结果。详见[复位说明](quality-sampling-reset.md)。
+
 ## 参数与流程
 
 先明确产品名称和版本查询：
@@ -55,11 +57,11 @@
 - 产品必须为固定Active版本；状态产品归属和CDO类型8426明确，每条状态必须完整返回，`SamplingLotId` 必须为空。
 - 所选状态的计划与测试固定版本必须Active，当前计划仍包含该测试；未改变的Spec/设备/供应商字段仅保留并参与状态快照，不重新定义其业务范围。
 - 状态、产品ChangeCount及完整关联配置准备末尾重读；执行前再次重建摘要。重读只能检测可见变化，不保证数据库原子快照，也不锁住其他MES客户端。
-- 非执行预览必须回显固定产品、准确的选中状态集合、明确调整值、`ResetInspectionLevel=false` 和完整评论。不能扩大选中集合；服务内部处理集合非空时也必须一致。没有完整选中记录回显就不能生成可执行计划。
+- 非执行预览必须回显固定产品、准确的选中状态集合、明确调整值、明确的 `ResetInspectionLevel` 值（通常false，复位时true）和完整评论。不能扩大选中集合；服务内部处理集合非空时也必须一致。没有完整选中记录回显就不能生成可执行计划。
 - 使用正式Shopfloor `CurrentSamplingStatusUpdate`，不直接更新数据库。实际执行仅一次，不跟随重定向、不自动重试。HTTP 200仍保存为unknown，不能宣称最终成功。
 - 未核实事务阻止同产品的其他当前采样调整，也与相关产品绑定、检验定义和抽样基础表维护按读写声明互斥。这只是本MCP质量事务域内防护，不是全MES锁。
 
-本功能只影响**后续符合采样条件的容器**，不回填已在制容器的任务，不修改抽样计划、采样频率或已有批任务。批采样使用独立流程；不能用 `prepare_sampling_lot_update` 代替此工具。本轮不开放ResetInspectionLevel复位模式、全选或自动应用全部记录。
+本功能只影响**后续符合采样条件的容器**，不回填已在制容器的任务，不修改抽样计划、采样频率或已有批任务。批采样使用独立流程；不能用 `prepare_sampling_lot_update` 代替此工具。2026-10-27首轮未开放复位模式；2026-10-28已补齐明确选择的原生复位。仍不开放全选或自动应用全部记录。
 
 `inspect_quality_transaction` 只读取原计划明确选中的记录，并重读检测可见变化。当前计数或水平相同不是本次事务成功证明，`verified_success/state_changed/retry_allowed/history_correlation_verified` 均为false。当前部署没有发现专用 `CurrentSamplingStatusUpdateHistory` 表，通用主历史与具体状态的因果链未验证，因此 `find_quality_execution_candidates` 与 `reconcile_quality_execution` 暂不支持此类计划。最终证据需人工审计，原计划始终不可重放。
 
