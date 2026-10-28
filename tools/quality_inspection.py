@@ -263,9 +263,9 @@ def measured_details(definition,samples):
     return details,checks
 
 
-def collection_details(definition,args):
+def collection_details(definition,args,*,effects_validated=False):
     """Shared counted/measured deltas; target task and lot checks remain separate."""
-    reject_effectful_definition(definition)
+    if not effects_validated:reject_effectful_definition(definition)
     test=definition['test'];test_ref=revision_ref(test);dtype=test.get('SampleType')
     if type(dtype) is not int or dtype not in (1,2):raise ValueError('目前仅支持Counted=1、Measured=2，不提交外部采样。')
     if dtype==1:
@@ -279,6 +279,8 @@ def collection_details(definition,args):
 
 async def build_inspection(args,marker):
     from tools import quality_plans as plans
+    from tools import quality_inspection_effects as effects
+    full,quantity=effects.options(args)
     name=reads.text(args['container_name'],'容器名');test_name=reads.text(args['sample_test_name'],'检验测试')
     definition=await test_definition(test_name,args['sample_test_revision']);test=definition['test'];test_ref=revision_ref(test)
     ref,before,status=await container_snapshot(name,args.get('container_instance_id'));cid=ref['instanceId']
@@ -291,16 +293,17 @@ async def build_inspection(args,marker):
     if len(rows)!=1 or rows[0]['SampleTestId']!=test_ref['instanceId']:raise ValueError('当前容器没有唯一的该版本检验任务。')
     task=rows[0]
     if task['CompletedSamples']>=task['TotalSamplesRequired']:raise ValueError('当前任务已满足要求样本数，不再追加。')
-    if task['Rejects']>task['AllowedRejects']:raise ValueError('现有拒收数已超过MES阈值，先处理不合格处置。')
-    if task.get('InspectAllContQty') is not False or task.get('InspectAllQtyOnFailure') is not False:
-        raise ValueError('全检/失败转全检配置为真或未知，当前受限提交不覆盖该流程。')
-    details,checks,count,rejects=collection_details(definition,args);dtype=test['SampleType']
+    effects.task_policy(task,before,args)
+    effects.definition_policy(definition,args)
+    details,checks,count,rejects=collection_details(definition,args,effects_validated=quantity);dtype=test['SampleType']
     if count>100 or count>task['TotalSamplesRequired']-task['CompletedSamples']:raise ValueError('本次采样超过100或MES要求剩余数，不自动截断。')
     comment=inspection_comment(args.get('comments',''))
     body={'container':ref,'sampleTest':test_ref,'serviceDetails':details,'moveContainerOnCompletion':False,
         'comments':marker+(' '+comment if comment else '')}
     if len(json.dumps(body,ensure_ascii=False))>22000:raise ValueError('检验请求超过安全预览长度，请缩小样本批次。')
-    preview=await inspection_preview(body)
+    native_effects=await effects.prepare_effects(definition,before,status,task,args,count)
+    preview=(await inspection_preview(body,expected_task_id=task['ContainerSampleDataId'])
+             if native_effects else await inspection_preview(body))
     # The loaded service's numeric totals must agree with the persisted task.
     for field,expected in (('RequiredSamples',task['TotalSamplesRequired']),('SamplesTested',task['CompletedSamples']),
                            ('AllowedRejects',task['AllowedRejects'])):
@@ -311,22 +314,31 @@ async def build_inspection(args,marker):
     current=await reads.sql_rows(f"SELECT TOP 2 {TASK_COLUMNS} FROM ContainerSampleData WHERE ContainerId='{cid}' AND SampleTestId='{test_ref['instanceId']}' ORDER BY ContainerSampleDataId",2)
     check_tasks(current,cid)
     if current!=rows:raise ValueError('准备检验期间任务计数已变化。')
+    if native_effects and await test_definition(test_name,args['sample_test_revision'])!=definition:
+        raise ValueError('准备原生全检/扣量期间检验定义或点集合已变化。')
+    if native_effects:await effects.final_recheck(native_effects)
     preview.update({'local_checks':checks,'samples_this_submission':count,'rejects_this_submission':rejects,
         'result_semantics':'literal numeric precheck only; MES final result and release unverified',
         'automatic_move':False,'quantity_or_event_effects_supported':False})
     preview.update(counted_group_context(args))
-    return {'kind':'inspection','action':'collect','name':name,'target_id':cid,'scope_key':'inspection-container:'+cid,
+    result={'kind':'inspection','action':'collect','name':name,'target_id':cid,'scope_key':'inspection-container:'+cid,
         'before':{'container':before,'task':task,'container_status':{k:status[k] for k in (
             'Container','Spec','Step','Workflow','Operation','Resource','Product','Qty','Status') if k in status}},
         'definition':definition,'service':'CollectSamplingData',
         'body':body,'marker':marker,'preview':preview,'arguments':args,'environment':plans.environment()}
+    if native_effects:
+        result['inspection_effects']=native_effects
+        result['resource_reads']=native_effects['resource_reads']
+        preview.update(native_effects=native_effects['context'],quantity_or_event_effects_supported=quantity)
+    return result
 
 
-async def inspection_preview(body,service='CollectSamplingData'):
+async def inspection_preview(body,service='CollectSamplingData',expected_task_id=None):
     from tools.quality_plans import wire_matches
     if service not in ('CollectSamplingData','CollectLotSamplingData'):raise ValueError('检验服务不在预览白名单。')
     fields=['RequiredSamples','SamplesTested','AllowedRejects','SampleType','SamplingStatus']
     select=['Container','SampleTest','ServiceDetails','MoveContainerOnCompletion','Comments']+fields
+    if expected_task_id:select.append('ContainerSampleDataItem')
     if service=='CollectLotSamplingData':select+=['SamplingLot','LotSampleDataItem','IsExternal','IsWebhook']
     params={'execute':'false','$select':','.join(select),
         '$expand':'ServiceDetails($select=SampleTest,TotalSamplesCollected,Rejects,Rejected;'
@@ -339,6 +351,8 @@ async def inspection_preview(body,service='CollectSamplingData'):
     if not isinstance(data,dict) or outer.get('error') or outer.get('ErrorCode') or data.get('error') or data.get('ErrorCode') or _has_next_link(data):
         raise ValueError('检验服务非执行预览失败或不完整。')
     if not wire_matches(body,data):raise ValueError('检验回显的完整样本、数值、引用、拒收数或移站选项不一致。')
+    if expected_task_id and reads.identifier(data.get('ContainerSampleDataItem'))!=expected_task_id:
+        raise ValueError('全检/扣量检验未回显原持久任务ID，不能用同值任务替代。')
     for expected,detail in zip(body['serviceDetails'],data['ServiceDetails']):
         if detail.get('CDOTypeId') is not None and str(detail['CDOTypeId'])!='8462':
             raise ValueError('检验样本回显明细类型与已核实契约不符。')
@@ -358,15 +372,17 @@ async def inspection_preview(body,service='CollectSamplingData'):
 async def prepare_container_inspection(container_name:str,sample_test_name:str,sample_test_revision:str,
         container_instance_id:str|None=None,samples_collected:StrictInt|None=None,rejects:StrictInt|None=None,reject_reason_name:str|None=None,
         samples:Annotated[list[InspectionSample]|None,Field(max_length=50)]=None,comments:str='',
-        counted_groups:Annotated[list[CountedInspectionGroup]|None,Field(min_length=1,max_length=20)]=None)->str:
-    """仅准备单容器CollectSamplingData。计数可用旧单组参数，或counted_groups显式1..20个互不重叠分组，每组明确samples_collected/rejects及非零拒收原因，合计最多100；不能混用两种方式，不分摊总数，不同组不能重复原因/零拒收组。原因通过子明细提交，实际多组累计及原因历史仍待现场验收。测量用samples逐样本完整给点值。固定版本须属于当前任务；拒绝批抽样、全检转换、扣量/事件；移站false。预览不是质量判定，统一确认单次提交。"""
+        counted_groups:Annotated[list[CountedInspectionGroup]|None,Field(min_length=1,max_length=20)]=None,
+        allow_full_inspection:bool=False,allow_automatic_quantity_loss:bool=False)->str:
+    """准备单容器CollectSamplingData，固定版本及当前任务，计数/显式不重叠counted_groups或测量samples逐样本完整点值。默认拒绝全检和自动扣量；allow_full_inspection=true允许MES已有全检/失败转全检规则，要求数和标志不由客户端修改；allow_automatic_quantity_loss=true首版仅测量、单独配置DecreaseBySampleSizeReason，按本次样本数由MES内部扣量，不另发ChangeQty，不能扣至零。两选项互斥；高级模式仅基础Container、单位明确、无冻结/层级/载具/第二单位/抽样批，核对原任务ID及配置重读。按拒收数/原因报废、计数自动扣量、自动事件及批抽样仍不支持，移站false。实际转换、扣量、签名和父子历史待验收；确认单次提交，unknown不补发扣量。"""
     from tools import quality_plans as plans
     try:
         normalized=None if samples is None else [InspectionSample.model_validate(s).model_dump() for s in samples]
         groups=None if counted_groups is None else [CountedInspectionGroup.model_validate(g).model_dump() for g in counted_groups]
         return await plans.prepare('inspection',dict(container_name=container_name,sample_test_name=sample_test_name,
             sample_test_revision=sample_test_revision,container_instance_id=container_instance_id,samples_collected=samples_collected,
-            rejects=rejects,reject_reason_name=reject_reason_name,samples=normalized,comments=comments,counted_groups=groups))
+            rejects=rejects,reject_reason_name=reject_reason_name,samples=normalized,comments=comments,counted_groups=groups,
+            allow_full_inspection=allow_full_inspection,allow_automatic_quantity_loss=allow_automatic_quantity_loss))
     except (ValueError,TypeError,KeyError,AttributeError) as error:return encode({'submitted':False,'error':str(error)})
 
 

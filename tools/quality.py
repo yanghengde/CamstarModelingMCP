@@ -37,7 +37,7 @@ CAPA_COLUMNS='CAPAId,CAPAName,Category,Status,ChangeCount,IsFrozen,IsSubmitted,O
 @mcp.tool
 async def get_quality_api_inventory()->str:
     """读取2026-10-26现场质量API核查与MCP覆盖清单。标明已封装、已有旧工具及仅发现待验证的接口；不是实时健康检查，更不是质量业务/权限验收。"""
-    return encode({'checked_date':'2026-10-26','implementation_updated_date':'2026-10-28',
+    return encode({'checked_date':'2026-10-26','implementation_updated_date':'2026-10-29',
         'source':'live Swagger index + schemas + EDM + Query column metadata; archived docs/quality-fixtures',
         'live_health_check':False,'families':[
             {'domain':'NCR','checked_date':'2026-10-28','discovered':['NCRCreate','NCRUpdate','NCRClose','NCREscalate','NCRCloseQuality','GetNCRs','NCRHistoryInquiry'],
@@ -58,9 +58,10 @@ async def get_quality_api_inventory()->str:
                  'get_sampling_reference_definition','prepare_sampling_reference_definition','preview_sampling_table_lookup',
                  'prepare_sampling_lot_update','get_sampling_lot_maintenance_history','check_sampling_plan_configuration',
                  'get_current_sampling_status','prepare_current_sampling_status_update','prepare_sampling_lot_rework'],
-             'limitations':'单容器计数/测量提交计划、检验定义及AQL/检验水平维护、配置查表预览、产品关联、抽样批创建及只读详情。Modeling仅静态校验；零计数且无有效采样历史批的数量/频率调整、批采样记录及MES已通过批的OK执行计划已封装；另有同Workflow明确默认路径的受限批返工计划；批报废、全检转换和自动扣量未开放，单容器移站false；真实写入验收待补。'},
-            {'domain':'SPC','discovered':['SPCControls','SPCChartDefs','RecordSPCViolation'],
-             'tools':['list_quality_references','get_quality_reference_details'],'limitations':'只读配置，不执行SPC计算/判异或自动放行。'},
+             'limitations':'单容器计数/测量提交计划、检验定义及AQL/检验水平维护、配置查表预览、产品关联、抽样批创建及只读详情。Modeling仅静态校验；零计数且无有效采样历史批的数量/频率调整、批采样记录及MES已通过批的OK执行计划已封装；另有同Workflow明确默认路径的受限批返工计划；批报废未开放；单容器可显式允许MES已有全检规则或测量按本次样本数内部自动扣量，二者互斥，计数/拒收扣量、事件及批高级组合仍未开放，单容器移站false；真实写入验收待补。'},
+            {'domain':'SPC','discovered':['SPCControls','SPCChartDefs','RecordSPCViolation','AddSPCAnnotation','InlineSPCTxn'],
+             'tools':['list_quality_references','get_quality_reference_details','analyze_spc_series'],
+             'limitations':'配置查询及本地i_mr/xbar_r计算、显式WECO四规则。调用方提供数据与独立基线或有版本固定控制配置，不核实MES来源，不等同现场SPC引擎；违例/注释写入、冻结/资源状态及自动放行未开放。'},
             {'domain':'不良/返工/冻结','discovered':['ContainerDefect','Rework','Hold','Release'],
              'tools':['container_defect','rework','hold_container','release_container'],'limitations':'已有直接封装，不能假定具备新NCR/CAPA事务journal。需确认、现场写入验收待完成，不盲重试。'},
             {'domain':'报废','checked_date':'2026-10-28','discovered':['PartScrap','ScrapReasons','ChangeQty','LossReasons','ExecuteSamplingLot'],'tools':['prepare_container_quantity_loss','get_sampling_lot_scrap_readiness'],

@@ -367,3 +367,13 @@ def test_registry_readonly_routing_and_real_mcp_schema(env):
                 {'plan_id': 'plan', 'plan_digest': env['digest'], 'candidate_txn_id': TXN, 'force_success': True}, raise_on_error=False)
             assert unknown.is_error
     asyncio.run(run())
+
+
+
+def test_legacy_missing_move_option_remains_readable_but_not_write_transport(env):
+    before=journal()
+    with pytest.raises(ValueError):p.transport(env['snap'])
+    saved,_,_=h.attempted_plan('plan',env['digest'])
+    assert 'moveContainerOnCompletion' not in saved['body']
+    assert reconcile(env)['comparison']=='payload_match'
+    assert journal()==before

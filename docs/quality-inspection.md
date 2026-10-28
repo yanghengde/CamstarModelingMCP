@@ -2,6 +2,8 @@
 
 本文件介绍单容器AQL检验。检验定义维护、产品关联和抽样批创建见[定义与批工具](quality-definitions-lots.md)；批采样结果提交及MES已通过批的OK执行计划见[批检验工具](quality-lot-execution.md)。另有[受限整批返工](quality-lot-rework.md)；整批报废和通用最终质量放行仍未实现。普通DataCollectionDef采集和这里的SampleTest不是同一套接口。
 
+2026-10-28第三阶段扩展现有prepare_container_inspection，新增默认false的allow_full_inspection和allow_automatic_quantity_loss。仅显式允许MES已有全检规则或受限测量按本次样本数内部扣量，二者互斥；详见[原生全检与自动扣量](quality-inspection-effects.md)。默认行为仍拒绝这些配置。
+
 ## 四个专用工具
 
 | 工具 | 输入与结果 |
@@ -58,8 +60,8 @@ samples_collected和rejects都是**本次增量**。即使MES已采2件，本次
 ## 提交前校验与结果语义
 
 - 容器必须身份明确、Status为Active=1、明确需要采样、冻结计数明确为0，并且不属于SamplingLot。空冻结计数保留为未知，不自动当作0。
-- 当前容器必须有唯一的该版本持久化检验任务；已满足要求数、既有拒收已超过MES阈值、全检或失败转全检配置均拒绝当前受限提交。工具不自行计算AQL表或补造任务。
-- 拒绝已配置的按样本/拒收数扣量、按原因报废和自动生产事件配置；相关字段缺失或未知也不会当作已关闭。测试和检验点必须为明确Active状态。
+- 当前容器必须有唯一的该版本持久化检验任务；已满足要求数仍拒绝；默认拒绝既有拒收超阈值、全检或失败转全检配置。显式原生全检模式仅按已有MES规则及当前要求继续，详见扩展说明。工具不自行计算AQL表或补造任务。
+- 默认拒绝已配置的扣量；仅显式原生自动扣量模式支持测量按本次样本数扣量，仍拒绝按拒收数扣量、按原因报废和自动生产事件配置；相关字段缺失或未知也不会当作已关闭。测试和检验点必须为明确Active状态。
 - MoveContainerOnCompletion固定false，并要求服务原样回显。不向请求填入流程覆盖、签名或审批跳过字段。
 - 预览核对全部样本、点值、引用、计数及已核实的明细CDO类型8462/8463；还要求RequiredSamples、SamplesTested、AllowedRejects、SampleType与任务/定义一致。
 - 摘要绑定任务、容器业务状态、定义、原因组和已核实回显。Query/AdHoc的整数/布尔字符串仅按闭合类型转换；空值和未知编码不会冒充有效值。临时ServiceDetails/Parent和容器Inquiry实例ID不进入摘要。

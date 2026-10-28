@@ -22,11 +22,12 @@ FIELDS = {'ContainerId', 'ContainerName', 'CDOTypeId', 'Status', 'CurrentHoldCou
 
 
 class Dependencies:
-    def __init__(self):
+    def __init__(self, extra_assets=None):
+        self.assets = ASSETS | (extra_assets or {})
         self.ctx = ReadContext(40); self.states = {}; self.refs = []
 
     async def asset(self, entity, ref):
-        table, column, revisioned = ASSETS[entity]
+        table, column, revisioned = self.assets[entity]
         root = await self.ctx.resolve(entity, ref, revisioned); key = root.get('InstanceID')
         if not q.valid_id(key): raise ValueError('数量处置配置ID无效。')
         if revisioned and i.wire_int(root.get('Status'), 'Spec状态') != 1: raise ValueError('当前Spec不是Active固定版本。')
@@ -54,7 +55,7 @@ class Dependencies:
         return root
 
     async def stable(self):
-        fresh = Dependencies()
+        fresh = Dependencies(self.assets)
         for entity, ref, pair in self.refs:
             root = await fresh.asset(entity, ref)
             if (entity, root['InstanceID']) != pair or fresh.states[pair] != self.states[pair]:

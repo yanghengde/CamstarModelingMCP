@@ -68,6 +68,7 @@ from tools import boms
 from tools import resources
 from tools import production_basics
 from tools import system_info          # MCP 服务诊断（无外部副作用）
+from tools import quality_spc
 
 
 def get_tool_func(name: str):
@@ -77,7 +78,7 @@ def get_tool_func(name: str):
     """
     if name not in TOOL_POLICIES:
         return None
-    for module in [quality, quality_plans, quality_inspection, quality_definitions, quality_lots, quality_lot_execution, quality_history, quality_sampling_references, quality_lot_maintenance, quality_configuration, quality_current_sampling, quality_ncr_escalation, quality_ncr_closure, quality_lot_rework, quality_quantity_loss, collection_groups, collection_group_history, collection_verification, collection_modeling, component_issue_bulk, component_issue_reasons, component_issue_plans, document_files, collection_recovery, spec_documents, mfgorder_task_recovery, mfgorder_task_history, mfgorder_task_plans, mfgorder_task_preview, mfgorder_tasks, container_transfer_reconciliation, container_transfer_plans, container_transfers, collection_reconciliation, collection_submission, collection_history, collection_validation, component_issue, production_readiness, data_collection, boms, resources, production_basics, modeling_workspace, container_genealogy, container_trace,import_plans, order_progress, process_context, modeling_details, container_inquiry, tool_discovery, specs, operations, workflows, workflow_steps, products, mfgorders,
+    for module in [quality_spc, quality, quality_plans, quality_inspection, quality_definitions, quality_lots, quality_lot_execution, quality_history, quality_sampling_references, quality_lot_maintenance, quality_configuration, quality_current_sampling, quality_ncr_escalation, quality_ncr_closure, quality_lot_rework, quality_quantity_loss, collection_groups, collection_group_history, collection_verification, collection_modeling, component_issue_bulk, component_issue_reasons, component_issue_plans, document_files, collection_recovery, spec_documents, mfgorder_task_recovery, mfgorder_task_history, mfgorder_task_plans, mfgorder_task_preview, mfgorder_tasks, container_transfer_reconciliation, container_transfer_plans, container_transfers, collection_reconciliation, collection_submission, collection_history, collection_validation, component_issue, production_readiness, data_collection, boms, resources, production_basics, modeling_workspace, container_genealogy, container_trace,import_plans, order_progress, process_context, modeling_details, container_inquiry, tool_discovery, specs, operations, workflows, workflow_steps, products, mfgorders,
                    container_start, container_moves, container_quality,
                    numbering_rules,
                    container_levels, queries,

@@ -1,0 +1,18 @@
+{
+  "checked_date": "2026-10-29",
+  "operations": "Modeling GET only, fixed selected fields; no Shopfloor execution",
+  "result": {
+    "spc_control": {
+      "row_count": null,
+      "complete": false,
+      "has_more": null,
+      "error": "❌ Request failed: ConnectError('')"
+    },
+    "spc_chart": {
+      "row_count": null,
+      "complete": false,
+      "has_more": null,
+      "error": "❌ Request failed: ConnectError('')"
+    }
+  }
+}

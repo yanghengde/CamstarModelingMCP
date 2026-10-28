@@ -9,6 +9,7 @@ class ToolPolicy:
     always_confirm: bool = False
 
 TOOL_POLICIES = {
+    'analyze_spc_series': ToolPolicy('quality'),
     'prepare_quality_ncr_closure': ToolPolicy('quality'),
     'prepare_sampling_lot_rework': ToolPolicy('quality'),
     'prepare_container_quantity_loss': ToolPolicy('quality'),

@@ -340,6 +340,9 @@ def transport(snapshot):
         if snapshot.get('service')=='ChangeQty':
             from tools.quality_quantity_loss import validate_transport
             validate_transport(snapshot)
+        if snapshot.get('service')=='CollectSamplingData':
+            from tools.quality_inspection_effects import validate_transport
+            validate_transport(snapshot)
         if snapshot.get('service')=='ExecuteSamplingLot' and snapshot.get('kind')=='lot_rework':
             from tools.quality_lot_rework import validate_transport
             validate_transport(snapshot)
@@ -488,6 +491,9 @@ async def inspect_quality_transaction(plan_id:str,plan_digest:str)->str:
                 return encode(await inspect_snapshot(snap))
             if snap['kind']=='quantity_loss':
                 from tools.quality_quantity_loss import inspect_snapshot
+                return encode(await inspect_snapshot(snap))
+            if snap.get('inspection_effects'):
+                from tools.quality_inspection_effects import inspect_snapshot
                 return encode(await inspect_snapshot(snap))
             if snap['kind']=='lot_maintenance':
                 from tools.quality_lots import get_sampling_lot_details

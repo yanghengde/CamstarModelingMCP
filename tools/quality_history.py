@@ -124,7 +124,19 @@ def attempted_plan(plan_id, fingerprint):
         raise ValueError('仅支持单容器检验、批采样、整批OK和批维护的历史核对。')
     if snap.get('service') != SERVICES[snap['kind']]:
         raise ValueError('原计划种类与实际服务不一致。')
-    p.transport(snap)
+    if snap.get('inspection_effects'):
+        raise ValueError('原生全检/自动扣量尚未核实原任务及父子事务历史，不能用普通检验payload匹配代替；请inspect后以最终证据人工review。')
+    if snap['kind'] == 'inspection':
+        # Older evidence snapshots may omit the move option. Keep that unknown
+        # on this read-only path; never synthesize false or relax write transport.
+        body = snap.get('body')
+        required = {'container', 'sampleTest', 'serviceDetails', 'comments'}
+        if (snap.get('action') != 'collect' or not isinstance(body, dict) or not required <= body.keys()
+                or set(body)-required-{'moveContainerOnCompletion'}
+                or 'moveContainerOnCompletion' in body and body['moveContainerOnCompletion'] is not False):
+            raise ValueError('历史检验快照字段不符；只读核对不补造执行选项。')
+    else:
+        p.transport(snap)
     if not isinstance(snap['body'].get('comments'), str) or not snap['body']['comments']:
         raise ValueError('原请求缺少完整事务关联评论。')
     return snap, row[2], {'attempt_id': attempt[0], 'started': attempt[1], 'finished': attempt[2]}

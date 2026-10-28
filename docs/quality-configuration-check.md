@@ -44,3 +44,6 @@
 2026-10-27现场API连接超时。本轮没有取得新的现场契约或业务数据，也没有执行MES写入。`CurrentSamplingStatusUpdate` 已在先前Swagger目录和当地Siemens手册中发现，但本轮无法核对其字段，该轮未开放工具；后续已补齐[当前采样状态工具](quality-current-sampling.md)。手册说明它只影响后续符合条件的容器，不作用于已在制容器或批采样；不能用抽样批维护工具替代。
 
 现场端到端验收、后续新增[受限批返工](quality-lot-rework.md)，其扩展及验收、批报废、全检转换和SPC等仍未完成。证据与回归结果见[本轮摘要](quality-fixtures/configuration-audit-summary.json)。
+
+
+2026-10-28补充：此静态检查中的全检/扣量提交限制仍描述默认提交范围，不证明MES配置错误，也不直接判定高级模式可执行。现有单容器工具增加了默认false的原生全检/测量样本数扣量选项，须再按当前真实任务和目标核对，见[原生检验扩展](quality-inspection-effects.md)。

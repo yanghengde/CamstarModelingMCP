@@ -37,13 +37,14 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
               'reference': '基础资料与原因码', 'query': '查询服务', 'excel': '表格导入', 'system': '系统与能力发现'}
     disabled = {'patch_mfgorder': '当前服务 PATCH 契约未验证，工具已禁用；使用 update_mfgorder。'}
     caveats = {
+        'analyze_spc_series': '本地i_mr/xbar_r计算及显式WECO四规则，独立基线或有版本固定控制配置二选一；保留原ID/顺序/摘要，不核实MES来源，不把规格限当控制限，不写入、不放行。',
         'execute_quality_transaction': 'NCR/CAPA/检验/定义维护/产品关联/抽样批创建确认后单次提交，预览不等于业务批准；结果先unknown，当前只有人工最终证据审计可解占用，现场写入验收待补。',
         'inspect_quality_transaction': '仅当前记录/历史证据，不做成功归因、不解除占用；未验证非空请求到历史链。',
         'prepare_nonconformance_report': 'NCRCreate/Update/Close；更新省略失败码保留现有完整清单，传入则完整替换；关闭需NCR解决代码。',
         'prepare_capa': '固定类别5，submit=false草稿；提交不是批准或关闭，不代填电子签名。',
         'prepare_capa_closure': '仅CAPA的Close处置关闭计划，必须明确组织、质量解决代码及说明；不覆盖审批或签名，现场真实关闭验收待补。',
         'get_quality_closure_options': '实时处置原码候选；AttachToCAPA/CreateCAPA未开放，候选不代表目标许可。',
-        'prepare_container_inspection': '仅单容器Counted/Measured，旧单组增量或counted_groups显式互不重叠分组；不分摊总数，不混用根级计数。原因使用子明细完整回显；多组累计、原因历史仍待验收。拒绝全检转换及扣量/事件，移站false。',
+        'prepare_container_inspection': '单容器计数/测量检验计划，默认拒绝全检/扣量；显式allow_full_inspection只允许已有MES规则，allow_automatic_quantity_loss只允许测量按本次样本数由MES内部扣量，不另发ChangeQty。两者互斥，不扣至零、不支持计数/拒收扣量/事件/批抽样；高级模式核对原任务ID、主单位及配置，unknown需父子最终证据人工核实。',
         'get_inspection_test_definition': '固定版本SampleTest和数值点/单位/限值/原因/副作用配置，不混同普通数据采集。',
         'get_container_inspection_history': '历史累计数和MES状态，只作证据，不把累计量当本次增量，不自动解除unknown。',
         'prepare_quality_ncr_closure': 'NCRCloseQuality受限收尾计划：原NCR仍Open、原关联Event已Closed并有关闭时间/关闭人，明确NCR解决代码；不处理事件审批或关闭，不替代普通NCRClose。统一确认单次执行，unknown需最终证据。',

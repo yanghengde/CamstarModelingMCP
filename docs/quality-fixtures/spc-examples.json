@@ -1,0 +1,724 @@
+{
+  "synthetic_or_published_example_data_only": true,
+  "examples": [
+    {
+      "name": "synthetic_fixed_i_mr",
+      "arguments": {
+        "chart_type": "i_mr",
+        "points": [
+          {
+            "observation_id": "DEMO-0",
+            "sequence": 101,
+            "values": [
+              "10.1"
+            ]
+          },
+          {
+            "observation_id": "DEMO-1",
+            "sequence": 102,
+            "values": [
+              "10.4"
+            ]
+          }
+        ],
+        "context": {
+          "characteristic": "Diameter",
+          "unit": "mm",
+          "process_scope": "Line A / product R1",
+          "data_reference": "export sha256:example",
+          "order_reference": "measurement order field"
+        },
+        "rules": [
+          "beyond_3sigma",
+          "eight_same_side"
+        ],
+        "controls": {
+          "reference": "approved control document",
+          "version": "A",
+          "subgroup_size": 1,
+          "center": "10",
+          "sigma": "0.1",
+          "dispersion_center": "0.1128",
+          "dispersion_lcl": "0",
+          "dispersion_ucl": "0.3685176"
+        }
+      },
+      "result": {
+        "algorithm_version": "spc-local-v1",
+        "rule_version": "weco-four-strict-v1",
+        "chart_type": "i_mr",
+        "arithmetic": "exact_rational_comparisons_decimal_display_64_significant_digits",
+        "input_digest": "fb66f6707cdbf423b58903aec660d2a1b0f6686199534fda1a83aac81248f4f1",
+        "input_snapshot": {
+          "chart_type": "i_mr",
+          "points": [
+            {
+              "observation_id": "DEMO-0",
+              "sequence": 101,
+              "values": [
+                "10.1"
+              ]
+            },
+            {
+              "observation_id": "DEMO-1",
+              "sequence": 102,
+              "values": [
+                "10.4"
+              ]
+            }
+          ],
+          "context": {
+            "characteristic": "Diameter",
+            "unit": "mm",
+            "process_scope": "Line A / product R1",
+            "data_reference": "export sha256:example",
+            "order_reference": "measurement order field"
+          },
+          "rules": [
+            "beyond_3sigma",
+            "eight_same_side"
+          ],
+          "baseline": null,
+          "baseline_reference": null,
+          "controls": {
+            "reference": "approved control document",
+            "version": "A",
+            "subgroup_size": 1,
+            "center": "10",
+            "sigma": "0.1",
+            "dispersion_center": "0.1128",
+            "dispersion_lcl": "0",
+            "dispersion_ucl": "0.3685176"
+          }
+        },
+        "context": {
+          "characteristic": "Diameter",
+          "unit": "mm",
+          "process_scope": "Line A / product R1",
+          "data_reference": "export sha256:example",
+          "order_reference": "measurement order field"
+        },
+        "control_origin": "caller_fixed_controls",
+        "control_reference": "approved control document",
+        "control_version": "A",
+        "subgroup_size": 1,
+        "selected_rules": [
+          "beyond_3sigma",
+          "eight_same_side"
+        ],
+        "baseline": null,
+        "control_limits": {
+          "primary": {
+            "center": "10",
+            "sigma_of_statistic": "0.1",
+            "lcl": "9.7",
+            "ucl": "10.3"
+          },
+          "dispersion": {
+            "center": "0.1128",
+            "lcl": "0",
+            "ucl": "0.3685176"
+          }
+        },
+        "points": [
+          {
+            "observation_id": "DEMO-0",
+            "sequence": 101,
+            "values": [
+              "10.1"
+            ],
+            "statistic": "10.1"
+          },
+          {
+            "observation_id": "DEMO-1",
+            "sequence": 102,
+            "values": [
+              "10.4"
+            ],
+            "statistic": "10.4"
+          }
+        ],
+        "dispersion_points": [
+          {
+            "end_id": "DEMO-1",
+            "value": "0.3"
+          }
+        ],
+        "primary_signals": [
+          {
+            "rule": "beyond_3sigma",
+            "side": "above",
+            "window_start_id": "DEMO-1",
+            "window_end_id": "DEMO-1",
+            "contributing_ids": [
+              "DEMO-1"
+            ]
+          }
+        ],
+        "dispersion_signals": [],
+        "has_signals": true,
+        "signal_scope": "points_only",
+        "dispersion_evaluated_points": 1,
+        "evaluation_windows": {
+          "beyond_3sigma": {
+            "required": 1,
+            "evaluated": 2
+          },
+          "eight_same_side": {
+            "required": 8,
+            "evaluated": 0
+          }
+        },
+        "data_verified_against_mes": false,
+        "configuration_verified_against_mes": false,
+        "native_spc_result": false,
+        "ready_for_mes_write": false,
+        "release_authorized": false,
+        "assumptions_verified": false,
+        "sources": [
+          "https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc32.htm",
+          "https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc322.htm",
+          "https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc321.htm"
+        ],
+        "limitations": [
+          "调用方提供同特性、同单位、同过程的有序数据；本工具未从MES核实来源或独立性/分布假设。",
+          "基线估计是待审核控制限，基线有信号不剔除、不自动重算；基线/评估段不跨段计算MR或判异窗口。",
+          "WECO仅用于单值或子组均值；MR/R仅逐点检查其控制限，重叠MR不套用WECO运行规则。",
+          "等于边界不触发，等于中心线中断同侧连续；无信号不代表过程稳定、产品合格或允许放行。",
+          "规格限不替代控制限；本地规则不宣称等同现场SPC引擎，不执行违例/注释写入、冻结或资源状态变更。"
+        ]
+      }
+    },
+    {
+      "name": "nist_separate_baseline",
+      "arguments": {
+        "chart_type": "i_mr",
+        "points": [
+          {
+            "observation_id": "P0",
+            "sequence": 10,
+            "values": [
+              "100"
+            ]
+          }
+        ],
+        "context": {
+          "characteristic": "Diameter",
+          "unit": "mm",
+          "process_scope": "Line A / product R1",
+          "data_reference": "export sha256:example",
+          "order_reference": "measurement order field"
+        },
+        "rules": [
+          "beyond_3sigma",
+          "two_of_three_2sigma",
+          "four_of_five_1sigma",
+          "eight_same_side"
+        ],
+        "baseline": [
+          {
+            "observation_id": "B0",
+            "sequence": 0,
+            "values": [
+              "49.6"
+            ]
+          },
+          {
+            "observation_id": "B1",
+            "sequence": 1,
+            "values": [
+              "47.6"
+            ]
+          },
+          {
+            "observation_id": "B2",
+            "sequence": 2,
+            "values": [
+              "49.9"
+            ]
+          },
+          {
+            "observation_id": "B3",
+            "sequence": 3,
+            "values": [
+              "51.3"
+            ]
+          },
+          {
+            "observation_id": "B4",
+            "sequence": 4,
+            "values": [
+              "47.8"
+            ]
+          },
+          {
+            "observation_id": "B5",
+            "sequence": 5,
+            "values": [
+              "51.2"
+            ]
+          },
+          {
+            "observation_id": "B6",
+            "sequence": 6,
+            "values": [
+              "52.6"
+            ]
+          },
+          {
+            "observation_id": "B7",
+            "sequence": 7,
+            "values": [
+              "52.4"
+            ]
+          },
+          {
+            "observation_id": "B8",
+            "sequence": 8,
+            "values": [
+              "53.6"
+            ]
+          },
+          {
+            "observation_id": "B9",
+            "sequence": 9,
+            "values": [
+              "52.1"
+            ]
+          }
+        ],
+        "baseline_reference": "NIST individuals example"
+      },
+      "result": {
+        "algorithm_version": "spc-local-v1",
+        "rule_version": "weco-four-strict-v1",
+        "chart_type": "i_mr",
+        "arithmetic": "exact_rational_comparisons_decimal_display_64_significant_digits",
+        "input_digest": "e6142447b7e99f6650bdf9bcba241aa234d0361e3acba31724dcbda8d2f564c2",
+        "input_snapshot": {
+          "chart_type": "i_mr",
+          "points": [
+            {
+              "observation_id": "P0",
+              "sequence": 10,
+              "values": [
+                "100"
+              ]
+            }
+          ],
+          "context": {
+            "characteristic": "Diameter",
+            "unit": "mm",
+            "process_scope": "Line A / product R1",
+            "data_reference": "export sha256:example",
+            "order_reference": "measurement order field"
+          },
+          "rules": [
+            "beyond_3sigma",
+            "two_of_three_2sigma",
+            "four_of_five_1sigma",
+            "eight_same_side"
+          ],
+          "baseline": [
+            {
+              "observation_id": "B0",
+              "sequence": 0,
+              "values": [
+                "49.6"
+              ]
+            },
+            {
+              "observation_id": "B1",
+              "sequence": 1,
+              "values": [
+                "47.6"
+              ]
+            },
+            {
+              "observation_id": "B2",
+              "sequence": 2,
+              "values": [
+                "49.9"
+              ]
+            },
+            {
+              "observation_id": "B3",
+              "sequence": 3,
+              "values": [
+                "51.3"
+              ]
+            },
+            {
+              "observation_id": "B4",
+              "sequence": 4,
+              "values": [
+                "47.8"
+              ]
+            },
+            {
+              "observation_id": "B5",
+              "sequence": 5,
+              "values": [
+                "51.2"
+              ]
+            },
+            {
+              "observation_id": "B6",
+              "sequence": 6,
+              "values": [
+                "52.6"
+              ]
+            },
+            {
+              "observation_id": "B7",
+              "sequence": 7,
+              "values": [
+                "52.4"
+              ]
+            },
+            {
+              "observation_id": "B8",
+              "sequence": 8,
+              "values": [
+                "53.6"
+              ]
+            },
+            {
+              "observation_id": "B9",
+              "sequence": 9,
+              "values": [
+                "52.1"
+              ]
+            }
+          ],
+          "baseline_reference": "NIST individuals example",
+          "controls": null
+        },
+        "context": {
+          "characteristic": "Diameter",
+          "unit": "mm",
+          "process_scope": "Line A / product R1",
+          "data_reference": "export sha256:example",
+          "order_reference": "measurement order field"
+        },
+        "control_origin": "separate_baseline_estimate",
+        "control_reference": "NIST individuals example",
+        "control_version": "spc-local-v1",
+        "subgroup_size": 1,
+        "selected_rules": [
+          "beyond_3sigma",
+          "two_of_three_2sigma",
+          "four_of_five_1sigma",
+          "eight_same_side"
+        ],
+        "baseline": {
+          "reference": "NIST individuals example",
+          "count": 10,
+          "constants": {
+            "d2": "1.128",
+            "D3": "0",
+            "D4": "3.267"
+          },
+          "primary_signals": [],
+          "dispersion_signals": [],
+          "stability_verified": false,
+          "has_signals": false
+        },
+        "control_limits": {
+          "primary": {
+            "center": "50.81",
+            "sigma_of_statistic": "1.664696611505122143420015760441292356185973207249802994483845548",
+            "lcl": "45.81591016548463356973995271867612293144208037825059101654846336",
+            "ucl": "55.80408983451536643026004728132387706855791962174940898345153664"
+          },
+          "dispersion": {
+            "center": "1.877777777777777777777777777777777777777777777777777777777777778",
+            "lcl": "0",
+            "ucl": "6.1347"
+          }
+        },
+        "points": [
+          {
+            "observation_id": "P0",
+            "sequence": 10,
+            "values": [
+              "100"
+            ],
+            "statistic": "100"
+          }
+        ],
+        "dispersion_points": [],
+        "primary_signals": [
+          {
+            "rule": "beyond_3sigma",
+            "side": "above",
+            "window_start_id": "P0",
+            "window_end_id": "P0",
+            "contributing_ids": [
+              "P0"
+            ]
+          }
+        ],
+        "dispersion_signals": [],
+        "has_signals": true,
+        "signal_scope": "points_only",
+        "dispersion_evaluated_points": 0,
+        "evaluation_windows": {
+          "beyond_3sigma": {
+            "required": 1,
+            "evaluated": 1
+          },
+          "two_of_three_2sigma": {
+            "required": 3,
+            "evaluated": 0
+          },
+          "four_of_five_1sigma": {
+            "required": 5,
+            "evaluated": 0
+          },
+          "eight_same_side": {
+            "required": 8,
+            "evaluated": 0
+          }
+        },
+        "data_verified_against_mes": false,
+        "configuration_verified_against_mes": false,
+        "native_spc_result": false,
+        "ready_for_mes_write": false,
+        "release_authorized": false,
+        "assumptions_verified": false,
+        "sources": [
+          "https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc32.htm",
+          "https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc322.htm",
+          "https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc321.htm"
+        ],
+        "limitations": [
+          "调用方提供同特性、同单位、同过程的有序数据；本工具未从MES核实来源或独立性/分布假设。",
+          "基线估计是待审核控制限，基线有信号不剔除、不自动重算；基线/评估段不跨段计算MR或判异窗口。",
+          "WECO仅用于单值或子组均值；MR/R仅逐点检查其控制限，重叠MR不套用WECO运行规则。",
+          "等于边界不触发，等于中心线中断同侧连续；无信号不代表过程稳定、产品合格或允许放行。",
+          "规格限不替代控制限；本地规则不宣称等同现场SPC引擎，不执行违例/注释写入、冻结或资源状态变更。"
+        ]
+      }
+    },
+    {
+      "name": "xbar_r_hand_calculation",
+      "arguments": {
+        "chart_type": "xbar_r",
+        "points": [
+          {
+            "observation_id": "P0",
+            "sequence": 2,
+            "values": [
+              "7",
+              "8",
+              "9"
+            ]
+          }
+        ],
+        "context": {
+          "characteristic": "Diameter",
+          "unit": "mm",
+          "process_scope": "Line A / product R1",
+          "data_reference": "export sha256:example",
+          "order_reference": "measurement order field"
+        },
+        "rules": [
+          "beyond_3sigma",
+          "two_of_three_2sigma",
+          "four_of_five_1sigma",
+          "eight_same_side"
+        ],
+        "baseline": [
+          {
+            "observation_id": "B0",
+            "sequence": 0,
+            "values": [
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          {
+            "observation_id": "B1",
+            "sequence": 1,
+            "values": [
+              "3",
+              "4",
+              "5"
+            ]
+          }
+        ],
+        "baseline_reference": "synthetic rational subgroups"
+      },
+      "result": {
+        "algorithm_version": "spc-local-v1",
+        "rule_version": "weco-four-strict-v1",
+        "chart_type": "xbar_r",
+        "arithmetic": "exact_rational_comparisons_decimal_display_64_significant_digits",
+        "input_digest": "0c5df142afb4ea82397283fd94a85c614fe9ed70845b8c044c6b71d230ce42e1",
+        "input_snapshot": {
+          "chart_type": "xbar_r",
+          "points": [
+            {
+              "observation_id": "P0",
+              "sequence": 2,
+              "values": [
+                "7",
+                "8",
+                "9"
+              ]
+            }
+          ],
+          "context": {
+            "characteristic": "Diameter",
+            "unit": "mm",
+            "process_scope": "Line A / product R1",
+            "data_reference": "export sha256:example",
+            "order_reference": "measurement order field"
+          },
+          "rules": [
+            "beyond_3sigma",
+            "two_of_three_2sigma",
+            "four_of_five_1sigma",
+            "eight_same_side"
+          ],
+          "baseline": [
+            {
+              "observation_id": "B0",
+              "sequence": 0,
+              "values": [
+                "1",
+                "2",
+                "3"
+              ]
+            },
+            {
+              "observation_id": "B1",
+              "sequence": 1,
+              "values": [
+                "3",
+                "4",
+                "5"
+              ]
+            }
+          ],
+          "baseline_reference": "synthetic rational subgroups",
+          "controls": null
+        },
+        "context": {
+          "characteristic": "Diameter",
+          "unit": "mm",
+          "process_scope": "Line A / product R1",
+          "data_reference": "export sha256:example",
+          "order_reference": "measurement order field"
+        },
+        "control_origin": "separate_baseline_estimate",
+        "control_reference": "synthetic rational subgroups",
+        "control_version": "spc-local-v1",
+        "subgroup_size": 3,
+        "selected_rules": [
+          "beyond_3sigma",
+          "two_of_three_2sigma",
+          "four_of_five_1sigma",
+          "eight_same_side"
+        ],
+        "baseline": {
+          "reference": "synthetic rational subgroups",
+          "count": 2,
+          "constants": {
+            "A2": "1.023",
+            "D3": "0",
+            "D4": "2.575"
+          },
+          "primary_signals": [],
+          "dispersion_signals": [],
+          "stability_verified": false,
+          "has_signals": false
+        },
+        "control_limits": {
+          "primary": {
+            "center": "3",
+            "sigma_of_statistic": "0.682",
+            "lcl": "0.954",
+            "ucl": "5.046"
+          },
+          "dispersion": {
+            "center": "2",
+            "lcl": "0",
+            "ucl": "5.15"
+          }
+        },
+        "points": [
+          {
+            "observation_id": "P0",
+            "sequence": 2,
+            "values": [
+              "7",
+              "8",
+              "9"
+            ],
+            "statistic": "8"
+          }
+        ],
+        "dispersion_points": [
+          {
+            "end_id": "P0",
+            "value": "2"
+          }
+        ],
+        "primary_signals": [
+          {
+            "rule": "beyond_3sigma",
+            "side": "above",
+            "window_start_id": "P0",
+            "window_end_id": "P0",
+            "contributing_ids": [
+              "P0"
+            ]
+          }
+        ],
+        "dispersion_signals": [],
+        "has_signals": true,
+        "signal_scope": "points_only",
+        "dispersion_evaluated_points": 1,
+        "evaluation_windows": {
+          "beyond_3sigma": {
+            "required": 1,
+            "evaluated": 1
+          },
+          "two_of_three_2sigma": {
+            "required": 3,
+            "evaluated": 0
+          },
+          "four_of_five_1sigma": {
+            "required": 5,
+            "evaluated": 0
+          },
+          "eight_same_side": {
+            "required": 8,
+            "evaluated": 0
+          }
+        },
+        "data_verified_against_mes": false,
+        "configuration_verified_against_mes": false,
+        "native_spc_result": false,
+        "ready_for_mes_write": false,
+        "release_authorized": false,
+        "assumptions_verified": false,
+        "sources": [
+          "https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc32.htm",
+          "https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc322.htm",
+          "https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc321.htm"
+        ],
+        "limitations": [
+          "调用方提供同特性、同单位、同过程的有序数据；本工具未从MES核实来源或独立性/分布假设。",
+          "基线估计是待审核控制限，基线有信号不剔除、不自动重算；基线/评估段不跨段计算MR或判异窗口。",
+          "WECO仅用于单值或子组均值；MR/R仅逐点检查其控制限，重叠MR不套用WECO运行规则。",
+          "等于边界不触发，等于中心线中断同侧连续；无信号不代表过程稳定、产品合格或允许放行。",
+          "规格限不替代控制限；本地规则不宣称等同现场SPC引擎，不执行违例/注释写入、冻结或资源状态变更。"
+        ]
+      }
+    }
+  ]
+}
