@@ -98,6 +98,9 @@ async def failure_refs(names):
 
 
 async def build_ncr(args,marker):
+    if args.get('action')=='quality_close':
+        from tools.quality_ncr_closure import build_quality_close
+        return await build_quality_close(args,marker)
     if args.get('action')=='escalate':
         from tools.quality_ncr_escalation import build_escalation
         return await build_escalation(args,marker)
@@ -304,15 +307,20 @@ def checked(row,fingerprint):
 
 def transport(snapshot):
     if snapshot.get('api','shopfloor')=='shopfloor':
+        if snapshot.get('kind')=='ncr' and snapshot.get('action')=='quality_close' and snapshot.get('service')!='NCRCloseQuality':
+            raise ValueError('质量侧NCR关闭计划必须使用NCRCloseQuality。')
         if snapshot.get('kind')=='ncr' and snapshot.get('action')=='escalate' and snapshot.get('service')!='NCREscalate':
             raise ValueError('NCR升级计划必须使用NCREscalate。')
         if snapshot.get('kind')=='lot_maintenance' and snapshot.get('service')!='UpdateSamplingLot':
             raise ValueError('批维护计划必须使用UpdateSamplingLot。')
         if snapshot.get('kind')=='current_sampling' and snapshot.get('service')!='CurrentSamplingStatusUpdate':
             raise ValueError('当前采样维护计划必须使用CurrentSamplingStatusUpdate。')
-        if snapshot.get('service') not in ('NCRCreate','NCRUpdate','NCRClose','NCREscalate','CreateCAPA','UpdateCAPA','CloseQualityObject',
+        if snapshot.get('service') not in ('NCRCreate','NCRUpdate','NCRClose','NCRCloseQuality','NCREscalate','CreateCAPA','UpdateCAPA','CloseQualityObject',
                 'CollectSamplingData','CreateSamplingLot','CollectLotSamplingData','ExecuteSamplingLot','UpdateSamplingLot','CurrentSamplingStatusUpdate'):
             raise ValueError('质量服务不在执行白名单。')
+        if snapshot.get('service')=='NCRCloseQuality':
+            from tools.quality_ncr_closure import validate_transport
+            validate_transport(snapshot)
         if snapshot.get('service')=='NCREscalate':
             from tools.quality_ncr_escalation import validate_transport
             validate_transport(snapshot)
@@ -453,6 +461,9 @@ async def inspect_quality_transaction(plan_id:str,plan_digest:str)->str:
             with db_connect() as db:row=db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone()
             snap=checked(row,plan_digest)
             if row[2] not in ('unknown','in_flight'):raise ValueError('仅检查已尝试/未知质量计划。')
+            if snap['kind']=='ncr' and snap.get('action')=='quality_close':
+                from tools.quality_ncr_closure import inspect_snapshot
+                return encode(await inspect_snapshot(snap))
             if snap['kind']=='current_sampling':
                 from tools.quality_current_sampling import inspect_snapshot
                 return encode(await inspect_snapshot(snap))

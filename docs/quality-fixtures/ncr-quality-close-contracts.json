@@ -1,0 +1,275 @@
+{
+  "checked_date": "2026-10-28",
+  "mes_business_writes": false,
+  "columns": [
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "AttachmentsId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "BriefDescription",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "Category",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "CDOTypeId",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "ChangeCount",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "ChecklistId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "ChecklistSaved",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "ClassificationId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "CloseDate",
+      "DATA_TYPE": "datetime"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "CloseDateGMT",
+      "DATA_TYPE": "datetime"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "ClosedById",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "CloseDescription",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "Description",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "DiscoveryArea",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "EscalateToComplaint",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "EventDataId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "EventId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "EventName",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "InitiatorId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "InitiatorOrganizationId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "IsCARRequiredToClose",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "IsFrozen",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "IsSubmitted",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "OccurrenceDate",
+      "DATA_TYPE": "datetime"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "OccurrenceDateGMT",
+      "DATA_TYPE": "datetime"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "OrganizationId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "OrigProcessModelTemplateId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "OwnerId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "PriorityLevelId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "ProcessModelId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "QualityResolutionCodeId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "ReportedDate",
+      "DATA_TYPE": "datetime"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "ReportedDateGMT",
+      "DATA_TYPE": "datetime"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "ReporterId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "ReporterOrganizationId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "RiskAssessmentId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "RoleId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "Status",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "SubClassificationId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "Event",
+      "COLUMN_NAME": "TriageComplete",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "NCRResolutionCode",
+      "COLUMN_NAME": "CDOTypeId",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "NCRResolutionCode",
+      "COLUMN_NAME": "ChangeCount",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "NCRResolutionCode",
+      "COLUMN_NAME": "ChangeHistoryId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "NCRResolutionCode",
+      "COLUMN_NAME": "Description",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "NCRResolutionCode",
+      "COLUMN_NAME": "FilterTags",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "NCRResolutionCode",
+      "COLUMN_NAME": "IconId",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "NCRResolutionCode",
+      "COLUMN_NAME": "IsFrozen",
+      "DATA_TYPE": "bit"
+    },
+    {
+      "TABLE_NAME": "NCRResolutionCode",
+      "COLUMN_NAME": "NCRResolutionCodeId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "NCRResolutionCode",
+      "COLUMN_NAME": "NCRResolutionCodeName",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "NCRResolutionCode",
+      "COLUMN_NAME": "Notes",
+      "DATA_TYPE": "nvarchar"
+    },
+    {
+      "TABLE_NAME": "NCRResolutionCode",
+      "COLUMN_NAME": "SetupAccessId",
+      "DATA_TYPE": "char"
+    }
+  ],
+  "edm": [
+    "<ns0:EntityType xmlns:ns0=\"http://docs.oasis-open.org/odata/ns/edm\" xmlns:ns1=\"customAttribute\" Name=\"NonconformanceReport\" BaseType=\"inquiry.MaintenanceEntity\" ns1:EventList=\"GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; TxnRev_Add; \"><ns0:Property Name=\"Attachments\" Type=\"inquiry.SubentityRef\" ns1:OriginalType=\"DocAttachments\" ns1:CdoId=\"7187\" ns1:FieldId=\"13184\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Document Attachments\" /><ns0:Property Name=\"ChargeToStep\" Type=\"inquiry.NamedSubentityRef\" ns1:OriginalType=\"SpecStep\" ns1:CdoId=\"7187\" ns1:FieldId=\"10024\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The ChargeToStep is the processing step where the problem occurred. This step will be tracked by the nonconformance report that is about to be created.\" /><ns0:Property Name=\"ChildNonconformances\" Type=\"Collection(inquiry.NamedObjectRef)\" ns1:OriginalType=\"NonconformanceReport\" ns1:CdoId=\"7187\" ns1:FieldId=\"10014\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Child Nonconformances are nonconformances created for containers that have been used as components for the container to which the current nonconformance refers.  ChildNonconformances is a calculated field, based on the RelatedNonconformance field in the child nonconformance.\" /><ns0:Property Name=\"CloseDate\" Type=\"Edm.DateTimeOffset\" ns1:CdoId=\"7187\" ns1:FieldId=\"10023\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"TimeStamp that records the date the status of the nonconformance was set to &quot;closed&quot;.\" /><ns0:Property Name=\"CloseDateGMT\" Type=\"Edm.DateTimeOffset\" ns1:CdoId=\"7187\" ns1:FieldId=\"14710\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"TimeStamp that records the date the status of the nonconformance was set to &quot;closed&quot;.\" /><ns0:Property Name=\"Container\" Type=\"inquiry.ContainerRef\" ns1:OriginalType=\"Container\" ns1:CdoId=\"7187\" ns1:FieldId=\"10017\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The container to which this nonconformance report applies.\" /><ns0:Property Name=\"CreationDate\" Type=\"Edm.DateTimeOffset\" ns1:CdoId=\"7187\" ns1:FieldId=\"10022\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The TxnDate timestamp for the NCRCreate transaction which created this nonconformance.\" /><ns0:Property Name=\"CreationDateGMT\" Type=\"Edm.DateTimeOffset\" ns1:CdoId=\"7187\" ns1:FieldId=\"14711\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The TxnDate timestamp for the NCRCreate transaction which created this nonconformance.\" /><ns0:Property Name=\"CrossRefs\" Type=\"Collection(inquiry.BaseObjectRef)\" ns1:OriginalType=\"HistoryCrossRef\" ns1:CdoId=\"7187\" ns1:FieldId=\"10016\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The HistoryCrossRef is the means of correlating a single history mainline record (representing a single transaction) to the container(s) to which it applies.  A single transaction applies to multiple containers when it is executed against a container that has child containers\" /><ns0:Property Name=\"CurrentCrossRefs\" Type=\"Collection(inquiry.BaseObjectRef)\" ns1:OriginalType=\"HistoryCrossRef\" ns1:CdoId=\"7187\" ns1:FieldId=\"10694\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The HistoryCrossRef is the means of correlating a single history mainline record (representing a single transaction) to the container(s) to which it applies.  A single transaction applies to multiple containers when it is executed against a container that has child containers\" /><ns0:Property Name=\"EscalatedBy\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"Employee\" ns1:CdoId=\"7187\" ns1:FieldId=\"18270\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Escalated employee\" /><ns0:Property Name=\"EscalatedEvent\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"QualityObject\" ns1:CdoId=\"7187\" ns1:FieldId=\"18267\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Escalated Event\" /><ns0:Property Name=\"EscalationDate\" Type=\"Edm.DateTimeOffset\" ns1:CdoId=\"7187\" ns1:FieldId=\"18268\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Escalation Date\" /><ns0:Property Name=\"EscalationDateGMT\" Type=\"Edm.DateTimeOffset\" ns1:CdoId=\"7187\" ns1:FieldId=\"18269\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Escalation Date GMT\" /><ns0:Property Name=\"Name\" Type=\"Edm.String\" ns1:CdoId=\"7187\" ns1:FieldId=\"10013\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Unique name for this nonconformance.\" /><ns0:Property Name=\"NCRCauseCode\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"NCRCauseCode\" ns1:CdoId=\"7187\" ns1:FieldId=\"10021\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Identifies the Root Cause of why the material failed.\" /><ns0:Property Name=\"NCRCauseCodeGroup\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"NCRCauseCodeGroup\" ns1:CdoId=\"7187\" ns1:FieldId=\"10020\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"A User Code Object Group that represents a group of NCRCauseCodes.  NCRCauseCodeGroups are used to organize NCRCauseCodes, so the user can more easily find the pertinent CauseCode.\" /><ns0:Property Name=\"NCRComment\" Type=\"Edm.String\" ns1:CdoId=\"7187\" ns1:FieldId=\"10025\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"NCRComment\" /><ns0:Property Name=\"NCRFailureCodes\" Type=\"Collection(inquiry.NamedObjectRef)\" ns1:OriginalType=\"NCRFailureCode\" ns1:CdoId=\"7187\" ns1:FieldId=\"10019\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Identifies the problem that occurred.\" /><ns0:Property Name=\"NCRFailureType\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"NCRFailureType\" ns1:CdoId=\"7187\" ns1:FieldId=\"10018\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Provides a means to categorize Nonconformance failures.  For example &quot;repeatable&quot; vs. &quot;intermittent&quot;.\" /><ns0:Property Name=\"NCRResolutionCode\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"NCRResolutionCode\" ns1:CdoId=\"7187\" ns1:FieldId=\"10026\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Identifies what was done to resolve a Nonconformance.  Examples would be &quot;Use As Is&quot; or &quot;Scrap&quot;.\" /><ns0:Property Name=\"NCRStatus\" Type=\"Edm.Int32\" ns1:CdoId=\"7187\" ns1:FieldId=\"10029\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Current status of the Nonconformance. This value is used to distinguish between Nonconformance that are open and closed.&#13;&#10;&#13;&#10;Valid values and their meanings are:&#13;&#10;1= Open&#13;&#10;2 = Closed&#13;&#10;\" /><ns0:Property Name=\"RelatedNonconformance\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"NonconformanceReport\" ns1:CdoId=\"7187\" ns1:FieldId=\"10015\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"If this nonconformance was registered against a container that was used as a component in another container, this &quot;related nonconformance&quot; identifies the nonconformance that tracks the original problem that was found in the higher-level container.\" /><ns0:Property Name=\"Task\" Type=\"inquiry.NamedSubentityRef\" ns1:OriginalType=\"TaskItem\" ns1:CdoId=\"7187\" ns1:FieldId=\"10723\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The Task for which this NonconformanceReport was added.\" /><ns0:NavigationProperty Name=\"CorrectiveActionComments\" Type=\"inquiry.NCRCorrectiveAction\" ns1:CdoId=\"7187\" ns1:FieldId=\"10037\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Documentation of the steps that were taken to fix the specific problem documented by this nonconformance.\" /><ns0:NavigationProperty Name=\"FailureInvestigationComments\" Type=\"inquiry.NCRFailureInvestigation\" ns1:CdoId=\"7187\" ns1:FieldId=\"10038\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Documentation of contributing factors that resulted in the problem described by this nonconformance.\" /><ns0:NavigationProperty Name=\"PreventiveActionComments\" Type=\"inquiry.NCRPreventiveAction\" ns1:CdoId=\"7187\" ns1:FieldId=\"10036\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Documentation of the actions that were taken to ensure that this type of problem does not continue to occur.\" /></ns0:EntityType>",
+    "<ns0:EntityType xmlns:ns0=\"http://docs.oasis-open.org/odata/ns/edm\" xmlns:ns1=\"customAttribute\" Name=\"QualityObject\" BaseType=\"inquiry.MaintenanceEntity\" ns1:EventList=\"AncestorsInProcess; Approve; AssignChecklist; AutoTriage; CancelApproval; CheckOutstandingLots; CheckOwner; CheckOwnerRole; Complete; GetActivityTypes; GetConciergeMessage; GetEMailRecipient; GetGeneralFailures; GetOwnerRole; GetTrackableOwnerForAuditTrail; GetTriageSpec; IsFrozen; IsInModify; IsOKToUpdateAttachments; IsOwner; IsRestrictedOwner; Reject; RetrieveLots; Review; ValidCategoryTransitions; \"><ns0:Property Name=\"Attachments\" Type=\"inquiry.SubentityRef\" ns1:OriginalType=\"DocAttachments\" ns1:CdoId=\"7487\" ns1:FieldId=\"13730\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Document Attachments\" /><ns0:Property Name=\"BriefDescription\" Type=\"Edm.String\" ns1:CdoId=\"7487\" ns1:FieldId=\"13765\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Brief Description of Event.\" /><ns0:Property Name=\"Category\" Type=\"Edm.Int32\" ns1:CdoId=\"7487\" ns1:FieldId=\"13743\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The Category of the Event.\" /><ns0:Property Name=\"Classification\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"Classification\" ns1:CdoId=\"7487\" ns1:FieldId=\"13767\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Classification\" /><ns0:Property Name=\"CloseDate\" Type=\"Edm.DateTimeOffset\" ns1:CdoId=\"7487\" ns1:FieldId=\"15096\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Close Date\" /><ns0:Property Name=\"CloseDateGMT\" Type=\"Edm.DateTimeOffset\" ns1:CdoId=\"7487\" ns1:FieldId=\"15181\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Close Date GMT\" /><ns0:Property Name=\"ClosedBy\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"Employee\" ns1:CdoId=\"7487\" ns1:FieldId=\"15099\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"An Employee is a person that can login to InSite, perform transactions, and/or be credited with work.  The Employees must have a Windows NT account. Once defined, the user will then appear in the user list within the Modeler Security window. In this way the Employee definition feeds directly into the Modeler Security.&#13;&#10;&#13;&#10;The Employee definitions also allow for other options for each user such as the factory associate with the user and the language that will be used.  Persons that will get credited with work by being entered in the employee field on a transaction, must exist as InSite employees, but are not required to exist as Windows user accounts.\" /><ns0:Property Name=\"CloseDescription\" Type=\"Edm.String\" ns1:CdoId=\"7487\" ns1:FieldId=\"14518\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Descriptive comments entered as part of the Close process.\" /><ns0:Property Name=\"CrossReferenceItems\" Type=\"Collection(inquiry.NamedObjectRef)\" ns1:OriginalType=\"QualityObject\" ns1:CdoId=\"7487\" ns1:FieldId=\"14878\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Identifies the cross references for the object\" /><ns0:Property Name=\"Description\" Type=\"Edm.String\" ns1:CdoId=\"7487\" ns1:FieldId=\"13731\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Full Description of the Event.\" /><ns0:Property Name=\"HasDispositionProcess\" Type=\"Edm.Boolean\" ns1:CdoId=\"7487\" ns1:FieldId=\"18575\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The field return true if a ProcessModel is assigned, and if so whether any of the details assigned to the PM are of type PlanDisposition or ActivityDisposition.\" /><ns0:Property Name=\"HasLotData\" Type=\"Edm.Int32\" ns1:CdoId=\"7487\" ns1:FieldId=\"17654\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"None\" ns1:Annotations=\"Has Lot Data\" /><ns0:Property Name=\"Initiator\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"Employee\" ns1:CdoId=\"7487\" ns1:FieldId=\"13732\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The Employee that discovered the event.\" /><ns0:Property Name=\"InitiatorOrganization\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"Organization\" ns1:CdoId=\"7487\" ns1:FieldId=\"13733\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The organization of the employee that discovered the Event.\" /><ns0:Property Name=\"IsFrozen\" Type=\"Edm.Boolean\" ns1:CdoId=\"7487\" ns1:FieldId=\"15635\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Determines if changes are allowed to this instance (or any of its revisions)\" /><ns0:Property Name=\"Name\" Type=\"Edm.String\" ns1:CdoId=\"7487\" ns1:FieldId=\"13734\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Unique name for the Event.\" /><ns0:Property Name=\"OccurrenceDate\" Type=\"Edm.DateTimeOffset\" ns1:CdoId=\"7487\" ns1:FieldId=\"13735\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The date/time that the Event occurred.\" /><ns0:Property Name=\"OccurrenceDateGMT\" Type=\"Edm.DateTimeOffset\" ns1:CdoId=\"7487\" ns1:FieldId=\"13736\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Occurance Date GMT\" /><ns0:Property Name=\"Organization\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"Organization\" ns1:CdoId=\"7487\" ns1:FieldId=\"13737\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The Organization that the Event is assigned to.\" /><ns0:Property Name=\"OrigProcessModelTemplate\" Type=\"inquiry.RevisionedObjectRef\" ns1:OriginalType=\"ProcessModelTemplate\" ns1:CdoId=\"7487\" ns1:FieldId=\"15945\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The Template that was originally assigned as the ProcessModel for the record.  After assigned, the ProcessModel has no connection to the original template, but this value is necessary to validate that the user doesn't try to assign the ProcessModel a second time.\" /><ns0:Property Name=\"Owner\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"Employee\" ns1:CdoId=\"7487\" ns1:FieldId=\"14519\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The Employee that has primary responsibility for the QualityObject.\" /><ns0:Property Name=\"PriorityLevel\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"PriorityLevel\" ns1:CdoId=\"7487\" ns1:FieldId=\"13738\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Identifies the Priority of the Event.\" /><ns0:Property Name=\"QualityResolutionCode\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"QualityResolutionCode\" ns1:CdoId=\"7487\" ns1:FieldId=\"14520\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Identifies the resolution of the QualityObject.\" /><ns0:Property Name=\"ReportedDate\" Type=\"Edm.DateTimeOffset\" ns1:CdoId=\"7487\" ns1:FieldId=\"13739\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The date/time when the Event was entered into the system.\" /><ns0:Property Name=\"ReportedDateGMT\" Type=\"Edm.DateTimeOffset\" ns1:CdoId=\"7487\" ns1:FieldId=\"13740\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The date/time when the Event was entered into the system.\" /><ns0:Property Name=\"Reporter\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"Employee\" ns1:CdoId=\"7487\" ns1:FieldId=\"13741\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The Employee that reported the Event.\" /><ns0:Property Name=\"ReporterOrganization\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"Organization\" ns1:CdoId=\"7487\" ns1:FieldId=\"13742\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The Organization of the Employee that reported the Event.\" /><ns0:Property Name=\"Role\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"Role\" ns1:CdoId=\"7487\" ns1:FieldId=\"15316\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"A role is a definition of a job function, for example the role of Regulatory Affairs Manager.\" /><ns0:Property Name=\"Status\" Type=\"Edm.Int32\" ns1:CdoId=\"7487\" ns1:FieldId=\"15356\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Enumeration for the Quality Status:&#13;&#10;1 = Active&#13;&#10;2 = Pending&#13;&#10;3 = Escalated&#13;&#10;5 = Closed&#13;&#10;6 = Deleted&#13;&#10;7 = Initiated&#13;&#10;8 = InReview\" /><ns0:Property Name=\"SubClassification\" Type=\"inquiry.NamedObjectRef\" ns1:OriginalType=\"SubClassification\" ns1:CdoId=\"7487\" ns1:FieldId=\"13768\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"SubClassification\" /><ns0:Property Name=\"TriageComplete\" Type=\"Edm.Boolean\" ns1:CdoId=\"7487\" ns1:FieldId=\"15841\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The flag is used to determine if any QualityTxn have to update value in QualityObject\" /><ns0:NavigationProperty Name=\"ApprovalSheets\" Type=\"Collection(inquiry.ApprovalSheet)\" ns1:CdoId=\"7487\" ns1:FieldId=\"15506\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"An approval sheet is used to collect signatures of approvers to indicate acceptance or rejection of an object&#13;&#10;\" /><ns0:NavigationProperty Name=\"CrossReferences\" Type=\"Collection(inquiry.QualityCrossReference)\" ns1:CdoId=\"7487\" ns1:FieldId=\"14879\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Identifies the cross references for the object.\" /><ns0:NavigationProperty Name=\"ProcessModel\" Type=\"inquiry.ProcessModel\" ns1:CdoId=\"7487\" ns1:FieldId=\"14059\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The process model describes what needs to be done to resolve the issue reported as a Quality Object\" /><ns0:NavigationProperty Name=\"RegulatoryReports\" Type=\"Collection(inquiry.RegulatoryReport)\" ns1:CdoId=\"7487\" ns1:FieldId=\"16172\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Regulatory Reports\" /><ns0:NavigationProperty Name=\"RiskAssessment\" Type=\"inquiry.RiskAssessment\" ns1:CdoId=\"7487\" ns1:FieldId=\"19014\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Information needed to determine the risk score for a Quality object.\" /></ns0:EntityType>",
+    "<ns0:EntityType xmlns:ns0=\"http://docs.oasis-open.org/odata/ns/edm\" xmlns:ns1=\"customAttribute\" Name=\"Event\" BaseType=\"inquiry.QualityObject\" ns1:EventList=\"AncestorsInProcess; Approve; AssignChecklist; AutoTriage; CancelApproval; CheckOutstandingLots; CheckOwner; CheckOwnerRole; CheckReferencedCAPAs; Complete; GetActivityTypes; GetConciergeMessage; GetEMailRecipient; GetGeneralFailures; GetOwnerRole; GetTrackableOwnerForAuditTrail; GetTriageSpec; IsFrozen; IsInModify; IsOKToUpdateAttachments; IsOwner; IsRestrictedOwner; LoadChecklistTemplate; Reject; RetrieveLots; Review; TxnRev_Add; ValidCategoryTransitions; \"><ns0:Property Name=\"Checklist\" Type=\"inquiry.NamedSubentityRef\" ns1:OriginalType=\"Checklist\" ns1:CdoId=\"7489\" ns1:FieldId=\"21005\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Checklists are connected to process objects or templates and contain entries copied from Checklist Template.\" /><ns0:Property Name=\"ChecklistSaved\" Type=\"Edm.Boolean\" ns1:CdoId=\"7489\" ns1:FieldId=\"21550\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Identifies if Checklist is saved with the QualityObject\" /><ns0:Property Name=\"CrossRefs\" Type=\"Collection(inquiry.BaseObjectRef)\" ns1:OriginalType=\"HistoryCrossRef\" ns1:CdoId=\"7489\" ns1:FieldId=\"12623\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The HistoryCrossRef is the means of correlating a single history mainline record (representing a single transaction) to the container(s) to which it applies.  A single transaction applies to multiple containers when it is executed against a container that has child containers\" /><ns0:Property Name=\"CurrentCrossRefs\" Type=\"Collection(inquiry.BaseObjectRef)\" ns1:OriginalType=\"HistoryCrossRef\" ns1:CdoId=\"7489\" ns1:FieldId=\"12624\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"The HistoryCrossRef is the means of correlating a single history mainline record (representing a single transaction) to the container(s) to which it applies.  A single transaction applies to multiple containers when it is executed against a container that has child containers\" /><ns0:Property Name=\"DisallowedTxns\" Type=\"Collection(Edm.Int32)\" ns1:CdoId=\"7489\" ns1:FieldId=\"25978\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Definition Id of Disallowed Transactions.\" /><ns0:Property Name=\"DiscoveryArea\" Type=\"Edm.String\" ns1:CdoId=\"7489\" ns1:FieldId=\"13745\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Description area name for the event detail\" /><ns0:Property Name=\"EscalateToComplaint\" Type=\"Edm.Boolean\" ns1:CdoId=\"7489\" ns1:FieldId=\"19271\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Escalate To Complaint\" /><ns0:Property Name=\"IsCARRequiredToClose\" Type=\"Edm.Boolean\" ns1:CdoId=\"7489\" ns1:FieldId=\"14700\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Is a Corrective Action Report required to close the event.\" /><ns0:Property Name=\"IsSubmitted\" Type=\"Edm.Boolean\" ns1:CdoId=\"7489\" ns1:FieldId=\"13340\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Determines if the create event has been submitted\" /><ns0:NavigationProperty Name=\"EventData\" Type=\"inquiry.EventData\" ns1:CdoId=\"7489\" ns1:FieldId=\"13024\" ns1:Workspace=\"csi\" ns1:Inherited=\"false\" ns1:Flags=\"ReadOnly\" ns1:Annotations=\"Identifies additional data for an Event\" /></ns0:EntityType>",
+    "<ns0:EntityType xmlns:ns0=\"http://docs.oasis-open.org/odata/ns/edm\" xmlns:ns1=\"customAttribute\" Name=\"NCRCloseDetail\" BaseType=\"inquiry.NCRUpdateDetail\" ns1:EventList=\"_DeleteMe; AccumulateSummaryHistoryData; AddHistoryDetail; AddPreHistoryDetail; CreateComments; Execute; Execute_User; GetDirtyFields; GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; LiveConnect_Initialize; LoadDetails; LoadDetails_Specific; LoadDetails_User; ModifyEntityUsingDetail; RecordDetailPostHistory; RecordDetailPreHistory; RecordPostHistory; RecordPreHistory; TxnRev_Add; TxnRev_Change; TxnRev_Delete; TxnRev_SaveUnreversedValues; UpdateAttributes; Validate; Validate_User; \" />",
+    "<ns0:EntityType xmlns:ns0=\"http://docs.oasis-open.org/odata/ns/edm\" xmlns:ns1=\"customAttribute\" Name=\"NCRCloseQualityDetail\" BaseType=\"inquiry.NCRCloseDetail\" ns1:EventList=\"_DeleteMe; AccumulateSummaryHistoryData; AddHistoryDetail; AddPreHistoryDetail; CreateComments; Execute; Execute_User; GetDirtyFields; GetTrackableOwnerForAuditTrail; IsOKToUpdateAttachments; LiveConnect_Initialize; LoadDetails; LoadDetails_Specific; LoadDetails_User; ModifyEntityUsingDetail; RecordDetailPostHistory; RecordDetailPreHistory; RecordPostHistory; RecordPreHistory; TxnRev_Add; TxnRev_Change; TxnRev_Delete; TxnRev_SaveUnreversedValues; UpdateAttributes; Validate; Validate_User; \" />",
+    "<ns0:EntityType xmlns:ns0=\"http://docs.oasis-open.org/odata/ns/edm\" xmlns:ns1=\"customAttribute\" Name=\"NCRCloseQuality\" BaseType=\"inquiry.NCRClose\" ns1:EventList=\"AccumulateSummaryHistoryData; AddAlertMsgList; AddESigRequirement; AddHistorySummary; AddMassUpdateStatement; AddTrainingRequirmentsToESigRequirements; AfterCommitEventFailure; ApplyBarcodeToDetails; ApplyBarcodeToListOfDetails; ApplyBarcodeToServiceAndDetails; ApplyBarcodeToSingleDetail; ApplyDetails; ApplyParametricDetails; ApplyServiceDetail; ApplyServiceDetails; AuthorizeSigner; CheckRolePermissions; CheckWIPMsgElapsedTime; CheckWIPMsgRetrievalDate; CreateHistoryMainline; CreateParametricData; DataPointConvertListToResultset; DownloadFile; EnforceDispatchRule; EvaluateHierarchyLabels; EvaluateLabelTags; Execute; Execute_User; ExecuteDBService; ExecuteService; ExecuteTransactionTask; ExportInfo_Execute; ExportInfo_Initialize; ExportInfo_Initialize_User; ExportInfo_PreExecute; ExportInfo_Validate; FinishModifyingEntity; GetActions; GetAttributeParent; GetAttributes; GetBarcodeData; GetComputation; GetComputationParams; GetComputationParamsForDataPoints; GetDataPointListSelectionValues; GetDataPointObjectGroupSelectionValues; GetDataPointQuerySelectionValues; GetDataPoints; GetDataPointStaticSelectionValues; GetDefaultDispatchList; GetDefectHistoryDetails; GetDispatchList; GetDispatchObject; GetESigRequirementFromSpec; GetESigRequirements; GetESigRequirementsFromTxnMap; GetIssueActualsHistory; GetLabelInformation; GetLabelInformationFromLabelMap; GetLabelInformationFromPrinterLabel; GetTrackableOwnerForAuditTrail; GetTrainingRecord; GetTrainingRequirements; GetWIPMsgs; InitDispatchQueryParams; InitializeHistoryMainline; IsOKToUpdateAttachments; LiveAlert_Initialize; LiveConnect_Initialize; LiveRelay_Initialize; Load; LoadESigDetails; ModifyEntity; OverrideDispatchEnforcement; ParseWithSmartScanRule; PreExecute_User; PreValidate; PreValidate_Generic; PreValidate_Specific; PreValidate_User; PrintLabel; ProcessAfterCommit; ProcessAfterCommit_User; ProcessApplicationExtensions; ProcessComputation; ProcessComputationParams; ProcessElectronicProcedures; ProcessElectronicSignatures; ProcessLabelInformation; ProcessMaintenanceMgmt; ProcessMasterRecipe; ProcessNonConformances; ProcessWIPMsgs; RecordMainlinePostHistory; RecordMainlinePreHistory; RecordPostHistory; RecordPreHistory; RecordSummaryPostHistory; RecordSummaryPreHistory; ReplaceHistoryMainline; ReplaceOldHistoryMainline; ResolveParametricData; RetrieveCalendarShift; RoundComputationResult; Sampling_ContainerSampleData; Sampling_EvaluateSwitchingRule; Sampling_GetDistributionListRecipients; Sampling_LotSampleData; Sampling_SendSwitchingRuleNotification; Sampling_SetupSampling; Sampling_SetupSamplingRequirement; SetHistoryMainlineTxnDates; ShopFloor_ControlValidation; StartModifyingEntity; TerminateContainerCrossRefs; UpdateCompletionMsg_PrintLabelFailure; UpdateCompletionMsg_PrintLabelSuccess; Validate; Validate_Generic; Validate_Specific; Validate_User; ValidateActiveMfgOrder; ValidateApplicationExtensions; ValidateElectronicProcedures; ValidateElectronicSignatures; ValidateESigRequirement; ValidateMaintenanceMgmt; ValidateMaintenanceUOM; ValidateMasterRecipe; ValidateNonConformances; ValidateResourceMaintenance; ValidateResourceToolPlan; ValidateTrainingRequirement; ValidateTrainingRequirements; ValidateVariantExpression; ValidateWIPMsgs; VerifyPasswordSignature; VerifyUser; WriteTxnGUID; \" />"
+  ],
+  "event_top1": [],
+  "escalated_ncr_top1": [],
+  "resolution_list": {
+    "status": 200,
+    "response": "{\"@odata.context\":\"https://172.31.197.121/Modeling/api/$metadata#NCRResolutionCodes(InstanceID,Name,Description,IsFrozen)\",\"value\":[]}"
+  }
+}

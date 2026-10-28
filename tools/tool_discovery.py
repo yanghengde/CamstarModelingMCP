@@ -46,6 +46,7 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
         'prepare_container_inspection': '仅单容器Counted/Measured，旧单组增量或counted_groups显式互不重叠分组；不分摊总数，不混用根级计数。原因使用子明细完整回显；多组累计、原因历史仍待验收。拒绝全检转换及扣量/事件，移站false。',
         'get_inspection_test_definition': '固定版本SampleTest和数值点/单位/限值/原因/副作用配置，不混同普通数据采集。',
         'get_container_inspection_history': '历史累计数和MES状态，只作证据，不把累计量当本次增量，不自动解除unknown。',
+        'prepare_quality_ncr_closure': 'NCRCloseQuality受限收尾计划：原NCR仍Open、原关联Event已Closed并有关闭时间/关闭人，明确NCR解决代码；不处理事件审批或关闭，不替代普通NCRClose。统一确认单次执行，unknown需最终证据。',
         'get_ncr_escalation_options': '明确组织的完整分类/子分类映射与签名设置。组合必须唯一；映射ID仅作追溯，接口不支持用它选择。不是NCR升级许可。',
         'prepare_ncr_escalation': '既有Open NCR升级质量事件计划，明确组织/分类/子分类/优先级，核对原报告/容器/完整组织映射及非执行回显。不额外调用关闭服务或绕过签名，统一确认单次执行，unknown不重试。',
         'get_current_sampling_status': '固定产品版本当前采样状态分页，展示真实选择ID、当前频率与独立计数器、当前/手动检验水平和批归属；不推算下个容器必检或不检。',

@@ -41,8 +41,8 @@ async def get_quality_api_inventory()->str:
         'source':'live Swagger index + schemas + EDM + Query column metadata; archived docs/quality-fixtures',
         'live_health_check':False,'families':[
             {'domain':'NCR','checked_date':'2026-10-28','discovered':['NCRCreate','NCRUpdate','NCRClose','NCREscalate','NCRCloseQuality','GetNCRs','NCRHistoryInquiry'],
-             'tools':['prepare_nonconformance_report','list_nonconformance_reports','get_nonconformance_report','get_quality_history','get_ncr_escalation_options','prepare_ncr_escalation'],
-             'limitations':'创建/更新/关闭及按组织唯一分类映射升级质量事件已封装；不覆盖签名/审批，原报告最终状态待验收。NCRCloseQuality未开放，现场写入验收待完成。'},
+             'tools':['prepare_nonconformance_report','list_nonconformance_reports','get_nonconformance_report','get_quality_history','get_ncr_escalation_options','prepare_ncr_escalation','prepare_quality_ncr_closure'],
+             'limitations':'创建/更新/关闭及按组织唯一分类映射升级质量事件已封装；不覆盖签名/审批，原报告最终状态待验收。NCRCloseQuality仅处理原关联Event已Closed而仍Open的NCR，实际写入及副作用待现场验收。'},
             {'domain':'CAPA','discovered':['CreateCAPA','UpdateCAPA','CloseQualityObject'],
              'tools':['prepare_capa','prepare_capa_closure','get_quality_closure_options'],
              'limitations':'仅类别5创建/更新及Close处置关闭计划；不覆盖流程审批/签名，真实提交/关闭验收待补。'},

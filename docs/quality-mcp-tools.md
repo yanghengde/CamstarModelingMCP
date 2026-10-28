@@ -1,8 +1,10 @@
 # Camstar质量API与MCP工具
 
-2026-10-28更新：quality分组共46个工具，新增既有NCR升级质量事件的组织选项查询和提交计划。新增产品当前采样状态查询及明确选择的计数器/手动检验水平调整计划。已支持检验计划只读配置检查。已支持零采样计数且无有效采样历史批的数量/频率维护、维护历史及原请求核对。既有范围包括AQL/检验水平维护与查表、单容器检验、定义维护、产品关联、建批、批采样、MES已通过批的OK执行及逐点追溯。工具注册、契约验证和模拟测试不代表现场质量事务验收完成。参数见[批维护](quality-lot-maintenance.md)、[AQL与检验水平](quality-sampling-references.md)、[单容器检验](quality-inspection.md)、[定义和建批](quality-definitions-lots.md)、[批采样与整批OK执行](quality-lot-execution.md)、[历史追溯与请求核对](quality-history.md)。
+2026-10-28更新：quality分组共47个工具，新增关联Event已Closed、原NCR仍Open时的质量侧关闭收尾计划。新增既有NCR升级质量事件的组织选项查询和提交计划。新增产品当前采样状态查询及明确选择的计数器/手动检验水平调整计划。已支持检验计划只读配置检查。已支持零采样计数且无有效采样历史批的数量/频率维护、维护历史及原请求核对。既有范围包括AQL/检验水平维护与查表、单容器检验、定义维护、产品关联、建批、批采样、MES已通过批的OK执行及逐点追溯。工具注册、契约验证和模拟测试不代表现场质量事务验收完成。参数见[批维护](quality-lot-maintenance.md)、[AQL与检验水平](quality-sampling-references.md)、[单容器检验](quality-inspection.md)、[定义和建批](quality-definitions-lots.md)、[批采样与整批OK执行](quality-lot-execution.md)、[历史追溯与请求核对](quality-history.md)。
 
 ## 实际发现的接口与本轮范围
+
+最新质量侧NCR关闭轮：新增64项测试，全量2087项测试、2项子测试通过，其中质量相关881项，父pytest离线HTTPX真实网络尝试0。新增prepare_quality_ncr_closure，封装NCRCloseQuality，保守范围为原关联Event已Closed且有关闭时间/关闭人、原NCR仍Open、原容器Active。明确NCR解决代码，不推进事件审批或强制关闭，不自动替代普通NCRClose；原报告/原事件/容器/解决代码重查，统一确认单次提交，unknown保留占用。现场Event及已升级NCR为空，真实收尾待验收。见[功能说明](quality-ncr-quality-close.md)及[本轮摘要](quality-fixtures/ncr-quality-close-summary.json)。
 
 最新检验水平复位轮：新增37项测试，全量2023项测试、2项子测试通过，其中质量相关817项，父pytest离线HTTPX真实网络尝试0。扩展现有prepare_current_sampling_status_update的reset_inspection_level参数，不新增工具，总数46。恢复计划默认与命名水平互斥；未请求的计数器不发送，不猜有效默认或切换结果。绑定计划及候选表配置、重读防变化，沿用确认/单次提交/unknown占用。现场无目标非执行回显通过，状态记录仍为空，真实效果待验收。见[功能说明](quality-sampling-reset.md)及[本轮摘要](quality-fixtures/sampling-level-reset-summary.json)。
 
@@ -22,7 +24,7 @@
 
 | 业务 | 当前部署发现的API | 本轮处理 |
 |---|---|---|
-| NCR不合格报告 | NCRCreate、NCRUpdate、NCRClose、NCREscalate、NCRCloseQuality；GetNCRs、NCRHistoryInquiry | 创建/更新/关闭及按组织唯一分类映射升级质量事件计划、当前记录及历史；NCRCloseQuality未开放 |
+| NCR不合格报告 | NCRCreate、NCRUpdate、NCRClose、NCREscalate、NCRCloseQuality；GetNCRs、NCRHistoryInquiry | 创建/更新/关闭及按组织唯一分类映射升级质量事件计划、当前记录及历史；NCRCloseQuality已增加受限的已关闭事件后收尾入口，真实写入待验收 |
 | CAPA | CreateCAPA、UpdateCAPA、CloseQualityObject | 固定类别5的创建/更新和Close处置关闭计划；草稿、提交与关闭申请分别处理，仍由MES校验审批/签名 |
 | 质量对象/事件 | QualityObjectInquiry、QualityObjectHistoryInquiry、OpenQualityObject、CloseQualityObject、TriageQualityObject | 有界列表、对象详情与历史；通用开启/关闭/分派仍待验证 |
 | 检验/抽样 | SamplingPlans、SampleTests、SampleDataPoints、InspectionLevels；CollectSamplingData、CollectLotSamplingData、CreateSamplingLot、ExecuteSamplingLot、UpdateSamplingLot | 定义维护、产品关联、单容器及批计数/测量计划、建批、批历史及MES已完成通过批的OK执行计划；整批返工/报废、自动扣量/全检转换仍未开放 |
@@ -32,10 +34,11 @@
 
 首轮读取了52份相关Swagger，以及Shopfloor/Query EDM和SQL列元数据；2026-10-26又核对定义CRUD、建批契约及MfgLot存储。发现记录：[首轮目录](quality-fixtures/inventory.json)、[首轮契约](quality-fixtures/contracts.json)、[EDM](quality-fixtures/metadata.json)、[表字段](quality-fixtures/table-columns.json)、[本轮契约](quality-fixtures/definition-lot-contracts.json)。Swagger存在只说明接口被发布，不能证明当前账号有执行许可、模块流程配置完整或已验收。
 
-## 46个工具
+## 47个工具
 
 | 工具 | 用途 |
 |---|---|
+| prepare_quality_ncr_closure | 原关联Event已Closed且原NCR仍Open时的NCRCloseQuality收尾计划，明确NCR解决代码，不替代事件关闭/审批或普通NCRClose |
 | get_ncr_escalation_options | 指定组织完整分类/子分类组合及签名设置，不自动选首行，不证明目标许可 |
 | prepare_ncr_escalation | Open且未关联升级事件的原NCR升级计划；唯一组织组合、明确优先级、原容器及回显核对，统一确认单次执行 |
 | get_quality_api_inventory | 已发现API、已封装工具和未开放范围；有核查日期，不是实时健康检查 |

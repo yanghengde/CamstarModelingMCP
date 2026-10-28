@@ -1,0 +1,68 @@
+{
+  "checked_date": "2026-10-28",
+  "quality_tool_count": 47,
+  "new_tools": [
+    "prepare_quality_ncr_closure"
+  ],
+  "extended_tools": [
+    "execute_quality_transaction",
+    "inspect_quality_transaction"
+  ],
+  "regression": {
+    "passed": 2087,
+    "subtests_passed": 2,
+    "quality_tests": 881,
+    "new_quality_close_tests": 64,
+    "httpx_real_network_attempts_parent_pytest": 0,
+    "actual_mcp_sdk_simulated_prepare_execute_inspect_lifecycle": true,
+    "natural_language_tool_visibility_test": true,
+    "live_llm_routing_evaluation": false
+  },
+  "implemented": [
+    "restricted native NCRCloseQuality plan for still-open source NCR with original linked Event already Closed",
+    "closed-event status 5 plus nonempty closure time and closer ID are conservative tool scope, not a universal MES workflow mandate",
+    "exact Event-table identity from original EscalatedEventId, no ID-prefix or category-code inference",
+    "explicit NCRResolutionCode bound by name ID and ChangeCount; distinct from quality-event resolution",
+    "exact original report and derived source-container echo with declared NCRCloseQualityDetail contract",
+    "source report/failure codes/event/container/resolution rechecked and fresh execute digest",
+    "strict native service/plan action/body binding without event/approval/signature bypass fields",
+    "unknown single attempt plus original report/original event evidence without following rewritten links or unlocking"
+  ],
+  "live_evidence": {
+    "schema_http": 200,
+    "query_edm_and_sql_columns_verified": true,
+    "nonexecuting_no_target_preview_http": 200,
+    "event_top1_rows": 0,
+    "escalated_ncr_top1_rows": 0,
+    "resolution_list_http": 200,
+    "positive_target_preview_verified": false,
+    "actual_ncr_closure_verified": false,
+    "native_followup_effects_verified": false,
+    "final_history_correlation_verified": false
+  },
+  "mes_business_writes": false,
+  "service_restarted": false,
+  "signature_verified": false,
+  "dynamic_validation_verified": false,
+  "ncr_closed_verified": false,
+  "automatic_retry_allowed": false,
+  "not_covered": [
+    "generic quality event closure/approval/signature execution",
+    "actual report closure and native followup acceptance",
+    "automatic final history correlation or unlock",
+    "force-close or service fallback",
+    "batch rework/scrap/full inspection/SPC calculation workflows"
+  ],
+  "deferred_schema_discovery_only": [
+    "RecordSPCViolation",
+    "AddSPCAnnotation"
+  ],
+  "evidence": {
+    "schema": "ncr-quality-close-schema.json",
+    "edm_columns_and_read_queries": "ncr-quality-close-contracts.json",
+    "no_target_preview": "ncr-quality-close-empty-preview.json",
+    "junit": "ncr-quality-close-junit.xml",
+    "output": "ncr-quality-close-test-output.txt",
+    "network": "ncr-quality-close-network.json"
+  }
+}
