@@ -1,0 +1,149 @@
+{
+  "columns": [
+    {
+      "TABLE_NAME": "Path",
+      "COLUMN_NAME": "CDOTypeId"
+    },
+    {
+      "TABLE_NAME": "Path",
+      "COLUMN_NAME": "ChangeCount"
+    },
+    {
+      "TABLE_NAME": "Path",
+      "COLUMN_NAME": "Description"
+    },
+    {
+      "TABLE_NAME": "Path",
+      "COLUMN_NAME": "EndReworkStepId"
+    },
+    {
+      "TABLE_NAME": "Path",
+      "COLUMN_NAME": "ExportImportKey"
+    },
+    {
+      "TABLE_NAME": "Path",
+      "COLUMN_NAME": "FromStepId"
+    },
+    {
+      "TABLE_NAME": "Path",
+      "COLUMN_NAME": "IsFrozen"
+    },
+    {
+      "TABLE_NAME": "Path",
+      "COLUMN_NAME": "Notes"
+    },
+    {
+      "TABLE_NAME": "Path",
+      "COLUMN_NAME": "PathId"
+    },
+    {
+      "TABLE_NAME": "Path",
+      "COLUMN_NAME": "PathName"
+    },
+    {
+      "TABLE_NAME": "Path",
+      "COLUMN_NAME": "ReEntryStepId"
+    },
+    {
+      "TABLE_NAME": "Path",
+      "COLUMN_NAME": "ReturnToStepId"
+    },
+    {
+      "TABLE_NAME": "Path",
+      "COLUMN_NAME": "RPTBulkDelta"
+    },
+    {
+      "TABLE_NAME": "Path",
+      "COLUMN_NAME": "RPTUnitDelta"
+    },
+    {
+      "TABLE_NAME": "Path",
+      "COLUMN_NAME": "ToStepId"
+    },
+    {
+      "TABLE_NAME": "Path",
+      "COLUMN_NAME": "TxnDetailsId"
+    },
+    {
+      "TABLE_NAME": "PathSelector",
+      "COLUMN_NAME": "AllocatedPct"
+    },
+    {
+      "TABLE_NAME": "PathSelector",
+      "COLUMN_NAME": "CDOTypeId"
+    },
+    {
+      "TABLE_NAME": "PathSelector",
+      "COLUMN_NAME": "ChangeCount"
+    },
+    {
+      "TABLE_NAME": "PathSelector",
+      "COLUMN_NAME": "Description"
+    },
+    {
+      "TABLE_NAME": "PathSelector",
+      "COLUMN_NAME": "EffectiveFromDate"
+    },
+    {
+      "TABLE_NAME": "PathSelector",
+      "COLUMN_NAME": "EffectiveFromDateGMT"
+    },
+    {
+      "TABLE_NAME": "PathSelector",
+      "COLUMN_NAME": "EffectiveThruDate"
+    },
+    {
+      "TABLE_NAME": "PathSelector",
+      "COLUMN_NAME": "EffectiveThruDateGMT"
+    },
+    {
+      "TABLE_NAME": "PathSelector",
+      "COLUMN_NAME": "ExportImportKey"
+    },
+    {
+      "TABLE_NAME": "PathSelector",
+      "COLUMN_NAME": "Expression"
+    },
+    {
+      "TABLE_NAME": "PathSelector",
+      "COLUMN_NAME": "IsFrozen"
+    },
+    {
+      "TABLE_NAME": "PathSelector",
+      "COLUMN_NAME": "Notes"
+    },
+    {
+      "TABLE_NAME": "PathSelector",
+      "COLUMN_NAME": "PathId"
+    },
+    {
+      "TABLE_NAME": "PathSelector",
+      "COLUMN_NAME": "PathSelectorId"
+    },
+    {
+      "TABLE_NAME": "PathSelector",
+      "COLUMN_NAME": "Status"
+    },
+    {
+      "TABLE_NAME": "PathSelector",
+      "COLUMN_NAME": "StepId"
+    },
+    {
+      "TABLE_NAME": "WorkflowStepPathSelectors",
+      "COLUMN_NAME": "FieldId"
+    },
+    {
+      "TABLE_NAME": "WorkflowStepPathSelectors",
+      "COLUMN_NAME": "PathSelectorsId"
+    },
+    {
+      "TABLE_NAME": "WorkflowStepPathSelectors",
+      "COLUMN_NAME": "Sequence"
+    },
+    {
+      "TABLE_NAME": "WorkflowStepPathSelectors",
+      "COLUMN_NAME": "WorkflowStepId"
+    }
+  ],
+  "sample_paths": []
+}

@@ -61,4 +61,4 @@
 - `quality-fixtures/quality-history-read-validation.json`：现场 5 条固定查询的只读结果。
 - `quality-fixtures/quality-history-summary.json`：本轮回归、网络隔离及尚未验收事项。
 
-批返工/报废仍未开放：ExecuteSamplingLot 的 ScrapReason 标注当前版本未实现；返工目标和路线前置也没有充分现场证据。未执行 MES 业务写入。
+后续新增[受限批返工入口](quality-lot-rework.md)，但本历史候选/核对工具仍不支持lot_rework，不能用OK历史核对替代。ExecuteSamplingLot的ScrapReason标注当前版本未实现，批报废仍未开放。未执行 MES 业务写入。

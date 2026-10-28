@@ -1,0 +1,288 @@
+{
+  "Rework.Path": {
+    "source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+    "source_file": "D:\\Deepseek\\camstar\\CamstarDesignerMCP\\data\\designer\\server_snapshot\\Base_InSite.mdb",
+    "read_only": true,
+    "workspace_resolution": "vendor_metadata_model",
+    "object_type": "CDOField",
+    "name": "Path",
+    "FieldName": "Path",
+    "SequenceNumber": 9,
+    "IsListType": false,
+    "IsTypeUnique": false,
+    "IsDerivedUnique": false,
+    "WriteCurrentValue": false,
+    "Required": 0,
+    "FieldDescription": "A Path defines an allowable (Standard) move from one Step to another within a Workflow.   If a path is entered here, this path will override any information entered on the \"Step\" field.  If no path or step is provided, pathselectors for the step will be evaluated to determine which path will be used.  If no path selectors are valid, the container will be moved to the step referenced by the default path in the workflow.",
+    "DefaultValue": "",
+    "DefaultValueExpression": "",
+    "CurrentValueExpression": "",
+    "AllowClientToRead": true,
+    "AllowClientToUpdate": true,
+    "MinItemCount": 0,
+    "MaxItemCount": 0,
+    "LabelName": "Path",
+    "CDOFieldUsageName": "",
+    "ExposeToUI": false,
+    "ListForeignKeyCDOField": "",
+    "ListKeyCDOField": "",
+    "ListFieldSequence": 0,
+    "OrderByCDOFIeld": "",
+    "RetainValue": false,
+    "AllowROR": false,
+    "IsNonPersistent": false,
+    "Visibility": "Basic",
+    "AllowSubtypes": false,
+    "Ownership": 0,
+    "Serialization": 3,
+    "Reverse": true,
+    "Negate": false,
+    "CreateOnInitialize": false,
+    "ProcessTextVariable": false,
+    "SelValMode": 3,
+    "SelValQuery": null,
+    "DBColumn": null,
+    "DBColumnID": 0,
+    "FieldID": 9079,
+    "LabelID": 1049030,
+    "InheritMask": 2,
+    "InheritMaskRaw": 2,
+    "Label": null,
+    "FieldDefinition": {
+      "type": "FieldDefinition",
+      "name": "ReworkPath"
+    },
+    "FieldDefId": 1136,
+    "FKCDOName": "ReworkPath",
+    "FKFieldName": "",
+    "PKCDOName": "Rework",
+    "PKFieldName": "",
+    "SortCDOName": "ReworkPath",
+    "SortFieldName": "",
+    "EventsByName": {
+      "count": 0
+    },
+    "Events": {
+      "count": 0
+    },
+    "EventsModified": false,
+    "CDODefinition": {
+      "type": "CDODefinition",
+      "name": "Rework"
+    },
+    "DBTableID": 0,
+    "InheritedID": 2404,
+    "InheritedField": {
+      "type": "CDOField",
+      "name": "Path"
+    },
+    "CDOFieldUsageId": 0,
+    "ListFieldParent": 0,
+    "ListFieldReferenced": 0,
+    "SelValQueryDefId": 0,
+    "CDODefId": 6660,
+    "CPPDataTypeID": 5,
+    "IsResolveOnRequest": false,
+    "IsDerived": true,
+    "IsOverride": true,
+    "WorkspaceCode": "csi",
+    "ExistsInLowerWorkspace": false,
+    "WorkspaceOverride": null,
+    "OverrideToDelete": null,
+    "LowerWorkspaceOverride": null,
+    "ModifiedStatus": "Unmodified",
+    "ActiveWorkspaceCode": "csi",
+    "events": []
+  },
+  "ReworkPath.IsDefaultPath": {
+    "source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+    "source_file": "D:\\Deepseek\\camstar\\CamstarDesignerMCP\\data\\designer\\server_snapshot\\Base_InSite.mdb",
+    "read_only": true,
+    "workspace_resolution": "vendor_metadata_model",
+    "object_type": "CDOField",
+    "name": "IsDefaultPath",
+    "SequenceNumber": 1,
+    "IsListType": false,
+    "IsTypeUnique": false,
+    "IsDerivedUnique": false,
+    "WriteCurrentValue": false,
+    "Required": 0,
+    "FieldDescription": "Determines if this is the Default Path for its (from) Step.",
+    "DefaultValue": "0",
+    "DefaultValueExpression": "",
+    "CurrentValueExpression": "Parent.DefaultPath == InstanceId",
+    "AllowClientToRead": true,
+    "AllowClientToUpdate": false,
+    "MinItemCount": 0,
+    "MaxItemCount": 0,
+    "LabelName": "Is Default Path",
+    "CDOFieldUsageName": "",
+    "ExposeToUI": false,
+    "ListForeignKeyCDOField": "",
+    "ListKeyCDOField": "",
+    "ListFieldSequence": 0,
+    "OrderByCDOFIeld": "",
+    "RetainValue": false,
+    "AllowROR": false,
+    "IsNonPersistent": true,
+    "Visibility": "Basic",
+    "AllowSubtypes": false,
+    "Ownership": 0,
+    "Serialization": 3,
+    "Reverse": true,
+    "Negate": false,
+    "CreateOnInitialize": false,
+    "ProcessTextVariable": false,
+    "SelValMode": 0,
+    "SelValQuery": null,
+    "DBColumn": null,
+    "DBColumnID": 0,
+    "FieldID": 105,
+    "FieldName": "IsDefaultPath",
+    "LabelID": 1050280,
+    "InheritMask": 0,
+    "InheritMaskRaw": 0,
+    "Label": null,
+    "FieldDefinition": {
+      "type": "FieldDefinition",
+      "name": "[Boolean]"
+    },
+    "FieldDefId": 7,
+    "FKCDOName": "[Boolean]",
+    "FKFieldName": "",
+    "PKCDOName": "Path",
+    "PKFieldName": "",
+    "SortCDOName": "[Boolean]",
+    "SortFieldName": "",
+    "EventsByName": {
+      "count": 0
+    },
+    "Events": {
+      "count": 0
+    },
+    "EventsModified": false,
+    "CDODefinition": {
+      "type": "CDODefinition",
+      "name": "Path"
+    },
+    "DBTableID": 0,
+    "InheritedID": 0,
+    "InheritedField": null,
+    "CDOFieldUsageId": 0,
+    "ListFieldParent": 0,
+    "ListFieldReferenced": 0,
+    "SelValQueryDefId": 0,
+    "CDODefId": 1435,
+    "CPPDataTypeID": 7,
+    "IsResolveOnRequest": false,
+    "IsDerived": false,
+    "IsOverride": false,
+    "WorkspaceCode": "csi",
+    "ExistsInLowerWorkspace": false,
+    "WorkspaceOverride": null,
+    "OverrideToDelete": null,
+    "LowerWorkspaceOverride": null,
+    "ModifiedStatus": "Unmodified",
+    "ActiveWorkspaceCode": "csi",
+    "events": []
+  },
+  "SpecStep.DefaultReworkPath": {
+    "error": "官方元数据组件拒绝操作：System.ArgumentException: Definition missing or ambiguous (matches=0): field:SpecStep:DefaultReworkPath\r\n   at DesignerVendorBridge.Find(MDBMetadataSet set, String kind, String name, String owner)\r\n   at DesignerVendorBridge.Run(String requestFile, String resultFile)"
+  },
+  "clfs": {
+    "source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+    "source_file": "D:\\Deepseek\\camstar\\CamstarDesignerMCP\\data\\designer\\server_snapshot\\Base_InSite.mdb",
+    "read_only": true,
+    "workspace_resolution": "vendor_metadata_model",
+    "total": 14,
+    "records": [
+      {
+        "name": "ExecuteSamplingLot_ExecuteRework",
+        "description": "ExecuteSamplingLot_StartModifyingEntity",
+        "workspace": "csi",
+        "id": 3589
+      },
+      {
+        "name": "MoveTxn_DetermineToStepFromRework",
+        "description": "This CLF is used to determine the ToStep from Rework.\r\nMethod DetermineToStepFromRework of CDO WorkflowNavigator is based on this CLF and that method is \r\ninternally called from function WorkflowNavigator_MoveForward.",
+        "workspace": "csi",
+        "id": 462
+      },
+      {
+        "name": "Rework_BeforeExecute",
+        "description": "Rework_BeforeExecute",
+        "workspace": "csi",
+        "id": 3008
+      },
+      {
+        "name": "Rework_CumulativeReworkStepCount_OGV",
+        "description": "Returns running total of how many times a contianer has been processed in Rework for a given Step.",
+        "workspace": "csi",
+        "id": 2521
+      },
+      {
+        "name": "Rework_Execute_Move_Specific",
+        "description": "Move transaction logic specific to Rework.",
+        "workspace": "csi",
+        "id": 604
+      },
+      {
+        "name": "Rework_RemainingProcessTime_OGV",
+        "description": "MoveStd_RemainingProcessTime_OGV",
+        "workspace": "csi",
+        "id": 3507
+      },
+      {
+        "name": "Rework_ValidatePath",
+        "description": "Rework_ValidatePath",
+        "workspace": "csi",
+        "id": 970
+      },
+      {
+        "name": "Rework_ValidateReworkReason",
+        "description": "Rework_ValidateReworkReason",
+        "workspace": "csi",
+        "id": 3007
+      },
+      {
+        "name": "SelectionValuesEx_Rework_Paths",
+        "description": "Retrieve the extended selection values of the Rework Paths",
+        "workspace": "csi",
+        "id": 1408
+      },
+      {
+        "name": "Step_GetReworkPathToUse",
+        "description": "Determines the Path to use to exit this step by evaluating the ReworkPathSelectors. If path selectors fail and only one ReworkPath is defined on the Step, then the only ReworkPath is treated as a DefaultPath.\r\nDetermined ReworkPath is stored in the variable Transaction::__Return as a return value\r\n",
+        "workspace": "csi",
+        "id": 973
+      },
+      {
+        "name": "Step_GetReworkToSteps",
+        "description": "Step_GetReworkToSteps",
+        "workspace": "csi",
+        "id": 974
+      },
+      {
+        "name": "StepChanges_ReworkPaths_DeleteItem_Validate",
+        "description": "StepChanges_ReworkPaths_DeleteItem_Validate",
+        "workspace": "csi",
+        "id": 985
+      },
+      {
+        "name": "TransferRework_ProcessMaintenanceMgmt",
+        "description": "TransferRework_ProcessMaintenanceMgmt",
+        "workspace": "csi",
+        "id": 1250
+      },
+      {
+        "name": "TransferRework_ValidateMaintenanceMgmt",
+        "description": "TransferRework_ValidateMaintenanceMgmt",
+        "workspace": "csi",
+        "id": 1248
+      }
+    ],
+    "offset": 0,
+    "limit": 100,
+    "has_more": false
+  }
+}

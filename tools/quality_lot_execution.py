@@ -180,7 +180,7 @@ def completion_blockers(view):
 
 @mcp.tool
 async def get_sampling_lot_readiness(lot_name:str,lot_instance_id:str|None=None)->str:
-    """读取完整有界抽样批、最多50个成员和50个任务，分别展示MES完成/通过标志及OK执行前置阻塞。不自行判质量，不把前置满足说成签名/权限/业务批准。超界失败，不用分页子集批准整批。返工/报废未开放。"""
+    """读取完整有界抽样批、最多50个成员和50个任务，分别展示MES完成/通过标志及OK执行前置阻塞。不自行判质量，不把前置满足说成签名/权限/业务批准。超界失败，不用分页子集批准整批。本工具只查OK前置；返工另用prepare_sampling_lot_rework，报废未开放。"""
     try:
         view=await lot_view(lot_name,lot_instance_id);blockers=completion_blockers(view)
         return reads.encode({'data':view,'complete':True,'ok_preconditions_satisfied':not blockers,'blockers':blockers,

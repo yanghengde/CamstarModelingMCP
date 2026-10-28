@@ -1,6 +1,6 @@
 # 质量检验工具与执行范围
 
-本文件介绍单容器AQL检验。检验定义维护、产品关联和抽样批创建见[定义与批工具](quality-definitions-lots.md)；批采样结果提交及MES已通过批的OK执行计划见[批检验工具](quality-lot-execution.md)。整批返工/报废和通用最终质量放行仍未实现。普通DataCollectionDef采集和这里的SampleTest不是同一套接口。
+本文件介绍单容器AQL检验。检验定义维护、产品关联和抽样批创建见[定义与批工具](quality-definitions-lots.md)；批采样结果提交及MES已通过批的OK执行计划见[批检验工具](quality-lot-execution.md)。另有[受限整批返工](quality-lot-rework.md)；整批报废和通用最终质量放行仍未实现。普通DataCollectionDef采集和这里的SampleTest不是同一套接口。
 
 ## 四个专用工具
 

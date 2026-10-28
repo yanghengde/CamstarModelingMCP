@@ -1,0 +1,42 @@
+[
+  {
+    "TABLE_NAME": "ES_ReportView_WorkflowPaths",
+    "COLUMN_NAME": "FromStepId"
+  },
+  {
+    "TABLE_NAME": "ES_ReportView_WorkflowPaths",
+    "COLUMN_NAME": "ToStepId"
+  },
+  {
+    "TABLE_NAME": "ES_View_WorkflowDefaultPaths",
+    "COLUMN_NAME": "FromStepId"
+  },
+  {
+    "TABLE_NAME": "ES_View_WorkflowDefaultPaths",
+    "COLUMN_NAME": "ToStepId"
+  },
+  {
+    "TABLE_NAME": "Path",
+    "COLUMN_NAME": "ChangeCount"
+  },
+  {
+    "TABLE_NAME": "Path",
+    "COLUMN_NAME": "FromStepId"
+  },
+  {
+    "TABLE_NAME": "Path",
+    "COLUMN_NAME": "ReEntryStepId"
+  },
+  {
+    "TABLE_NAME": "Path",
+    "COLUMN_NAME": "ToStepId"
+  },
+  {
+    "TABLE_NAME": "PathSelector",
+    "COLUMN_NAME": "ChangeCount"
+  },
+  {
+    "TABLE_NAME": "WorkflowStepPathSelectors",
+    "COLUMN_NAME": "WorkflowStepId"
+  }
+]

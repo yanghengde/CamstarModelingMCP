@@ -75,4 +75,4 @@ unknown计划可以依次调用：
 
 已读取现场Swagger、EDM与历史表字段；非执行的无目标服务探测返回HTTP200，但仅回显默认选项，不能算正向目标回显。四条只读SQL均通过；现场抽样批及维护历史仍为空。尚未验证真实维护、任务重算或成员采样频率影响，未执行MES业务写入，未手动重启服务。
 
-证据：[接口与字段](quality-fixtures/lot-maintenance-contracts.json)、[现场只读探测](quality-fixtures/lot-maintenance-read-validation.json)、[回归摘要](quality-fixtures/lot-maintenance-summary.json)。批返工/报废、全检转换、自动扣量及通用质量放行仍未开放。
+证据：[接口与字段](quality-fixtures/lot-maintenance-contracts.json)、[现场只读探测](quality-fixtures/lot-maintenance-read-validation.json)、[回归摘要](quality-fixtures/lot-maintenance-summary.json)。后续新增[受限批返工](quality-lot-rework.md)，其扩展及验收、批报废、全检转换、自动扣量及通用质量放行仍未开放。

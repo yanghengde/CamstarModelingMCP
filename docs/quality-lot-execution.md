@@ -1,6 +1,6 @@
 # 抽样批检验记录与整批OK执行
 
-本轮接入CollectLotSamplingData，以及受限的ExecuteSamplingLot（仅OK=1）。后者只接受MES已经明确采样完成、采样通过的批，不由模型根据数值推断整批通过。返工2、报废3和通用质量放行不开放。
+本轮接入CollectLotSamplingData，以及受限的ExecuteSamplingLot（仅OK=1）。后者只接受MES已经明确采样完成、采样通过的批，不由模型根据数值推断整批通过。此OK入口不接受返工2、报废3或通用质量放行。另有[独立受限批返工](quality-lot-rework.md)。
 
 | 工具 | 功能 |
 |---|---|
@@ -77,7 +77,7 @@ samples_collected和rejects为**本次增量**。例如批已采2件、本次采
 
 ExecuteSamplingLot是整批操作，具体后续处理由MES配置决定。本轮尚未现场验证其移站等后续影响，不能称为“仅更新批头”，也不能把它当作通用最终质量放行。实际影响范围与成员数量/数量字段完整展示在确认快照中，执行仍需系统确认并只发一次请求。
 
-当前部署对ScrapReason的元数据注释标明该字段在当前InSite版本尚未实现；ReworkReason、Spec等字段仅说明类型，尚不足以证明正确的整批返工目标与处置规则。因此本轮不开放返工2或报废3，不通过逐容器返工、扣量或解除冻结模拟批处置。[现场契约与元数据](quality-fixtures/lot-execution-contracts.json)
+当前部署的ScrapReason元数据标明在当前InSite版本尚未实现，报废3仍未开放。后续通过标准csi模型核对，原生返工分支不转发Spec；已新增[单路径批返工准备入口](quality-lot-rework.md)，与此OK工具严格隔离。不会逐容器提交返工、扣量或解除冻结模拟批处置。[原现场契约与元数据](quality-fixtures/lot-execution-contracts.json)
 
 ## 防重、历史与连续流程
 

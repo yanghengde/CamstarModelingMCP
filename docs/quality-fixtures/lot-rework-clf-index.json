@@ -1,0 +1,66 @@
+{
+  "source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+  "source_file": "D:\\Deepseek\\camstar\\CamstarDesignerMCP\\data\\designer\\server_snapshot\\Base_InSite.mdb",
+  "read_only": true,
+  "workspace_resolution": "vendor_metadata_model",
+  "total": 9,
+  "records": [
+    {
+      "name": "ExecuteSamplingLot_ExecuteMove",
+      "description": "ExecuteSamplingLot_StartModifyingEntity",
+      "workspace": "csi",
+      "id": 3610
+    },
+    {
+      "name": "ExecuteSamplingLot_ExecuteRework",
+      "description": "ExecuteSamplingLot_StartModifyingEntity",
+      "workspace": "csi",
+      "id": 3589
+    },
+    {
+      "name": "ExecuteSamplingLot_ExecuteScrap",
+      "description": "ExecuteSamplingLot_StartModifyingEntity",
+      "workspace": "csi",
+      "id": 3590
+    },
+    {
+      "name": "ExecuteSamplingLot_RecordSummaryPreHistory",
+      "description": "ExecuteSamplingLot_RecordSummaryPreHistory",
+      "workspace": "csi",
+      "id": 3612
+    },
+    {
+      "name": "ExecuteSamplingLot_RemoveContainerSampleData",
+      "description": "ExecuteSamplingLot_RemoveContainerSampleData",
+      "workspace": "csi",
+      "id": 3611
+    },
+    {
+      "name": "ExecuteSamplingLot_SamplingLotOGV",
+      "description": "CollectSampling_SampleDataItemOGV",
+      "workspace": "csi",
+      "id": 3586
+    },
+    {
+      "name": "ExecuteSamplingLot_StartModifyingEntity",
+      "description": "ExecuteSamplingLot_StartModifyingEntity",
+      "workspace": "csi",
+      "id": 3587
+    },
+    {
+      "name": "ExecuteSamplingLot_Validate",
+      "description": "ExecuteSamplingLot_Validate",
+      "workspace": "csi",
+      "id": 3585
+    },
+    {
+      "name": "ExecuteSamplingLot_ValidateLotStatusResult",
+      "description": "ExecuteSamplingLot_Validate",
+      "workspace": "csi",
+      "id": 3588
+    }
+  ],
+  "offset": 0,
+  "limit": 100,
+  "has_more": false
+}

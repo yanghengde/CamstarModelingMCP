@@ -1,0 +1,330 @@
+[
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "ActionsMenuId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "AutoAdjustReasonId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "BonusReasonsId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "BuyReasonsId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "CDOTypeId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "ChangeCount"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "ChangeStatusId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "ComponentDefectReasonsId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "ContainerDefectReasonsId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "DefaultRollupReasonId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "DispatchRuleId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "ES_DisplayOptionsId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "ES_isDefectReasonGroupId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "IconId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "LocalReworkReasonsId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "LossReasonsId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "OperationId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "PrintQueueId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "QtyAdjustReasonId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "ReworkReasonsId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "SchedulingDetailId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "SellReasonsId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "SetupAccessId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "ShipmentDestinationsId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "ThruputReportingLevelId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "TrainingReqGroupId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "WIPMsgDefMgrId"
+  },
+  {
+    "TABLE_NAME": "Operation",
+    "COLUMN_NAME": "WorkCenterId"
+  },
+  {
+    "TABLE_NAME": "ReworkReason",
+    "COLUMN_NAME": "CDOTypeId"
+  },
+  {
+    "TABLE_NAME": "ReworkReason",
+    "COLUMN_NAME": "ChangeCount"
+  },
+  {
+    "TABLE_NAME": "ReworkReason",
+    "COLUMN_NAME": "ChangeHistoryId"
+  },
+  {
+    "TABLE_NAME": "ReworkReason",
+    "COLUMN_NAME": "IconId"
+  },
+  {
+    "TABLE_NAME": "ReworkReason",
+    "COLUMN_NAME": "ReworkReasonId"
+  },
+  {
+    "TABLE_NAME": "ReworkReason",
+    "COLUMN_NAME": "SetupAccessId"
+  },
+  {
+    "TABLE_NAME": "ReworkReason",
+    "COLUMN_NAME": "WIPMsgDefMgrId"
+  },
+  {
+    "TABLE_NAME": "ReworkReasonGroup",
+    "COLUMN_NAME": "CDOTypeId"
+  },
+  {
+    "TABLE_NAME": "ReworkReasonGroup",
+    "COLUMN_NAME": "ChangeCount"
+  },
+  {
+    "TABLE_NAME": "ReworkReasonGroup",
+    "COLUMN_NAME": "ChangeHistoryId"
+  },
+  {
+    "TABLE_NAME": "ReworkReasonGroup",
+    "COLUMN_NAME": "IconId"
+  },
+  {
+    "TABLE_NAME": "ReworkReasonGroup",
+    "COLUMN_NAME": "ReworkReasonGroupId"
+  },
+  {
+    "TABLE_NAME": "ReworkReasonGroup",
+    "COLUMN_NAME": "SetupAccessId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "CDOTypeId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "ChangeCount"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "ChangeHistoryId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "ComputerGroupId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "DefaultIssueDifferenceReasonId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "DefaultSubstitutionReasonId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "DocumentSetId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "ElectronicProcedureBaseId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "ElectronicProcedureId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "ES_DisplayOptionsId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "ES_IterationLimitHoldReasonId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "ES_IterationLimitLossReasonId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "ES_MfgOrderReassignPlanId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "ES_MultiContainerDefectMatriId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "ES_TargetSpecsId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "IconId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "MfgLineId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "OperationId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "RecipeFileBaseId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "RecipeFileId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "ResourceGroupId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "SchedulingDetailId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "SetupAccessId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "SetupBaseId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "SetupId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "SpecBaseId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "SpecId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "TrainingReqGroupId"
+  },
+  {
+    "TABLE_NAME": "Spec",
+    "COLUMN_NAME": "WIPMsgDefMgrId"
+  },
+  {
+    "TABLE_NAME": "Workflow",
+    "COLUMN_NAME": "CDOTypeId"
+  },
+  {
+    "TABLE_NAME": "Workflow",
+    "COLUMN_NAME": "ChangeCount"
+  },
+  {
+    "TABLE_NAME": "Workflow",
+    "COLUMN_NAME": "ChangeHistoryId"
+  },
+  {
+    "TABLE_NAME": "Workflow",
+    "COLUMN_NAME": "ERPRouteBaseId"
+  },
+  {
+    "TABLE_NAME": "Workflow",
+    "COLUMN_NAME": "ERPRouteId"
+  },
+  {
+    "TABLE_NAME": "Workflow",
+    "COLUMN_NAME": "FirstStepId"
+  },
+  {
+    "TABLE_NAME": "Workflow",
+    "COLUMN_NAME": "IconId"
+  },
+  {
+    "TABLE_NAME": "Workflow",
+    "COLUMN_NAME": "SchedulingRouteId"
+  },
+  {
+    "TABLE_NAME": "Workflow",
+    "COLUMN_NAME": "SetupAccessId"
+  },
+  {
+    "TABLE_NAME": "Workflow",
+    "COLUMN_NAME": "WIPMsgDefMgrId"
+  },
+  {
+    "TABLE_NAME": "Workflow",
+    "COLUMN_NAME": "WorkflowBaseId"
+  },
+  {
+    "TABLE_NAME": "Workflow",
+    "COLUMN_NAME": "WorkflowId"
+  }
+]

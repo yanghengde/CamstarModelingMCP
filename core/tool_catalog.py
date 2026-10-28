@@ -10,6 +10,7 @@ class ToolPolicy:
 
 TOOL_POLICIES = {
     'prepare_quality_ncr_closure': ToolPolicy('quality'),
+    'prepare_sampling_lot_rework': ToolPolicy('quality'),
     'get_ncr_escalation_options': ToolPolicy('quality'),
     'prepare_ncr_escalation': ToolPolicy('quality'),
     'get_current_sampling_status': ToolPolicy('quality'),

@@ -1,0 +1,571 @@
+{
+  "Rework_ValidateReworkReason": {
+    "format": "designer_clf_v1",
+    "status": "read",
+    "read_only": true,
+    "source_file": "D:\\Deepseek\\camstar\\CamstarDesignerMCP\\data\\designer\\server_snapshot\\Base_InSite.mdb",
+    "source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+    "name": "Rework_ValidateReworkReason",
+    "description": "Rework_ValidateReworkReason",
+    "id": 3007,
+    "workspace": "csi",
+    "active_workspace": "csi",
+    "clf_type": "ServiceValidations",
+    "calls": [
+      {
+        "call_id": 27014,
+        "sequence": 1,
+        "function": "setfieldex",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "From",
+            "value": "false",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "To",
+            "value": "CLF::IsValidReworkReason",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 27015,
+        "sequence": 2,
+        "function": "if",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "Condition",
+            "value": "Operation.ReworkReasons != null",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 27016,
+        "sequence": 3,
+        "function": "{",
+        "active": true,
+        "workspace": "csi",
+        "parameters": []
+      },
+      {
+        "call_id": 27017,
+        "sequence": 4,
+        "function": "ConvertCDOListToResultset",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "List",
+            "value": "Operation.ReworkReasons ? Operation.ReworkReasons.ResolvedEntries : null",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Fields",
+            "value": "Name,InstanceId",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ColNames",
+            "value": "\"Name\",\"InstanceId\"",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ColLabels",
+            "value": "LabelId::SelVal_Name,LabelId::SelVal_InstanceId",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ResultsetStartRow",
+            "value": "1",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ResultsetSizeLimit",
+            "value": "-1",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "FilterFieldName",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "FilterParams",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Result",
+            "value": "CLF::ReworkReasonsRS",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 27018,
+        "sequence": 5,
+        "function": "ConvertResultsetToListOrScalar",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "Resultset",
+            "value": "CLF::ReworkReasonsRS",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ColName",
+            "value": "\"Name\"",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "IsList",
+            "value": "true",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "FieldType",
+            "value": "Transaction::__Const.DataType.String",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "FieldName",
+            "value": "CLF::ReworkReasons",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "UseFieldDataType",
+            "value": "false",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 27019,
+        "sequence": 6,
+        "function": "foreach",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "Var",
+            "value": "CLF::ReworkReason",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "List",
+            "value": "CLF::ReworkReasons",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 27020,
+        "sequence": 7,
+        "function": "{",
+        "active": true,
+        "workspace": "csi",
+        "parameters": []
+      },
+      {
+        "call_id": 27021,
+        "sequence": 8,
+        "function": "if",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "Condition",
+            "value": "CLF::ReworkReason == ReworkReason.Name",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 27022,
+        "sequence": 9,
+        "function": "{",
+        "active": true,
+        "workspace": "csi",
+        "parameters": []
+      },
+      {
+        "call_id": 27023,
+        "sequence": 10,
+        "function": "setfieldex",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "From",
+            "value": "true",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "To",
+            "value": "CLF::IsValidReworkReason",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 27024,
+        "sequence": 11,
+        "function": "break",
+        "active": true,
+        "workspace": "csi",
+        "parameters": []
+      },
+      {
+        "call_id": 27025,
+        "sequence": 12,
+        "function": "}",
+        "active": true,
+        "workspace": "csi",
+        "parameters": []
+      },
+      {
+        "call_id": 27026,
+        "sequence": 13,
+        "function": "}",
+        "active": true,
+        "workspace": "csi",
+        "parameters": []
+      },
+      {
+        "call_id": 27027,
+        "sequence": 14,
+        "function": "}",
+        "active": true,
+        "workspace": "csi",
+        "parameters": []
+      },
+      {
+        "call_id": 27028,
+        "sequence": 15,
+        "function": "if",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "Condition",
+            "value": "!CLF::IsValidReworkReason",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 27029,
+        "sequence": 16,
+        "function": "throw",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "ErrorId",
+            "value": "LabelId::Lbl_InvalidReworkReason",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ParamNames",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ParamValues",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      }
+    ],
+    "declared_parameters": [],
+    "references": {
+      "available": true,
+      "rows": [
+        {
+          "CDOName": "Rework",
+          "FieldName": "",
+          "EventName": "",
+          "MethodName": "ValidateReworkReason"
+        }
+      ],
+      "total": 1,
+      "truncated": false,
+      "error": "",
+      "scope": "vendor_where_used",
+      "runtime_usage_verified": false
+    }
+  },
+  "Rework_ValidatePath": {
+    "format": "designer_clf_v1",
+    "status": "read",
+    "read_only": true,
+    "source_file": "D:\\Deepseek\\camstar\\CamstarDesignerMCP\\data\\designer\\server_snapshot\\Base_InSite.mdb",
+    "source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+    "name": "Rework_ValidatePath",
+    "description": "Rework_ValidatePath",
+    "id": 970,
+    "workspace": "csi",
+    "active_workspace": "csi",
+    "clf_type": "ServiceValidations",
+    "calls": [
+      {
+        "call_id": 3542,
+        "sequence": 1,
+        "function": "callsuper",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "Name1",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Value1",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Name2",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Value2",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Name3",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "Value3",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "IncludeLogicFromThisCDO",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 3543,
+        "sequence": 2,
+        "function": "validateequal",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "LeftValue",
+            "value": "IsOfObjectType( Path, \"ReworkPath\", false )",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "RightValue",
+            "value": "true",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ErrorID",
+            "value": "LabelId::PathTypeMismatch",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ErrorParmName1",
+            "value": "CDOTypeName",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ErrorParmValue1",
+            "value": "\"ReworkPath\"",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ErrorParmName2",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ErrorParmValue2",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ErrorParmName3",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ErrorParmValue3",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ErrorParmName4",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ErrorParmValue4",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      }
+    ],
+    "declared_parameters": [],
+    "references": {
+      "available": true,
+      "rows": [
+        {
+          "CDOName": "Rework",
+          "FieldName": "",
+          "EventName": "",
+          "MethodName": "ValidatePath"
+        }
+      ],
+      "total": 1,
+      "truncated": false,
+      "error": "",
+      "scope": "vendor_where_used",
+      "runtime_usage_verified": false
+    }
+  },
+  "ExecuteSamplingLot_RemoveContainerSampleData": {
+    "format": "designer_clf_v1",
+    "status": "read",
+    "read_only": true,
+    "source_file": "D:\\Deepseek\\camstar\\CamstarDesignerMCP\\data\\designer\\server_snapshot\\Base_InSite.mdb",
+    "source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+    "name": "ExecuteSamplingLot_RemoveContainerSampleData",
+    "description": "ExecuteSamplingLot_RemoveContainerSampleData",
+    "id": 3611,
+    "workspace": "csi",
+    "active_workspace": "csi",
+    "clf_type": "ServiceProcessing",
+    "calls": [
+      {
+        "call_id": 40546,
+        "sequence": 1,
+        "function": "foreach",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "Var",
+            "value": "CLF::ContainerSampleData",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "List",
+            "value": "CLF::Container.ContainerSampleData",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      },
+      {
+        "call_id": 40547,
+        "sequence": 2,
+        "function": "DeleteListItem",
+        "active": true,
+        "workspace": "csi",
+        "parameters": [
+          {
+            "name": "ListField",
+            "value": "CLF::Container.ContainerSampleData",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ItemValue",
+            "value": "CLF::ContainerSampleData",
+            "dynamic": false,
+            "usage": "Default"
+          },
+          {
+            "name": "ItemIndex",
+            "value": "",
+            "dynamic": false,
+            "usage": "Default"
+          }
+        ]
+      }
+    ],
+    "declared_parameters": [],
+    "references": {
+      "available": true,
+      "rows": [
+        {
+          "CDOName": "ExecuteSamplingLot",
+          "FieldName": "",
+          "EventName": "",
+          "MethodName": "RemoveContainerSampleData"
+        }
+      ],
+      "total": 1,
+      "truncated": false,
+      "error": "",
+      "scope": "vendor_where_used",
+      "runtime_usage_verified": false
+    }
+  }
+}
