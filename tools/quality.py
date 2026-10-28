@@ -37,12 +37,12 @@ CAPA_COLUMNS='CAPAId,CAPAName,Category,Status,ChangeCount,IsFrozen,IsSubmitted,O
 @mcp.tool
 async def get_quality_api_inventory()->str:
     """读取2026-10-26现场质量API核查与MCP覆盖清单。标明已封装、已有旧工具及仅发现待验证的接口；不是实时健康检查，更不是质量业务/权限验收。"""
-    return encode({'checked_date':'2026-10-26','implementation_updated_date':'2026-10-27',
+    return encode({'checked_date':'2026-10-26','implementation_updated_date':'2026-10-28',
         'source':'live Swagger index + schemas + EDM + Query column metadata; archived docs/quality-fixtures',
         'live_health_check':False,'families':[
-            {'domain':'NCR','discovered':['NCRCreate','NCRUpdate','NCRClose','NCREscalate','NCRCloseQuality','GetNCRs','NCRHistoryInquiry'],
-             'tools':['prepare_nonconformance_report','list_nonconformance_reports','get_nonconformance_report','get_quality_history'],
-             'limitations':'创建/更新/关闭已封装，升级事件及NCRCloseQuality未开放；现场写入验收待完成。'},
+            {'domain':'NCR','checked_date':'2026-10-28','discovered':['NCRCreate','NCRUpdate','NCRClose','NCREscalate','NCRCloseQuality','GetNCRs','NCRHistoryInquiry'],
+             'tools':['prepare_nonconformance_report','list_nonconformance_reports','get_nonconformance_report','get_quality_history','get_ncr_escalation_options','prepare_ncr_escalation'],
+             'limitations':'创建/更新/关闭及按组织唯一分类映射升级质量事件已封装；不覆盖签名/审批，原报告最终状态待验收。NCRCloseQuality未开放，现场写入验收待完成。'},
             {'domain':'CAPA','discovered':['CreateCAPA','UpdateCAPA','CloseQualityObject'],
              'tools':['prepare_capa','prepare_capa_closure','get_quality_closure_options'],
              'limitations':'仅类别5创建/更新及Close处置关闭计划；不覆盖流程审批/签名，真实提交/关闭验收待补。'},
@@ -101,6 +101,7 @@ async def find_record(kind,name='',instance_id=None):
 
 
 async def ncr_failure_assignments(instance_id):
+    from tools.quality_inspection import wire_int
     if not valid_id(instance_id):raise ValueError('NCR关联查询ID无效。')
     # FieldId 10019 is NonconformanceReport.NCRFailureCodes in the deployed EDM.
     rows=await sql_rows('SELECT TOP 51 a.NonconformanceReportId,a.FieldId,a.Sequence,a.NCRFailureCodesId,'
@@ -109,6 +110,8 @@ async def ncr_failure_assignments(instance_id):
         +f"WHERE a.NonconformanceReportId='{instance_id}' AND a.FieldId=10019 ORDER BY a.Sequence,a.NCRFailureCodesId",51)
     if len(rows)>50:raise ValueError('NCR失败代码超过50个，不能完整维护。')
     for row in rows:
+        row['FieldId']=wire_int(row.get('FieldId'),'NCR失败码关联字段')
+        row['Sequence']=wire_int(row.get('Sequence'),'NCR失败码顺序')
         if (row.get('NonconformanceReportId')!=instance_id or row.get('FieldId')!=10019
                 or type(row.get('Sequence')) is not int or row['Sequence']<0
                 or not valid_id(row.get('NCRFailureCodesId'))):raise ValueError('NCR失败代码关联身份/顺序未确认。')

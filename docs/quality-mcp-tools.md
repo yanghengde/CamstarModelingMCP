@@ -1,8 +1,10 @@
 # Camstar质量API与MCP工具
 
-2026-10-27更新：quality分组共44个工具，新增产品当前采样状态查询及明确选择的计数器/手动检验水平调整计划。已支持检验计划只读配置检查。已支持零采样计数且无有效采样历史批的数量/频率维护、维护历史及原请求核对。既有范围包括AQL/检验水平维护与查表、单容器检验、定义维护、产品关联、建批、批采样、MES已通过批的OK执行及逐点追溯。工具注册、契约验证和模拟测试不代表现场质量事务验收完成。参数见[批维护](quality-lot-maintenance.md)、[AQL与检验水平](quality-sampling-references.md)、[单容器检验](quality-inspection.md)、[定义和建批](quality-definitions-lots.md)、[批采样与整批OK执行](quality-lot-execution.md)、[历史追溯与请求核对](quality-history.md)。
+2026-10-28更新：quality分组共46个工具，新增既有NCR升级质量事件的组织选项查询和提交计划。新增产品当前采样状态查询及明确选择的计数器/手动检验水平调整计划。已支持检验计划只读配置检查。已支持零采样计数且无有效采样历史批的数量/频率维护、维护历史及原请求核对。既有范围包括AQL/检验水平维护与查表、单容器检验、定义维护、产品关联、建批、批采样、MES已通过批的OK执行及逐点追溯。工具注册、契约验证和模拟测试不代表现场质量事务验收完成。参数见[批维护](quality-lot-maintenance.md)、[AQL与检验水平](quality-sampling-references.md)、[单容器检验](quality-inspection.md)、[定义和建批](quality-definitions-lots.md)、[批采样与整批OK执行](quality-lot-execution.md)、[历史追溯与请求核对](quality-history.md)。
 
 ## 实际发现的接口与本轮范围
+
+最新NCR升级轮：新增68项测试，全量1986项测试、2项子测试通过，其中质量相关780项，父pytest离线HTTPX真实网络尝试0。正式NCREscalate请求按组织唯一分类/子分类组合核对，明确优先级，绑定Open原报告、失败代码与原容器；不指定生成事件名称、不覆盖签名或额外调用关闭服务。原报告最终状态待MES验收。同时支持NCR失败码关联的SQL整数文本。现场组织选项查询成功，但已检查组织映射和优先级列表为空，正目标及真实升级仍待验收。见[功能说明](quality-ncr-escalation.md)及[本轮摘要](quality-fixtures/ncr-escalation-summary.json)。
 
 最新当前采样状态轮：新增70项测试，全量1918项测试、2项子测试通过，其中质量相关712项，父pytest离线HTTPX真实网络尝试0。现场连接恢复，核对CurrentSamplingStatusUpdate契约及SamplingCurrentStatus列，新增状态查询和明确1..20条容器采样状态调整计划。计数器不是频率，不改已有任务；不全选、不处理批采样或复位模式。未执行预览返回200，真实状态表仍为空，正目标和真实调整验收待补。见[功能说明](quality-current-sampling.md)及[本轮摘要](quality-fixtures/current-sampling-summary.json)。
 
@@ -18,7 +20,7 @@
 
 | 业务 | 当前部署发现的API | 本轮处理 |
 |---|---|---|
-| NCR不合格报告 | NCRCreate、NCRUpdate、NCRClose、NCREscalate、NCRCloseQuality；GetNCRs、NCRHistoryInquiry | 创建/更新/关闭计划、当前记录及历史；升级事件和NCRCloseQuality未开放 |
+| NCR不合格报告 | NCRCreate、NCRUpdate、NCRClose、NCREscalate、NCRCloseQuality；GetNCRs、NCRHistoryInquiry | 创建/更新/关闭及按组织唯一分类映射升级质量事件计划、当前记录及历史；NCRCloseQuality未开放 |
 | CAPA | CreateCAPA、UpdateCAPA、CloseQualityObject | 固定类别5的创建/更新和Close处置关闭计划；草稿、提交与关闭申请分别处理，仍由MES校验审批/签名 |
 | 质量对象/事件 | QualityObjectInquiry、QualityObjectHistoryInquiry、OpenQualityObject、CloseQualityObject、TriageQualityObject | 有界列表、对象详情与历史；通用开启/关闭/分派仍待验证 |
 | 检验/抽样 | SamplingPlans、SampleTests、SampleDataPoints、InspectionLevels；CollectSamplingData、CollectLotSamplingData、CreateSamplingLot、ExecuteSamplingLot、UpdateSamplingLot | 定义维护、产品关联、单容器及批计数/测量计划、建批、批历史及MES已完成通过批的OK执行计划；整批返工/报废、自动扣量/全检转换仍未开放 |
@@ -28,10 +30,12 @@
 
 首轮读取了52份相关Swagger，以及Shopfloor/Query EDM和SQL列元数据；2026-10-26又核对定义CRUD、建批契约及MfgLot存储。发现记录：[首轮目录](quality-fixtures/inventory.json)、[首轮契约](quality-fixtures/contracts.json)、[EDM](quality-fixtures/metadata.json)、[表字段](quality-fixtures/table-columns.json)、[本轮契约](quality-fixtures/definition-lot-contracts.json)。Swagger存在只说明接口被发布，不能证明当前账号有执行许可、模块流程配置完整或已验收。
 
-## 44个工具
+## 46个工具
 
 | 工具 | 用途 |
 |---|---|
+| get_ncr_escalation_options | 指定组织完整分类/子分类组合及签名设置，不自动选首行，不证明目标许可 |
+| prepare_ncr_escalation | Open且未关联升级事件的原NCR升级计划；唯一组织组合、明确优先级、原容器及回显核对，统一确认单次执行 |
 | get_quality_api_inventory | 已发现API、已封装工具和未开放范围；有核查日期，不是实时健康检查 |
 | get_current_sampling_status | 固定产品版本当前状态分页，真实ID、当前频率与独立计数器、检验水平和批归属 |
 | prepare_current_sampling_status_update | 明确选择容器采样状态，准备计数器或手动检验水平调整，不全选、不改已有任务，统一确认单次提交 |
@@ -167,5 +171,5 @@ HTTP响应成功或“Update completed successfully”不代表本次质量事�
 - NCR创建/更新/关闭和CAPA真实提交、非空详情/历史、账号权限、流程审批、电子签名及客户端多轮联合验收仍待完成；本轮没有创建、更新或关闭真实质量记录。
 - 第二轮现场只读证据：[关闭动作及新增契约/列定义](quality-fixtures/phase2-contracts.json)、[关联查询与21个工具注册](quality-fixtures/phase2-read-validation.json)。关联查询使用不存在的固定ID，只验证SQL结构，不证明非空业务正确。没有创建、更新或关闭真实质量对象。
 - 第三轮新增单容器计数/测量检验工具，详见[检验说明](quality-inspection.md)。现场测试定义及任务样本为空，完整目标预览和真实提交仍待验收；不能将模拟测试或无目标预览报错称为验收完成。
-- CAPA仅开放Close处置的关闭准备；整批仅开放MES已完成且通过后的OK执行计划。通用质量对象开启/关闭、挂接/创建CAPA、流程分派、NCR升级、批返工/报废、自动扣量/事件、SPC计算/判异和通用质量放行仍未开放。
+- CAPA仅开放Close处置的关闭准备；整批仅开放MES已完成且通过后的OK执行计划。通用质量对象开启/关闭、挂接/创建CAPA、流程分派、批返工/报废、自动扣量/事件、SPC计算/判异和通用质量放行仍未开放。
 - 运行服务未重启，新增工具需要部署重启并刷新客户端清单后生效。

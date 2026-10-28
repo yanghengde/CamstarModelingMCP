@@ -98,6 +98,9 @@ async def failure_refs(names):
 
 
 async def build_ncr(args,marker):
+    if args.get('action')=='escalate':
+        from tools.quality_ncr_escalation import build_escalation
+        return await build_escalation(args,marker)
     action=args['action'];name=reads.text(args['report_name'],'NCR名称')
     if action not in ('create','update','close'):raise ValueError('NCR操作仅支持create/update/close。')
     before=await reads.ncr_snapshot(name)
@@ -301,13 +304,18 @@ def checked(row,fingerprint):
 
 def transport(snapshot):
     if snapshot.get('api','shopfloor')=='shopfloor':
+        if snapshot.get('kind')=='ncr' and snapshot.get('action')=='escalate' and snapshot.get('service')!='NCREscalate':
+            raise ValueError('NCR升级计划必须使用NCREscalate。')
         if snapshot.get('kind')=='lot_maintenance' and snapshot.get('service')!='UpdateSamplingLot':
             raise ValueError('批维护计划必须使用UpdateSamplingLot。')
         if snapshot.get('kind')=='current_sampling' and snapshot.get('service')!='CurrentSamplingStatusUpdate':
             raise ValueError('当前采样维护计划必须使用CurrentSamplingStatusUpdate。')
-        if snapshot.get('service') not in ('NCRCreate','NCRUpdate','NCRClose','CreateCAPA','UpdateCAPA','CloseQualityObject',
+        if snapshot.get('service') not in ('NCRCreate','NCRUpdate','NCRClose','NCREscalate','CreateCAPA','UpdateCAPA','CloseQualityObject',
                 'CollectSamplingData','CreateSamplingLot','CollectLotSamplingData','ExecuteSamplingLot','UpdateSamplingLot','CurrentSamplingStatusUpdate'):
             raise ValueError('质量服务不在执行白名单。')
+        if snapshot.get('service')=='NCREscalate':
+            from tools.quality_ncr_escalation import validate_transport
+            validate_transport(snapshot)
         if snapshot.get('service')=='CurrentSamplingStatusUpdate':
             from tools.quality_current_sampling import validate_transport
             validate_transport(snapshot)

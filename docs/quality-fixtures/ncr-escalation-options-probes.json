@@ -1,0 +1,18 @@
+{
+  "Organization": {
+    "http": 200,
+    "response": "{\"Organization\":{\"RecordCount\":0,\"RowCount\":0,\"SelectionValuesEx\":[]}}"
+  },
+  "Classification": {
+    "http": 200,
+    "response": "{\"Classification\":{\"RecordCount\":0,\"RowCount\":0,\"SelectionValuesEx\":[]}}"
+  },
+  "SubClassification": {
+    "http": 200,
+    "response": "{\"SubClassification\":{\"RecordCount\":0,\"RowCount\":0,\"SelectionValuesEx\":[]}}"
+  },
+  "PriorityLevel": {
+    "http": 200,
+    "response": "{\"PriorityLevel\":{\"RecordCount\":0,\"RowCount\":0,\"SelectionValuesEx\":[]}}"
+  }
+}

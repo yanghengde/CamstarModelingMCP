@@ -9,6 +9,8 @@ class ToolPolicy:
     always_confirm: bool = False
 
 TOOL_POLICIES = {
+    'get_ncr_escalation_options': ToolPolicy('quality'),
+    'prepare_ncr_escalation': ToolPolicy('quality'),
     'get_current_sampling_status': ToolPolicy('quality'),
     'prepare_current_sampling_status_update': ToolPolicy('quality'),
     'check_sampling_plan_configuration': ToolPolicy('quality'),
