@@ -46,6 +46,8 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
         'prepare_container_inspection': '仅单容器Counted/Measured，旧单组增量或counted_groups显式互不重叠分组；不分摊总数，不混用根级计数。原因使用子明细完整回显；多组累计、原因历史仍待验收。拒绝全检转换及扣量/事件，移站false。',
         'get_inspection_test_definition': '固定版本SampleTest和数值点/单位/限值/原因/副作用配置，不混同普通数据采集。',
         'get_container_inspection_history': '历史累计数和MES状态，只作证据，不把累计量当本次增量，不自动解除unknown。',
+        'get_current_sampling_status': '固定产品版本当前采样状态分页，展示真实选择ID、当前频率与独立计数器、当前/手动检验水平和批归属；不推算下个容器必检或不检。',
+        'prepare_current_sampling_status_update': '容器采样明确1..20状态记录计数器/手动检验水平调整计划，核对AQL映射及非执行回显；不全选、不改频率、不回填已有任务或处理批采样。统一确认单次提交，unknown需最终证据人工核实。',
         'check_sampling_plan_configuration': '完整有界的计划/测试/数值点及AQL-检验水平代码关联静态检查，报告缺项、未知和当前提交工具限制。重读依赖，不写MES；冻结不等于不可检验，不验证运行时任务或产品绑定，不判合格。',
         'prepare_sampling_lot_update': 'UpdateSamplingLot数量/频率计划，仅当前计数全零且无有效采样历史的Active批，完整核对最多50成员/50任务；保留原调整选项，不改成员。非执行回显不是任务重算或业务验收。',
         'get_sampling_lot_maintenance_history': '历史SamplingLotId关联的维护数量/频率/评论、事务和冲销状态，非增量及最终成功证据。',

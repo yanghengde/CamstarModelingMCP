@@ -232,6 +232,9 @@ async def build(kind,args,marker):
     if kind=='lot_maintenance':
         from tools.quality_lot_maintenance import build_update
         return await build_update(args,marker)
+    if kind=='current_sampling':
+        from tools.quality_current_sampling import build_update
+        return await build_update(args,marker)
     if kind in ('inspection_definition','sampling_binding'):
         from tools.quality_definitions import build_definition,build_binding
         return await (build_definition(args,marker) if kind=='inspection_definition' else build_binding(args,marker))
@@ -300,9 +303,14 @@ def transport(snapshot):
     if snapshot.get('api','shopfloor')=='shopfloor':
         if snapshot.get('kind')=='lot_maintenance' and snapshot.get('service')!='UpdateSamplingLot':
             raise ValueError('批维护计划必须使用UpdateSamplingLot。')
+        if snapshot.get('kind')=='current_sampling' and snapshot.get('service')!='CurrentSamplingStatusUpdate':
+            raise ValueError('当前采样维护计划必须使用CurrentSamplingStatusUpdate。')
         if snapshot.get('service') not in ('NCRCreate','NCRUpdate','NCRClose','CreateCAPA','UpdateCAPA','CloseQualityObject',
-                'CollectSamplingData','CreateSamplingLot','CollectLotSamplingData','ExecuteSamplingLot','UpdateSamplingLot'):
+                'CollectSamplingData','CreateSamplingLot','CollectLotSamplingData','ExecuteSamplingLot','UpdateSamplingLot','CurrentSamplingStatusUpdate'):
             raise ValueError('质量服务不在执行白名单。')
+        if snapshot.get('service')=='CurrentSamplingStatusUpdate':
+            from tools.quality_current_sampling import validate_transport
+            validate_transport(snapshot)
         if snapshot.get('service')=='ExecuteSamplingLot' and (snapshot.get('kind')!='lot_completion'
                 or snapshot.get('action')!='ok' or type(snapshot['body'].get('samplingLotResult')) is not int
                 or snapshot['body']['samplingLotResult']!=1 or snapshot['body'].get('samplingCompleted') is not True
@@ -351,7 +359,7 @@ def resource_sets(snap):
     # Keep a conservative shared gate until that dependency chain is verified.
     gate='modeling:sampling-reference-config:gate'
     if snap['kind']=='sampling_reference':writes.add(gate)
-    elif snap['kind'] in ('inspection','lot_inspection','lot_completion','lot_maintenance','sampling_lot','inspection_definition','sampling_binding'):
+    elif snap['kind'] in ('inspection','lot_inspection','lot_completion','lot_maintenance','current_sampling','sampling_lot','inspection_definition','sampling_binding'):
         reads_set.add(gate)
     if snap['kind']=='inspection':
         from tools.quality_definitions import resources
@@ -437,6 +445,9 @@ async def inspect_quality_transaction(plan_id:str,plan_digest:str)->str:
             with db_connect() as db:row=db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone()
             snap=checked(row,plan_digest)
             if row[2] not in ('unknown','in_flight'):raise ValueError('仅检查已尝试/未知质量计划。')
+            if snap['kind']=='current_sampling':
+                from tools.quality_current_sampling import inspect_snapshot
+                return encode(await inspect_snapshot(snap))
             if snap['kind']=='lot_maintenance':
                 from tools.quality_lots import get_sampling_lot_details
                 from tools.quality_lot_maintenance import get_sampling_lot_maintenance_history

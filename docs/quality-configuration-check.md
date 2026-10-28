@@ -41,6 +41,6 @@
 
 本轮67项新增测试覆盖真实ReadContext和既有定义/表读取器、MCP参数、连续两次配置检查、异常数据、代码映射及依赖变化；HTTP和SQL边缘使用模拟数据。问法检查验证工具可见性，**没有进行真实LLM多轮选工具成功率评测**。
 
-2026-10-27现场API连接超时。本轮没有取得新的现场契约或业务数据，也没有执行MES写入。`CurrentSamplingStatusUpdate` 已在先前Swagger目录和当地Siemens手册中发现，但本轮无法核对其字段，仍未开放工具。手册说明它只影响后续符合条件的容器，不作用于已在制容器或批采样；不能用抽样批维护工具替代。
+2026-10-27现场API连接超时。本轮没有取得新的现场契约或业务数据，也没有执行MES写入。`CurrentSamplingStatusUpdate` 已在先前Swagger目录和当地Siemens手册中发现，但本轮无法核对其字段，该轮未开放工具；后续已补齐[当前采样状态工具](quality-current-sampling.md)。手册说明它只影响后续符合条件的容器，不作用于已在制容器或批采样；不能用抽样批维护工具替代。
 
 现场端到端验收、批返工/报废、全检转换和SPC等仍未完成。证据与回归结果见[本轮摘要](quality-fixtures/configuration-audit-summary.json)。

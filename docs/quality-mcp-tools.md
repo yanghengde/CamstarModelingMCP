@@ -1,10 +1,12 @@
 # Camstar质量API与MCP工具
 
-2026-10-27更新：quality分组共42个工具，新增检验计划只读配置检查。已支持零采样计数且无有效采样历史批的数量/频率维护、维护历史及原请求核对。既有范围包括AQL/检验水平维护与查表、单容器检验、定义维护、产品关联、建批、批采样、MES已通过批的OK执行及逐点追溯。工具注册、契约验证和模拟测试不代表现场质量事务验收完成。参数见[批维护](quality-lot-maintenance.md)、[AQL与检验水平](quality-sampling-references.md)、[单容器检验](quality-inspection.md)、[定义和建批](quality-definitions-lots.md)、[批采样与整批OK执行](quality-lot-execution.md)、[历史追溯与请求核对](quality-history.md)。
+2026-10-27更新：quality分组共44个工具，新增产品当前采样状态查询及明确选择的计数器/手动检验水平调整计划。已支持检验计划只读配置检查。已支持零采样计数且无有效采样历史批的数量/频率维护、维护历史及原请求核对。既有范围包括AQL/检验水平维护与查表、单容器检验、定义维护、产品关联、建批、批采样、MES已通过批的OK执行及逐点追溯。工具注册、契约验证和模拟测试不代表现场质量事务验收完成。参数见[批维护](quality-lot-maintenance.md)、[AQL与检验水平](quality-sampling-references.md)、[单容器检验](quality-inspection.md)、[定义和建批](quality-definitions-lots.md)、[批采样与整批OK执行](quality-lot-execution.md)、[历史追溯与请求核对](quality-history.md)。
 
 ## 实际发现的接口与本轮范围
 
-2026-10-27新增检验计划只读配置检查，复用既有接口契约；新增67项测试，全量1848项测试、2项子测试通过，质量相关642项，父pytest离线HTTPX真实网络尝试0。测试和边界见[配置检查说明](quality-configuration-check.md)及[本轮摘要](quality-fixtures/configuration-audit-summary.json)。本轮现场连接超时，未新增现场契约验证或MES业务写入；CurrentSamplingStatusUpdate仍未开放。
+最新当前采样状态轮：新增70项测试，全量1918项测试、2项子测试通过，其中质量相关712项，父pytest离线HTTPX真实网络尝试0。现场连接恢复，核对CurrentSamplingStatusUpdate契约及SamplingCurrentStatus列，新增状态查询和明确1..20条容器采样状态调整计划。计数器不是频率，不改已有任务；不全选、不处理批采样或复位模式。未执行预览返回200，真实状态表仍为空，正目标和真实调整验收待补。见[功能说明](quality-current-sampling.md)及[本轮摘要](quality-fixtures/current-sampling-summary.json)。
+
+2026-10-27新增检验计划只读配置检查，复用既有接口契约；新增67项测试，全量1848项测试、2项子测试通过，质量相关642项，父pytest离线HTTPX真实网络尝试0。测试和边界见[配置检查说明](quality-configuration-check.md)及[本轮摘要](quality-fixtures/configuration-audit-summary.json)。该配置检查轮现场连接超时，未新增现场契约验证或MES业务写入；后续当前采样状态轮已恢复并补齐接口，见上文。
 
 最新计数分组轮扩展两个现有检验工具，工具总数保持41；修正显式子字段选择、规范拒收原因子明细及未公开CDOTypeId的处理。新增57项测试，全量1781项测试、2项子测试通过，质量相关575项，离线HTTPX真实网络尝试为0。多组实际累计和完整目标回显仍待现场验收，见[计数分组说明](quality-counted-groups.md)及[本轮摘要](quality-fixtures/counted-groups-summary.json)。
 
@@ -26,11 +28,13 @@
 
 首轮读取了52份相关Swagger，以及Shopfloor/Query EDM和SQL列元数据；2026-10-26又核对定义CRUD、建批契约及MfgLot存储。发现记录：[首轮目录](quality-fixtures/inventory.json)、[首轮契约](quality-fixtures/contracts.json)、[EDM](quality-fixtures/metadata.json)、[表字段](quality-fixtures/table-columns.json)、[本轮契约](quality-fixtures/definition-lot-contracts.json)。Swagger存在只说明接口被发布，不能证明当前账号有执行许可、模块流程配置完整或已验收。
 
-## 42个工具
+## 44个工具
 
 | 工具 | 用途 |
 |---|---|
 | get_quality_api_inventory | 已发现API、已封装工具和未开放范围；有核查日期，不是实时健康检查 |
+| get_current_sampling_status | 固定产品版本当前状态分页，真实ID、当前频率与独立计数器、检验水平和批归属 |
+| prepare_current_sampling_status_update | 明确选择容器采样状态，准备计数器或手动检验水平调整，不全选、不改已有任务，统一确认单次提交 |
 | check_sampling_plan_configuration | 固定计划版本的测试/数值点及AQL-检验水平配置诊断，区分问题与工具限制，不替代运行时任务或质量判定 |
 | prepare_sampling_lot_update | 全量核对原批、成员、零计数任务及有效采样历史，准备数量/频率调整，保留其他选项 |
 | get_sampling_lot_maintenance_history | 按历史批ID查询UpdateSamplingLot维护值、完整评论、事务及冲销状态，非最终成功证明 |

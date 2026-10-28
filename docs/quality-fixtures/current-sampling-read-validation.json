@@ -1,0 +1,151 @@
+{
+  "status_sample": [],
+  "history_tables": [
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "AQLLevelId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "CDOTypeId",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "ChangeCount",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "CurrentInspectionLevelId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "CurrentSampleRate",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "LastRevTxnId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "LastUpdateDate",
+      "DATA_TYPE": "datetime"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "ProductId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "ResourceId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "SamplePlanInspectionLevelId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "SampleRateCounter",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "SampleTestId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "SamplingCurrentStatusId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "SamplingLotId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "SamplingPlanId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "SpecId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "VendorId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatus",
+      "COLUMN_NAME": "VendorItemId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatusRI",
+      "COLUMN_NAME": "InstanceId",
+      "DATA_TYPE": "char"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatusRI",
+      "COLUMN_NAME": "Sequence",
+      "DATA_TYPE": "int"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatusRI",
+      "COLUMN_NAME": "TransactionHistory",
+      "DATA_TYPE": "varbinary"
+    },
+    {
+      "TABLE_NAME": "SamplingCurrentStatusRI",
+      "COLUMN_NAME": "TxnId",
+      "DATA_TYPE": "char"
+    }
+  ],
+  "product_list_http": 200,
+  "product_only_preview": {
+    "request": {
+      "product": {
+        "name": "WM-900A",
+        "revision": "A",
+        "instanceId": "00062c8000000002"
+      },
+      "newSampleRateCounterValue": 0,
+      "resetInspectionLevel": false,
+      "comments": "MCP-READONLY-CONTRACT-CHECK"
+    },
+    "status": 200,
+    "response": "{\"@odata.context\":\"https://172.31.197.121/api/$metadata#CurrentSamplingStatusUpdate/$entity\",\"value\":\"\",\"data\":{\"Product\":{\"Name\":\"WM-900A\",\"Revision\":\"A\",\"UseRor\":\"false\",\"InstanceId\":\"00062c8000000002\"},\"NewSampleRateCounterValue\":\"0\",\"ResetInspectionLevel\":\"false\",\"Comments\":\"MCP-READONLY-CONTRACT-CHECK\"}}",
+    "execute": false,
+    "status_record_selected": false
+  },
+  "new_read_tool_result": {
+    "product": {
+      "reference": {
+        "name": "WM-900A",
+        "revision": "A",
+        "instanceId": "00062c8000000002"
+      },
+      "status": 1,
+      "change_count": 2
+    },
+    "rows": [],
+    "page_complete": true,
+    "complete": false,
+    "has_more": false,
+    "next_offset": null,
+    "quality_verdict": null,
+    "execution_readiness_verified": false,
+    "note": "计数器不是采样频率；当前页不是完整清单或事务因果证据，不据此推算下个容器必检或不检。"
+  }
+}

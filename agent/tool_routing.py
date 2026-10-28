@@ -5,7 +5,7 @@ import re
 from core.tool_catalog import TOOL_POLICIES
 
 GROUP_TERMS = {
-    "quality": r"质量|挂起|释放|不合格|缺陷|纠正|预防|处置|抽检|抽样|检验|批采样|采样状态|采样计划|检验水平|接收数|拒收数|样本量|批量区间|冻结|解冻|隔离|报废|不良|返工|quality|ncr|capa|spc|sampling|sampletest|inspection|sampledatapoint|aql|defect|rework|hold|release",
+    "quality": r"质量|挂起|释放|不合格|缺陷|纠正|预防|处置|抽检|抽样|检验|批采样|采样状态|采样计数器|采样频率|采样计划|检验水平|接收数|拒收数|样本量|批量区间|冻结|解冻|隔离|报废|不良|返工|quality|ncr|capa|spc|sampling|sampletest|inspection|sampledatapoint|aql|defect|rework|hold|release",
     "collection": r"采集|采样|测量|collection|datapoint",
     "material": r"bom|物料|用料|耗料|投料|补投",
     "resource": r"resource|设备|资源|机台",
@@ -21,6 +21,7 @@ GROUP_TERMS = {
 }
 WRITE_TERMS = re.compile(r"冻结|解冻|关闭|登记|创建|新建|新增|修改|更新|调整|调到|变更|改成|改为|删除|重建|绑定|解绑|升版|导入|启动|开工|移站|过站|进站|出站|返工|不良|投料|补投|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
 ROUTING_INSTRUCTION = (
+    "产品当前采样状态先get_current_sampling_status，明确产品名称/版本，区分CurrentSampleRate频率和SampleRateCounter计数器；只调整明确1..20个无SamplingLotId记录，用prepare_current_sampling_status_update的status_instance_ids及new_sample_rate_counter非负整数或new_inspection_level_name。不能按测试名称猜状态ID，不默认全选，不用批采样频率维护替代，不推算下个容器是否必检。仅后续符合条件容器生效，不回填在制任务、不改原计划或频率、不执行ResetInspectionLevel；手动水平可能影响切换规则。execute_quality_transaction确认单次提交，unknown不重试；inspect_quality_transaction只读原选择当前状态，最终历史链未验证，find_quality_execution_candidates暂不支持此类计划，需最终审计证据人工review。"
     "检验计划配置是否完整、测试/检验点缺项、数值上下限或AQL与检验水平代码关联检查用check_sampling_plan_configuration，明确sampling_plan_name及sampling_plan_revision。先查配置再准备维护计划；不凭检查结果代填样本值或判定质量合格。complete只覆盖静态检查范围，submission_limitations是现有工具限制，不等同MES配置错误；冻结表示配置不可修改，不表示不能检验。该工具不验证产品绑定或当前任务、切换规则、频率运行时解析，不能替代MES要求或放行。"
     "计数检验多组沿用prepare_container_inspection或prepare_lot_inspection的counted_groups，逐组明确samples_collected、rejects及非零拒收原因，组必须不重叠；不与根级计数、原因或测量samples混用，不自动分摊总数、不重复原因或零拒收组，合计<=100。原因用规范子明细提交，一次计划一次请求，不按原因循环执行。多组实际累计、样本分区和原因历史仍未现场验收；原请求核对最多partial_match，不自动解锁。"
     "抽样批数量或频率调整用prepare_sampling_lot_update，new_quantity为正数字符串，new_sample_rate为正整数；仅当前采样计数全零且无有效采样历史的批，不对已开始检验的批强改要求。作用于完整批，成员只读，不回填或裁剪成员。保留原数量/频率中未改项及原批量调整选项，确认后统一单次执行；维护历史用get_sampling_lot_maintenance_history，unknown候选和数量/频率核对复用find_quality_execution_candidates及reconcile_quality_execution，不自动解锁。"

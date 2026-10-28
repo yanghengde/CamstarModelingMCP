@@ -1,0 +1,1280 @@
+[
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "AdjustmentType",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "AdjustmentValue",
+    "DATA_TYPE": "float",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "AllowAllRevisionsAsSubstitute",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "BillOfProcessBaseId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "BillOfProcessId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "BOMBaseId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "BOMId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "BrandName",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "30"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "CatalogNumber",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "30"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "CDOTypeId",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ChangeCount",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ChangeHistoryId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ConcomitantProductNumber",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "30"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ContainerNumberingRuleId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "CurrentCost",
+    "DATA_TYPE": "float",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "CustomerId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "CustomerProductNumber",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "30"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "Description",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "255"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "DeviceType",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "30"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "DocumentSetId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ECO",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "30"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ERPBOMBaseId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ERPBOMId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ERPRouteBaseId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ERPRouteId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ExternallyControlled",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "FEFOEnforce",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "FEFOOverrideESigRequirementId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "FilterTags",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "-1"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "GLEntity",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "255"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "HoldStatusId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "IconId",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "InspectAll",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "InventoryControlled",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "IsFrozen",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "isImageId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "IsPhantom",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "LifetimeLimit",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "LifetimeLimit2",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "LimitsEmailGroupId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "LotControlled",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "MaxQty",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "MinQty",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "MinQtyReorderEmailGroupId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "MinQtyReorderLimit",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ModelNumber",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "30"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "Notes",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "2000"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ObjectCategory",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "40"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ObjectType",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "40"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "PartType",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "PlannedCost",
+    "DATA_TYPE": "float",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ProductBaseId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ProductFamilyId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ProductId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ProductRevision",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "15"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ProductTypeId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ProductVariation",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "30"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ReconditionLimit",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "RPTMinimumValue",
+    "DATA_TYPE": "decimal",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "SamplingPlanBaseId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "SamplingPlanId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "SerialControlled",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "SlitCount",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "SlitProductId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "Status",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "StdCost",
+    "DATA_TYPE": "float",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "StdStartQty",
+    "DATA_TYPE": "float",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "StdStartQty2",
+    "DATA_TYPE": "float",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "StdStartUOM2Id",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "StdStartUOMId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "StockPointControlled",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "SubFactory",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "30"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "TargetCycleTime",
+    "DATA_TYPE": "float",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "TargetDurationPerUnit",
+    "DATA_TYPE": "float",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "TargetFinalYield",
+    "DATA_TYPE": "float",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "TargetRolledThroughputYield",
+    "DATA_TYPE": "float",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "TargetUnitsPerHour",
+    "DATA_TYPE": "float",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "TotalProcessTime",
+    "DATA_TYPE": "decimal",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "TotalProcessTimeBulk",
+    "DATA_TYPE": "decimal",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "TotalProcessTimeUnit",
+    "DATA_TYPE": "decimal",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "TrainingReqGroupId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "UsageLimit",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "UsageLimit2",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "WarningExpiryDuration",
+    "DATA_TYPE": "float",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "WarningLifetimeLimit",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "WarningLifetimeLimit2",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "WarningUsageLimit",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "WarningUsageLimit2",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "WIPMsgDefMgrId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "WorkflowBaseId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "WorkflowId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ChildContainerNumberingRuleId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ERPProductFamily",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "40"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_BOMBaseId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_BOMId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_CADInstructionsId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_ChildSNRuleId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_ContainerAction",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_CustomAddressPoolId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_CustomAddressQty",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_EffectiveEndDate",
+    "DATA_TYPE": "datetime",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_EffectiveEndDateGMT",
+    "DATA_TYPE": "datetime",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_EffectiveStartDate",
+    "DATA_TYPE": "datetime",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_EffectiveStartDateGMT",
+    "DATA_TYPE": "datetime",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_IMEIAddressPoolId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_IMEIAddressQty",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_InheritExposure",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_MACAddressPoolId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_MACAddressQty",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_MasterRecipe",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "40"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_MaterialAttributes",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "40"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_MountingTechnology",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_NPIJobBaseId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_NPIJobId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_ParentSNRuleId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_PinCount",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_Polarized",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_ProductionBOMBaseId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_ProductionBOMId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_PropagateExposure",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_RequiredToolFamilyId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_ResetReworkTotalCount",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_ReworkCycleCheck",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_ReworkCycleLimit",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_ReworkHoldReasonId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_ReworkLossReasonId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_SchematicId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_SerialNumberConfig",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_SerialNumberGeneration",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_SerialNumberPrefix",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "40"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_SerialNumberQty",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_ShopfloorDocumentId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_StartVirtualSN",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_StdStartChildLevelId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_ToolPlanMatrixId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_UniqueSerialNumbers",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_UseContainerNameForSN",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_ValidateBulkUID",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ES_ValidateIssueTool",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "Frequency",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "40"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "isDefaultInventoryLocationId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "isRecipePlanId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "isRegisterContainers",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "MaterialAccumulateExposure",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "MaterialCategory",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "40"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "MaterialExposureDuration",
+    "DATA_TYPE": "float",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "MaterialMaxReturns",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "MaterialThawingDuration",
+    "DATA_TYPE": "float",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "MfgOrderRequired",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "OutsourceTag",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "40"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "Platform",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "40"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ProductConversionPlanId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "SetupAccessId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "StdStartChildQty",
+    "DATA_TYPE": "float",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "StdStartChildQty2",
+    "DATA_TYPE": "float",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "StdStartCustomerId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "StdStartFactoryId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "StdStartLevelId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "StdStartOwnerId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "StdStartPriorityCodeId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "StdStartReasonId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "TCReleaseStatus",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "36"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "UOM2Id",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ExDescription",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "200"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ExStatus",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ExProductDescription",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "200"
+  },
+  {
+    "TABLE_NAME": "Product",
+    "COLUMN_NAME": "ExtName",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "40"
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "AQLLevelId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "CDOTypeId",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "ChangeCount",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "CurrentInspectionLevelId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "CurrentSampleRate",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "LastRevTxnId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "LastUpdateDate",
+    "DATA_TYPE": "datetime",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "ProductId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "ResourceId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "SamplePlanInspectionLevelId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "SampleRateCounter",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "SampleTestId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "SamplingCurrentStatusId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "SamplingLotId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "SamplingPlanId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "SpecId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "VendorId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingCurrentStatus",
+    "COLUMN_NAME": "VendorItemId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "AQLLevelId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "CDOTypeId",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "ChangeCount",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "ChangeHistoryId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "Description",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "255"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "ECO",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "30"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "FilterTags",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "-1"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "IconId",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "InspectionLevelId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "IsFrozen",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "MoveContainerOnCompletion",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "Notes",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "2000"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "ResourceId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "Revision",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": "15"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "SampleRate",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "SampleRateMaxDuration",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "SampleSizeBasedOnStartQty",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "SamplingPlanBaseId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "SamplingPlanId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "SpecBaseId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "SpecId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "Status",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "SwitchingRuleBaseId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "SwitchingRuleId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "SwitchingRuleMaxDuration",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": ""
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "VendorId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "VendorItemId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  },
+  {
+    "TABLE_NAME": "SamplingPlan",
+    "COLUMN_NAME": "WIPMsgDefMgrId",
+    "DATA_TYPE": "char",
+    "CHARACTER_MAXIMUM_LENGTH": "16"
+  }
+]
