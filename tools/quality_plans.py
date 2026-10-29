@@ -227,6 +227,9 @@ async def build_capa_closure(args,marker):
 
 async def build(kind,args,marker):
     if not isinstance(marker,str) or not re.fullmatch(r'MCP-QUAL:[0-9a-f]{32}',marker):raise ValueError('质量事务关联标记无效。')
+    if kind=='spc_violation':
+        from tools.quality_spc_violations import build_violation
+        return await build_violation(args,marker)
     if kind=='spc_annotation':
         from tools.quality_spc_annotations import build_annotation
         return await build_annotation(args,marker)
@@ -316,6 +319,8 @@ def checked(row,fingerprint):
 
 def transport(snapshot):
     if snapshot.get('api','shopfloor')=='shopfloor':
+        if snapshot.get('kind')=='spc_violation' and snapshot.get('service')!='RecordSPCViolation':
+            raise ValueError('SPC违例登记计划必须使用RecordSPCViolation。')
         if snapshot.get('kind')=='spc_annotation' and snapshot.get('service')!='AddSPCAnnotation':
             raise ValueError('SPC注释计划必须使用AddSPCAnnotation。')
         if snapshot.get('kind')=='ncr' and snapshot.get('action')=='quality_close' and snapshot.get('service')!='NCRCloseQuality':
@@ -331,8 +336,11 @@ def transport(snapshot):
         if snapshot.get('kind')=='quantity_loss' and snapshot.get('service')!='ChangeQty':
             raise ValueError('数量损失计划必须使用ChangeQty。')
         if snapshot.get('service') not in ('NCRCreate','NCRUpdate','NCRClose','NCRCloseQuality','NCREscalate','CreateCAPA','UpdateCAPA','CloseQualityObject',
-                'CollectSamplingData','CreateSamplingLot','CollectLotSamplingData','ExecuteSamplingLot','UpdateSamplingLot','CurrentSamplingStatusUpdate','ChangeQty','AddSPCAnnotation'):
+                'CollectSamplingData','CreateSamplingLot','CollectLotSamplingData','ExecuteSamplingLot','UpdateSamplingLot','CurrentSamplingStatusUpdate','ChangeQty','AddSPCAnnotation','RecordSPCViolation'):
             raise ValueError('质量服务不在执行白名单。')
+        if snapshot.get('service')=='RecordSPCViolation':
+            from tools.quality_spc_violations import validate_transport
+            validate_transport(snapshot)
         if snapshot.get('service')=='AddSPCAnnotation':
             from tools.quality_spc_annotations import validate_transport
             validate_transport(snapshot)
@@ -488,6 +496,9 @@ async def inspect_quality_transaction(plan_id:str,plan_digest:str)->str:
             with db_connect() as db:row=db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone()
             snap=checked(row,plan_digest)
             if row[2] not in ('unknown','in_flight'):raise ValueError('仅检查已尝试/未知质量计划。')
+            if snap['kind']=='spc_violation':
+                from tools.quality_spc_violations import inspect_snapshot
+                return encode(await inspect_snapshot(snap))
             if snap['kind']=='spc_annotation':
                 from tools.quality_spc_annotations import inspect_snapshot
                 return encode(await inspect_snapshot(snap))

@@ -1,8 +1,8 @@
 # Camstar质量API与MCP工具
 
-先前47工具收尾快照见[阶段交付说明](quality-delivery.md)。后续高级功能已开始开发，当前53个工具，第三阶段扩展[原生全检与测量自动扣量](quality-inspection-effects.md)；第二阶段新增[数量损失准备与批报废前置检查](quality-quantity-loss.md)，第一阶段为[受限批返工](quality-lot-rework.md)，完整顺序与交付边界见[高级功能计划](quality-advanced-roadmap.md)。不是全部质量功能或MES验收完成。
+先前47工具收尾快照见[阶段交付说明](quality-delivery.md)。后续高级功能已开始开发，当前55个工具，第三阶段扩展[原生全检与测量自动扣量](quality-inspection-effects.md)；第二阶段新增[数量损失准备与批报废前置检查](quality-quantity-loss.md)，第一阶段为[受限批返工](quality-lot-rework.md)，完整顺序与交付边界见[高级功能计划](quality-advanced-roadmap.md)。不是全部质量功能或MES验收完成。
 
-2026-10-29更新：quality分组共53个工具；本轮新增get_spc_annotation_context、prepare_spc_annotation，提供原始历史点受限注释计划和只读上下文；SPC违例写入仍未开放。此前新增prepare_sampling_lot_rework批返工准备入口。既有范围包括关联Event已Closed、原NCR仍Open时的质量侧关闭收尾计划。新增既有NCR升级质量事件的组织选项查询和提交计划。新增产品当前采样状态查询及明确选择的计数器/手动检验水平调整计划。已支持检验计划只读配置检查。已支持零采样计数且无有效采样历史批的数量/频率维护、维护历史及原请求核对。既有范围包括AQL/检验水平维护与查表、单容器检验、定义维护、产品关联、建批、批采样、MES已通过批的OK执行及逐点追溯。工具注册、契约验证和模拟测试不代表现场质量事务验收完成。参数见[批维护](quality-lot-maintenance.md)、[AQL与检验水平](quality-sampling-references.md)、[单容器检验](quality-inspection.md)、[定义和建批](quality-definitions-lots.md)、[批采样与整批OK执行](quality-lot-execution.md)、[历史追溯与请求核对](quality-history.md)。
+2026-10-29更新：quality分组共55个工具；本轮新增get_spc_annotation_context、prepare_spc_annotation，提供原始历史点受限注释计划和只读上下文；本轮另有get_spc_violation_context、prepare_spc_violation，受限登记调用方明确报告的单点越限结果，不认证现场引擎。此前新增prepare_sampling_lot_rework批返工准备入口。既有范围包括关联Event已Closed、原NCR仍Open时的质量侧关闭收尾计划。新增既有NCR升级质量事件的组织选项查询和提交计划。新增产品当前采样状态查询及明确选择的计数器/手动检验水平调整计划。已支持检验计划只读配置检查。已支持零采样计数且无有效采样历史批的数量/频率维护、维护历史及原请求核对。既有范围包括AQL/检验水平维护与查表、单容器检验、定义维护、产品关联、建批、批采样、MES已通过批的OK执行及逐点追溯。工具注册、契约验证和模拟测试不代表现场质量事务验收完成。参数见[批维护](quality-lot-maintenance.md)、[AQL与检验水平](quality-sampling-references.md)、[单容器检验](quality-inspection.md)、[定义和建批](quality-definitions-lots.md)、[批采样与整批OK执行](quality-lot-execution.md)、[历史追溯与请求核对](quality-history.md)。
 
 ## 实际发现的接口与本轮范围
 
@@ -36,13 +36,13 @@
 | CAPA | CreateCAPA、UpdateCAPA、CloseQualityObject | 固定类别5的创建/更新和Close处置关闭计划；草稿、提交与关闭申请分别处理，仍由MES校验审批/签名 |
 | 质量对象/事件 | QualityObjectInquiry、QualityObjectHistoryInquiry、OpenQualityObject、CloseQualityObject、TriageQualityObject | 有界列表、对象详情与历史；通用开启/关闭/分派仍待验证 |
 | 检验/抽样 | SamplingPlans、SampleTests、SampleDataPoints、InspectionLevels；CollectSamplingData、CollectLotSamplingData、CreateSamplingLot、ExecuteSamplingLot、UpdateSamplingLot | 定义维护、产品关联、单容器及批计数/测量计划、建批、批历史及MES已完成通过批的OK执行计划；新增单路径受限整批返工计划；单容器显式原生全检规则及测量按样本数自动扣量已扩展；整批报废及其它高级组合未开放 |
-| SPC | SPCControls、SPCChartDefs、RecordSPCViolation、InlineSPCTxn等 | 控制/控制图定义查询，以及本地i_mr/xbar_r计算、显式WECO四规则；非MES引擎结果；另有[原始历史点受限注释计划](quality-spc-annotations.md)，实际写入待验收，违例记录和自动放行未开放 |
+| SPC | SPCControls、SPCChartDefs、RecordSPCViolation、InlineSPCTxn等 | 控制/控制图定义查询，以及本地i_mr/xbar_r计算、显式WECO四规则；非MES引擎结果；另有[原始历史点受限注释计划](quality-spc-annotations.md)，实际写入待验收，另有[明确报告的单点越限违例登记](quality-spc-violations.md)，非引擎认证结果，实际写入待验收；自动判定/放行未开放 |
 | 不良/返工/冻结 | ContainerDefect、Rework、Hold、Release | 保留已有工具名，归入quality并确认后执行；不是新版NCR/CAPA journal流程 |
 | 报废 | PartScrap、ScrapReasons | 已新增基础Container的受限LossDetails数量损失准备与只读抽样批报废阻塞检查；PartScrap不能代替Container报废，未开放多成员抽样批报废 |
 
 首轮读取了52份相关Swagger，以及Shopfloor/Query EDM和SQL列元数据；2026-10-26又核对定义CRUD、建批契约及MfgLot存储。发现记录：[首轮目录](quality-fixtures/inventory.json)、[首轮契约](quality-fixtures/contracts.json)、[EDM](quality-fixtures/metadata.json)、[表字段](quality-fixtures/table-columns.json)、[本轮契约](quality-fixtures/definition-lot-contracts.json)。Swagger存在只说明接口被发布，不能证明当前账号有执行许可、模块流程配置完整或已验收。
 
-## 53个工具
+## 55个工具
 
 | 工具 | 用途 |
 |---|---|
@@ -63,6 +63,8 @@
 | get_inspection_result_history | 逐样本/逐点历史候选关联，最多50样本100点；父键映射仍待非空现场验收 |
 | find_quality_execution_candidates | 原计划摘要、环境和实际尝试记录约束下，查精确评论与历史目标对应的候选事务 |
 | reconcile_quality_execution | 核对明确候选与原检验/批采样/整批OK请求；只读、不解锁，字段匹配不是最终成功 |
+| get_spc_violation_context | 原点、完整规则清单/候选及三层有效违例历史，不计算或认证引擎 |
+| prepare_spc_violation | 登记明确报告的单点越限，必填来源、原值/绘图值、单位及控制限；无通知/自动处置，确认单次提交；[范围](quality-spc-violations.md) |
 | get_spc_annotation_context | 原始直接数值采集历史点、父历史/事务链、固定定义/SPC组及所有图的有界有效注释历史 |
 | prepare_spc_annotation | 原生AddSPCAnnotation受限计划，Exclude=false，有效排除/签名未知则拒绝，确认单次执行；[范围说明](quality-spc-annotations.md) |
 | analyze_spc_series | [SPC本地计算/判异](quality-spc-analysis.md)，独立基线或有版本固定控制配置，保留原ID/输入摘要，不读写MES、不放行 |
@@ -190,5 +192,5 @@ HTTP响应成功或“Update completed successfully”不代表本次质量事�
 - NCR创建/更新/关闭和CAPA真实提交、非空详情/历史、账号权限、流程审批、电子签名及客户端多轮联合验收仍待完成；本轮没有创建、更新或关闭真实质量记录。
 - 第二轮现场只读证据：[关闭动作及新增契约/列定义](quality-fixtures/phase2-contracts.json)、[关联查询与21个工具注册](quality-fixtures/phase2-read-validation.json)。关联查询使用不存在的固定ID，只验证SQL结构，不证明非空业务正确。没有创建、更新或关闭真实质量对象。
 - 第三轮新增单容器计数/测量检验工具，详见[检验说明](quality-inspection.md)。现场测试定义及任务样本为空，完整目标预览和真实提交仍待验收；不能将模拟测试或无目标预览报错称为验收完成。
-- CAPA仅开放Close处置的关闭准备；整批提供MES已通过后的OK计划和独立受限批返工计划。通用质量对象开启/关闭、挂接/创建CAPA、流程分派、多成员抽样批报废、计数/拒收自动扣量、检验自动事件、SPC违例写入和通用质量放行仍未开放；另有原始历史点受限注释准备，真实写入待验收；SPC本地计算/判异已开放，不能替代现场引擎。
+- CAPA仅开放Close处置的关闭准备；整批提供MES已通过后的OK计划和独立受限批返工计划。通用质量对象开启/关闭、挂接/创建CAPA、流程分派、多成员抽样批报废、计数/拒收自动扣量、检验自动事件、SPC自动引擎判定和通用质量放行仍未开放；明确报告的单点违例登记另有受限计划；另有原始历史点受限注释准备，真实写入待验收；SPC本地计算/判异已开放，不能替代现场引擎。
 - 运行服务未重启，新增工具需要部署重启并刷新客户端清单后生效。

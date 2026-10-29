@@ -1,6 +1,6 @@
 # SPC本地计算与判异首版
 
-2026-10-29。新增 `analyze_spc_series`，该阶段quality分组为51个工具；后续新增[原始历史点受限注释](quality-spc-annotations.md)，当前53个工具。已接入MCP、Agent分发、能力目录、分组加载和自然语言路由。
+2026-10-29。新增 `analyze_spc_series`，该阶段quality分组为51个工具；后续新增[原始历史点受限注释](quality-spc-annotations.md)，当前55个工具，另有[明确报告的单点SPC违例登记](quality-spc-violations.md)。已接入MCP、Agent分发、能力目录、分组加载和自然语言路由。
 
 这是高级功能第四阶段的计算部分：结果来自调用方明确提供的数据及配置，不是Camstar现场SPC引擎的返回值。本地分析工具不执行违例/注释写入、自动冻结、资源状态变更、通知或质量放行；独立的受限注释计划见上述后续文档。代码交付和离线测试不代表MES业务验收。
 
@@ -100,7 +100,7 @@
 
 证据：[原生CLF目录](quality-fixtures/spc-native-index.json)、[原生执行/校验表达式](quality-fixtures/spc-native-execution.json)、[本轮现场只读检查](quality-fixtures/spc-live-readcheck.json)。本轮现场只读SPC控制和图定义查询均连接失败（ConnectError），记录数未知，未验证当前配置或空表。既有历史证据不能代作本轮现场联调成功。本轮没有创建配置、发送业务事务、调用通知或重启服务。
 
-后续已为原始直接数值采集点增加独立的受限注释准备与证据读取，实际现场效果尚未验收；违例写入仍需完成现场SPC规则映射、原始数据绑定及部署副作用验证。当前 `ready_for_mes_write`、`native_spc_result`、`release_authorized`始终false，不产生可执行计划，不能用通用HTTP绕过。
+后续已为原始直接数值采集点增加独立的受限注释准备与证据读取，实际现场效果尚未验收；明确报告的单点越限结果已新增独立登记计划；自动现场引擎/编译规则认证、区内/派生结果和部署效果仍待开发/验收。当前 `ready_for_mes_write`、`native_spc_result`、`release_authorized`始终false，不产生可执行计划，不能用通用HTTP绕过。
 
 ## 验证证据
 

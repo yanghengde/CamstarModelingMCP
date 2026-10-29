@@ -36,12 +36,13 @@ def iid(value, label='ID'):
     return value.lower()
 
 
-async def schema_check():
+async def schema_check(required=None):
+    required = SCHEMA if required is None else required
     clauses = ["(TABLE_NAME='"+table+"' AND COLUMN_NAME IN ("+','.join("'"+c+"'" for c in columns.split(','))+'))'
-               for table, columns in SCHEMA.items()]
+               for table, columns in required.items()]
     rows = await q.sql_rows('SELECT TOP 201 TABLE_NAME,COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS '
                             "WHERE TABLE_SCHEMA='dbo' AND ("+' OR '.join(clauses)+') ORDER BY TABLE_NAME,COLUMN_NAME', 201)
-    expected = {(table, col) for table, columns in SCHEMA.items() for col in columns.split(',')}
+    expected = {(table, col) for table, columns in required.items() for col in columns.split(',')}
     actual = [(r.get('TABLE_NAME'), r.get('COLUMN_NAME')) for r in rows]
     if len(actual) != len(set(actual)) or set(actual) != expected:
         raise ValueError('当前部署的SPC注释/原始历史字段未完整核实，不能准备写入。')

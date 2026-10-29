@@ -1,6 +1,6 @@
 # SPC原始历史点注释：受限首版
 
-2026-10-29。在[SPC本地计算与判异](quality-spc-analysis.md)之外，新增两个MCP工具，quality分组现为53个工具：
+2026-10-29。在[SPC本地计算与判异](quality-spc-analysis.md)之外，新增两个MCP工具，该阶段quality分组为53个工具；后续新增[明确报告的单点SPC违例登记](quality-spc-violations.md)，当前55个工具：
 
 | 工具 | 功能 |
 |---|---|
@@ -29,7 +29,7 @@
 4. 通过现有系统确认调用 `execute_quality_transaction(plan_id, plan_digest)`，重建并比较快照后只发一次请求。请求不重试、不跟随HTTP重定向。
 5. 提交后先保留unknown及占用，即使HTTP200或相同注释已可见也不自动成功。使用 `inspect_quality_transaction` 看原始点的当前证据，最终事务证据经人工 `review_quality_transaction` 记录终态。不得换图、改名、另建计划或清库绕过未知占用。
 
-注释可如实写入人工调查说明；本地分析信号不能自动变成“MES已确认违例”的结论。`RecordSPCViolation` 写入仍未开放。
+注释可如实写入人工调查说明；本地分析信号不能自动变成“MES已确认违例”的结论。`RecordSPCViolation`已有独立的明确报告结果受限登记计划，不能由本地分析自动触发，范围见后续文档。
 
 ## 校验范围
 
@@ -66,4 +66,4 @@
 
 最终结果见 [本轮汇总](quality-fixtures/spc-annotations-summary.json)、[全量JUnit](quality-fixtures/spc-annotations-junit.xml)、[离线HTTPX尝试记录](quality-fixtures/spc-annotations-network.json)、[工具与参数清单](quality-fixtures/spc-annotations-tool-manifest.json)。离线测试不是操作系统级网络隔离；问法检查只验证确定性工具选择，不代表模型已经正确完成现场多轮业务。
 
-仍需开发/验收：真实非空原点和图配置的联调、非执行预览与实际注释历史、部署扩展影响、自动最终事务关联、SPC违例与现场规则/原始数据的绑定及写入。SPC引擎调用、排除/恢复、自动冻结、资源状态、通知和其他质量高级流程仍未完成。
+仍需开发/验收：真实非空原点和图配置的联调、非执行预览与实际注释历史、部署扩展影响、自动最终事务关联、现场SPC引擎/编译规则认证及更广违例写入（明确报告的单点结果已有独立受限入口）。SPC引擎调用、排除/恢复、自动冻结、资源状态、通知和其他质量高级流程仍未完成。

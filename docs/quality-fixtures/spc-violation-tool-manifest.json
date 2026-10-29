@@ -1,0 +1,202 @@
+{
+  "quality_tool_count": 55,
+  "all_quality_tools_registered": true,
+  "all_quality_tools_dispatchable": true,
+  "new_schemas": {
+    "get_spc_violation_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "container_name": {
+          "type": "string"
+        },
+        "data_point_history_id": {
+          "type": "string"
+        },
+        "spc_chart_name": {
+          "type": "string"
+        },
+        "violation_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "container_instance_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "spc_chart_instance_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "container_name",
+        "data_point_history_id",
+        "spc_chart_name"
+      ]
+    },
+    "prepare_spc_violation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "container_name": {
+          "type": "string"
+        },
+        "data_point_history_id": {
+          "type": "string"
+        },
+        "spc_chart_name": {
+          "type": "string"
+        },
+        "violation_name": {
+          "type": "string"
+        },
+        "reported_result": {
+          "additionalProperties": false,
+          "properties": {
+            "source_kind": {
+              "const": "operator_reported",
+              "type": "string"
+            },
+            "evidence_reference": {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            "uom_id": {
+              "type": "string"
+            },
+            "reported_value": {
+              "type": "string"
+            },
+            "plotted_value": {
+              "type": "string"
+            },
+            "lcl": {
+              "type": "string"
+            },
+            "center": {
+              "type": "string"
+            },
+            "ucl": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source_kind",
+            "evidence_reference",
+            "uom_id",
+            "reported_value",
+            "plotted_value",
+            "lcl",
+            "center",
+            "ucl"
+          ],
+          "type": "object"
+        },
+        "container_instance_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "spc_chart_instance_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "container_name",
+        "data_point_history_id",
+        "spc_chart_name",
+        "violation_name",
+        "reported_result"
+      ]
+    }
+  },
+  "confirmation_tools": [
+    "container_defect",
+    "execute_quality_transaction",
+    "hold_container",
+    "release_container",
+    "review_quality_transaction",
+    "rework"
+  ],
+  "routing_scope": "Deterministic tool visibility, not LLM business accuracy or MES acceptance",
+  "routing_cases": [
+    {
+      "user_turns": [
+        "查看SPC违例历史"
+      ],
+      "context_visible": true,
+      "prepare_visible": true,
+      "executor_visible": false
+    },
+    {
+      "user_turns": [
+        "登记已报告的SPC越限结果"
+      ],
+      "context_visible": true,
+      "prepare_visible": true,
+      "executor_visible": true
+    },
+    {
+      "user_turns": [
+        "查询SPC当前规则清单",
+        "继续"
+      ],
+      "context_visible": true,
+      "prepare_visible": true,
+      "executor_visible": false
+    },
+    {
+      "user_turns": [
+        "登记SPC越限报告",
+        "提交这个结果"
+      ],
+      "context_visible": true,
+      "prepare_visible": true,
+      "executor_visible": true
+    }
+  ],
+  "operator_report_instruction_present": true,
+  "explicit_unit_and_plotted_value_instruction_present": true,
+  "journal_states_read_only": {
+    "cancelled": 2
+  },
+  "local_links_checked": 242,
+  "missing_links": []
+}

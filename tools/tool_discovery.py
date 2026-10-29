@@ -37,6 +37,8 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
               'reference': '基础资料与原因码', 'query': '查询服务', 'excel': '表格导入', 'system': '系统与能力发现'}
     disabled = {'patch_mfgorder': '当前服务 PATCH 契约未验证，工具已禁用；使用 update_mfgorder。'}
     caveats = {
+        'get_spc_violation_context': '只读原始直接数值点、完整规则成员及三层违例历史；不运行引擎或核实外部报告。受限图不允许通知/自动处置。',
+        'prepare_spc_violation': '登记调用方明确报告的单点越限SPC结果，必须给operator_reported来源、原值及报告控制限；不是工具认证的原生引擎结果。无通知/自动处置，规则归属及完整回显核实后确认单次提交，unknown不重试，现场验收待补。',
         'get_spc_annotation_context': '只读原始数值采集历史点、固定定义/SPC组及所有图的有界注释历史；不是本次提交核实或放行。',
         'prepare_spc_annotation': '原生AddSPCAnnotation受限计划，真实历史点/父链、容器归属、固定定义和完整SPC组须核实；Exclude=false，有效排除/签名要求未知则拒绝；确认单次提交、unknown不重试，现场写入尚待验收。',
         'analyze_spc_series': '本地i_mr/xbar_r计算及显式WECO四规则，独立基线或有版本固定控制配置二选一；保留原ID/顺序/摘要，不核实MES来源，不把规格限当控制限，不写入、不放行。',

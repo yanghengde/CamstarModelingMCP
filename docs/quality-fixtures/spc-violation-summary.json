@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-29",
+  "scope": "Restricted native RecordSPCViolation intake of explicitly operator-reported single-point excursions; not engine calculation/certification",
+  "quality_tool_count": 55,
+  "new_tests": 101,
+  "focused_tests_passed": 351,
+  "full_tests_passed": 2652,
+  "full_subtests_passed": 2,
+  "quality_tests_passed": 1446,
+  "failures": 0,
+  "single_final_run_all_green": true,
+  "final_offline_httpx_attempt_count": 0,
+  "native_metadata_source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+  "live_schema_verified": false,
+  "live_nonexecuting_preview_verified": false,
+  "live_business_acceptance_verified": false,
+  "reported_limits_verified_against_engine": false,
+  "evidence_reference_contents_verified": false,
+  "compiled_rules_verified": false,
+  "native_engine_integration_implemented": false,
+  "operator_reported_single_point_intake_implemented": true,
+  "mes_business_writes": 0,
+  "services_restarted_by_this_work": false,
+  "verification_limits": [
+    "Standard native metadata is not deployed customization proof",
+    "Live metadata SELECT did not return usable JSON; current schema/data/health not established",
+    "Report contents, control limits and compiled engine semantics remain explicitly caller-reported",
+    "SQLite relational regression checks orphan/transaction joins after translating TOP to LIMIT; not deployment SQL execution acceptance",
+    "Final offline HTTPX guard is not OS-level network isolation",
+    "Routing fixtures test deterministic tool visibility, not LLM business accuracy"
+  ],
+  "remaining": [
+    "Real nonempty original data/chart configuration, preview and native write/history acceptance",
+    "Automatic engine/compiled-rule/limit provenance verification",
+    "Within-limit run-rule, subgroup/transformed and bulk result intake",
+    "Automatic final transaction correlation",
+    "Remaining advanced quality, approvals and electronic signatures"
+  ]
+}

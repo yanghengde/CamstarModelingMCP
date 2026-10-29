@@ -1,0 +1,7 @@
+{
+  "date": "2026-10-29",
+  "operation": "AdHoc metadata SELECT only",
+  "verified": false,
+  "error": "Expecting value: line 1 column 1 (char 0)",
+  "record_count": null
+}

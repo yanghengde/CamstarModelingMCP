@@ -9,6 +9,8 @@ class ToolPolicy:
     always_confirm: bool = False
 
 TOOL_POLICIES = {
+    'get_spc_violation_context': ToolPolicy('quality'),
+    'prepare_spc_violation': ToolPolicy('quality'),
     'get_spc_annotation_context': ToolPolicy('quality'),
     'prepare_spc_annotation': ToolPolicy('quality'),
     'analyze_spc_series': ToolPolicy('quality'),
