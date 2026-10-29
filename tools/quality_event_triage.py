@@ -62,7 +62,7 @@ def eligible(row):
         raise ValueError('必须已明确原责任人、角色和优先级；不以分流代替分派或补默认值。')
 
 
-async def asset(kind, *, name=None, key=None):
+async def asset(kind, *, name=None, key=None, signature_txn_type=TRIAGE_TYPE):
     entity,table,column=ASSETS[kind];ctx=ReadContext(3)
     select='InstanceID,Name,IsFrozen'
     if kind=='organization':select+=',CollectESigForAllQualityTxns,UserRequiredForEsig,QualityESigTxns'
@@ -94,8 +94,8 @@ async def asset(kind, *, name=None, key=None):
         values=[i.wire_int(v,'组织签名事务类型') for v in values]
         if len(values)!=len(set(values)) or any(v<1 for v in values):raise ValueError('组织签名事务类型无效或重复。')
         state['QualityESigTxns']=sorted(values)
-        if state['CollectESigForAllQualityTxns'] or TRIAGE_TYPE in values:
-            raise ValueError('当前组织要求分流电子签名，本受限入口不收集口令或覆盖签名。')
+        if state['CollectESigForAllQualityTxns'] or signature_txn_type in values:
+            raise ValueError('当前组织要求该质量事务电子签名，本受限入口不收集口令或覆盖签名。')
     if await token()!=count:raise ValueError('读取事件配置期间发生变化。')
     return state
 

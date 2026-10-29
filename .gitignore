@@ -26,8 +26,19 @@ memory.json
 *.sqlite3
 # Host-local OS mutex files must stay in place, but are not portable evidence.
 *.attempt-locks/
-# Evaluation checkpoints/sessions are local scratch; reports retain transcripts.
-docs/multiturn-evaluation/**/work/
+
+# Development / test artifacts: live-capture fixtures, evaluation reports and
+# probe scripts are local evidence only; they stay on disk but out of git.
+tmp/
+docs/quality-fixtures/
+docs/t05-fixtures/
+docs/t09-fixtures/
+docs/collection-fixtures/
+docs/acceptance-2026-10-24/
+docs/multiturn-evaluation/*
+!docs/multiturn-evaluation/README.md
+docs/*-validation.json
+docs/*-evidence.json
 
 # IDE / OS Files
 .vscode/

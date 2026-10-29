@@ -37,6 +37,8 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
               'reference': '基础资料与原因码', 'query': '查询服务', 'excel': '表格导入', 'system': '系统与能力发现'}
     disabled = {'patch_mfgorder': '当前服务 PATCH 契约未验证，工具已禁用；使用 update_mfgorder。'}
     caveats = {
+        'get_quality_event_update_context': '基础Event文字维护前置、当前契约及固定Load原明细，只读不保存计划；未核实当前契约、扩展字段或复杂流程/关联则拒绝，不代表更新完成。',
+        'prepare_quality_event_update': '仅明确简述/说明/发现区域；省略/null保留，说明/区域可显式空字符串清除。保留原报告人/日期/优先级及完整受支持明细，submit=false；已提交Active基础Event且无流程/检查表/审批/复杂关联/签名要求。确认单次提交，unknown不重试，真实效果待验收。',
         'get_quality_event_triage_context': '受限基础Event首次分流只读检查及原生非执行回显，保持责任人/角色/类别，检查组织分流与签名策略；不是审批、签名或实际分流完成。',
         'prepare_quality_event_triage': '已提交Active基础Event首次分流，保留类别/责任人/角色/CAR策略，可明确优先级；已有流程/检查表/审批或签名要求则拒绝。确认单次提交，unknown保留原事件及关联NCR容器占用，实际效果待验收。',
         'get_spc_violation_context': '只读原始直接数值点、完整规则成员及三层违例历史；不运行引擎或核实外部报告。受限图不允许通知/自动处置。',

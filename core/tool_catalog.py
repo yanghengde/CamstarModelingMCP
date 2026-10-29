@@ -9,6 +9,8 @@ class ToolPolicy:
     always_confirm: bool = False
 
 TOOL_POLICIES = {
+    'get_quality_event_update_context': ToolPolicy('quality'),
+    'prepare_quality_event_update': ToolPolicy('quality'),
     'get_quality_event_triage_context': ToolPolicy('quality'),
     'prepare_quality_event_triage': ToolPolicy('quality'),
     'get_spc_violation_context': ToolPolicy('quality'),
