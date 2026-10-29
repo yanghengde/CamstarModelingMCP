@@ -30,7 +30,8 @@ SCHEMA = {
 }
 ASSETS = {'organization':('Organizations','Organization','OrganizationId'),
           'owner':('Employees','Employee','EmployeeId'), 'role':('Roles','RoleDef','RoleId'),
-          'priority':('PriorityLevels','PriorityLevel','PriorityLevelId'), 'spec':('TriageSpecs','TriageSpec','TriageSpecId')}
+          'priority':('PriorityLevels','PriorityLevel','PriorityLevelId'), 'spec':('TriageSpecs','TriageSpec','TriageSpecId'),
+          'quality_resolution':('QualityResolutionCodes','QualityResolutionCode','QualityResolutionCodeId')}
 
 
 async def event_record(name='', instance_id=None):

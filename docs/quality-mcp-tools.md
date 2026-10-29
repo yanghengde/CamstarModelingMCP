@@ -1,10 +1,12 @@
 # Camstar质量API与MCP工具
 
-先前47工具收尾快照见[阶段交付说明](quality-delivery.md)。后续高级功能已开始开发，当前60个工具，第三阶段扩展[原生全检与测量自动扣量](quality-inspection-effects.md)；第二阶段新增[数量损失准备与批报废前置检查](quality-quantity-loss.md)，第一阶段为[受限批返工](quality-lot-rework.md)，完整顺序与交付边界见[高级功能计划](quality-advanced-roadmap.md)。不是全部质量功能或MES验收完成。
+先前47工具收尾快照见[阶段交付说明](quality-delivery.md)。后续高级功能已开始开发，当前61个工具，第三阶段扩展[原生全检与测量自动扣量](quality-inspection-effects.md)；第二阶段新增[数量损失准备与批报废前置检查](quality-quantity-loss.md)，第一阶段为[受限批返工](quality-lot-rework.md)，完整顺序与交付边界见[高级功能计划](quality-advanced-roadmap.md)。不是全部质量功能或MES验收完成。
 
-2026-10-29更新：quality分组共60个工具；新增[事件文字资料维护](quality-event-update.md)两个工具，仅明确简述/说明/发现区域，保持报告人/日期和其他原明细，submit=false；新增[基础Event首次分流](quality-event-triage.md)上下文及准备工具，保持归属/类别，真实效果待验收。本轮新增get_spc_annotation_context、prepare_spc_annotation，提供原始历史点受限注释计划和只读上下文；本轮另有get_spc_violation_context、prepare_spc_violation，受限登记调用方明确报告的单点越限结果，不认证现场引擎。此前新增prepare_sampling_lot_rework批返工准备入口。既有范围包括关联Event已Closed、原NCR仍Open时的质量侧关闭收尾计划。新增既有NCR升级质量事件的组织选项查询和提交计划。新增产品当前采样状态查询及明确选择的计数器/手动检验水平调整计划。已支持检验计划只读配置检查。已支持零采样计数且无有效采样历史批的数量/频率维护、维护历史及原请求核对。既有范围包括AQL/检验水平维护与查表、单容器检验、定义维护、产品关联、建批、批采样、MES已通过批的OK执行及逐点追溯。工具注册、契约验证和模拟测试不代表现场质量事务验收完成。参数见[批维护](quality-lot-maintenance.md)、[AQL与检验水平](quality-sampling-references.md)、[单容器检验](quality-inspection.md)、[定义和建批](quality-definitions-lots.md)、[批采样与整批OK执行](quality-lot-execution.md)、[历史追溯与请求核对](quality-history.md)。
+2026-10-29更新：quality分组共61个工具；新增[事件文字资料维护](quality-event-update.md)两个工具，仅明确简述/说明/发现区域，保持报告人/日期和其他原明细，submit=false；新增[基础Event首次分流](quality-event-triage.md)上下文及准备工具，保持归属/类别，真实效果待验收。本轮新增get_spc_annotation_context、prepare_spc_annotation，提供原始历史点受限注释计划和只读上下文；本轮另有get_spc_violation_context、prepare_spc_violation，受限登记调用方明确报告的单点越限结果，不认证现场引擎。此前新增prepare_sampling_lot_rework批返工准备入口。既有范围包括关联Event已Closed、原NCR仍Open时的质量侧关闭收尾计划。新增既有NCR升级质量事件的组织选项查询和提交计划。新增产品当前采样状态查询及明确选择的计数器/手动检验水平调整计划。已支持检验计划只读配置检查。已支持零采样计数且无有效采样历史批的数量/频率维护、维护历史及原请求核对。既有范围包括AQL/检验水平维护与查表、单容器检验、定义维护、产品关联、建批、批采样、MES已通过批的OK执行及逐点追溯。工具注册、契约验证和模拟测试不代表现场质量事务验收完成。参数见[批维护](quality-lot-maintenance.md)、[AQL与检验水平](quality-sampling-references.md)、[单容器检验](quality-inspection.md)、[定义和建批](quality-definitions-lots.md)、[批采样与整批OK执行](quality-lot-execution.md)、[历史追溯与请求核对](quality-history.md)。
 
 ## 实际发现的接口与本轮范围
+
+最新受限事件关闭轮：新增62项测试，针对性389项、全量2948项测试及2项子测试通过，质量相关1742项，离线HTTPX真实网络尝试0。新增prepare_quality_event_closure，限无CAR/流程/检查表/审批/签名/事件数据或关联NCR的独立Active已提交已分流事件，明确质量解决代码及关闭说明；原生预览和账号上下文核实后确认单次提交，unknown不重试。真实效果待验收。见[功能说明](quality-event-close-plan.md)及[汇总](quality-fixtures/event-close-plan-summary.json)。
 
 最新事件关闭诊断轮：新增21项测试，全量2886项、2项子测试通过，质量相关1680项，离线HTTPX真实网络尝试0。新增只读阻塞检查与Close候选查询，不开放事件关闭计划或提交。见[说明](quality-event-closure.md)及[汇总](quality-fixtures/event-close-summary.json)。
 
@@ -46,7 +48,7 @@
 
 首轮读取了52份相关Swagger，以及Shopfloor/Query EDM和SQL列元数据；2026-10-26又核对定义CRUD、建批契约及MfgLot存储。发现记录：[首轮目录](quality-fixtures/inventory.json)、[首轮契约](quality-fixtures/contracts.json)、[EDM](quality-fixtures/metadata.json)、[表字段](quality-fixtures/table-columns.json)、[本轮契约](quality-fixtures/definition-lot-contracts.json)。Swagger存在只说明接口被发布，不能证明当前账号有执行许可、模块流程配置完整或已验收。
 
-## 60个工具
+## 61个工具
 
 | 工具 | 用途 |
 |---|---|
@@ -67,6 +69,7 @@
 | get_inspection_result_history | 逐样本/逐点历史候选关联，最多50样本100点；父键映射仍待非空现场验收 |
 | find_quality_execution_candidates | 原计划摘要、环境和实际尝试记录约束下，查精确评论与历史目标对应的候选事务 |
 | reconcile_quality_execution | 核对明确候选与原检验/批采样/整批OK请求；只读、不解锁，字段匹配不是最终成功 |
+| prepare_quality_event_closure | [受限基础Event关闭计划](quality-event-close-plan.md)，独立事件、明确质量解决代码及说明，确认单次提交，真实效果待验收 |
 | get_quality_event_closure_context | [事件关闭前置诊断](quality-event-closure.md)，不生成关闭计划，执行就绪恒false |
 | get_quality_event_update_context | 当前UpdateEvent契约及固定Load原明细，不保存计划、不提交业务 |
 | prepare_quality_event_update | 仅明确文字变更，省略保持、说明/区域可清空；无流程/审批/复杂关联；[范围](quality-event-update.md) |

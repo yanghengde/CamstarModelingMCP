@@ -1,6 +1,6 @@
 # 基础Event关闭前置诊断
 
-2026-10-29新增 `get_quality_event_closure_context`，当前代码共60个质量工具。本轮交付只读诊断，不开放事件关闭计划或执行。既有CAPA关闭和NCR质量侧收尾入口不替代Event关闭。
+2026-10-29新增 `get_quality_event_closure_context`，该阶段代码共60个质量工具；后续新增[受限关闭计划](quality-event-close-plan.md)，当前61个工具。本轮交付只读诊断，不开放事件关闭计划或执行。既有CAPA关闭和NCR质量侧收尾入口不替代Event关闭。
 
 ## 参数与使用
 
@@ -26,6 +26,6 @@
 
 标准csi MDB源SHA256为 `7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c`。标准元数据不是部署自定义一致性的证明，本轮没有真实目标提交、通知或服务重启。模拟查询不表示现场权限、联动或最终事务已验收。
 
-测试记录见[本轮汇总](quality-fixtures/event-close-summary.json)、[全量JUnit](quality-fixtures/event-close-junit.xml)和[离线HTTPX守卫](quality-fixtures/event-close-network.json)。全量测试使用模拟接口与临时计划库，守卫不是操作系统级网络隔离。下一步仍需基于这些条件实现受限关闭计划、预览、单次提交及最终历史核实，不能把本入口当作该步骤已完成。
+测试记录见[本轮汇总](quality-fixtures/event-close-summary.json)、[全量JUnit](quality-fixtures/event-close-junit.xml)和[离线HTTPX守卫](quality-fixtures/event-close-network.json)。全量测试使用模拟接口与临时计划库，守卫不是操作系统级网络隔离。后续[受限关闭计划](quality-event-close-plan.md)已单独实现准备、预览和单次提交；本诊断入口仍不保存计划或授权执行，真实关闭及最终历史尚待验收。
 
 本轮新增21项测试，针对性59项通过；全量2886项测试、2项子测试通过，质量相关1680项。父pytest真实HTTPX网络尝试为0。60个质量工具均已注册并可分发，新增参数模型拒绝额外字段。

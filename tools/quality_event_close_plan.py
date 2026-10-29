@@ -1,0 +1,122 @@
+"""Restricted standalone plain Event close plans, without NCR child transactions."""
+import copy
+import json
+import re
+from tools import mcp,quality as q,quality_plans as p,quality_event_triage as t,quality_event_update as u,quality_inspection as i
+from tools.quality_definitions import resources
+from tools.modeling_details import raw_json
+from core.http_client import request
+from config import CAMSTAR_SHOPFLOOR_BASE_URL
+
+SERVICE='CloseQualityObject'
+SERVICE_TYPE=7712
+RESOLVE_ACTION=64
+SCHEMA=u.SCHEMA|{'QualityResolutionCode':'QualityResolutionCodeId,ChangeCount'}
+SELECT=('QualityObject,Organization,ResolutionAction,QualityResolutionCode,CloseDescription,Comments,Employee,'
+        'AvailableActions,IgnoreProcessModel,ApprovalRequired,ApprovalSheetMap,ApprovalSheetTemplate,ApprovalSheetStatus,'
+        'ESigRequirement,AdditionalESigReqs,QualityObjectDetail')
+EXPAND='QualityObjectDetail($select='+u.CURRENT_FIELDS+')'
+
+async def source(args):
+    await u.schema_check(SCHEMA)
+    before=await u.context(args,signature_txn_type=SERVICE_TYPE)
+    row=before['event']
+    if not row['TriageComplete'] or row['IsCARRequiredToClose'] or before['linked_ncrs']:
+        raise ValueError('受限事件关闭要求已分流、无CAR要求且无关联NCR；不处理NCR联动或清除CAR策略。')
+    return before
+
+async def contract():
+    raw=await request('GET','/swagger/CloseQualityObject/swagger.json',base_url=CAMSTAR_SHOPFLOOR_BASE_URL,response_formatter=raw_json)
+    try:
+        doc=json.loads(raw);props=doc['components']['schemas'][SERVICE]['properties']
+        for key in ('qualityObject','organization','qualityResolutionCode'):
+            if props[key]['$ref'].split('/')[-1]!='NamedObjectRef':raise ValueError('引用类型不符')
+        for key,kind in [('resolutionAction','integer'),('closeDescription','string'),('approvalRequired','boolean'),('availableActions','integer')]:
+            if props[key]['type']!=kind:raise ValueError('关闭类型不符')
+    except (ValueError,TypeError,KeyError,AttributeError) as exc:raise ValueError('当前关闭接口契约未核实。') from exc
+    return p.digest(props)
+
+def body_for(args,before,code,action,marker):
+    u.text_value(args['close_description'],'关闭说明',4000,True)
+    u.text_value(args.get('comments',''),'关闭备注',200)
+    return dict(qualityObject=dict(name=before['event']['EventName'],instanceId=before['event']['EventId']),
+        organization=t.ref(before['organization']),qualityResolutionCode=t.ref(code),resolutionAction=action,
+        closeDescription=args['close_description'],comments=marker+(' '+args['comments'] if args.get('comments') else ''))
+
+def verify(data,body,before):
+    if not p.wire_matches(body,data):raise ValueError('事件关闭请求未完整回显。')
+    mask=i.wire_int(data.get('AvailableActions'),'原生可用动作')
+    if mask<0 or mask&RESOLVE_ACTION!=RESOLVE_ACTION:raise ValueError('当前事件/账号缺少原生Resolve动作。')
+    for field in ('IgnoreProcessModel','ApprovalRequired'):
+        if i.wire_bool(data.get(field),field) is not False:raise ValueError('原生关闭要求审批或流程绕过标志未知。')
+    for field in ('ESigRequirement','ApprovalSheetMap','ApprovalSheetTemplate','ApprovalSheetStatus'):
+        if field not in data or data[field] is not None:raise ValueError('原生审批/签名上下文非空或未知。')
+    if 'AdditionalESigReqs' not in data or data['AdditionalESigReqs'] not in (None,[]):raise ValueError('额外签名要求非空或未知。')
+    row=before['event'];detail=data.get('QualityObjectDetail')
+    if not isinstance(detail,dict) or not set(u.CURRENT_FIELDS.split(','))<=detail.keys():raise ValueError('当前关闭状态上下文不完整。')
+    for field in ('Category','Status'):
+        if i.wire_int(detail[field],field)!=row[field]:raise ValueError('关闭对象状态/类别不一致。')
+    for field,col in [('Organization','OrganizationId'),('Owner','OwnerId'),('Role','RoleId'),('PriorityLevel','PriorityLevelId')]:
+        if q.identifier(detail[field])!=row[col]:raise ValueError('关闭对象归属/优先级不一致。')
+    for field,want in [('TriageComplete',True),('IsCARRequiredToClose',False),('IsApprovalRequired',False),('UserHasRole',True),('UserIsOwner',True)]:
+        if i.wire_bool(detail[field],field) is not want:raise ValueError('关闭对象分流/CAR/账号或审批状态不满足要求。')
+    if any(detail[k] is not None for k in ('ProcessModel','CompletionApprovalSheet','EntryForApproval')) or detail['CompletionApprovalStatus'] not in (None,''):
+        raise ValueError('关闭对象存在流程/审批上下文。')
+    if q.identifier(data.get('Employee'))!=row['OwnerId']:raise ValueError('原生关闭员工与原责任人不一致或未知。')
+    return {'available_actions_raw':mask,'resolve_action_mask':RESOLVE_ACTION,'employee_id':row['OwnerId'],
+            'quality_status_context':{k:copy.deepcopy(detail[k]) for k in u.CURRENT_FIELDS.split(',')},'verified_input_echo':body,
+            'dynamic_validation_verified':False,'event_closed_verified':False}
+
+async def build_close(args,marker):
+    u.text_value(args['close_description'],'关闭说明',4000,True);u.text_value(args.get('comments',''),'关闭备注',200)
+    q.text(args['quality_resolution_code_name'],'质量解决代码')
+    before=await source(args);schema_digest=await contract()
+    code=await t.asset('quality_resolution',name=args['quality_resolution_code_name'])
+    ref=dict(name=before['event']['EventName'],instanceId=before['event']['EventId'])
+    options=await q.closure_options(dict(qualityObject=ref,organization=t.ref(before['organization'])))
+    choices=[r for r in options if r['Name']=='Close']
+    if len(choices)!=1:raise ValueError('未返回唯一原生Close处置候选，不猜测原码。')
+    action=i.wire_int(choices[0]['Value'],'Close处置原码')
+    if action<1:raise ValueError('Close处置原码无效。')
+    body=body_for(args,before,code,action,marker)
+    raw=await request('POST','/api/'+SERVICE,base_url=CAMSTAR_SHOPFLOOR_BASE_URL,body=body,
+        params={'execute':'false','$select':SELECT,'$expand':EXPAND},response_formatter=raw_json)
+    preview=verify(u.parse_reply(raw),body,before)
+    if await source(args)!=before or await t.asset('quality_resolution',key=code['InstanceID'],name=code['Name'])!=code:
+        raise ValueError('关闭准备期间源事件、关联或参考配置变化。')
+    preview['contract_digest']=schema_digest;preview['selected_resolution_action']=choices[0]
+    reads=set()
+    for key in ('organization','owner','role','priority'):reads.update(resources(before[key]['entity'],before[key]))
+    reads.update(resources(code['entity'],code))
+    row=before['event']
+    return dict(kind='event_close',action='close',service=SERVICE,name=row['EventName'],target_id=row['EventId'],
+        scope_key='quality-event:id:'+row['EventId'],before=before,resolution=code,resolution_action=action,
+        body=body,preview=preview,arguments=args,marker=marker,environment=p.environment(),
+        resource_reads=sorted(reads),resource_writes=['runtime:quality-event:id:'+row['EventId']])
+
+def validate_transport(snap):
+    if (snap.get('kind')!='event_close' or snap.get('action')!='close' or snap.get('service')!=SERVICE
+        or not re.fullmatch(r'MCP-QUAL:[0-9a-f]{32}',snap.get('marker',''))
+        or snap.get('target_id')!=snap['before']['event']['EventId'] or snap.get('name')!=snap['before']['event']['EventName']):
+        raise ValueError('事件关闭类型、服务或原对象不符。')
+    if type(snap.get('resolution_action')) is not int or snap['resolution_action']<1:raise ValueError('处置原码不符。')
+    expected=body_for(snap['arguments'],snap['before'],snap['resolution'],snap['resolution_action'],snap['marker'])
+    if type(snap['body'].get('resolutionAction')) is not int or snap['body']!=expected:raise ValueError('关闭请求包含未允许字段或目标/处置/说明变化。')
+
+async def inspect_snapshot(snap):
+    current=await t.event_record(instance_id=snap['target_id']);history=None
+    if current:history=json.loads(await q.get_quality_history('quality_object',current['EventName'],snap['target_id'],limit=20))
+    return dict(original_event_id=snap['target_id'],current_event=current,bounded_quality_history=history,
+        verified_success=False,state_changed=False,retry_allowed=False,request_correlation_verified=False,
+        note='当前Closed状态或HTTP200不是本次关闭证明，仅原ID证据，不追随同名替代对象、不重试或自动解锁。')
+
+@mcp.tool
+async def prepare_quality_event_closure(event_name:str,organization_name:str,quality_resolution_code_name:str,
+        close_description:str,event_instance_id:str|None=None,comments:str='')->str:
+    """准备基础Event原生CloseQualityObject关闭计划，不写MES。明确事件/组织/质量解决代码及非空关闭说明。
+    限已提交Active已分流、当前账号为责任人且有角色/Resolve动作；无CAR要求、流程/检查表/审批/签名、自定义EventData、法规报告或关联NCR。
+    核实当前契约及原生Close处置候选，execute=false完整回显后独立重读；不执行NCR联动、不改归属或绕过流程。不用于CAPA/草稿或复杂流程。
+    execute_quality_transaction系统确认单次提交，unknown保留原事件占用；inspect只给原ID证据，最终证据人工review，不重试或自动解锁。
+    """
+    return await p.prepare('event_close',dict(event_name=event_name,organization_name=organization_name,
+        quality_resolution_code_name=quality_resolution_code_name,close_description=close_description,event_instance_id=event_instance_id,comments=comments))

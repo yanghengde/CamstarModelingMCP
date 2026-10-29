@@ -54,7 +54,7 @@ async def event_record(name='',instance_id=None):
     return result
 
 
-async def context(args):
+async def context(args,signature_txn_type=SERVICE_TYPE):
     q.text(args['event_name'],'事件名称');q.text(args['organization_name'],'组织名称')
     if args.get('event_instance_id') is not None:iid(args['event_instance_id'])
     await schema_check(SCHEMA)
@@ -80,7 +80,7 @@ async def context(args):
         if item['EscalatedEventId']!=row['EventId'] or item['ChangeCount']<0:raise ValueError('关联NCR身份/版本不一致。')
         links.append(item)
     if len({x['NonconformanceReportId'] for x in links})!=len(links):raise ValueError('关联NCR重复。')
-    org=await t.asset('organization',name=args['organization_name'],key=row['OrganizationId'],signature_txn_type=SERVICE_TYPE)
+    org=await t.asset('organization',name=args['organization_name'],key=row['OrganizationId'],signature_txn_type=signature_txn_type)
     owner=await t.asset('owner',key=row['OwnerId']);role=await t.asset('role',key=row['RoleId'])
     priority=await t.asset('priority',key=row['PriorityLevelId'])
     return {'event':row,'organization':org,'owner':owner,'role':role,'priority':priority,'linked_ncrs':links}

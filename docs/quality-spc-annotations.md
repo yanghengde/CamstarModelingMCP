@@ -1,6 +1,6 @@
 # SPC原始历史点注释：受限首版
 
-2026-10-29。在[SPC本地计算与判异](quality-spc-analysis.md)之外，新增两个MCP工具，该阶段quality分组为53个工具；后续新增[明确报告的单点SPC违例登记](quality-spc-violations.md)，SPC扩展阶段55个工具；当前60个工具，另有[事件文字资料维护](quality-event-update.md)，另有[基础Event首次分流](quality-event-triage.md)：
+2026-10-29。在[SPC本地计算与判异](quality-spc-analysis.md)之外，新增两个MCP工具，该阶段quality分组为53个工具；后续新增[明确报告的单点SPC违例登记](quality-spc-violations.md)，SPC扩展阶段55个工具；当前61个工具，另有[事件文字资料维护](quality-event-update.md)，另有[基础Event首次分流](quality-event-triage.md)：
 
 | 工具 | 功能 |
 |---|---|
