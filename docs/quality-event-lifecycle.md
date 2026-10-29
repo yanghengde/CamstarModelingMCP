@@ -65,3 +65,5 @@ Submit固定false，原生创建Pending且IsSubmitted=false，不自动首次分
 本轮新增89项测试，针对性524项通过；最终全量3083项测试、2项子测试通过，其中质量相关1877项，父pytest真实HTTPX网络尝试0。[工具/参数与问法核对](quality-fixtures/event-lifecycle-manifest.json)确认65个质量工具均注册且可分发，新增参数模型封闭，确认入口保持原6个。实际质量计划库只读检查仍为2条cancelled，没有新增现场执行记录。
 
 [现场只读核对](quality-fixtures/event-lifecycle-live-readcheck.json)未取得有效元数据或当前三个服务Swagger；[不保存响应正文/凭据的传输诊断](quality-fixtures/event-lifecycle-live-transport.json)记录ConnectError。不能据此判断表为空、账号有权限或服务支持这些事务，恢复连接后仍需逐项验收。
+
+2026-10-29后续扩展：[制造NCR原生联动关闭](quality-event-ncr-linked.md)支持显式双选项、标准类别3事件数据、唯一原NCR及同容器处置完整覆盖；只发父关闭请求，不补发NCRCloseQuality。实际复合事务仍待验收。

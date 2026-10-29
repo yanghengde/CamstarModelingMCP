@@ -343,3 +343,5 @@ uvicorn>=0.20.0
 2026-10-29补充：[质量事件创建资料核验](docs/quality-event-creation.md)已接入；仅核验名称/分类/报告人/时间及通知策略，不调用CreateEvent，创建执行仍待完成。
 
 2026-10-29新增：[事件生命周期计划](docs/quality-event-lifecycle.md)，自动编号实际创建、Closed开启、明确人员/角色重新分派；显式复杂关闭扩展CAR/流程/关联NCR和已批准审批。真实效果待验收，事件数据/批次子事务、待审批/签名仍未支持。
+
+2026-10-29后续扩展：[制造NCR原生联动关闭](docs/quality-event-ncr-linked.md)支持显式双选项、标准类别3事件数据、唯一原NCR及同容器处置完整覆盖；只发父关闭请求，不补发NCRCloseQuality。实际复合事务仍待验收。

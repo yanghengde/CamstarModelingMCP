@@ -51,3 +51,5 @@
 本轮新增62项测试；针对性389项通过；全量2948项测试、2项子测试通过，其中质量相关1742项，父pytest真实HTTPX网络尝试为0。[工具参数与问法核对](quality-fixtures/event-close-plan-manifest.json)确认61个质量工具均注册且可分发，新增参数模型拒绝额外字段，确认入口保持不变。真实质量计划库只读检查仍为2条cancelled，没有新增现场执行记录。
 
 后续扩展：显式allow_complex_context=true可核实CAR/CAPA关联、流程Stage快照、关联NCR及Approved40审批，原生最终验证流程完成；默认false保持原受限范围。现有关联NCR不等于执行NCR子关闭，仍拒绝EventData/检查表/待审批/签名或需启动审批模板的关闭。见[生命周期扩展](quality-event-lifecycle.md)。
+
+2026-10-29后续扩展：[制造NCR原生联动关闭](quality-event-ncr-linked.md)支持显式双选项、标准类别3事件数据、唯一原NCR及同容器处置完整覆盖；只发父关闭请求，不补发NCRCloseQuality。实际复合事务仍待验收。

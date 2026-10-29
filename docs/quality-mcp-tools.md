@@ -6,6 +6,8 @@
 
 ## 实际发现的接口与本轮范围
 
+最新制造NCR联动轮：扩展现有关闭工具，新增46项测试，全量3129项及2项子测试通过，质量相关1923项，离线HTTPX真实网络尝试0。显式双选项绑定标准事件数据、唯一原NCR、原容器、同名父子解决代码及完整同容器处置覆盖；只发父CloseQualityObject，由原生执行子关闭，不补发NCRCloseQuality。真实父子效果与原子性待验收。见[说明](quality-event-ncr-linked.md)及[汇总](quality-fixtures/event-ncr-linked-summary.json)。
+
 最新生命周期轮：新增89项测试，针对性524项、最终全量3083项及2项子测试通过，质量相关1877项，离线HTTPX真实网络尝试0。新增自动编号实际创建计划、Closed独立事件开启及明确人员/角色重新分派；显式allow_complex_context扩展CAR/CAPA、流程快照、关联NCR及Approved40审批，原生最终校验，不代签或绕过流程。创建准备仅静态且无创建服务预览，配置通知需明确允许。现场连接失败，真实效果待验收。见[生命周期说明](quality-event-lifecycle.md)及[汇总](quality-fixtures/event-lifecycle-summary.json)。
 
 最新创建资料核验轮：新增46项测试，针对性365项、全量2994项及2项子测试通过，质量相关1788项，离线HTTPX真实网络尝试0。新增validate_quality_event_creation，核验明确名称、分类组合、报告人、时间、冻结/变更及组织通知/签名策略，不调用CreateEvent，包括execute=false；原生未提交保存仍可能分派/通知，预校验执行标志尚待部署核实，不开放创建执行。见[说明](quality-event-creation.md)及[汇总](quality-fixtures/event-create-summary.json)。
@@ -214,3 +216,5 @@ HTTP响应成功或“Update completed successfully”不代表本次质量事�
 - 第三轮新增单容器计数/测量检验工具，详见[检验说明](quality-inspection.md)。现场测试定义及任务样本为空，完整目标预览和真实提交仍待验收；不能将模拟测试或无目标预览报错称为验收完成。
 - CAPA仅开放Close处置的关闭准备；整批提供MES已通过后的OK计划和独立受限批返工计划。基础Event首次分流、文字维护、自动编号创建、Closed开启及明确责任人/角色分派已有计划，复杂关闭显式扩展CAR/流程/关联NCR及已批准审批；事件数据/批次/制造NCR子关闭、待审批/签名、挂接/创建CAPA和更广流程分派、多成员抽样批报废、计数/拒收自动扣量、检验自动事件、SPC自动引擎判定和通用质量放行仍未开放；明确报告的单点违例登记另有受限计划；另有原始历史点受限注释准备，真实写入待验收；SPC本地计算/判异已开放，不能替代现场引擎。
 - 运行服务未重启，新增工具需要部署重启并刷新客户端清单后生效。
+
+2026-10-29后续扩展：[制造NCR原生联动关闭](quality-event-ncr-linked.md)支持显式双选项、标准类别3事件数据、唯一原NCR及同容器处置完整覆盖；只发父关闭请求，不补发NCRCloseQuality。实际复合事务仍待验收。

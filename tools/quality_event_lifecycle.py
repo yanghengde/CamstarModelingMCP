@@ -60,7 +60,8 @@ async def source(args,service_type,status,complex_context=False):
     row=await u.event_record(args['event_name'],args.get('event_instance_id'))
     if not row or row['CDOTypeId']!=7489 or row['Status']!=status or not row['IsSubmitted'] or row['IsFrozen'] or not row['TriageComplete']:
         raise ValueError('仅支持明确状态、已提交/分流且未冻结的基础Event。')
-    if row['EventDataId'] or row['ChecklistId'] or row['ChecklistSaved']:
+    linked_close=complex_context and args.get('allow_native_ncr_closure',False)
+    if (row['EventDataId'] and not linked_close) or row['ChecklistId'] or row['ChecklistSaved']:
         raise ValueError('事件数据/批次自动处置/NCR子事务或检查表执行仍不在此入口范围。')
     if status==5 and not row['CloseDateGMT']:raise ValueError('Closed事件缺少关闭时间，不能准备开启。')
     if not complex_context and (row['ProcessModelId'] or row['OrigProcessModelTemplateId'] or row['IsCARRequiredToClose']):
@@ -107,6 +108,9 @@ async def source(args,service_type,status,complex_context=False):
         before['cross_references']=refs
         if row['IsCARRequiredToClose'] and not any(r['Category'] in (2,5) for r in before['car_targets']):
             raise ValueError('要求CAR/CAPA关联但未核实有效关联，不修改CAR策略。')
+    if linked_close:
+        from tools.quality_event_ncr_linked import source as ncr_source
+        before['native_ncr_closure']=await ncr_source(row,args,before['linked_ncrs'])
     return before
 
 def verify(data,body,before,action=None,complex_context=False):

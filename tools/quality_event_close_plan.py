@@ -87,6 +87,8 @@ async def build_close(args,marker):
     u.text_value(args['close_description'],'关闭说明',4000,True);u.text_value(args.get('comments',''),'关闭备注',200)
     q.text(args['quality_resolution_code_name'],'质量解决代码')
     if type(args.get('allow_complex_context',False)) is not bool:raise ValueError('复杂上下文选项须为布尔。')
+    if type(args.get('allow_native_ncr_closure',False)) is not bool:raise ValueError('原生NCR联动选项须为布尔。')
+    if args.get('allow_native_ncr_closure') and not args.get('allow_complex_context'):raise ValueError('NCR联动必须同时明确allow_complex_context=true。')
     before=await source(args);schema_digest=await contract()
     code=await t.asset('quality_resolution',name=args['quality_resolution_code_name'])
     ref=dict(name=before['event']['EventName'],instanceId=before['event']['EventId'])
@@ -105,6 +107,12 @@ async def build_close(args,marker):
     reads=set()
     for key in ('organization','owner','role','priority'):reads.update(resources(before[key]['entity'],before[key]))
     reads.update(resources(code['entity'],code))
+    if before.get('native_ncr_closure'):
+        child=before['native_ncr_closure']
+        if child['ncr_resolution']['Name']!=code['Name']:raise ValueError('父/子事务解决代码名称不一致。')
+        reads.update(resources('NCRResolutionCodes',child['ncr_resolution']))
+        preview['native_ncr_closure']=child
+        preview['complex_closure_note']='仅一次父CloseQualityObject，原生内部执行NCRCloseQuality；处置记录覆盖量不证明处置已执行，最终状态/父子历史须人工核实。'
     row=before['event']
     return dict(kind='event_close',action='close',service=SERVICE,name=row['EventName'],target_id=row['EventId'],
         scope_key='quality-event:id:'+row['EventId'],before=before,resolution=code,resolution_action=action,
@@ -125,18 +133,29 @@ def validate_transport(snap):
 async def inspect_snapshot(snap):
     current=await t.event_record(instance_id=snap['target_id']);history=None
     if current:history=json.loads(await q.get_quality_history('quality_object',current['EventName'],snap['target_id'],limit=20))
-    return dict(original_event_id=snap['target_id'],current_event=current,bounded_quality_history=history,
+    child_evidence=None
+    child=snap['before'].get('native_ncr_closure')
+    if child:
+        from tools import quality as reads
+        from tools.quality_ncr_closure import container_state
+        original=child['report']['NonconformanceReportId']
+        report=await reads.ncr_snapshot('',original)
+        child_evidence=dict(original_ncr_id=original,current_original_ncr=report,
+            still_points_to_original_event=bool(report and report.get('EscalatedEventId')==snap['target_id']),
+            current_original_container=await container_state(child['container']['ContainerId']),verified_child_success=False)
+    return dict(original_event_id=snap['target_id'],current_event=current,bounded_quality_history=history,native_ncr_closure_evidence=child_evidence,
         verified_success=False,state_changed=False,retry_allowed=False,request_correlation_verified=False,
         note='当前Closed状态或HTTP200不是本次关闭证明，仅原ID证据，不追随同名替代对象、不重试或自动解锁。')
 
 @mcp.tool
 async def prepare_quality_event_closure(event_name:str,organization_name:str,quality_resolution_code_name:str,
-        close_description:str,event_instance_id:str|None=None,comments:str='',allow_complex_context:bool=False)->str:
+        close_description:str,event_instance_id:str|None=None,comments:str='',allow_complex_context:bool=False,allow_native_ncr_closure:bool=False)->str:
     """准备基础Event原生CloseQualityObject关闭计划，不写MES。明确事件/组织/质量解决代码及非空关闭说明。
     限已提交Active已分流、当前账号为责任人且有角色/Resolve动作；无CAR要求、流程/检查表/审批/签名、自定义EventData、法规报告或关联NCR。
     核实当前契约及原生Close处置候选，execute=false完整回显后独立重读；不执行NCR联动、不改归属或绕过流程。不用于CAPA/草稿或复杂流程。
     显式allow_complex_context可核实CAR/CAPA关联、流程快照、关联NCR及Approved40审批；保持原策略，原生最终校验流程完成，不主动关闭关联NCR。仍拒绝事件数据/检查表/待审批或签名。
+    显式allow_native_ncr_closure=true且allow_complex_context=true支持类别3的标准EventData8085制造NCR联动；唯一Open原NCR/原容器、同名父子解决代码、全部同容器批处置覆盖及子签名要求须核实。只发送父关闭请求，不补发NCRCloseQuality。
     execute_quality_transaction系统确认单次提交，unknown保留原事件及依赖占用；inspect只给原ID证据，最终证据人工review，不重试或自动解锁。
     """
     return await p.prepare('event_close',dict(event_name=event_name,organization_name=organization_name,
-        quality_resolution_code_name=quality_resolution_code_name,close_description=close_description,event_instance_id=event_instance_id,comments=comments,allow_complex_context=allow_complex_context))
+        quality_resolution_code_name=quality_resolution_code_name,close_description=close_description,event_instance_id=event_instance_id,comments=comments,allow_complex_context=allow_complex_context,allow_native_ncr_closure=allow_native_ncr_closure))
