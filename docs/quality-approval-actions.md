@@ -1,6 +1,6 @@
 # 质量审批表首次路由与未签批取消
 
-2026-10-29新增 `prepare_quality_approval_action`，当前67个质量工具。新增route/cancel的实际计划与统一确认执行；本轮没有真实审批、通知或服务重启，实际签批、退回和电子签名仍未完成。
+2026-10-29新增 `prepare_quality_approval_action`，该阶段67个质量工具；后续新增[审批决策计划](quality-approval-decisions.md)，当前68个工具。新增route/cancel的实际计划与统一确认执行；本轮没有真实审批、通知或服务重启，实际签批、退回和电子签名仍未完成。
 
 ## 参数与流程
 
@@ -47,3 +47,5 @@ RouteApprovalSheet.StartModifyingEntity调用ApprovalSheet.Route；Route依次Va
 本轮新增50项测试，针对性180项通过；最终全量3216项测试、2项子测试通过，其中质量相关2010项，父pytest真实HTTPX网络尝试0。[工具/参数与问法核对](quality-fixtures/approval-actions-manifest.json)确认67个质量工具均注册且可分发，输入模型封闭；实际质量计划库只读检查仍为2条cancelled，无新增现场执行。人员引用意外多返回的字段不会进入计划/预览，测试覆盖凭据字段过滤。
 
 [现场只读检查](quality-fixtures/approval-actions-live-readcheck.json)未取得有效元数据或两个服务Swagger，没有选择真实审批表预览/提交，不把失败读取说成无数据或有权限。
+
+后续已单独实现无额外电子签名要求的原指定审批人批准/拒绝计划，详见[审批决策](quality-approval-decisions.md)。本表级route/cancel工具不执行决策，仍不能用取消代替拒绝或退回。

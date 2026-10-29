@@ -1,6 +1,6 @@
 # Event/CAPA审批上下文只读核对
 
-2026-10-29新增 `get_quality_approval_context`，该阶段质量工具66个；后续新增[表级路由/取消计划](quality-approval-actions.md)，当前67个工具。这是审批功能的读取与核对基础，不是路由、签批、退回、撤回或电子签名执行入口。
+2026-10-29新增 `get_quality_approval_context`，该阶段质量工具66个；后续新增[表级路由/取消计划](quality-approval-actions.md)，当前68个工具。这是审批功能的读取与核对基础，不是路由、签批、退回、撤回或电子签名执行入口。
 
 ## 参数与使用
 

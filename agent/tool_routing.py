@@ -5,7 +5,7 @@ import re
 from core.tool_catalog import TOOL_POLICIES
 
 GROUP_TERMS = {
-    "quality": r"审批|签批|电子签名|approval|(?:创建|新建|开启|重开|分派).{0,20}事件|事件.{0,30}(?:简述|说明|资料|文字|创建|新建|开启|重开|分派|关闭)|发现区域|updateevent|event (?:text|description|creation)|createevent|openqualityobject|changeowner|reassign|reopen|分流|triage|控制图|控制限|判异|移动极差|weco|xbar|i_mr|质量|全检|破坏性测试|destructive|损失|扣量|scrap|loss|changeqty|挂起|释放|不合格|缺陷|纠正|预防|处置|抽检|抽样|检验|批采样|采样状态|采样计数器|采样频率|采样计划|检验水平|接收数|拒收数|样本量|批量区间|冻结|解冻|隔离|报废|不良|返工|quality|ncr|capa|spc|sampling|sampletest|inspection|sampledatapoint|aql|defect|rework|hold|release",
+    "quality": r"决策码|审批|签批|电子签名|approval|(?:创建|新建|开启|重开|分派).{0,20}事件|事件.{0,30}(?:简述|说明|资料|文字|创建|新建|开启|重开|分派|关闭)|发现区域|updateevent|event (?:text|description|creation)|createevent|openqualityobject|changeowner|reassign|reopen|分流|triage|控制图|控制限|判异|移动极差|weco|xbar|i_mr|质量|全检|破坏性测试|destructive|损失|扣量|scrap|loss|changeqty|挂起|释放|不合格|缺陷|纠正|预防|处置|抽检|抽样|检验|批采样|采样状态|采样计数器|采样频率|采样计划|检验水平|接收数|拒收数|样本量|批量区间|冻结|解冻|隔离|报废|不良|返工|quality|ncr|capa|spc|sampling|sampletest|inspection|sampledatapoint|aql|defect|rework|hold|release",
     "collection": r"采集|采样|测量|collection|datapoint",
     "material": r"bom|物料|用料|耗料|投料|补投",
     "resource": r"resource|设备|资源|机台",
@@ -21,6 +21,7 @@ GROUP_TERMS = {
 }
 WRITE_TERMS = re.compile(r"发起审批|路由|取消审批|撤回审批|开启|重开|重新分派|分派|reassign|reopen|损失|扣量|报废|scrap|loss|冻结|解冻|关闭|登记|创建|新建|新增|修改|更新|调整|调到|变更|改成|改为|删除|重建|绑定|解绑|升版|导入|启动|开工|移站|过站|进站|出站|返工|不良|投料|补投|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
 ROUTING_INSTRUCTION = (
+    "实际批准/拒绝用prepare_quality_approval_decision，action仅approve/reject；明确原对象/组织/表ID/条目ID/原列表决策ID及非空comments，决策原码Approve10/Reject20与审批表状态码不同。仅原指定审批人、SubstituteOption1和原生当前EntryForApproval匹配、Routed表/条目及Approve512；不代签、不传Employee/口令。前序层级未完成拒绝越级，要求额外电子签名则拒绝而非普通确认代替。存在通知配置须明确allow_notifications=true，可能推进层级；Rejected不保证表立即拒绝，不等于退回。确认同一计划后execute_quality_transaction单次提交，unknown保留对象/表占用，inspect只给原条目证据，不重试。"
     "实际审批表操作用prepare_quality_approval_action，action仅route/cancel，必须明确原对象/组织、approval_sheet_id和非空comments。route只允许空白Pending表首次路由，不能清空旧周期；cancel只允许未签批Routed表，原生回Pending并写RoutingCanceled历史，不等于Cancelled20。不是拒绝/签批/退回决策入口，不替代电子签名。可能通知时明确allow_notifications=true；确认同一计划后execute_quality_transaction单次提交，unknown保留原对象/表占用，inspect只给原ID证据，不重试。禁止使用通用RouteApproval或CancelApproval替代表级服务。"
     "质量审批先get_quality_approval_context，明确name、organization_name，object_kind仅event/capa，可绑定instance_id。完整展示直接审批表/层级/条目/允许决策及原生当前审批条目；Routed候选、EntryForApproval、签名策略或complete不代表当前员工获准签批。该入口不生成计划、不调用路由/签批/撤回服务，包括execute=false，不收集签名口令。RouteApproval预校验可能清空旧审批，不能用它预览；不使用事件关闭/分流或普通确认替代审批/电子签名。"
     "事件创建资料先validate_quality_event_creation，只读报告的static_valid和validation_digest不是执行计划。实际创建用prepare_quality_event_creation，仅原生自动编号，不接受指定名称以避免覆盖同名草稿；明确组织/分类/子分类/优先级/简述/报告人/发现人及带时区发生/报告时间，不代填当前用户或时间。Submit=false保存Pending未提交事件，可能按组织配置分派/通知，存在配置须明确allow_notifications=true。准备不调用CreateEvent execute=false或PerformEvent；展示本地静态计划和未验证项后execute_quality_transaction系统确认单次提交，unknown保留组织级事件占用，响应ID仅候选，不按名称猜测或重试。不得用CAPA、NCR升级或通用请求替代创建事件，不把资料核验说成已创建。"
@@ -100,7 +101,8 @@ def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
                         and re.search(r"简述|说明|发现区域", current))
     level_reset = (re.search(r"恢复|复位|重置|撤销", current)
                    and re.search(r"检验水平|采样状态", context))
-    wants_write = bool(WRITE_TERMS.search(current) or task_submission or collection_submission or inspection_submission or triage_submission or event_text_clear or level_reset)
+    approval_decision_submission = re.search(r"^(?:(?:请|帮我|提交|执行)\s*)*(?:批准|拒绝|签批)", current)
+    wants_write = bool(WRITE_TERMS.search(current) or task_submission or collection_submission or inspection_submission or triage_submission or event_text_clear or level_reset or approval_decision_submission)
     if re.search(r"查询|查看|追溯|了解|有哪些|历史", current) and not re.search(
         r"执行|创建|新建|新增|修改|更新|删除|重建|绑定|解绑|升版|导入|启动|开工|请将|请把|帮我把|create|update|delete|patch|import", current, re.I
     ):

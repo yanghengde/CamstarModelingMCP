@@ -1,6 +1,6 @@
 # 质量事件首次分流：受限首版
 
-2026-10-29。新增 `get_quality_event_triage_context`、`prepare_quality_event_triage`，该阶段quality分组为57个工具；后续新增[事件文字资料维护](quality-event-update.md)，当前共67个工具。这是通用质量事件流程的第一步：基础Event首次分流确认，可明确调整优先级，保留已有类别、责任人、角色和CAR关闭策略。
+2026-10-29。新增 `get_quality_event_triage_context`、`prepare_quality_event_triage`，该阶段quality分组为57个工具；后续新增[事件文字资料维护](quality-event-update.md)，当前共68个工具。这是通用质量事件流程的第一步：基础Event首次分流确认，可明确调整优先级，保留已有类别、责任人、角色和CAR关闭策略。
 
 本轮只交付代码、参数、非执行预览约束和离线验证；现场元数据读取未成功，真实非空事件、预览、提交及最终历史仍待验收。没有向MES写入业务数据、发送通知或重启服务。通用事件创建/更新/开启/关闭、重新分派、类别升级、审批和电子签名尚未因此开放。
 
