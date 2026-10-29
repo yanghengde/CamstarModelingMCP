@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-29",
+  "scope": "Restricted first TriageQualityObject for submitted Active plain Event, preserving category/owner/role/CAR policy; optional explicit priority",
+  "quality_tool_count": 57,
+  "new_tests": 119,
+  "focused_tests_passed": 404,
+  "full_tests_passed": 2771,
+  "full_subtests_passed": 2,
+  "quality_tests_passed": 1565,
+  "failures": 0,
+  "single_final_run_all_green": true,
+  "final_offline_httpx_attempt_count": 0,
+  "native_metadata_source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+  "live_schema_verified": false,
+  "live_nonexecuting_preview_verified": false,
+  "live_business_acceptance_verified": false,
+  "mes_business_writes": 0,
+  "notifications_requested_by_this_work": 0,
+  "services_restarted_by_this_work": false,
+  "verification_limits": [
+    "Standard native metadata is not deployed customization proof",
+    "Live metadata read did not return usable JSON; schema/data/health remain unverified",
+    "Mock echo/status tests do not establish live permissions or transaction acceptance",
+    "Quality journal claims do not coordinate all other services or journals",
+    "Final HTTPX guard is not OS-level network isolation",
+    "Question fixtures test deterministic tool visibility, not LLM business accuracy"
+  ],
+  "remaining": [
+    "Nonempty event configuration, preview, actual triage/priority and final history acceptance",
+    "General event creation/update/open/close and reassignment/notification authorization",
+    "Category escalation, workflow/checklist routing, approvals and electronic signatures",
+    "Automatic final transaction correlation and remaining advanced quality roadmap"
+  ]
+}

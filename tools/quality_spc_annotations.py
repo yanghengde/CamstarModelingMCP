@@ -45,7 +45,7 @@ async def schema_check(required=None):
     expected = {(table, col) for table, columns in required.items() for col in columns.split(',')}
     actual = [(r.get('TABLE_NAME'), r.get('COLUMN_NAME')) for r in rows]
     if len(actual) != len(set(actual)) or set(actual) != expected:
-        raise ValueError('当前部署的SPC注释/原始历史字段未完整核实，不能准备写入。')
+        raise ValueError('当前部署的业务/配置字段未完整核实，不能准备写入。')
     return sorted(actual)
 
 

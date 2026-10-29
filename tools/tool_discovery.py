@@ -37,6 +37,8 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
               'reference': '基础资料与原因码', 'query': '查询服务', 'excel': '表格导入', 'system': '系统与能力发现'}
     disabled = {'patch_mfgorder': '当前服务 PATCH 契约未验证，工具已禁用；使用 update_mfgorder。'}
     caveats = {
+        'get_quality_event_triage_context': '受限基础Event首次分流只读检查及原生非执行回显，保持责任人/角色/类别，检查组织分流与签名策略；不是审批、签名或实际分流完成。',
+        'prepare_quality_event_triage': '已提交Active基础Event首次分流，保留类别/责任人/角色/CAR策略，可明确优先级；已有流程/检查表/审批或签名要求则拒绝。确认单次提交，unknown保留原事件及关联NCR容器占用，实际效果待验收。',
         'get_spc_violation_context': '只读原始直接数值点、完整规则成员及三层违例历史；不运行引擎或核实外部报告。受限图不允许通知/自动处置。',
         'prepare_spc_violation': '登记调用方明确报告的单点越限SPC结果，必须给operator_reported来源、原值及报告控制限；不是工具认证的原生引擎结果。无通知/自动处置，规则归属及完整回显核实后确认单次提交，unknown不重试，现场验收待补。',
         'get_spc_annotation_context': '只读原始数值采集历史点、固定定义/SPC组及所有图的有界注释历史；不是本次提交核实或放行。',

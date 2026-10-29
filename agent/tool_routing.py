@@ -5,7 +5,7 @@ import re
 from core.tool_catalog import TOOL_POLICIES
 
 GROUP_TERMS = {
-    "quality": r"控制图|控制限|判异|移动极差|weco|xbar|i_mr|质量|全检|破坏性测试|destructive|损失|扣量|scrap|loss|changeqty|挂起|释放|不合格|缺陷|纠正|预防|处置|抽检|抽样|检验|批采样|采样状态|采样计数器|采样频率|采样计划|检验水平|接收数|拒收数|样本量|批量区间|冻结|解冻|隔离|报废|不良|返工|quality|ncr|capa|spc|sampling|sampletest|inspection|sampledatapoint|aql|defect|rework|hold|release",
+    "quality": r"分流|triage|控制图|控制限|判异|移动极差|weco|xbar|i_mr|质量|全检|破坏性测试|destructive|损失|扣量|scrap|loss|changeqty|挂起|释放|不合格|缺陷|纠正|预防|处置|抽检|抽样|检验|批采样|采样状态|采样计数器|采样频率|采样计划|检验水平|接收数|拒收数|样本量|批量区间|冻结|解冻|隔离|报废|不良|返工|quality|ncr|capa|spc|sampling|sampletest|inspection|sampledatapoint|aql|defect|rework|hold|release",
     "collection": r"采集|采样|测量|collection|datapoint",
     "material": r"bom|物料|用料|耗料|投料|补投",
     "resource": r"resource|设备|资源|机台",
@@ -21,6 +21,7 @@ GROUP_TERMS = {
 }
 WRITE_TERMS = re.compile(r"损失|扣量|报废|scrap|loss|冻结|解冻|关闭|登记|创建|新建|新增|修改|更新|调整|调到|变更|改成|改为|删除|重建|绑定|解绑|升版|导入|启动|开工|移站|过站|进站|出站|返工|不良|投料|补投|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
 ROUTING_INSTRUCTION = (
+    "质量事件首次分流先get_quality_event_triage_context核对明确Event/组织、当前账号Triage动作16、责任人/角色和唯一分流配置。prepare_quality_event_triage只支持已提交Active且未首次分流的基础Event，无流程/检查表/审批或分流签名要求；保留类别、责任人、角色和CAR策略，用户明确才给priority_level_name，否则保留原优先级。不以该工具改责任人或角色、升级类别、分派、重开/关闭、启动流程或绕过审批/签名；原生分派可能发送邮件，不能默改Owner。分流默认要求上述额外动作则拒绝，不清空配置或把IgnoreProcessModel设true。准备后execute_quality_transaction系统确认单次提交；unknown保留原事件及关联NCR容器占用，inspect只看原ID和有限历史，最终事务证据人工review，不换名/工具重试。"
     "SPC配置查询沿用list_quality_references/get_quality_reference_details。本地计算/判异用analyze_spc_series，先明确chart_type(i_mr/xbar_r)、同特性/单位/过程的原始观测ID及连续sequence、数据和顺序来源、显式rules。值用十进制字符串，xbar_r逐个合理子组固定2..10值，不自行重排/分组/剔除异常。独立baseline+baseline_reference与有版本controls二选一，不能以待评估段自拟控制限或将规格限当控制限；controls.sigma是绘制统计量标准差，Xbar须为子组均值标准差。仅支持WECO四规则，MR/R仅逐点限值，窗口不足和无信号都不能声称稳定/合格/放行。回传输入摘要和逐窗口原ID；本地计算未核实MES来源/配置/统计假设，不等同现场SPC引擎。SPC注释先get_spc_annotation_context核实真实DataPointHistoryDetail ID、原容器、父历史/事务链、固定采集定义版本和完整SPC组，不能将本地观测编号或定义点ID当历史点。明确原点、图、annotation后用prepare_spc_annotation；Exclude固定false，任意图有有效排除记录或签名要求非空/未知则拒绝，不执行排除/恢复。准备后execute_quality_transaction系统确认单次执行，unknown用inspect_quality_transaction查看原点所有图注释历史，仅证据，最终事务证据人工review，不换图/改名绕过占用。SPC违例先get_spc_violation_context核实原点、图、完整规则清单及原点三层历史。仅当用户明确报告SPC结果和来源、原值、绘图值、单位ID、LCL/中心/UCL及违例名称时，prepare_spc_violation(reported_result.source_kind=operator_reported)登记单点严格越限。未运行或认证现场SPC引擎；不能从本地WECO、规格限或模型猜定结果/控制限/来源填写该报告。报告限值与来源真实性未自动核实，必须向用户展示。规则名称来自当前图配置，违例名称必须属于完整清单，报告绘图值须等于原值、单位与原始历史一致，图变量等于原始点名。通知、OCAP、冻结/资源状态配置非空/未知或已有有效排除/相同违例历史则拒绝，不清空配置。准备只保存计划，由execute_quality_transaction系统确认单次提交；unknown保留原点/容器占用，inspect仅原点原图原规则证据，最终证据人工review，不换图/工具重试。区内运行规则、派生值、批量和引擎自动判定未开放，不得改走通用HTTP或InlineSPCTxn绕过。"
     "单容器检验已有全检或失败转全检规则时，用户明确允许才prepare_container_inspection(allow_full_inspection=true)，不能为了让提交通过而默认开启；只按MES当前任务要求提交，不补写TotalSamplesRequired或InspectAllContQty，不强制转全检、不替MES判Fail。标准CLF可能在Fail后改要求数，但没有实际把InspectAllContQty置true，不能伪造转换完成。破坏性测量检验按样本数自动扣量需用户明确允许allow_automatic_quantity_loss=true，只支持单独DecreaseBySampleSizeReason和本次数值测量样本行数；原因须属当前Operation完整LossReasons组，显示主单位、拟扣量及MES原生生产数量等默认，不另发ChangeQty。两选项互斥、默认false；不支持计数自动扣量、按拒收数/原因报废、扣至零、自动事件或批抽样。高级模式限基础Container、主单位明确且无冻结/返工/层级/载具/第二单位；必须回显原持久任务ID、依赖重读。执行仍一次CollectSamplingData且移站false，unknown不补发扣量；inspect只给原ID/原任务当前证据，普通检验历史匹配不能证明原生转换/子扣量，不自动解锁，需最终证据人工review。"
     "报废/扣量先区分基础Container和多成员SamplingLot，名称不能证明对象类型。单个基础Container数量损失或全量报废用prepare_container_quantity_loss，明确container_name、loss_reason_name、close_when_zero和adjust_throughput；loss_quantity是当前主单位的本次正数增量，全量须record_all_quantity=true且省略loss_quantity，不能把全量隐式当部分数量。损失原因用list_quality_references(kind=loss_reason)，须属于当前Operation完整LossReasons组，不能用ScrapReason同名替换。仅Active无冻结、未返工、无层级/载具/第二单位且不属于抽样批；Batch子类型不支持。不代选关闭或生产数量选项，不猜默认单位，不调用PartScrap。准备强制LossDetails类型4030、损失方向-1，确认后execute_quality_transaction单次ChangeQty，unknown不重新扣量；inspect只读原容器ID，候选历史核对暂不支持，最终证据人工review。多成员抽样批报废先get_sampling_lot_scrap_readiness，只读完整批和明确阻塞，不生成结果3计划；入口ScrapReason标注未实现且与LossDetails的LossReason类型不同，不能改走成员循环扣量。"
@@ -88,9 +89,10 @@ def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
         re.search(r"(?:^|请|帮我)\s*(?:提交|录入|记录)", current)
         and re.search(GROUP_TERMS['quality'], context)
     )
+    triage_submission = re.search(r"(?:^|请|帮我)\s*(?:完成|办理|确认|提交).*(?:分流|triage)", current, re.I)
     level_reset = (re.search(r"恢复|复位|重置|撤销", current)
                    and re.search(r"检验水平|采样状态", context))
-    wants_write = bool(WRITE_TERMS.search(current) or task_submission or collection_submission or inspection_submission or level_reset)
+    wants_write = bool(WRITE_TERMS.search(current) or task_submission or collection_submission or inspection_submission or triage_submission or level_reset)
     if re.search(r"查询|查看|追溯|了解|有哪些|历史", current) and not re.search(
         r"执行|创建|新建|新增|修改|更新|删除|重建|绑定|解绑|升版|导入|启动|开工|请将|请把|帮我把|create|update|delete|patch|import", current, re.I
     ):

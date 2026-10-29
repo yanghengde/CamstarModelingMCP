@@ -1,0 +1,127 @@
+{
+  "quality_tool_count": 57,
+  "all_quality_tools_registered": true,
+  "all_quality_tools_dispatchable": true,
+  "new_schemas": {
+    "get_quality_event_triage_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "event_name": {
+          "type": "string"
+        },
+        "organization_name": {
+          "type": "string"
+        },
+        "event_instance_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "event_name",
+        "organization_name"
+      ]
+    },
+    "prepare_quality_event_triage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "event_name": {
+          "type": "string"
+        },
+        "organization_name": {
+          "type": "string"
+        },
+        "priority_level_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "event_instance_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "comments": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event_name",
+        "organization_name"
+      ]
+    }
+  },
+  "confirmation_tools": [
+    "container_defect",
+    "execute_quality_transaction",
+    "hold_container",
+    "release_container",
+    "review_quality_transaction",
+    "rework"
+  ],
+  "routing_scope": "Deterministic tool selection, not LLM business accuracy or live MES acceptance",
+  "routing_cases": [
+    {
+      "user_turns": [
+        "查看质量事件首次分流条件"
+      ],
+      "context_visible": true,
+      "prepare_visible": true,
+      "executor_visible": false
+    },
+    {
+      "user_turns": [
+        "请完成事件首次分流"
+      ],
+      "context_visible": true,
+      "prepare_visible": true,
+      "executor_visible": true
+    },
+    {
+      "user_turns": [
+        "查询分流上下文",
+        "继续"
+      ],
+      "context_visible": true,
+      "prepare_visible": true,
+      "executor_visible": false
+    },
+    {
+      "user_turns": [
+        "查看事件首次分流上下文",
+        "提交这个计划"
+      ],
+      "context_visible": true,
+      "prepare_visible": true,
+      "executor_visible": true
+    }
+  ],
+  "preserve_owner_role_instruction_present": true,
+  "journal_states_read_only": {
+    "cancelled": 2
+  },
+  "local_links_checked": 265,
+  "missing_links": []
+}
