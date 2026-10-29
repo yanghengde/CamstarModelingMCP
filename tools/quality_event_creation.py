@@ -42,7 +42,7 @@ async def notification_policy(org):
 @mcp.tool
 async def validate_quality_event_creation(event_name:str,organization_name:str,classification_name:str,
         subclassification_name:str,priority_level_name:str,brief_description:str,reporter_name:str,
-        occurrence_date:str,reported_date:str,description:str='',discovery_area:str='')->str:
+        occurrence_date:str,reported_date:str,description:str='',discovery_area:str='',automatic_numbering:bool=False)->str:
     """只读核验基础Event创建资料及组织配置。必填明确名称/组织/分类/子分类/优先级/简述/报告人和带时区的发生、报告时间。
     核对名称占用、唯一组织分类组合、原生默认归属候选、报告人身份、签名及SMTP/通知策略；不调用CreateEvent，包括execute=false。
     Submit=false仍可能原生分派/通知且预校验修改执行标志，当前入口只给静态核验报告；ready_for_execution恒false，无plan_id，不创建/覆盖草稿、不发送通知、不授权签名。
@@ -51,13 +51,16 @@ async def validate_quality_event_creation(event_name:str,organization_name:str,c
         native_preview_requested=False,errors=[],unverified_checks=['当前部署CreateEvent预校验与execute=false的实际交互',
         '归属回退规则及通知收件人/实际发送行为','原生动态权限、审批和签名','创建后的持久ID及最终历史关联'])
     try:
-        name=q.text(event_name,'事件名称',30);u.text_value(name,'事件名称',30,True)
+        if type(automatic_numbering) is not bool:raise ValueError('自动编号选项须为布尔。')
+        if automatic_numbering and event_name!='':raise ValueError('自动编号不接受指定事件名称。')
+        name=None if automatic_numbering else q.text(event_name,'事件名称',30)
+        if name is not None:u.text_value(name,'事件名称',30,True)
         u.text_value(brief_description,'简述',100,True);u.text_value(description,'说明',4000);u.text_value(discovery_area,'发现区域',30)
         for value in (organization_name,classification_name,subclassification_name,priority_level_name,reporter_name):q.text(value)
         if not timestamp_valid(occurrence_date) or not timestamp_valid(reported_date):raise ValueError('发生和报告时间必须含明确时区，最多7位小数；不补当前时间。')
         if timestamp_ticks(reported_date)<timestamp_ticks(occurrence_date):raise ValueError('报告时间不能早于发生时间。')
         await schema_check(SCHEMA)
-        before=await existing(name)
+        before=None if automatic_numbering else await existing(name)
         if before:out['errors'].append(dict(code='name_occupied',detail='名称已存在，包含未提交草稿；不会使用CreateEvent覆盖原记录。'))
         states={}
         for kind,value in [('organization',organization_name),('classification',classification_name),('subclassification',subclassification_name),('priority',priority_level_name)]:
@@ -82,7 +85,7 @@ async def validate_quality_event_creation(event_name:str,organization_name:str,c
                 mapping[field]=None if value is None else iid(q.identifier(value),field)
             if mapping['is_frozen']:out['errors'].append(dict(code='mapping_frozen',detail='所选分类映射已冻结。'))
         policy=await notification_policy(org)
-        if await existing(name)!=before:raise ValueError('核验期间名称占用变化。')
+        if not automatic_numbering and await existing(name)!=before:raise ValueError('核验期间名称占用变化。')
         for kind,state in states.items():
             if await n.named_state(kind,state['Name'],state['InstanceID'])!=state:raise ValueError('核验期间参考配置或分类映射变化。')
         if await t.asset('owner',name=reporter['Name'],key=reporter['InstanceID'])!=reporter or await notification_policy(org)!=policy:
@@ -93,7 +96,7 @@ async def validate_quality_event_creation(event_name:str,organization_name:str,c
             signature_required=org['CollectESigForAllQualityTxns'] or 7491 in signature_types,
             proposal=dict(event_name=name,submit=False,brief_description=brief_description,description=description,
                 discovery_area=discovery_area,occurrence_date=occurrence_date,reported_date=reported_date),
-            execution_blockers=['当前创建入口未开放执行；原生保存未提交事件仍可能分派并发送待分派通知。',
+            execution_blockers=['本核验入口不执行创建；原生保存未提交事件仍可能分派并发送待分派通知。',
                 '原生PreValidate修改Transaction::IsExecute，未核实部署行为前不调用创建服务预览。'])
         out['validation_digest']=digest({k:v for k,v in out.items() if k!='validation_digest'})
         return q.encode(out)

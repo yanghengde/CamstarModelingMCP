@@ -227,6 +227,9 @@ async def build_capa_closure(args,marker):
 
 async def build(kind,args,marker):
     if not isinstance(marker,str) or not re.fullmatch(r'MCP-QUAL:[0-9a-f]{32}',marker):raise ValueError('质量事务关联标记无效。')
+    if kind in ('event_open','event_reassign','event_create'):
+        from tools.quality_event_lifecycle import operation,build_create
+        return await build_create(args,marker) if kind=='event_create' else await operation(args,marker,kind)
     if kind=='event_close':
         from tools.quality_event_close_plan import build_close
         return await build_close(args,marker)
@@ -328,6 +331,11 @@ def checked(row,fingerprint):
 
 def transport(snapshot):
     if snapshot.get('api','shopfloor')=='shopfloor':
+        if snapshot.get('kind') in ('event_open','event_reassign','event_create'):
+            from tools.quality_event_lifecycle import validate_transport
+            validate_transport(snapshot)
+        if snapshot.get('service') in ('OpenQualityObject','ChangeOwner','CreateEvent') and snapshot.get('kind') not in ('event_open','event_reassign','event_create'):
+            raise ValueError('生命周期服务与计划类型不符。')
         if snapshot.get('kind')=='event_close':
             from tools.quality_event_close_plan import validate_transport
             validate_transport(snapshot)
@@ -354,7 +362,7 @@ def transport(snapshot):
         if snapshot.get('kind')=='quantity_loss' and snapshot.get('service')!='ChangeQty':
             raise ValueError('数量损失计划必须使用ChangeQty。')
         if snapshot.get('service') not in ('NCRCreate','NCRUpdate','NCRClose','NCRCloseQuality','NCREscalate','CreateCAPA','UpdateCAPA','CloseQualityObject',
-                'CollectSamplingData','CreateSamplingLot','CollectLotSamplingData','ExecuteSamplingLot','UpdateSamplingLot','CurrentSamplingStatusUpdate','ChangeQty','AddSPCAnnotation','RecordSPCViolation','TriageQualityObject','UpdateEvent'):
+                'CollectSamplingData','CreateSamplingLot','CollectLotSamplingData','ExecuteSamplingLot','UpdateSamplingLot','CurrentSamplingStatusUpdate','ChangeQty','AddSPCAnnotation','RecordSPCViolation','TriageQualityObject','UpdateEvent','OpenQualityObject','ChangeOwner','CreateEvent'):
             raise ValueError('质量服务不在执行白名单。')
         if snapshot.get('service')=='UpdateEvent':
             from tools.quality_event_update import validate_transport
@@ -405,7 +413,9 @@ def transport(snapshot):
                     or set(body['samplingLot'])!={'name','instanceId'} or body['samplingLot'].get('name')!=snapshot.get('name')
                     or body['samplingLot'].get('instanceId')!=snapshot['target_id']):
                 raise ValueError('批维护服务、目标或允许字段不符。')
-        return {'api':'shopfloor','method':'POST','path':'/api/'+snapshot['service'],'params':{'execute':'true'}}
+        params={'execute':'true'}
+        if snapshot['kind']=='event_create':params['$select']='QualityObject,CompletionMsg,Comments,ACEStatus,ACEMessage'
+        return {'api':'shopfloor','method':'POST','path':'/api/'+snapshot['service'],'params':params}
     if snapshot.get('api')!='modeling' or snapshot['kind'] not in ('inspection_definition','sampling_binding','sampling_reference'):
         raise ValueError('质量执行API类型未开放。')
     entity=snapshot.get('entity');method=snapshot.get('method')
@@ -432,6 +442,9 @@ def resource_sets(snap):
     reads_set=set(snap.get('resource_reads',[]));writes=set(snap.get('resource_writes',[]))
     # Sampling task snapshots do not always expose all resolved AQL/level IDs.
     # Keep a conservative shared gate until that dependency chain is verified.
+    if snap['kind'].startswith('event_'):
+        org=snap.get('event_org_id') or (snap.get('before',{}).get('event') or {}).get('OrganizationId')
+        if reads.valid_id(org):reads_set.add('runtime:quality-event:org:'+org.lower())
     gate='modeling:sampling-reference-config:gate'
     if snap['kind']=='sampling_reference':writes.add(gate)
     elif snap['kind'] in ('inspection','lot_inspection','lot_completion','lot_rework','quantity_loss','lot_maintenance','current_sampling','sampling_lot','inspection_definition','sampling_binding'):
@@ -443,6 +456,8 @@ def resource_sets(snap):
         reads_set.add('modeling:SamplingPlans:id:'+snap['before']['task']['SamplingPlanId'])
         from tools.quality_lot_execution import runtime_claim
         writes.add(runtime_claim('container',snap['target_id']))
+    if snap['kind']=='capa' and reads.valid_id(snap.get('target_id')):
+        writes.add('runtime:quality-event:id:'+snap['target_id'].lower())
     if snap['kind']=='sampling_lot':
         writes.add('runtime:lot:name:'+snap['name'].casefold())
     if snap['kind']=='ncr':
@@ -477,7 +492,7 @@ async def get_quality_transaction_plan(plan_id:str)->str:
 
 @mcp.tool
 async def execute_quality_transaction(plan_id:str,plan_digest:str)->str:
-    """确认后单次执行质量、检验、定义维护、抽样基础表、产品关联或建批/批维护计划。按白名单选择Modeling CRUD或Shopfloor POST；固定目标及适用版本，重建摘要并检查关联读写占用。Modeling无execute=false回显，Shopfloor须核对回显。HTTP不重试，取消/超时保存unknown；inspect只给证据，人工最终证据才review，不自动成功或解锁。"""
+    """确认后单次执行质量、检验、定义维护、抽样基础表、产品关联或建批/批维护计划。按白名单选择Modeling CRUD或Shopfloor POST；固定目标及适用版本，重建摘要并检查关联读写占用。Modeling无execute=false回显，Shopfloor默认核对回显；CreateEvent为无原生预览的静态自动编号计划，须明确审阅其限制。HTTP不重试，取消/超时保存unknown；inspect只给证据，人工最终证据才review，不自动成功或解锁。"""
     try:
         with attempt_lock(PLAN_DB,'quality-domain'),attempt_lock(PLAN_DB,plan_id):
             with db_connect() as db:row=db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone()
@@ -520,6 +535,9 @@ async def inspect_quality_transaction(plan_id:str,plan_digest:str)->str:
             with db_connect() as db:row=db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone()
             snap=checked(row,plan_digest)
             if row[2] not in ('unknown','in_flight'):raise ValueError('仅检查已尝试/未知质量计划。')
+            if snap['kind'] in ('event_create','event_open','event_reassign'):
+                from tools.quality_event_lifecycle import inspect
+                return encode(await inspect(snap,json.loads(row[4]) if row[4] else None))
             if snap['kind']=='event_close':
                 from tools.quality_event_close_plan import inspect_snapshot
                 return encode(await inspect_snapshot(snap))

@@ -1,7 +1,7 @@
 # Camstar Modeling MCP Agent
 
 质量功能入口：[NCR、CAPA、质量对象与抽检/SPC工具及现场验证范围](docs/quality-mcp-tools.md)。
-质量分组现有62个工具，覆盖NCR/CAPA、检验定义与抽样表、单容器/批采样、当前采样状态与默认检验水平复位，以及已关闭关联事件后的NCR收尾计划。阶段交付、测试证据、部署步骤和未完成范围见[质量交付说明](docs/quality-delivery.md)；高级功能第一阶段新增[受限批返工](docs/quality-lot-rework.md)，第二阶段新增[数量损失准备与批报废前置检查](docs/quality-quantity-loss.md)，第三阶段扩展[原生全检与测量自动扣量](docs/quality-inspection-effects.md)，第四阶段新增[SPC本地计算与判异](docs/quality-spc-analysis.md)、[原始历史点受限注释](docs/quality-spc-annotations.md)和[明确报告的单点SPC违例登记](docs/quality-spc-violations.md)，第五阶段新增[质量事件首次分流](docs/quality-event-triage.md)与[事件文字资料维护](docs/quality-event-update.md)，后续顺序见[高级功能开发计划](docs/quality-advanced-roadmap.md)；真实MES验收及其余高级功能仍待完成。
+质量分组现有65个工具，覆盖NCR/CAPA、检验定义与抽样表、单容器/批采样、当前采样状态与默认检验水平复位，以及已关闭关联事件后的NCR收尾计划。阶段交付、测试证据、部署步骤和未完成范围见[质量交付说明](docs/quality-delivery.md)；高级功能第一阶段新增[受限批返工](docs/quality-lot-rework.md)，第二阶段新增[数量损失准备与批报废前置检查](docs/quality-quantity-loss.md)，第三阶段扩展[原生全检与测量自动扣量](docs/quality-inspection-effects.md)，第四阶段新增[SPC本地计算与判异](docs/quality-spc-analysis.md)、[原始历史点受限注释](docs/quality-spc-annotations.md)和[明确报告的单点SPC违例登记](docs/quality-spc-violations.md)，第五阶段新增[质量事件首次分流](docs/quality-event-triage.md)与[事件文字资料维护](docs/quality-event-update.md)，后续顺序见[高级功能开发计划](docs/quality-advanced-roadmap.md)；真实MES验收及其余高级功能仍待完成。
 
 多轮调用评测：[38段问法、真实模型结果与已修复/待修复问题](docs/multiturn-evaluation/README.md)。
 
@@ -341,3 +341,5 @@ uvicorn>=0.20.0
 2026-10-29新增：[受限基础Event关闭计划](docs/quality-event-close-plan.md)，仅无复杂关联/流程/审批/签名的独立事件；真实关闭待验收。
 
 2026-10-29补充：[质量事件创建资料核验](docs/quality-event-creation.md)已接入；仅核验名称/分类/报告人/时间及通知策略，不调用CreateEvent，创建执行仍待完成。
+
+2026-10-29新增：[事件生命周期计划](docs/quality-event-lifecycle.md)，自动编号实际创建、Closed开启、明确人员/角色重新分派；显式复杂关闭扩展CAR/流程/关联NCR和已批准审批。真实效果待验收，事件数据/批次子事务、待审批/签名仍未支持。

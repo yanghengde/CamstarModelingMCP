@@ -1,6 +1,6 @@
 # 质量事件创建资料与组织策略核验
 
-2026-10-29新增 `validate_quality_event_creation`，当前质量分组62个工具。本轮交付创建前的只读资料核验，不开放创建请求、草稿保存或提交。不能把核验报告说成事件已经创建。
+2026-10-29新增 `validate_quality_event_creation`，该阶段质量分组62个工具；后续新增[生命周期执行计划](quality-event-lifecycle.md)，当前65个工具。本轮交付创建前的只读资料核验，不开放创建请求、草稿保存或提交。不能把核验报告说成事件已经创建。
 
 ## 参数及返回
 
@@ -50,3 +50,5 @@ CreateEvent_PreValidate在not Submit时调用DisableFieldValidations并设置Tra
 本轮新增46项测试，针对性365项通过；全量2994项测试、2项子测试通过，其中质量相关1788项，父pytest真实HTTPX网络尝试为0。[工具与参数核对](quality-fixtures/event-create-manifest.json)确认62个质量工具均注册且可分发；7组单轮/追问夹具检查可见性，不表示模型真实业务成功率。实际质量计划库只读检查仍为2条cancelled，本轮未新增现场计划。
 
 [现场元数据只读检查](quality-fixtures/event-create-live-readcheck.json)未返回可用JSON，不能据此判断表为空或权限有效；没有调用原生创建、创建预览或自动编号接口。
+
+后续进展：已另行实现自动编号实际创建计划，避免指定名称与现有草稿并发复用；准备仍不调用原生创建预览。详见[生命周期执行计划](quality-event-lifecycle.md)。本核验工具仍只读；新增automatic_numbering布尔选项，默认false，选true时event_name必须为空字符串，名称检查交由后续原生自动编号路径。

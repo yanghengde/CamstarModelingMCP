@@ -1,6 +1,6 @@
 # 基础Event受限关闭计划
 
-2026-10-29新增 `prepare_quality_event_closure`，该阶段质量分组61个工具；后续新增[创建资料核验](quality-event-creation.md)，当前62个工具。在[关闭前置诊断](quality-event-closure.md)之后，提供原生CloseQualityObject受限准备和统一确认执行。真实MES关闭、最终历史及部署副作用仍待验收。
+2026-10-29新增 `prepare_quality_event_closure`，该阶段质量分组61个工具；后续新增[创建资料核验](quality-event-creation.md)，当前65个工具。在[关闭前置诊断](quality-event-closure.md)之后，提供原生CloseQualityObject受限准备和统一确认执行。真实MES关闭、最终历史及部署副作用仍待验收。
 
 ## 参数与顺序
 
@@ -49,3 +49,5 @@
 事件创建、开启、重新分派、CAR关联复杂关闭、批次/NCR联动、审批和电子签名仍见[后续计划](quality-advanced-roadmap.md)。本轮不表示质量模块全部完成。
 
 本轮新增62项测试；针对性389项通过；全量2948项测试、2项子测试通过，其中质量相关1742项，父pytest真实HTTPX网络尝试为0。[工具参数与问法核对](quality-fixtures/event-close-plan-manifest.json)确认61个质量工具均注册且可分发，新增参数模型拒绝额外字段，确认入口保持不变。真实质量计划库只读检查仍为2条cancelled，没有新增现场执行记录。
+
+后续扩展：显式allow_complex_context=true可核实CAR/CAPA关联、流程Stage快照、关联NCR及Approved40审批，原生最终验证流程完成；默认false保持原受限范围。现有关联NCR不等于执行NCR子关闭，仍拒绝EventData/检查表/待审批/签名或需启动审批模板的关闭。见[生命周期扩展](quality-event-lifecycle.md)。

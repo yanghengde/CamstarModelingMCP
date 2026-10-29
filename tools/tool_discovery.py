@@ -37,8 +37,11 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
               'reference': '基础资料与原因码', 'query': '查询服务', 'excel': '表格导入', 'system': '系统与能力发现'}
     disabled = {'patch_mfgorder': '当前服务 PATCH 契约未验证，工具已禁用；使用 update_mfgorder。'}
     caveats = {
+        'prepare_quality_event_creation': '实际创建的本地静态计划，仅原生自动编号、Submit=false，准备不调用创建服务预览。明确报告人/发现人和时间，直接归属映射/编号配置须核实；可能通知时明确允许。确认单次提交，unknown保留组织级事件占用，响应ID仅候选，现场验收待补。',
+        'prepare_quality_event_open': 'Closed基础Event原生开启为Active，无事件数据/流程/检查表/审批/签名或NCR联动；保持历史关闭信息，不手工改状态。确认单次提交，unknown不重试。',
+        'prepare_quality_event_reassignment': '明确新人员及角色，核对ChangeOwner动作和原账号，原生最终验证人员/角色组合；有通知配置须明确允许，确认单次提交，unknown不重试。',
         'validate_quality_event_creation': '只读核验创建资料、名称占用、分类组合、默认归属候选及通知/签名策略；不调用CreateEvent，包括execute=false。未提交保存仍可能分派/通知，预校验执行标志待核实。static_valid不是许可，不生成plan_id，执行就绪恒false，不覆盖同名草稿。',
-        'prepare_quality_event_closure': '基础Event受限关闭计划，明确组织/质量解决代码/关闭说明；仅已提交Active已分流且无CAR/流程/检查表/审批/签名/事件数据或关联NCR。核对Resolve64、账号及当前契约；预览不是批准，确认单次提交，unknown不重试，真实效果待验收。',
+        'prepare_quality_event_closure': '基础Event受限关闭计划，明确组织/质量解决代码/关闭说明；默认仅已提交Active已分流且无复杂上下文；显式allow_complex_context可核实CAR/CAPA、流程快照、关联NCR及已批准审批。事件数据/检查表/待审批/签名仍拒绝。核对Resolve64、账号及当前契约；预览不是批准，确认单次提交，unknown不重试，真实效果待验收。',
         'get_quality_event_closure_context': '基础Event只读关闭诊断，汇总静态阻塞与原生Close候选，动态权限、CAR关联、批次处置及审批/签名仍未核实；不生成计划、不关闭事件或关联NCR，执行就绪恒false。',
         'get_quality_event_update_context': '基础Event文字维护前置、当前契约及固定Load原明细，只读不保存计划；未核实当前契约、扩展字段或复杂流程/关联则拒绝，不代表更新完成。',
         'prepare_quality_event_update': '仅明确简述/说明/发现区域；省略/null保留，说明/区域可显式空字符串清除。保留原报告人/日期/优先级及完整受支持明细，submit=false；已提交Active基础Event且无流程/检查表/审批/复杂关联/签名要求。确认单次提交，unknown不重试，真实效果待验收。',

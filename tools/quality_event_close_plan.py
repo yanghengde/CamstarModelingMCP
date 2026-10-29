@@ -18,6 +18,9 @@ SELECT=('QualityObject,Organization,ResolutionAction,QualityResolutionCode,Close
 EXPAND='QualityObjectDetail($select='+u.CURRENT_FIELDS+')'
 
 async def source(args):
+    if args.get('allow_complex_context'):
+        from tools.quality_event_lifecycle import source as complex_source
+        return await complex_source(args,SERVICE_TYPE,1,True)
     await u.schema_check(SCHEMA)
     before=await u.context(args,signature_txn_type=SERVICE_TYPE)
     row=before['event']
@@ -44,6 +47,19 @@ def body_for(args,before,code,action,marker):
         closeDescription=args['close_description'],comments=marker+(' '+args['comments'] if args.get('comments') else ''))
 
 def verify(data,body,before):
+    if before.get('complex_context'):
+        from tools.quality_event_lifecycle import verify as complex_verify
+        result=complex_verify(data,body,before,64,True)
+        if u.i.wire_bool(data.get('ApprovalRequired'),'关闭审批要求') is not False:
+            raise ValueError('仍需发起审批，不通过关闭工具启动或绕过审批。')
+        for field in ('ApprovalSheetMap','ApprovalSheetTemplate'):
+            if field not in data or data[field] is not None:raise ValueError('存在审批路由/模板，需审批流程处理。')
+        if 'ApprovalSheetStatus' not in data or data['ApprovalSheetStatus'] not in (None,40,'40'):
+            raise ValueError('关闭审批状态未核实。')
+        if q.identifier(data.get('Employee'))!=before['event']['OwnerId']:raise ValueError('关闭员工不符。')
+        result['event_closed_verified']=False
+        result['complex_closure_note']='保持CAR/流程及已批准审批，原生最终核实流程完成及批次处置；EventData为空，不调用制造NCR子关闭。'
+        return result
     if not p.wire_matches(body,data):raise ValueError('事件关闭请求未完整回显。')
     mask=i.wire_int(data.get('AvailableActions'),'原生可用动作')
     if mask<0 or mask&RESOLVE_ACTION!=RESOLVE_ACTION:raise ValueError('当前事件/账号缺少原生Resolve动作。')
@@ -70,6 +86,7 @@ def verify(data,body,before):
 async def build_close(args,marker):
     u.text_value(args['close_description'],'关闭说明',4000,True);u.text_value(args.get('comments',''),'关闭备注',200)
     q.text(args['quality_resolution_code_name'],'质量解决代码')
+    if type(args.get('allow_complex_context',False)) is not bool:raise ValueError('复杂上下文选项须为布尔。')
     before=await source(args);schema_digest=await contract()
     code=await t.asset('quality_resolution',name=args['quality_resolution_code_name'])
     ref=dict(name=before['event']['EventName'],instanceId=before['event']['EventId'])
@@ -92,7 +109,9 @@ async def build_close(args,marker):
     return dict(kind='event_close',action='close',service=SERVICE,name=row['EventName'],target_id=row['EventId'],
         scope_key='quality-event:id:'+row['EventId'],before=before,resolution=code,resolution_action=action,
         body=body,preview=preview,arguments=args,marker=marker,environment=p.environment(),
-        resource_reads=sorted(reads),resource_writes=['runtime:quality-event:id:'+row['EventId']])
+        resource_reads=sorted(reads),resource_writes=['runtime:quality-event:id:'+row['EventId']]
+            +['runtime:container:id:'+r['ContainerId'] for r in before['linked_ncrs']]
+            +['runtime:quality-event:id:'+r['Id'] for r in before.get('car_targets',[])])
 
 def validate_transport(snap):
     if (snap.get('kind')!='event_close' or snap.get('action')!='close' or snap.get('service')!=SERVICE
@@ -112,11 +131,12 @@ async def inspect_snapshot(snap):
 
 @mcp.tool
 async def prepare_quality_event_closure(event_name:str,organization_name:str,quality_resolution_code_name:str,
-        close_description:str,event_instance_id:str|None=None,comments:str='')->str:
+        close_description:str,event_instance_id:str|None=None,comments:str='',allow_complex_context:bool=False)->str:
     """准备基础Event原生CloseQualityObject关闭计划，不写MES。明确事件/组织/质量解决代码及非空关闭说明。
     限已提交Active已分流、当前账号为责任人且有角色/Resolve动作；无CAR要求、流程/检查表/审批/签名、自定义EventData、法规报告或关联NCR。
     核实当前契约及原生Close处置候选，execute=false完整回显后独立重读；不执行NCR联动、不改归属或绕过流程。不用于CAPA/草稿或复杂流程。
-    execute_quality_transaction系统确认单次提交，unknown保留原事件占用；inspect只给原ID证据，最终证据人工review，不重试或自动解锁。
+    显式allow_complex_context可核实CAR/CAPA关联、流程快照、关联NCR及Approved40审批；保持原策略，原生最终校验流程完成，不主动关闭关联NCR。仍拒绝事件数据/检查表/待审批或签名。
+    execute_quality_transaction系统确认单次提交，unknown保留原事件及依赖占用；inspect只给原ID证据，最终证据人工review，不重试或自动解锁。
     """
     return await p.prepare('event_close',dict(event_name=event_name,organization_name=organization_name,
-        quality_resolution_code_name=quality_resolution_code_name,close_description=close_description,event_instance_id=event_instance_id,comments=comments))
+        quality_resolution_code_name=quality_resolution_code_name,close_description=close_description,event_instance_id=event_instance_id,comments=comments,allow_complex_context=allow_complex_context))

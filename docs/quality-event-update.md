@@ -1,6 +1,6 @@
 # 质量事件文字资料维护：受限首版
 
-2026-10-29。新增 `get_quality_event_update_context`、`prepare_quality_event_update`，该阶段quality分组为59个工具；后续新增[关闭前置诊断](quality-event-closure.md)，当前62个工具。在[首次分流](quality-event-triage.md)之后，提供原生 `UpdateEvent` 的简述、说明和发现区域维护。代码、参数、路由和模拟执行已接入；真实MES验收尚未完成。
+2026-10-29。新增 `get_quality_event_update_context`、`prepare_quality_event_update`，该阶段quality分组为59个工具；后续新增[关闭前置诊断](quality-event-closure.md)，当前65个工具。在[首次分流](quality-event-triage.md)之后，提供原生 `UpdateEvent` 的简述、说明和发现区域维护。代码、参数、路由和模拟执行已接入；真实MES验收尚未完成。
 
 ## 工具及参数
 
