@@ -19,8 +19,9 @@ GROUP_TERMS = {
     "query": r"query|inquiry|sql|历史|状态|进度|在制|追溯",
     "excel": r"excel|csv|表格|附件|导入|上传",
 }
-WRITE_TERMS = re.compile(r"开启|重开|重新分派|分派|reassign|reopen|损失|扣量|报废|scrap|loss|冻结|解冻|关闭|登记|创建|新建|新增|修改|更新|调整|调到|变更|改成|改为|删除|重建|绑定|解绑|升版|导入|启动|开工|移站|过站|进站|出站|返工|不良|投料|补投|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
+WRITE_TERMS = re.compile(r"发起审批|路由|取消审批|撤回审批|开启|重开|重新分派|分派|reassign|reopen|损失|扣量|报废|scrap|loss|冻结|解冻|关闭|登记|创建|新建|新增|修改|更新|调整|调到|变更|改成|改为|删除|重建|绑定|解绑|升版|导入|启动|开工|移站|过站|进站|出站|返工|不良|投料|补投|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
 ROUTING_INSTRUCTION = (
+    "实际审批表操作用prepare_quality_approval_action，action仅route/cancel，必须明确原对象/组织、approval_sheet_id和非空comments。route只允许空白Pending表首次路由，不能清空旧周期；cancel只允许未签批Routed表，原生回Pending并写RoutingCanceled历史，不等于Cancelled20。不是拒绝/签批/退回决策入口，不替代电子签名。可能通知时明确allow_notifications=true；确认同一计划后execute_quality_transaction单次提交，unknown保留原对象/表占用，inspect只给原ID证据，不重试。禁止使用通用RouteApproval或CancelApproval替代表级服务。"
     "质量审批先get_quality_approval_context，明确name、organization_name，object_kind仅event/capa，可绑定instance_id。完整展示直接审批表/层级/条目/允许决策及原生当前审批条目；Routed候选、EntryForApproval、签名策略或complete不代表当前员工获准签批。该入口不生成计划、不调用路由/签批/撤回服务，包括execute=false，不收集签名口令。RouteApproval预校验可能清空旧审批，不能用它预览；不使用事件关闭/分流或普通确认替代审批/电子签名。"
     "事件创建资料先validate_quality_event_creation，只读报告的static_valid和validation_digest不是执行计划。实际创建用prepare_quality_event_creation，仅原生自动编号，不接受指定名称以避免覆盖同名草稿；明确组织/分类/子分类/优先级/简述/报告人/发现人及带时区发生/报告时间，不代填当前用户或时间。Submit=false保存Pending未提交事件，可能按组织配置分派/通知，存在配置须明确allow_notifications=true。准备不调用CreateEvent execute=false或PerformEvent；展示本地静态计划和未验证项后execute_quality_transaction系统确认单次提交，unknown保留组织级事件占用，响应ID仅候选，不按名称猜测或重试。不得用CAPA、NCR升级或通用请求替代创建事件，不把资料核验说成已创建。"
     "事件开启用prepare_quality_event_open，仅Closed且已提交/分流基础Event，无事件数据/批次/NCR联动、流程/检查表/审批/签名；原生OpenQualityObject只设置Active，不手工清除历史关闭信息。重新分派用prepare_quality_event_reassignment，必须明确owner_name和role_name，原生ChangeOwner动作4、原责任人和角色须核实，最终人员/角色组合由MES验证；配置可能通知时明确allow_notifications=true。两者均固定原ID、预览后确认单次提交，unknown不重试。"

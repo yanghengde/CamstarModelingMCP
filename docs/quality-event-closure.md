@@ -1,6 +1,6 @@
 # 基础Event关闭前置诊断
 
-2026-10-29新增 `get_quality_event_closure_context`，该阶段代码共60个质量工具；后续新增[受限关闭计划](quality-event-close-plan.md)，当前66个工具。本轮交付只读诊断，不开放事件关闭计划或执行。既有CAPA关闭和NCR质量侧收尾入口不替代Event关闭。
+2026-10-29新增 `get_quality_event_closure_context`，该阶段代码共60个质量工具；后续新增[受限关闭计划](quality-event-close-plan.md)，当前67个工具。本轮交付只读诊断，不开放事件关闭计划或执行。既有CAPA关闭和NCR质量侧收尾入口不替代Event关闭。
 
 ## 参数与使用
 

@@ -37,6 +37,7 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
               'reference': '基础资料与原因码', 'query': '查询服务', 'excel': '表格导入', 'system': '系统与能力发现'}
     disabled = {'patch_mfgorder': '当前服务 PATCH 契约未验证，工具已禁用；使用 update_mfgorder。'}
     caveats = {
+        'prepare_quality_approval_action': '受限表级route/cancel计划：仅空白Pending首次路由或未签批Routed取消，固定原对象/表/周期，拒绝旧决策和签名要求。取消原生回Pending并写RoutingCanceled，不当作Cancelled20。可能通知须明确允许，确认单次提交，unknown不重试。',
         'get_quality_approval_context': 'Event/CAPA直接审批表、层级、条目、允许决策、当前审批入口及组织签名策略，只读完整重读。Routed或EntryForApproval不等于签批权限，不调用路由/签批/撤回（含预览），不收集口令。',
         'prepare_quality_event_creation': '实际创建的本地静态计划，仅原生自动编号、Submit=false，准备不调用创建服务预览。明确报告人/发现人和时间，直接归属映射/编号配置须核实；可能通知时明确允许。确认单次提交，unknown保留组织级事件占用，响应ID仅候选，现场验收待补。',
         'prepare_quality_event_open': 'Closed基础Event原生开启为Active，无事件数据/流程/检查表/审批/签名或NCR联动；保持历史关闭信息，不手工改状态。确认单次提交，unknown不重试。',

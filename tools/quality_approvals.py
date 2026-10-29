@@ -6,7 +6,7 @@ from tools import mcp,quality as q,quality_event_triage as t,quality_inspection 
 from tools.quality_spc_annotations import iid,schema_check
 
 SCHEMA={'Event':t.EVENT_COLUMNS,'CAPA':q.CAPA_COLUMNS,'Organization':'OrganizationId,ChangeCount',
- 'ApprovalSheet':'ApprovalSheetId,ApprovalSheetName,ParentId,Status,IsFrozen,ChangeCount,ApprovalRequired,ApprovalDecisionListId,LastApprovalCycleGMT',
+ 'ApprovalSheet':'ApprovalSheetId,ApprovalSheetName,ParentId,Status,IsFrozen,ChangeCount,ApprovalRequired,ApprovalDecisionListId,LastApprovalCycle,LastApprovalCycleGMT',
  'ApprovalSheetEntry':'ApprovalSheetEntryId,ParentId,Status,SheetLevel,ApproverId,ApproverRoleId,AssignedApproverId,SubstituteOption,EntryRequired,IsFrozen,ChangeCount,ApprovalDecisionId,DecisionType,ApprovedById,LastDecisionId,LastCompletedOnGMT',
  'ApprovalDecisionList':'ApprovalDecisionListId,ApprovalDecisionListName,IsFrozen,ChangeCount',
  'ApprovalDecision':'ApprovalDecisionId,ApprovalDecisionListId,ApprovalDecisionName,DecisionType,IncludeComments,IsFrozen,ChangeCount'}

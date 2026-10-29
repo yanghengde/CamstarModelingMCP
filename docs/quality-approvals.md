@@ -1,6 +1,6 @@
 # Event/CAPA审批上下文只读核对
 
-2026-10-29新增 `get_quality_approval_context`，当前质量工具66个。这是审批功能的读取与核对基础，不是路由、签批、退回、撤回或电子签名执行入口。
+2026-10-29新增 `get_quality_approval_context`，该阶段质量工具66个；后续新增[表级路由/取消计划](quality-approval-actions.md)，当前67个工具。这是审批功能的读取与核对基础，不是路由、签批、退回、撤回或电子签名执行入口。
 
 ## 参数与使用
 
@@ -45,3 +45,5 @@ RouteApproval_PreValidate可能ClearApprovals；Execute可能重排审批层级�
 新增37项测试，针对性256项通过；全量3166项测试、2项子测试通过，其中质量相关1960项，父pytest真实HTTPX网络尝试0。[工具与参数核对](quality-fixtures/approval-manifest.json)确认66个质量工具均注册可分发，输入模型封闭，4组单轮/追问夹具保持审批上下文只读。
 
 [现场元数据只读检查](quality-fixtures/approval-live-readcheck.json)未返回可用JSON，不能判断表为空、审批可执行或账号获准签批；本轮未选择真实审批记录预览或执行。
+
+后续已另行实现受限表级路由/取消计划，详见[审批表操作](quality-approval-actions.md)。本上下文入口仍只读，签批/退回/电子签名未开放。

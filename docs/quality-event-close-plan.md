@@ -1,6 +1,6 @@
 # 基础Event受限关闭计划
 
-2026-10-29新增 `prepare_quality_event_closure`，该阶段质量分组61个工具；后续新增[创建资料核验](quality-event-creation.md)，当前66个工具。在[关闭前置诊断](quality-event-closure.md)之后，提供原生CloseQualityObject受限准备和统一确认执行。真实MES关闭、最终历史及部署副作用仍待验收。
+2026-10-29新增 `prepare_quality_event_closure`，该阶段质量分组61个工具；后续新增[创建资料核验](quality-event-creation.md)，当前67个工具。在[关闭前置诊断](quality-event-closure.md)之后，提供原生CloseQualityObject受限准备和统一确认执行。真实MES关闭、最终历史及部署副作用仍待验收。
 
 ## 参数与顺序
 
