@@ -237,7 +237,7 @@ def test_multiturn_followup_keeps_spc_tool():
     tools=[{'function':{'name':n}} for n in TOOL_POLICIES]
     messages=[dict(role='user',content='分析SPC控制图'),dict(role='assistant',content='请给基线'),dict(role='user',content='继续分析这组')]
     assert 'analyze_spc_series' in {t['function']['name'] for t in select_tools(tools,messages)}
-    assert '尚无违例/注释写入工具' in ROUTING_INSTRUCTION
+    assert 'SPC违例写入未开放' in ROUTING_INSTRUCTION
 
 
 def test_mcp_closed_schemas_real_dispatch_and_nested_validation():

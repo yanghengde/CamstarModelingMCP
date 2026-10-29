@@ -1,0 +1,151 @@
+{
+  "source_file": "D:\\Deepseek\\camstar\\CamstarDesignerMCP\\data\\designer\\server_snapshot\\Base_InSite.mdb",
+  "source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+  "read_only": true,
+  "results": [
+    {
+      "query": {
+        "mode": "get",
+        "kind": "table",
+        "name": "AddSPCAnnotationHistory",
+        "owner": "",
+        "search": "",
+        "offset": 0,
+        "limit": 20
+      },
+      "result": {
+        "source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+        "source_file": "D:\\Deepseek\\camstar\\CamstarDesignerMCP\\data\\designer\\server_snapshot\\Base_InSite.mdb",
+        "read_only": true,
+        "workspace_resolution": "vendor_metadata_model",
+        "object_type": "DBTableDefinition",
+        "name": "AddSPCAnnotationHistory",
+        "DBTableId": 1411,
+        "DBCategoryID": 2,
+        "DBTableType": 1,
+        "DBTableTypeName": "InstanceTable",
+        "DBCategoryName": "History",
+        "Name": "AddSPCAnnotationHistory",
+        "Description": "History for SPC Annotations.",
+        "Propagate": true,
+        "ChangeCount": 96,
+        "ColumnsByName": {
+          "count": 17
+        },
+        "IndexesByName": {
+          "count": 1
+        },
+        "Columns": {
+          "count": 17
+        },
+        "Indexes": {
+          "count": 1
+        },
+        "IsAssociatedToCDO": true,
+        "WorkspaceCode": "csi",
+        "ExistsInLowerWorkspace": false,
+        "WorkspaceOverride": null,
+        "OverrideToDelete": null,
+        "LowerWorkspaceOverride": null,
+        "ModifiedStatus": "Unmodified",
+        "ActiveWorkspaceCode": "csi"
+      }
+    },
+    {
+      "query": {
+        "mode": "get",
+        "kind": "table",
+        "name": "DataPointHistoryDetail",
+        "owner": "",
+        "search": "",
+        "offset": 0,
+        "limit": 20
+      },
+      "result": {
+        "source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+        "source_file": "D:\\Deepseek\\camstar\\CamstarDesignerMCP\\data\\designer\\server_snapshot\\Base_InSite.mdb",
+        "read_only": true,
+        "workspace_resolution": "vendor_metadata_model",
+        "object_type": "DBTableDefinition",
+        "name": "DataPointHistoryDetail",
+        "Name": "DataPointHistoryDetail",
+        "DBTableId": 991,
+        "DBCategoryID": 2,
+        "DBTableType": 1,
+        "DBTableTypeName": "InstanceTable",
+        "DBCategoryName": "History",
+        "Description": "The history of the DataPoints collected for a DataPointCollectionDef.",
+        "Propagate": true,
+        "ChangeCount": 431,
+        "ColumnsByName": {
+          "count": 34
+        },
+        "IndexesByName": {
+          "count": 1
+        },
+        "Columns": {
+          "count": 34
+        },
+        "Indexes": {
+          "count": 1
+        },
+        "IsAssociatedToCDO": true,
+        "WorkspaceCode": "csi",
+        "ExistsInLowerWorkspace": false,
+        "WorkspaceOverride": null,
+        "OverrideToDelete": null,
+        "LowerWorkspaceOverride": null,
+        "ModifiedStatus": "Unmodified",
+        "ActiveWorkspaceCode": "csi"
+      }
+    },
+    {
+      "query": {
+        "mode": "get",
+        "kind": "table",
+        "name": "DataPointHistory",
+        "owner": "",
+        "search": "",
+        "offset": 0,
+        "limit": 20
+      },
+      "result": {
+        "source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+        "source_file": "D:\\Deepseek\\camstar\\CamstarDesignerMCP\\data\\designer\\server_snapshot\\Base_InSite.mdb",
+        "read_only": true,
+        "workspace_resolution": "vendor_metadata_model",
+        "object_type": "DBTableDefinition",
+        "name": "DataPointHistory",
+        "Name": "DataPointHistory",
+        "DBTableId": 990,
+        "DBCategoryID": 2,
+        "DBTableType": 1,
+        "DBTableTypeName": "InstanceTable",
+        "DBCategoryName": "History",
+        "Description": "Parametric Detail for the Data Point Collection Def.",
+        "Propagate": true,
+        "ChangeCount": 326,
+        "ColumnsByName": {
+          "count": 8
+        },
+        "IndexesByName": {
+          "count": 1
+        },
+        "Columns": {
+          "count": 8
+        },
+        "Indexes": {
+          "count": 1
+        },
+        "IsAssociatedToCDO": true,
+        "WorkspaceCode": "csi",
+        "ExistsInLowerWorkspace": false,
+        "WorkspaceOverride": null,
+        "OverrideToDelete": null,
+        "LowerWorkspaceOverride": null,
+        "ModifiedStatus": "Unmodified",
+        "ActiveWorkspaceCode": "csi"
+      }
+    }
+  ]
+}

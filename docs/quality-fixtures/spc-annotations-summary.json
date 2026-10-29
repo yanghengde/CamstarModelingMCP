@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-29",
+  "scope": "Restricted native AddSPCAnnotation on original persistent numeric collection points; shared confirmed one-attempt quality executor",
+  "quality_tool_count": 53,
+  "new_tests": 115,
+  "focused_tests_passed": 250,
+  "full_tests_passed": 2551,
+  "full_subtests_passed": 2,
+  "quality_tests_passed": 1345,
+  "failures": 0,
+  "single_final_run_all_green": true,
+  "final_offline_httpx_attempt_count": 0,
+  "native_metadata_source_sha256": "7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c",
+  "live_schema_verified": false,
+  "live_nonexecuting_preview_verified": false,
+  "live_annotation_write_verified": false,
+  "live_read_result": "Query/AdHoc metadata SELECT failed with ConnectError; no record-count or schema conclusion",
+  "mes_business_writes": 0,
+  "services_restarted_by_this_work": false,
+  "native_violation_write_implemented": false,
+  "verification_limits": [
+    "Native csi snapshot is primary standard metadata, not deployed customization proof",
+    "Mock preview and history tests do not establish nonempty MES acceptance",
+    "Final offline HTTPX guard is not OS-level network isolation",
+    "Question cases test deterministic tool visibility, not LLM business behavior",
+    "Quality journal locks do not coordinate all other services or journals"
+  ],
+  "remaining": [
+    "Actual nonempty data/chart configuration, preview and annotation-history acceptance",
+    "Automatic final transaction correlation",
+    "Native SPC violation data/engine-rule binding and confirmed write path",
+    "Exclusion/restoration, engine execution and automated quality dispositions remain unsupported"
+  ]
+}
