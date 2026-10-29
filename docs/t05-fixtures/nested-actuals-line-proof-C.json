@@ -1,4 +1,0 @@
-{
-  "query": "SELECT IssueHistoryDetailId,BOMLineItemId,ProductId FROM IssueHistoryDetail WHERE IssueHistoryDetailId='0019be8000000003'",
-  "response": "❌ HTTP 400 Error\nURL: https://172.22.154.174/Query/api/AdHoc\nResponse: {\"ErrorCode\":\"13500474\",\"Message\":\"A server error occurred.\",\"Target\":null,\"Details\":[{\"ErrorCode\":\"13500474\",\"Message\":\"[Opcenter][ODBC SQL Server Wire Protocol driver][Microsoft SQL Server]Invalid column name \\u0027BOMLineItemId\\u0027.\",\"Target\":null}],\"InnerError\":null,\"InstanceAnnotations\":[],\"TypeAnnotation\":null}"
-}

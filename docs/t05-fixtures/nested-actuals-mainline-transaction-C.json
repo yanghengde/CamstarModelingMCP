@@ -1,4 +1,0 @@
-{
-  "query": "SELECT HistoryMainlineId,TxnId,ContainerId,TxnTypeName,Comments FROM HistoryMainline WHERE HistoryMainlineId='00098880000001ea'",
-  "response": "[{\"HistoryMainlineId\": \"00098880000001ea\", \"TxnId\": \"400000000000f0f0\", \"ContainerId\": \"00041080000000e4\", \"TxnTypeName\": \"ComponentIssue\", \"Comments\": \"Codex T05 Actuals 05e3790842dd422c95dde69db40c5518\"}]"
-}

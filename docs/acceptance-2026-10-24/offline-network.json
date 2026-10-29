@@ -1,9 +1,0 @@
-{
-  "blocked_attempt_count": 1,
-  "attempts": [
-    {
-      "method": "GET",
-      "host": "172.22.154.174"
-    }
-  ]
-}

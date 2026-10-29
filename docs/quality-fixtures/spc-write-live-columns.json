@@ -1,7 +1,0 @@
-{
-  "date": "2026-10-29",
-  "operation": "AdHoc metadata SELECT only",
-  "rows": {
-    "error": "❌ Request failed: ConnectError('')"
-  }
-}

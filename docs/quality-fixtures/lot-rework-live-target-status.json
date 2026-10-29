@@ -1,9 +1,0 @@
-{
-  "sampling_lot_count_rows": [
-    {
-      "SamplingLotCount": "0"
-    }
-  ],
-  "business_writes_performed": false,
-  "positive_lot_acceptance": false
-}
