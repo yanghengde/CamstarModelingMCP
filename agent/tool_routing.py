@@ -5,7 +5,7 @@ import re
 from core.tool_catalog import TOOL_POLICIES
 
 GROUP_TERMS = {
-    "quality": r"(?:创建|新建|开启|重开|分派).{0,20}事件|事件.{0,30}(?:简述|说明|资料|文字|创建|新建|开启|重开|分派|关闭)|发现区域|updateevent|event (?:text|description|creation)|createevent|openqualityobject|changeowner|reassign|reopen|分流|triage|控制图|控制限|判异|移动极差|weco|xbar|i_mr|质量|全检|破坏性测试|destructive|损失|扣量|scrap|loss|changeqty|挂起|释放|不合格|缺陷|纠正|预防|处置|抽检|抽样|检验|批采样|采样状态|采样计数器|采样频率|采样计划|检验水平|接收数|拒收数|样本量|批量区间|冻结|解冻|隔离|报废|不良|返工|quality|ncr|capa|spc|sampling|sampletest|inspection|sampledatapoint|aql|defect|rework|hold|release",
+    "quality": r"审批|签批|电子签名|approval|(?:创建|新建|开启|重开|分派).{0,20}事件|事件.{0,30}(?:简述|说明|资料|文字|创建|新建|开启|重开|分派|关闭)|发现区域|updateevent|event (?:text|description|creation)|createevent|openqualityobject|changeowner|reassign|reopen|分流|triage|控制图|控制限|判异|移动极差|weco|xbar|i_mr|质量|全检|破坏性测试|destructive|损失|扣量|scrap|loss|changeqty|挂起|释放|不合格|缺陷|纠正|预防|处置|抽检|抽样|检验|批采样|采样状态|采样计数器|采样频率|采样计划|检验水平|接收数|拒收数|样本量|批量区间|冻结|解冻|隔离|报废|不良|返工|quality|ncr|capa|spc|sampling|sampletest|inspection|sampledatapoint|aql|defect|rework|hold|release",
     "collection": r"采集|采样|测量|collection|datapoint",
     "material": r"bom|物料|用料|耗料|投料|补投",
     "resource": r"resource|设备|资源|机台",
@@ -21,6 +21,7 @@ GROUP_TERMS = {
 }
 WRITE_TERMS = re.compile(r"开启|重开|重新分派|分派|reassign|reopen|损失|扣量|报废|scrap|loss|冻结|解冻|关闭|登记|创建|新建|新增|修改|更新|调整|调到|变更|改成|改为|删除|重建|绑定|解绑|升版|导入|启动|开工|移站|过站|进站|出站|返工|不良|投料|补投|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
 ROUTING_INSTRUCTION = (
+    "质量审批先get_quality_approval_context，明确name、organization_name，object_kind仅event/capa，可绑定instance_id。完整展示直接审批表/层级/条目/允许决策及原生当前审批条目；Routed候选、EntryForApproval、签名策略或complete不代表当前员工获准签批。该入口不生成计划、不调用路由/签批/撤回服务，包括execute=false，不收集签名口令。RouteApproval预校验可能清空旧审批，不能用它预览；不使用事件关闭/分流或普通确认替代审批/电子签名。"
     "事件创建资料先validate_quality_event_creation，只读报告的static_valid和validation_digest不是执行计划。实际创建用prepare_quality_event_creation，仅原生自动编号，不接受指定名称以避免覆盖同名草稿；明确组织/分类/子分类/优先级/简述/报告人/发现人及带时区发生/报告时间，不代填当前用户或时间。Submit=false保存Pending未提交事件，可能按组织配置分派/通知，存在配置须明确allow_notifications=true。准备不调用CreateEvent execute=false或PerformEvent；展示本地静态计划和未验证项后execute_quality_transaction系统确认单次提交，unknown保留组织级事件占用，响应ID仅候选，不按名称猜测或重试。不得用CAPA、NCR升级或通用请求替代创建事件，不把资料核验说成已创建。"
     "事件开启用prepare_quality_event_open，仅Closed且已提交/分流基础Event，无事件数据/批次/NCR联动、流程/检查表/审批/签名；原生OpenQualityObject只设置Active，不手工清除历史关闭信息。重新分派用prepare_quality_event_reassignment，必须明确owner_name和role_name，原生ChangeOwner动作4、原责任人和角色须核实，最终人员/角色组合由MES验证；配置可能通知时明确allow_notifications=true。两者均固定原ID、预览后确认单次提交，unknown不重试。"
     "事件关闭前置先get_quality_event_closure_context，明确event_name和organization_name；诊断complete不表示可关闭，ready_for_execution恒false。用户明确关闭后prepare_quality_event_closure还必须给quality_resolution_code_name和非空close_description；限已提交Active已分流基础Event，无CAR要求/流程/检查表/审批/签名/自定义EventData/关联NCR，核实原生Resolve动作64及责任人/角色；复杂关闭必须明确allow_complex_context=true，核对有效CAR/CAPA引用、原流程快照、关联NCR及Approved40审批；不修改CAR策略、不代签或重启审批；原生最终验证流程完成和批次处置。若需制造NCR原生联动，必须同时明确allow_native_ncr_closure=true及allow_complex_context=true；仅类别3/标准EventData8085、唯一Open原NCR和原容器、同名父子解决代码及完整同容器处置覆盖，无子签名要求。只发送父CloseQualityObject，不额外发NCRCloseQuality或扣量。其它事件数据/跨容器批、检查表、待审批或签名仍拒绝；关闭父事件不等于父子事务已核实成功。execute_quality_transaction系统确认同一计划单次提交，unknown保留原事件占用，inspect只给原ID证据，不重试。不得用prepare_capa_closure关闭Event或自动关闭关联NCR，不绕过CAR/流程/批次处置/审批/签名。"

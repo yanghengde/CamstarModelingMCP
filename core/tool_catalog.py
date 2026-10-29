@@ -9,6 +9,7 @@ class ToolPolicy:
     always_confirm: bool = False
 
 TOOL_POLICIES = {
+    'get_quality_approval_context': ToolPolicy('quality'),
     'prepare_quality_event_creation': ToolPolicy('quality'),
     'prepare_quality_event_open': ToolPolicy('quality'),
     'prepare_quality_event_reassignment': ToolPolicy('quality'),

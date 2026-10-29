@@ -95,7 +95,7 @@ async def asset(kind, *, name=None, key=None, signature_txn_type=TRIAGE_TYPE):
         values=[i.wire_int(v,'组织签名事务类型') for v in values]
         if len(values)!=len(set(values)) or any(v<1 for v in values):raise ValueError('组织签名事务类型无效或重复。')
         state['QualityESigTxns']=sorted(values)
-        if state['CollectESigForAllQualityTxns'] or signature_txn_type in values:
+        if signature_txn_type is not None and (state['CollectESigForAllQualityTxns'] or signature_txn_type in values):
             raise ValueError('当前组织要求该质量事务电子签名，本受限入口不收集口令或覆盖签名。')
     if await token()!=count:raise ValueError('读取事件配置期间发生变化。')
     return state
