@@ -5,7 +5,7 @@ import re
 from core.tool_catalog import TOOL_POLICIES
 
 GROUP_TERMS = {
-    "quality": r"事件.{0,30}(?:简述|说明|资料|文字)|发现区域|updateevent|event (?:text|description)|分流|triage|控制图|控制限|判异|移动极差|weco|xbar|i_mr|质量|全检|破坏性测试|destructive|损失|扣量|scrap|loss|changeqty|挂起|释放|不合格|缺陷|纠正|预防|处置|抽检|抽样|检验|批采样|采样状态|采样计数器|采样频率|采样计划|检验水平|接收数|拒收数|样本量|批量区间|冻结|解冻|隔离|报废|不良|返工|quality|ncr|capa|spc|sampling|sampletest|inspection|sampledatapoint|aql|defect|rework|hold|release",
+    "quality": r"事件.{0,30}(?:简述|说明|资料|文字|创建|新建)|发现区域|updateevent|event (?:text|description|creation)|createevent|分流|triage|控制图|控制限|判异|移动极差|weco|xbar|i_mr|质量|全检|破坏性测试|destructive|损失|扣量|scrap|loss|changeqty|挂起|释放|不合格|缺陷|纠正|预防|处置|抽检|抽样|检验|批采样|采样状态|采样计数器|采样频率|采样计划|检验水平|接收数|拒收数|样本量|批量区间|冻结|解冻|隔离|报废|不良|返工|quality|ncr|capa|spc|sampling|sampletest|inspection|sampledatapoint|aql|defect|rework|hold|release",
     "collection": r"采集|采样|测量|collection|datapoint",
     "material": r"bom|物料|用料|耗料|投料|补投",
     "resource": r"resource|设备|资源|机台",
@@ -21,6 +21,7 @@ GROUP_TERMS = {
 }
 WRITE_TERMS = re.compile(r"损失|扣量|报废|scrap|loss|冻结|解冻|关闭|登记|创建|新建|新增|修改|更新|调整|调到|变更|改成|改为|删除|重建|绑定|解绑|升版|导入|启动|开工|移站|过站|进站|出站|返工|不良|投料|补投|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
 ROUTING_INSTRUCTION = (
+    "事件创建先validate_quality_event_creation，明确event_name、组织、分类/子分类、优先级、简述、报告人及带时区发生/报告时间；不能补当前时间或当前用户。该工具只读核验，static_valid和validation_digest不是执行计划，ready_for_execution恒false，无plan_id。原生Submit=false仍可能分派并按配置发送通知，PreValidate修改内部执行标志；当前不调用CreateEvent，包括execute=false。不得用CAPA、NCR升级或通用请求替代创建事件，不覆盖同名草稿、不把核验说成已创建。"
     "事件关闭前置先get_quality_event_closure_context，明确event_name和organization_name；诊断complete不表示可关闭，ready_for_execution恒false。用户明确关闭后prepare_quality_event_closure还必须给quality_resolution_code_name和非空close_description；限已提交Active已分流基础Event，无CAR要求/流程/检查表/审批/签名/自定义EventData/关联NCR，核实原生Resolve动作64及责任人/角色；复杂场景拒绝。execute_quality_transaction系统确认同一计划单次提交，unknown保留原事件占用，inspect只给原ID证据，不重试。不得用prepare_capa_closure关闭Event或自动关闭关联NCR，不绕过CAR/流程/批次处置/审批/签名。"
     "事件简述/说明/发现区域更新先get_quality_event_update_context核对明确event_name和organization_name及原生固定Load，prepare_quality_event_update只传用户明确修改的brief_description/description/discovery_area；省略/null保留原值，说明/发现区域可显式空字符串清空，简述须非空。不根据含糊的完善资料补写报告人、发现人、日期或优先级。完整保持原明细，submit固定false；仅已提交Active基础Event，无流程/检查表/审批/复杂关联/签名要求。不用此工具改归属/类别、分流/关闭或提交草稿。准备后execute_quality_transaction系统确认单次提交，unknown保留占用，inspect只给原ID证据，不重试。"
     "质量事件首次分流先get_quality_event_triage_context核对明确Event/组织、当前账号Triage动作16、责任人/角色和唯一分流配置。prepare_quality_event_triage只支持已提交Active且未首次分流的基础Event，无流程/检查表/审批或分流签名要求；保留类别、责任人、角色和CAR策略，用户明确才给priority_level_name，否则保留原优先级。不以该工具改责任人或角色、升级类别、分派、重开/关闭、启动流程或绕过审批/签名；原生分派可能发送邮件，不能默改Owner。分流默认要求上述额外动作则拒绝，不清空配置或把IgnoreProcessModel设true。准备后execute_quality_transaction系统确认单次提交；unknown保留原事件及关联NCR容器占用，inspect只看原ID和有限历史，最终事务证据人工review，不换名/工具重试。"
@@ -100,6 +101,9 @@ def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
     if re.search(r"查询|查看|追溯|了解|有哪些|历史", current) and not re.search(
         r"执行|创建|新建|新增|修改|更新|删除|重建|绑定|解绑|升版|导入|启动|开工|请将|请把|帮我把|create|update|delete|patch|import", current, re.I
     ):
+        wants_write = False
+    creation_check = re.search(r"^(?:请)?(?:查看|查询|检查|核验|验证).*事件.*(?:创建|新建).*(?:前置|参数|配置|资料|条件|规则)[？?。]?$", current.strip())
+    if creation_check:
         wants_write = False
     groups = {group for group, pattern in GROUP_TERMS.items() if re.search(pattern, context)}
     if re.search(r"抽样批|批采样|批检验|samplinglot|collectlotsampling", context, re.I) and not re.search(
