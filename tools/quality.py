@@ -47,7 +47,7 @@ async def get_quality_api_inventory()->str:
              'tools':['prepare_capa','prepare_capa_closure','get_quality_closure_options'],
              'limitations':'仅类别5创建/更新及Close处置关闭计划；不覆盖流程审批/签名，真实提交/关闭验收待补。'},
             {'domain':'质量对象','discovered':['QualityObjectInquiry','QualityObjectHistoryInquiry','OpenQualityObject','CloseQualityObject','TriageQualityObject'],
-             'tools':['list_quality_objects','get_quality_object_details','get_quality_history','get_quality_closure_options','get_quality_event_triage_context','prepare_quality_event_triage','get_quality_event_update_context','prepare_quality_event_update'],
+             'tools':['list_quality_objects','get_quality_object_details','get_quality_history','get_quality_closure_options','get_quality_event_triage_context','prepare_quality_event_triage','get_quality_event_update_context','prepare_quality_event_update','get_quality_event_closure_context'],
              'limitations':'查询/历史及关闭处置候选；关闭计划仅CAPA。已提交Active基础Event受限首次分流：保留责任人/角色/类别/CAR策略，可明确优先级；另有仅简述/说明/发现区域的受限文字维护，固定Load保留原报告人/日期/优先级，submit=false。均无流程/检查表/审批及签名要求，原生动作与当前契约须核实，实际写入待验收。通用开启/关闭/重新分派及复杂流程仍未开放。'},
             {'domain':'质量检验/抽样','discovered':['SamplingPlans','SampleTests','SampleDataPoints','CollectSamplingData','CollectLotSamplingData','CreateSamplingLot','UpdateSamplingLot','ExecuteSamplingLot','CurrentSamplingStatusUpdate'],
              'tools':['list_quality_references','get_quality_reference_details','get_container_quality_context','get_inspection_test_definition',
