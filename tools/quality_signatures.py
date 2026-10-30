@@ -46,11 +46,16 @@ def payload(snapshot,credential):
 
 def display(snapshot,digest):
     obj=snapshot['before']['context']['target'];requirement=snapshot['quality_signature']
-    return {'对象':obj['Name'],'对象ID':obj['Id'],'组织':snapshot['before']['organization']['Name'],
+    shown={'对象':obj['Name'],'对象ID':obj['Id'],'组织':snapshot['before']['organization']['Name'],
         '审批表':snapshot['before']['sheet']['ApprovalSheetName'],'审批条目ID':snapshot['before']['entry']['ApprovalSheetEntryId'],
         '审批周期':snapshot['before']['sheet']['LastApprovalCycleGMT'],'决定':snapshot['before']['decision']['ApprovalDecisionName'],
         '实际签署员工（MES会话）':requirement['signer_name'],'签署员工ID':requirement['signer_id'],
         '审批说明':snapshot['arguments']['comments'],'计划摘要':digest,'MES接口':snapshot['environment']['shopfloor']}
+    proof=snapshot.get('actor_authorization') or {}
+    if proof.get('delegation_verified'):
+        shown.update({'原转派发起人':proof['originally_assigned_approver']['Name'],'原生转派历史ID':proof['delegation_history']['DelegateTaskHistoryId'],
+            '当前审批人ID':proof['current_approver_id']})
+    return shown
 
 
 async def history_evidence(snapshot):

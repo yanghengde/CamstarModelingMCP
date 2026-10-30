@@ -22,15 +22,23 @@ def role_opt_in(args):
 
 def entry_policy(entry,args):
     allow=role_opt_in(args)
+    from tools.quality_approval_delegation import opted
+    delegation=opted(args)
+    if delegation and allow:raise ValueError('一次转派后的指定员工审批与角色替代不能同时选择。')
     if entry.get('DelegationTaskId') is not None:raise ValueError('当前角色替代入口不处理委托任务。')
     option=a.integer(entry['SubstituteOption'],'审批替代策略')
+    if delegation:
+        if option!=1:raise ValueError('一次转派后签批仅支持Named1当前指定人员。')
+        return 'delegated'
+    if entry.get('AssignedApproverId') not in (None,entry.get('ApproverId')):
+        raise ValueError('原分配人与当前审批人不同，须明确受委托审批及原生转派历史；不猜测身份链。')
     if option==1:return 'named'
     if option==2 and allow:return 'role'
     raise ValueError('审批条目不允许当前方式；角色替代须原配置为Role2且明确allow_role_substitution=true。')
 
 
 def capture_headers(service='SignApproval'):
-    if service not in ('SignApproval','NCRUpdate'):raise ValueError('不支持的签名会话绑定服务。')
+    if service not in ('SignApproval','NCRUpdate','DelegateTask'):raise ValueError('不支持的签名会话绑定服务。')
     headers=dict(http.get_headers())
     if not isinstance(headers.get('Authorization'),str) or not headers['Authorization'].strip():
         raise ValueError('角色审批缺少已配置的认证会话，不接受匿名会话或员工参数覆盖。')

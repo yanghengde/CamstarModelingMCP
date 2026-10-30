@@ -117,14 +117,34 @@ async def read_context(kind,name,org_name,key):
         note='Routed候选、允许决策与原生EntryForApproval不是签署许可；不生成计划、不路由/清空/代签，不收集或保存口令。')
 
 @mcp.tool
-async def get_quality_approval_context(name:str,organization_name:str,object_kind:Literal['event','capa']='event',instance_id:str|None=None)->str:
+async def get_quality_approval_context(name:str,organization_name:str,object_kind:Literal['event','capa']='event',instance_id:str|None=None,include_delegation_history:bool=False,delegation_entry_id:str|None=None)->str:
     """只读质量Event/CAPA直接审批上下文：明确对象/组织，最多20表、单表100条/总200条、单列表50个决策；完整重读防变化。
     展示层级、原审批人/角色ID、状态、代签策略、允许决策及原生当前审批条目。组织签名要求只展示，不因需签名而阻断只读。
     不调用RouteApproval/SignApproval/SignatureApproval，包括execute=false；路由预校验可能清空原审批。候选不是授权，不输出/保存签名口令、不审批或自动关闭对象。
+    可明确include_delegation_history=true读取所选delegation_entry_id（省略则当前员工入口）的当前周期DelegateTask原生转派历史，最多50条，验证证书HTTPS；展示原分配/当前/实际人员，不代表签批权限或请求成功归因。
     """
     try:
         if object_kind not in ('event','capa'):raise ValueError('对象类型仅event/capa。')
-        out=await asyncio.wait_for(read_context(object_kind,name,organization_name,instance_id),90)
+        if delegation_entry_id is not None and not include_delegation_history:raise ValueError('指定转派条目须同时include_delegation_history=true。')
+        if include_delegation_history:
+            from core.signature_channel import verified_channel
+            from tools.quality_approval_delegation import rows_for
+            async def delegated_context():
+                with verified_channel():
+                    out=await read_context(object_kind,name,organization_name,instance_id)
+                    key=iid(delegation_entry_id) if delegation_entry_id is not None else out['current_employee_entry_id']
+                    selected=[(s,e) for s in out['sheets'] for e in s['entries'] if e['ApprovalSheetEntryId']==key]
+                    if len(selected)!=1:raise ValueError('当前员工入口为空或明确条目不属于原对象，请指定delegation_entry_id。')
+                    sheet,entry=selected[0]
+                    rows=await rows_for(out['target']['Id'],key,sheet['LastApprovalCycleGMT'])
+                    if await rows_for(out['target']['Id'],key,sheet['LastApprovalCycleGMT'])!=rows or await read_context(object_kind,name,organization_name,instance_id)!=out:
+                        raise ValueError('读取期间原条目、周期或转派历史变化。')
+                    out['delegation_context']=dict(approval_entry_id=key,assigned_approver_id=entry['AssignedApproverId'],current_approver_id=entry['ApproverId'],
+                        dated_delegation_task_id=entry['DelegationTaskId'],history=rows,approval_authorized=False,transaction_attribution_verified=False,
+                        note='仅一次条目转派历史；日期任务、连续转委托和配置维护未开放。')
+                    return out
+            out=await asyncio.wait_for(delegated_context(),90)
+        else:out=await asyncio.wait_for(read_context(object_kind,name,organization_name,instance_id),90)
         if len(q.encode(out))>78000:raise ValueError('审批上下文超过输出上限，拒绝部分结果。')
         return q.encode(out)
     except (ValueError,TypeError,KeyError,AttributeError,asyncio.TimeoutError) as exc:

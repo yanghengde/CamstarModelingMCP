@@ -2,6 +2,7 @@
 import copy
 import json
 import re
+from typing import Literal
 
 from tools import mcp, quality as q, quality_plans as p, quality_inspection as i, quality_event_triage as t
 from tools.quality_spc_annotations import iid, schema_check
@@ -292,14 +293,20 @@ async def inspect_snapshot(snap):
 
 @mcp.tool
 async def get_quality_event_update_context(event_name:str,organization_name:str,event_instance_id:str|None=None,
-        approval_sheet_id:str|None=None,previous_cycle_gmt:str|None=None,allow_role_substitution:bool=False)->str:
+        approval_sheet_id:str|None=None,previous_cycle_gmt:str|None=None,allow_role_substitution:bool=False,purpose:Literal['update_text','submit_pending']='update_text')->str:
     """只读检查基础Event文字更新前置，核对当前UpdateEvent/PerformEvent契约并调用固定Load事件读取原明细。
     限已提交Active、无流程/检查表/审批/自定义数据/法规报告/批次/交叉引用，当前账号有Edit动作且为责任人并有角色。
     显示原资料、报告人/日期及保持值；不保存计划、不提交业务、不认证审批或签名，不允许传任意事件名。
+    purpose='submit_pending'只读已有Pending未提交草稿、原Load保持值及自动分流/通知配置，不授权通知或正式提交；实际用prepare_quality_event_submission。不能与审批文字修订参数混用。
     """
     try:
         args=dict(event_name=event_name,organization_name=organization_name,event_instance_id=event_instance_id,
                   approval_sheet_id=approval_sheet_id,previous_cycle_gmt=previous_cycle_gmt,allow_role_substitution=allow_role_substitution)
+        if purpose=='submit_pending':
+            if approval_sheet_id is not None or previous_cycle_gmt is not None or allow_role_substitution:raise ValueError('草稿正式提交核验不能混入审批资料修订参数。')
+            from tools.quality_event_submission import read_context
+            return q.encode(await read_context(args))
+        if purpose!='update_text':raise ValueError('上下文用途仅update_text/submit_pending。')
         before=await context(args);verified=await contract();marker='MCP-QUAL:'+'0'*32;original=await load(before,marker)
         if await context(args)!=before:raise ValueError('读取更新上下文期间事件发生变化。')
         return q.encode({'complete':True,'before':before,'native_contract':verified,'original_detail':original['detail'],

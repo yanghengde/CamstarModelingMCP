@@ -29,7 +29,7 @@ def env(base_env,monkeypatch):
         ReportedDate='2026-10-29 11:00:00',ReportedDateGMT='2026-10-29 03:00:00')
     entry=dict(ApprovalSheetEntryId=ENTRY,ParentId=SHEET,Status=30,DecisionType=20,ApproverId=OWNER,ApproverRoleId=ROLE,
         ApprovedById=OWNER,ApprovalDecisionId=DECISION,LastDecisionId=SIGN,LastCompletedOnGMT=CYCLE,SheetLevel=1,IsFrozen=False,
-        SubstituteOption=1,Comments='Original rejection',DelegationTaskId=None)
+        SubstituteOption=1,Comments='Original rejection',DelegationTaskId=None,AssignedApproverId=OWNER)
     sheet=dict(ApprovalSheetId=SHEET,Status=30,IsFrozen=False,LastApprovalCycleGMT=OLD,entries=[entry])
     context=dict(target=dict(Id=CAPA,Name='E',Category=5,Status=8,ChangeCount=1,OrganizationId=ORG,IsFrozen=False),
         sheets=[sheet],current_employee_entry_id=None,current_context=dict(IsApprovalRequired=True,

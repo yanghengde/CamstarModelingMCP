@@ -22,6 +22,12 @@ def chosen(messages):
     ('查询NCR更新所需的电子签名要求，不要执行','get_nonconformance_report',False),
     ('查看NCR更新电子签名条件','get_nonconformance_report',False),
     ('请更新NCR备注并按要求多签和协签','prepare_nonconformance_report',True),
+    ('请把当前审批条目转派给李工','prepare_quality_approval_delegation',True),
+    ('查看该条目转派历史，不要执行','get_quality_approval_context',False),
+    ('请批准我受委托的这条审批','prepare_quality_approval_decision',True),
+    ('请正式提交质量事件E的草稿','prepare_quality_event_submission',True),
+    ('提交事件E','prepare_quality_event_submission',True),
+    ('查询事件草稿正式提交条件，不要提交','get_quality_event_update_context',False),
 ])
 def test_approval_language_routes_to_expected_handler(question,expected,write):
     names=chosen([dict(role='user',content=question)])
