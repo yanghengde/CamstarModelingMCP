@@ -20,6 +20,8 @@ TOOL_POLICIES = {
     'prepare_quality_event_creation': ToolPolicy('quality'),
     'prepare_quality_event_submission': ToolPolicy('quality'),
     'prepare_quality_event_draft_update': ToolPolicy('quality'),
+    'get_quality_event_data_context': ToolPolicy('quality'),
+    'prepare_quality_event_data_update': ToolPolicy('quality'),
     'prepare_quality_event_open': ToolPolicy('quality'),
     'prepare_quality_event_reassignment': ToolPolicy('quality'),
     'validate_quality_event_creation': ToolPolicy('quality'),

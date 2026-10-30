@@ -290,3 +290,11 @@ def test_capability_and_api_inventory_disclose_static_draft_and_separate_submit_
     assert 'static_and_echo_verified=false' in json.dumps(capability,ensure_ascii=False)
     inventory=result(d.q.get_quality_api_inventory())
     assert 'prepare_quality_event_draft_update' in json.dumps(inventory)
+
+
+def test_agent_direct_json_dispatch_validates_patch_without_requiring_mcp_model_instance(env):
+    fn=get_tool_func('prepare_quality_event_draft_update')
+    ready=result(fn(event_name='E',organization_name='Org',changes=dict(description='Reviewed direct JSON draft'),comments='Reviewed direct path'))
+    assert ready.get('state')=='ready',ready
+    bad=result(fn(event_name='E',organization_name='Org',changes=dict(password=TOKEN),comments='Rejected field'))
+    assert 'error' in bad and TOKEN not in json.dumps(bad) and not env['draft_posts']

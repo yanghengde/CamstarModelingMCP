@@ -30,7 +30,7 @@ CreateEventToEvent确实映射分类，但CreateEvent_StartModifyingEntity仅在
 
 ## 已实现的读取与组合核验
 
-复用原工具，不新增质量工具；当前质量组仍75个工具。
+分类核验复用原工具，该阶段未新增质量工具；当前总数以[统一交付清单](quality-completion-plan.md)为准。
 
 `get_quality_event_update_context(event_name, organization_name, purpose="classify_pending_draft", event_instance_id=可选原ID)`读取原草稿分类、子分类配置、原组织完整映射和组合阻塞。可同时传`classification_name`、`subclassification_name`比较明确拟选组合；两个名称必须同时明确、唯一匹配，不能选首行，也不能单改分类后猜子分类。
 
@@ -69,3 +69,5 @@ CreateEventToEvent确实映射分类，但CreateEvent_StartModifyingEntity仅在
 现场仍未验收：实际部署只读契约、数据权限、分类规则/签名、真实保存/提交效果与原生历史。未真实编辑/提交事件、修改分类/映射、发通知、换账号、部署或重启服务。分类写入目标保留外部接口依赖；下一个独立探索范围为已有事件自定义数据的结构及受限资料维护，不能把分类修改标成完成。
 
 验证记录见[本轮汇总](quality-fixtures/event-classification-summary.json)。全项目3849项及2项子测试通过，定向363项通过，两次HTTPX真实网络尝试均0；计数重叠不相加。实际分类修改仍为未完成接口依赖，现场未验收。
+
+后续已完成[标准EventData两项文字维护](quality-event-data-maintenance.md)的代码及离线验证；分类实际修改和任意现场自定义字段的原生接口依赖仍未完成。

@@ -184,5 +184,7 @@ async def prepare_quality_event_draft_update(event_name:str,organization_name:st
     系统确认后仅一次UpdateEvent execute=true、Submit=false保存。保持原ID/Pending，缺资料可继续保留；保存不完成签名、不运行正式提交AutoTriage，也不保证已具备提交条件。
     unknown不重试，最终人工证据审计后重新prepare_quality_event_submission进行独立Submit=true复核/确认，不能把保存和提交合并或绕过提交签名/通知/规则门禁。
     """
+    try:values=EventDraftChanges.model_validate(changes).model_dump()
+    except (ValueError,TypeError):return q.encode(dict(submitted=False,error='草稿变更须为已声明字段的封闭结构；不接收身份、口令或任意字段。'))
     return await p.prepare('event_draft_update',dict(event_name=event_name,organization_name=organization_name,event_instance_id=event_instance_id,
-        changes=changes.model_dump(),comments=comments))
+        changes=values,comments=comments))
