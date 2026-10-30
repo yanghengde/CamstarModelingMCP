@@ -3,6 +3,7 @@ import asyncio
 import copy
 import json
 from pathlib import Path
+from datetime import datetime,timedelta,timezone
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 import httpx
@@ -50,9 +51,15 @@ def env(draft_env,monkeypatch):
     data.update({f+'Id':None for f in e.DATA_REFS});data.update({f:None for f in e.COMPLEX_REFS})
     data.update(EventDataId=DATA,EventId=EVENT,CDOTypeId=8085,ChangeCount=1,ProblemDescription='Original problem',DeviceLocation='Station A',ProductName='P',RMANumber='RMA1',
         DateReceived='2026-10-29 09:00:00.1234567',DateReceivedGMT='2026-10-29 01:00:00.1234567')
-    s.update(data=data,data_contract=contract_fixture(),data_hook=None,data_history=[],data_posts=[],data_mode=None,data_loads=0,disallowed=[],complex_tables={},data_sql_hook=None)
+    s.update(data=data,data_contract=contract_fixture(),data_hook=None,data_history=[],data_posts=[],data_mode=None,data_loads=0,disallowed=[],complex_tables={},data_sql_hook=None,
+        date_storage_rows=[dict(TABLE_NAME='EventData',COLUMN_NAME=f,DATA_TYPE='datetime2',DATETIME_PRECISION=7) for f in e.DATA_DATES],
+        date_backend='normalize_offset',date_storage_hook=None)
     original=e.q.sql_rows
     async def sql(query,maximum):
+        if 'INFORMATION_SCHEMA.COLUMNS' in query and 'DATA_TYPE,DATETIME_PRECISION' in query:
+            rows=copy.deepcopy(s['date_storage_rows'])
+            if s['date_storage_hook']:s['date_storage_hook'](rows)
+            return rows
         if ' FROM EventData WHERE ' in query:
             rows=[copy.deepcopy(s['data'])] if DATA in query else []
             if s['data_sql_hook']:s['data_sql_hook'](rows)
@@ -103,6 +110,18 @@ def env(draft_env,monkeypatch):
         if s['data_mode']=='cancel':raise asyncio.CancelledError()
         if s['data_mode']=='400':return SimpleNamespace(status_code=400,text=TOKEN)
         for name in ('ProblemDescription','DeviceLocation'):s['data'][name]=kw['json']['eventDataDetail'][e.wire(name)]
+        # Explicit isolated backend: normalize local values to a fixed +08 zone.
+        # The alternate mode models an unaccepted backend that drops offsets.
+        for name in e.DATA_DATES:
+            value=kw['json']['eventDataDetail'][e.wire(name)];old=s['data'][name]
+            if value is None:s['data'][name]=None;continue
+            if old is not None and e.timestamp_ticks(date(old,name.endswith('GMT')))==e.timestamp_ticks(value):continue
+            if s['date_backend']=='drop_offset' and not name.endswith('GMT'):
+                s['data'][name]=value[:19].replace('T',' ')+(('.'+value.split('.',1)[1].split('+')[0].split('-')[0].removesuffix('Z')) if '.' in value else '')
+                continue
+            ticks=e.timestamp_ticks(value);seconds,fraction=divmod(ticks,10_000_000)
+            target=datetime(1970,1,1,tzinfo=timezone.utc)+timedelta(seconds=seconds,minutes=0 if name.endswith('GMT') else 480)
+            s['data'][name]=f'{target.year:04d}-{target.month:02d}-{target.day:02d} {target.hour:02d}:{target.minute:02d}:{target.second:02d}'+('.'+f'{fraction:07d}'.rstrip('0') if fraction else '')
         s['data']['ChangeCount']+=1;s['event']['ChangeCount']+=1;s['classes']['ChangeCount']=s['event']['ChangeCount']
         s['data_history']=[dict(UpdateEventDetailsHistoryId=HISTORY,CDOTypeId=8752,HistoryId=EVENT,HistoryMainlineId=MAIN,TxnId=TXN,ChangeCount=1,TxnType=8764,Comments=kw['json']['comments'],ReversalStatus=0)]
         return SimpleNamespace(status_code=200,text=TOKEN)
@@ -308,7 +327,7 @@ def test_registered_mcp_typed_patch_and_single_system_confirmation(env):
         async with Client(mcp) as client:
             tools={r.name:r for r in await client.list_tools()};schema=tools['prepare_quality_event_data_update'].input_schema
             assert schema['additionalProperties'] is False and schema['properties']['changes']['additionalProperties'] is False
-            assert set(schema['properties']['changes']['properties'])=={'problem_description','device_location'}
+            assert set(schema['properties']['changes']['properties'])=={'problem_description','device_location','date_received','report_date'}
             reply=await client.call_tool('prepare_quality_event_data_update',dict(event_name='E',organization_name='Org',changes=dict(device_location='B'),comments='Reviewed extension'))
             ready=json.loads(reply.content[0].text);assert ready.get('state')=='ready',ready
             calls=[dict(function=dict(name='execute_quality_transaction',arguments=json.dumps({k:ready[k] for k in ('plan_id','plan_digest')})))]
