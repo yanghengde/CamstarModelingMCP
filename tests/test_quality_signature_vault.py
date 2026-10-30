@@ -77,3 +77,38 @@ def test_multiple_plans_same_browser_keep_separate_confirmation_and_input(sample
 @pytest.mark.parametrize('origin',['http://0.0.0.0:8030','http://example.com','http://127.0.0.1:8030/path','http://user:pass@localhost','http://localhost?x=y','http://localhost:0','http://localhost:99999'])
 def test_remote_or_ambiguous_input_origin_is_not_supported(origin):
     with pytest.raises(ValueError):SignatureVault().enable(origin)
+
+
+@pytest.mark.parametrize('mode',['missing','duplicate','wrong_slot','unapproved','unexpected_field','invalid_password'])
+def test_multi_capture_requires_exact_roster_and_individual_consent(sample,mode):
+    vault,now,_,_,_=sample
+    participants=[dict(slot_id='0:signer'),dict(slot_id='0:cosigner')]
+    token=vault.create('multi','digest',{},participants).split('#')[1];data,cookie=vault.bootstrap(token)
+    rows=[dict(slot_id=p['slot_id'],password='MULTI_DUMMY_SECRET',approved=True) for p in participants]
+    if mode=='missing':rows.pop()
+    elif mode=='duplicate':rows[1]['slot_id']=rows[0]['slot_id']
+    elif mode=='wrong_slot':rows[1]['slot_id']='other'
+    elif mode=='unapproved':rows[1]['approved']=False
+    elif mode=='unexpected_field':rows[1]['employee']='other'
+    else:rows[1]['password']='x'*129
+    with pytest.raises(ValueError) as error:vault.capture_many(token,cookie,data['csrf'],rows,True)
+    assert 'MULTI_DUMMY_SECRET' not in str(error.value) and 'secret' not in vault.entries[token]
+    with pytest.raises(ValueError):vault.capture(token,cookie,data['csrf'],'single',True)
+
+
+@pytest.mark.parametrize('mode',['claim','cancel','expiry','restart'])
+def test_multi_capture_atomic_one_use_and_zeroing(sample,mode):
+    vault,now,_,_,_=sample
+    token=vault.create('multi','digest',{},[dict(slot_id='a'),dict(slot_id='b')]).split('#')[1];data,cookie=vault.bootstrap(token)
+    vault.capture_many(token,cookie,data['csrf'],[dict(slot_id=x,password='DUMMY_'+x,approved=True) for x in ('a','b')],True)
+    buffer=vault.entries[token]['secret']
+    if mode=='claim':
+        with vault.claim('multi','digest') as credential:
+            assert credential.passwords()=={'a':'DUMMY_a','b':'DUMMY_b'}
+            with pytest.raises(ValueError):credential.password()
+    elif mode=='cancel':vault.cancel(token,cookie,data['csrf'])
+    elif mode=='expiry':now[0]+=121;vault.expire()
+    else:vault.disable()
+    assert not buffer
+    with pytest.raises(ValueError):
+        with vault.claim('multi','digest'):pass

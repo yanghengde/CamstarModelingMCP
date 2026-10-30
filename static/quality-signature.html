@@ -1,6 +1,6 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>质量审批签名</title><link rel="stylesheet" href="/static/quality-signature.css"></head>
-<body><main><h1>质量审批签名</h1><p>请核对本次计划及实际签署员工。仅在此页面输入口令，不要发送到聊天中。</p><dl id="details"></dl>
-<form id="capture"><label><input id="approved" type="checkbox" required>我已核对本次计划、审批决定和实际员工，允许此计划一次提交。</label>
-<label for="password">该员工的MES签名口令</label><input id="password" type="password" required maxlength="128" autocomplete="off" spellcheck="false" disabled>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>质量事务签名</title><link rel="stylesheet" href="/static/quality-signature.css"></head>
+<body><main><h1>质量事务签名</h1><p>请核对本次计划、签名含义及指定人员。仅在此页面输入口令，不要发送到聊天中。</p><dl id="details"></dl>
+<form id="capture"><label><input id="approved" type="checkbox" required>我已核对本次计划、操作内容和指定签署人员，允许此计划一次提交。</label>
+<div id="single-password"><label for="password">该员工的MES签名口令</label><input id="password" type="password" required maxlength="128" autocomplete="off" spellcheck="false" disabled></div><div id="participants"></div>
 <div><button id="save" type="submit" disabled>安全保存本次签名输入</button><button id="cancel" type="button" disabled>取消签名输入</button></div></form>
 <p id="status" role="status">正在核对签名请求……</p><p class="note">输入只在本次服务内存短时保留；保存后返回聊天确认同一计划。取消、过期、已领取或服务重启后必须重新准备。签名验证由MES在单次提交时完成。</p></main><script src="/static/quality-signature.js" defer></script></body></html>

@@ -19,6 +19,9 @@ def chosen(messages):
     ('请按角色替代批准这条审批','prepare_quality_approval_decision',True),
     ('以角色授权批准这条记录','prepare_quality_approval_decision',True),
     ('查询角色替代批准记录，不要执行','get_quality_approval_history',False),
+    ('查询NCR更新所需的电子签名要求，不要执行','get_nonconformance_report',False),
+    ('查看NCR更新电子签名条件','get_nonconformance_report',False),
+    ('请更新NCR备注并按要求多签和协签','prepare_nonconformance_report',True),
 ])
 def test_approval_language_routes_to_expected_handler(question,expected,write):
     names=chosen([dict(role='user',content=question)])

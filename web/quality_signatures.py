@@ -55,13 +55,14 @@ async def capture(request:Request):
         if request.headers.get('content-type','').split(';')[0]!='application/json':raise ValueError('签名输入格式不符。')
         body=bytearray()
         async for part in request.stream():
-            if len(body)+len(part)>4096:raise ValueError('签名输入超过允许长度。')
+            if len(body)+len(part)>32768:raise ValueError('签名输入超过允许长度。')
             body.extend(part)
         try:data=json.loads(body)
         except (ValueError,UnicodeError):raise ValueError('签名输入格式不符。') from None
-        if not isinstance(data,dict) or set(data)!={'password','approved'}:raise ValueError('签名输入字段不符。')
-        result=VAULT.capture(request.headers.get('x-signature-challenge',''),request.cookies.get(COOKIE),
-            request.headers.get('x-signature-csrf',''),data['password'],data['approved'])
+        if not isinstance(data,dict) or set(data) not in ({'password','approved'},{'signatures','approved'}):raise ValueError('签名输入字段不符。')
+        multiple='signatures' in data
+        result=(VAULT.capture_many if multiple else VAULT.capture)(request.headers.get('x-signature-challenge',''),request.cookies.get(COOKIE),
+            request.headers.get('x-signature-csrf',''),data['signatures'] if multiple else data['password'],data['approved'])
         return reply(result)
     except ValueError as exc:return reply({'error':str(exc)},400)
     except Exception:return reply({'error':'签名输入未保存，请核实页面状态。'},400)

@@ -42,7 +42,7 @@ async def get_quality_api_inventory()->str:
         'live_health_check':False,'families':[
             {'domain':'NCR','checked_date':'2026-10-28','discovered':['NCRCreate','NCRUpdate','NCRClose','NCREscalate','NCRCloseQuality','GetNCRs','NCRHistoryInquiry'],
              'tools':['prepare_nonconformance_report','list_nonconformance_reports','get_nonconformance_report','get_quality_history','get_ncr_escalation_options','prepare_ncr_escalation','prepare_quality_ncr_closure'],
-             'limitations':'创建/更新/关闭及按组织唯一分类映射升级质量事件已封装；不覆盖签名/审批，原报告最终状态待验收。NCRCloseQuality仅处理原关联Event已Closed而仍Open的NCR，实际写入及副作用待现场验收。'},
+             'limitations':'创建/更新/关闭及按组织唯一分类映射升级质量事件已封装；NCRUpdate通用多签/协签已有条件接入：明确require_native_esign及完整人员分配，先get_nonconformance_report(include_native_signature_context=true)核对要求/契约，要求实际暴露具体ESigPasswordCapture并核实原生认证映射。保存的标准REST契约尚缺此能力，主签署/协签参数链待现场核实，当前执行门禁关闭，不生成多签计划或安全页面；不覆盖质量事件审批多签，原报告最终状态待验收。NCRCloseQuality仅处理原关联Event已Closed而仍Open的NCR，实际写入及副作用待现场验收。'},
             {'domain':'CAPA','discovered':['CreateCAPA','UpdateCAPA','CloseQualityObject'],
              'tools':['prepare_capa','prepare_capa_closure','get_quality_closure_options','prepare_capa_approval_revision'],
              'limitations':'类别5创建/普通更新及Close处置关闭计划；已有直接审批表时普通更新拒绝，须用原表/旧周期保护的CAPA审批文字修订入口。原生会刷新报告时间，须明确允许；不自动重提、不支持额外签名，真实效果待验收。'},
@@ -248,9 +248,17 @@ async def list_nonconformance_reports(container_name:str='',container_instance_i
 
 
 @mcp.tool
-async def get_nonconformance_report(name:str='',instance_id:str|None=None)->str:
-    """按明确NCR名称或ID只读当前报告、容器ID、状态原码、评论和完整失败代码关联（最多50条，含名称/ID/顺序）。根记录变化或关联不完整时失败。历史用get_quality_history(kind=ncr)，不猜测已关闭。"""
+async def get_nonconformance_report(name:str='',instance_id:str|None=None,include_native_signature_context:bool=False)->str:
+    """读取明确NCR当前记录与完整失败码。可明确include_native_signature_context=true，以验证证书的HTTPS只读核对NCRUpdate通用多签/协签契约及原生要求；不采集口令、不产生计划/业务提交。契约缺项返回阻塞，ready_for_execution恒false。"""
     try:
+        if include_native_signature_context:
+            from core.signature_channel import verified_channel
+            from tools.quality_native_signatures import context
+            with verified_channel():
+                row=await ncr_snapshot(name,instance_id)
+                if row is None:return encode({'data':None,'found':False,'complete':True})
+                signature=await context(row)
+                return encode({'data':row,'found':True,'complete':True,'native_signature_context':signature,'quality_verdict':None})
         row=await ncr_snapshot(name,instance_id)
         return encode({'data':row,'found':row is not None,'complete':True,'scope':'current_ncr_record','quality_verdict':None})
     except (ValueError,TypeError,KeyError,AttributeError) as error:return encode({'complete':False,'error':str(error)})

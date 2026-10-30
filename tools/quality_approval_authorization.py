@@ -29,13 +29,14 @@ def entry_policy(entry,args):
     raise ValueError('审批条目不允许当前方式；角色替代须原配置为Role2且明确allow_role_substitution=true。')
 
 
-def capture_headers():
+def capture_headers(service='SignApproval'):
+    if service not in ('SignApproval','NCRUpdate'):raise ValueError('不支持的签名会话绑定服务。')
     headers=dict(http.get_headers())
     if not isinstance(headers.get('Authorization'),str) or not headers['Authorization'].strip():
         raise ValueError('角色审批缺少已配置的认证会话，不接受匿名会话或员工参数覆盖。')
     # An explicit Cookie header (including an empty value) also prevents a shared
     # client's cookie jar from silently changing the session after the preview.
-    prepared=http.get_client().build_request('POST',CAMSTAR_SHOPFLOOR_BASE_URL.rstrip('/')+'/api/SignApproval',headers=headers)
+    prepared=http.get_client().build_request('POST',CAMSTAR_SHOPFLOOR_BASE_URL.rstrip('/')+'/api/'+service,headers=headers)
     headers['Cookie']=prepared.headers.get('cookie','')
     return headers
 

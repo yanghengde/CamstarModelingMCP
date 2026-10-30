@@ -12,9 +12,12 @@ async def main():
     quality_signature_ui.activate()
     try:
         await quality_signature_ui.ensure_running()
+        participants=None
+        if '--multiple' in sys.argv:
+            participants=[dict(slot_id=str(n),employee_id=f'{n+1:016x}',employee_name='测试员工'+str(n+1),position='主签署人' if n<2 else '协签人',meaning='已核对',requirement='页面测试要求') for n in range(3)]
         link=VAULT.create('UI-PREVIEW-ONLY','0'*64,{'对象':'质量事件 · 页面验证','对象ID':'仅用于界面测试，不执行MES',
             '组织':'测试组织','审批表':'完成审批','审批条目':'页面验证条目','决定':'批准','实际签署员工（MES会话）':'测试员工',
-            '审批说明':'核对计划后，本次签名输入仅授权该计划一次提交。','计划摘要':'0'*64})
+            '审批说明':'核对计划后，本次签名输入仅授权该计划一次提交。','计划摘要':'0'*64},participants)
         print(json.dumps({'url':link,'business_write_performed':False}),flush=True)
         await asyncio.sleep(90)
     finally:await quality_signature_ui.close()

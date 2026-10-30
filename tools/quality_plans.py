@@ -259,7 +259,10 @@ async def build(kind,args,marker,execution_binding=None):
     if kind=='spc_annotation':
         from tools.quality_spc_annotations import build_annotation
         return await build_annotation(args,marker)
-    if kind=='ncr':return await build_ncr(args,marker)
+    if kind=='ncr':
+        from tools import quality_native_signatures as native
+        if native.requested(args):return await native.build(args,marker,execution_binding)
+        return await build_ncr(args,marker)
     if kind=='capa':return await build_capa(args,marker)
     if kind=='inspection':
         from tools.quality_inspection import build_inspection
@@ -304,7 +307,10 @@ async def prepare(kind,args):
         if snapshot.get('quality_signature'):
             from core.quality_signature_vault import VAULT
             from tools.quality_signatures import display
-            result['signature_input_url']=VAULT.create(key,fingerprint,display(snapshot,fingerprint))
+            participants=snapshot['quality_signature'].get('participants')
+            if participants:
+                from tools.quality_native_signatures import display
+            result['signature_input_url']=VAULT.create(key,fingerprint,display(snapshot,fingerprint),participants=participants)
             result['signature_input_status']=VAULT.status(key,fingerprint)
         if len(json.dumps(result,ensure_ascii=False))>78000:raise ValueError('计划预览超过输出上限，请缩小维护或采样批次。')
         with db_connect() as db:db.execute('INSERT INTO plans VALUES (?,?,?,?,?,NULL)',(key,fingerprint,json.dumps(snapshot,ensure_ascii=False),'ready',time.time()))
@@ -312,15 +318,24 @@ async def prepare(kind,args):
     except (ValueError,TypeError,KeyError,AttributeError,asyncio.TimeoutError) as error:return encode({'submitted':False,'error':str(error) or '质量预览超时。'})
 
 
+from tools.quality_native_signatures import NativeSignatureAssignment
+
+
 @mcp.tool
 async def prepare_nonconformance_report(action:Literal['create','update','close'],report_name:str,container_name:str='',
         container_instance_id:str|None=None,failure_codes:Annotated[list[str]|None,Field(description='创建必填完整NCR失败码列表；更新省略则保留现有完整清单，明确传入则完整替换而非追加。',max_length=50)]=None,
         failure_type_name:str|None=None,cause_code_name:str|None=None,resolution_code_name:str|None=None,
-        ncr_comment:str|None=None,investigation_comments:str|None=None,corrective_comments:str|None=None,preventive_comments:str|None=None)->str:
-    """只准备NCRCreate/NCRUpdate/NCRClose计划。创建需名称、容器和失败码；更新省略failure_codes自动保留已核实完整清单，明确列表则完整替换；关闭需NCR解决代码。支持备注、调查/纠正/预防说明。关联变化则执行前阻止提交。不处理升级或签名。"""
+        ncr_comment:str|None=None,investigation_comments:str|None=None,corrective_comments:str|None=None,preventive_comments:str|None=None,
+        require_native_esign:bool=False,native_signature_assignments:Annotated[list[NativeSignatureAssignment]|None,Field(max_length=5)]=None)->str:
+    """准备NCRCreate/NCRUpdate/NCRClose计划。创建需名称、容器和失败码；更新省略failure_codes保留完整清单；关闭需解决代码。关联变化阻止执行。
+    通用多签/协签仅受限Open未升级NCRUpdate，明确require_native_esign=true及每项原requirement_detail_id、signer_name，可明确cosigner_name和cosign_reason_name。
+    先get_nonconformance_report(include_native_signature_context=true)读取要求。必须实际暴露ESigPasswordCapture具体口令子类型及固定LoadESigDetails契约，并核实原生认证参数映射；当前原生映射保护门禁未开放，保存的标准REST契约亦不支持，不生成签名执行计划。
+    原ESigRoleGroup授权、数量和唯一主签署人均核对；口令只在独立本机页面由指定人员亲自输入确认，一次性、短期、仅内存。签名暂存不是原生验证成功，unknown不重试。不支持事件审批多签或委托。
+    """
     args=dict(action=action,report_name=report_name,container_name=container_name,container_instance_id=container_instance_id,failure_codes=failure_codes,
         failure_type_name=failure_type_name,cause_code_name=cause_code_name,resolution_code_name=resolution_code_name,ncr_comment=ncr_comment,
-        investigation_comments=investigation_comments,corrective_comments=corrective_comments,preventive_comments=preventive_comments)
+        investigation_comments=investigation_comments,corrective_comments=corrective_comments,preventive_comments=preventive_comments,
+        require_native_esign=require_native_esign,native_signature_assignments=[x.model_dump() for x in native_signature_assignments] if native_signature_assignments is not None else None)
     return await prepare('ncr',args)
 
 
@@ -350,6 +365,9 @@ def checked(row,fingerprint):
 
 def transport(snapshot):
     if snapshot.get('api','shopfloor')=='shopfloor':
+        if (snapshot.get('quality_signature') or {}).get('kind')=='generic_ncr_update':
+            from tools.quality_native_signatures import validate_transport
+            validate_transport(snapshot)
         if snapshot.get('kind')=='capa_approval_revision':
             from tools.quality_capa_approval_revision import validate_transport
             validate_transport(snapshot)
@@ -600,6 +618,8 @@ async def _execute_quality_transaction(plan_id,plan_digest,credential=None,signa
                 payload=snap['body']
                 if signed_approval:
                     from tools.quality_signatures import payload as signature_payload
+                    if snap['quality_signature'].get('kind')=='generic_ncr_update':
+                        from tools.quality_native_signatures import payload as signature_payload
                     payload=signature_payload(snap,credential)
                 base=CAMSTAR_BASE_URL if route['api']=='modeling' else CAMSTAR_SHOPFLOOR_BASE_URL
                 response=await asyncio.wait_for((signature_client if signed_approval else get_client()).request(route['method'],base.rstrip('/')+route['path'],
@@ -618,6 +638,9 @@ async def _execute_quality_transaction(plan_id,plan_digest,credential=None,signa
             finally:
                 if signed_approval:
                     if isinstance(payload,dict):payload.get('qualityESigDetail',{}).clear()
+                    if snap['quality_signature'].get('kind')=='generic_ncr_update':
+                        from tools.quality_native_signatures import clear_payload
+                        clear_payload(payload)
                     credential.close()
                 with db_connect() as db:
                     db.execute("UPDATE plans SET state='unknown',outcome=? WHERE id=? AND state='in_flight'",(json.dumps(outcome,ensure_ascii=False),plan_id))
@@ -634,6 +657,9 @@ async def inspect_quality_transaction(plan_id:str,plan_digest:str)->str:
             with db_connect() as db:row=db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone()
             snap=checked(row,plan_digest)
             if row[2] not in ('unknown','in_flight'):raise ValueError('仅检查已尝试/未知质量计划。')
+            if (snap.get('quality_signature') or {}).get('kind')=='generic_ncr_update':
+                from tools.quality_native_signatures import inspect
+                return encode(await inspect(snap))
             if snap['kind']=='capa_approval_revision':
                 from tools.quality_capa_approval_revision import inspect
                 return encode(await inspect(snap))

@@ -88,3 +88,14 @@ def test_private_signature_service_has_no_chat_schema_or_arbitrary_assets(sample
         assert client.get('/static/quality-signature.js').status_code==200
         for path in ('/api/chat','/api/agent','/docs','/openapi.json','/static/app.js','/static/index.html'):
             assert client.get(path).status_code==404
+
+
+def test_multiple_passwords_use_only_private_capture_and_no_echo(sample):
+    vault,_,client=sample
+    token=vault.create('multi','digest',{},[dict(slot_id='a'),dict(slot_id='b')]).split('#')[1]
+    opened=client.post('/api/quality-signature/open',headers={'Origin':ORIGIN,'X-Signature-Challenge':token})
+    headers={'Origin':ORIGIN,'X-Signature-Challenge':token,'X-Signature-CSRF':opened.json()['csrf']}
+    rows=[dict(slot_id=x,password='MULTI_PRIVATE_'+x,approved=True) for x in ('a','b')]
+    response=client.post('/api/quality-signature/capture',headers=headers,json={'signatures':rows,'approved':True})
+    assert response.status_code==200 and 'MULTI_PRIVATE' not in response.text
+    with vault.claim('multi','digest') as credential:assert credential.passwords()['b']=='MULTI_PRIVATE_b'

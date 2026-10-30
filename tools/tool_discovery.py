@@ -37,6 +37,8 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
               'reference': '基础资料与原因码', 'query': '查询服务', 'excel': '表格导入', 'system': '系统与能力发现'}
     disabled = {'patch_mfgorder': '当前服务 PATCH 契约未验证，工具已禁用；使用 update_mfgorder。'}
     caveats = {
+        'get_nonconformance_report': '默认当前NCR及完整失败码。明确include_native_signature_context=true时只读NCRUpdate通用多签/协签要求和契约阻塞，验证证书HTTPS，无口令/计划/实际执行；ready_for_execution恒false。',
+        'prepare_nonconformance_report': '创建/更新/关闭计划，默认不采集签名。通用多签/协签首次接入仅Open未升级NCRUpdate，明确require_native_esign=true及native_signature_assignments原明细/员工/可选协签及原因；原ESigRoleGroup授权和完整人数须匹配。还须核实具体ESigPasswordCapture可写口令集合、固定Load事件及原生认证参数映射；当前原生映射门禁未开放，标准保存契约亦缺项，不生成签名执行计划或安全输入链接。不在聊天/工具参数输入口令，不覆盖执行员工；逐人页面确认、整组短期一次性，captured不表示原生签名成功。unknown不重试，实际部署未验收。',
         'prepare_quality_approval_decision': '默认原审批人的SignApproval批准/拒绝计划；原Role2且明确allow_role_substitution=true时核对原生当前员工角色/组织授权及完整快照，同次核验/执行会话仅内存绑定。固定当前周期/表/条目/决策10或20，Approve512及有效Employee须匹配。组织要求本事务单人QualityESigDetail时可明确require_quality_esign=true，仅在返回的独立本机页面输入口令并核对授权；聊天/工具参数不收口令。verified HTTPS无不安全回退；输入一次性、短期、仅内存，captured不表示MES签名成功，失效须重新准备。通用多签/协签/委托仍拒绝。通知及层级须审阅，确认单次提交，unknown不重试；Rejected非退回。',
         'prepare_quality_approval_action': '受限表级route/cancel/resubmit计划：首次路由、未签批取消；重提须明确previous_cycle_gmt并逐条核对旧路由/决策/评论持久历史。原Role2须明确allow_role_substitution=true，保持原策略；拒绝委托/签名要求，保留旧历史。取消原生回Pending并写RoutingCanceled，不当作Cancelled20。可能通知须明确允许，确认单次提交，unknown不重试。',
         'prepare_capa_approval_revision': 'CAPA拒绝/取消后受限简述/说明修订：明确原表和previous_cycle_gmt，旧路由/决策/评论历史须核实；固定Load保持原明细，不回写审批配置。原生会刷新报告时间，必须allow_reported_date_refresh=true；原Role2须allow_role_substitution=true且保持策略，权限/签名门禁；确认单次提交，不自动重提。',
