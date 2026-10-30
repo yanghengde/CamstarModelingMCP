@@ -1,5 +1,7 @@
 # 质量审批表首次路由与未签批取消
 
+2026-10-30当前范围见[完成审批及修订重提](quality-approval-cycle.md)与[统一交付清单](quality-completion-plan.md)：已增加模板挂接并路由、旧/新周期历史及Event/CAPA修订重提。以下带旧日期的阶段记录保留其当时边界和测试数量，不作为当前限制或验收结论。
+
 2026-10-29新增 `prepare_quality_approval_action`，该阶段67个质量工具；后续新增[审批决策计划](quality-approval-decisions.md)，当前68个工具。新增route/cancel的实际计划与统一确认执行；本轮没有真实审批、通知或服务重启，实际签批、退回和电子签名仍未完成。
 
 ## 参数与流程

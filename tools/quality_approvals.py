@@ -7,7 +7,7 @@ from tools.quality_spc_annotations import iid,schema_check
 
 SCHEMA={'Event':t.EVENT_COLUMNS,'CAPA':q.CAPA_COLUMNS,'Organization':'OrganizationId,ChangeCount',
  'ApprovalSheet':'ApprovalSheetId,ApprovalSheetName,ParentId,Status,IsFrozen,ChangeCount,ApprovalRequired,ApprovalDecisionListId,LastApprovalCycle,LastApprovalCycleGMT',
- 'ApprovalSheetEntry':'ApprovalSheetEntryId,ParentId,Status,SheetLevel,ApproverId,ApproverRoleId,AssignedApproverId,SubstituteOption,EntryRequired,IsFrozen,ChangeCount,ApprovalDecisionId,DecisionType,ApprovedById,LastDecisionId,LastCompletedOnGMT',
+ 'ApprovalSheetEntry':'ApprovalSheetEntryId,ParentId,Status,SheetLevel,ApproverId,ApproverRoleId,AssignedApproverId,SubstituteOption,EntryRequired,IsFrozen,ChangeCount,ApprovalDecisionId,DecisionType,ApprovedById,LastDecisionId,LastCompletedOnGMT,Comments,DelegationTaskId',
  'ApprovalDecisionList':'ApprovalDecisionListId,ApprovalDecisionListName,IsFrozen,ChangeCount',
  'ApprovalDecision':'ApprovalDecisionId,ApprovalDecisionListId,ApprovalDecisionName,DecisionType,IncludeComments,IsFrozen,ChangeCount'}
 STATUS={0:'Pending',10:'Routed',20:'Cancelled',30:'Rejected',40:'Approved'}
@@ -58,7 +58,7 @@ async def sheets_for(key):
             entry['ApprovalSheetEntryId']=iid(entry['ApprovalSheetEntryId'])
             if iid(entry['ParentId'])!=sheet['ApprovalSheetId']:raise ValueError('审批条目父级不符。')
             for field in ('Status','SheetLevel','ChangeCount','SubstituteOption'):entry[field]=integer(entry[field],field)
-            for field in ('ApproverId','ApproverRoleId','AssignedApproverId','ApprovalDecisionId','ApprovedById','LastDecisionId'):entry[field]=optional(entry[field])
+            for field in ('ApproverId','ApproverRoleId','AssignedApproverId','ApprovalDecisionId','ApprovedById','LastDecisionId','DelegationTaskId'):entry[field]=optional(entry[field])
             for field in ('IsFrozen','EntryRequired'):entry[field]=i.wire_bool(entry[field],field)
             entry['status_name']=STATUS.get(entry['Status'],'Unknown')
             # A routed candidate is not the current employee's permission to sign.

@@ -29,7 +29,8 @@ def setup(monkeypatch,tmp_path):
         'assignments':[{'NonconformanceReportId':RID,'FieldId':10019,'Sequence':0,'NCRFailureCodesId':RID,'NCRFailureCodeName':'Failure-A','FailureCodeChangeCount':1}],
         'object_detail':{'Status':'1','Category':'5','Organization':{'InstanceId':ORG}},
         'closure_options':[{'Value':'1','Name':'Close','Label':'Close - No Action Required'}],
-        'approval_required':'true'}
+        'approval_required':'true','direct_sheets':[]}
+    monkeypatch.setattr(p.reads,'sql_rows',AsyncMock(side_effect=lambda *x:copy.deepcopy(state['direct_sheets'])))
     async def find(*a,**kw):return copy.deepcopy(state['record'])
     monkeypatch.setattr(p.reads,'find_record',find)
     monkeypatch.setattr(p.reads,'ncr_failure_assignments',AsyncMock(side_effect=lambda *a:copy.deepcopy(state['assignments'])))
@@ -59,6 +60,14 @@ def setup(monkeypatch,tmp_path):
 
 def ncr(**kw):return result(p.prepare_nonconformance_report('create','N','C',failure_codes=['Failure-A'],**kw))
 def capa(**kw):return result(p.prepare_capa('create','A','Org',brief_description='test',**kw))
+
+
+def test_ordinary_capa_update_cannot_bypass_existing_approval_cycle(setup):
+    setup[0]['record']=dict(CAPAId=RID,CAPAName='A',Category=5,Status=8,IsFrozen=False,OrganizationId=ORG)
+    setup[0]['direct_sheets']=[{'ApprovalSheetId':CID}]
+    out=result(p.prepare_capa('update','A','Org',description='Bypass attempt'))
+    assert 'error' in out and 'prepare_capa_approval_revision' in out['error']
+    setup[1].assert_not_awaited();setup[2].request.assert_not_awaited()
 def execute(ready):return result(p.execute_quality_transaction(ready['plan_id'],ready['plan_digest']))
 
 

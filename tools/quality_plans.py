@@ -21,7 +21,7 @@ from config import CAMSTAR_BASE_URL,CAMSTAR_QUERY_BASE_URL,CAMSTAR_SHOPFLOOR_BAS
 
 PLAN_DB=Path(__file__).resolve().parents[1]/'data/quality_plans.sqlite3'
 FIELD_CASE={'ncrFailureCodes':'NCRFailureCodes','ncrFailureType':'NCRFailureType','ncrComment':'NCRComment',
-            'ncrCauseCode':'NCRCauseCode','ncrResolutionCode':'NCRResolutionCode','capaName':'CAPAName','spcChartDef':'SPCChartDef'}
+            'ncrCauseCode':'NCRCauseCode','ncrResolutionCode':'NCRResolutionCode','capaName':'CAPAName','spcChartDef':'SPCChartDef','capaCustomDetail':'CAPACustomDetail','carSeverity':'CARSeverity'}
 
 
 def environment():return {'modeling':CAMSTAR_BASE_URL.rstrip('/'),'query':CAMSTAR_QUERY_BASE_URL.rstrip('/'),'shopfloor':CAMSTAR_SHOPFLOOR_BASE_URL.rstrip('/')}
@@ -153,6 +153,8 @@ async def build_capa(args,marker):
     if action=='update' and not before:raise ValueError('CAPA不存在。')
     if before and (before.get('IsFrozen') is not False or before.get('Category')!=5 or before.get('Status') in (5,6)):
         raise ValueError('CAPA类别/冻结或关闭状态不允许当前受限更新。')
+    if action=='update' and await reads.sql_rows("SELECT TOP 1 ApprovalSheetId FROM ApprovalSheet WHERE ParentId='"+before['CAPAId']+"'",1):
+        raise ValueError('CAPA已有审批表；普通更新不绕过周期保护，请用prepare_capa_approval_revision明确旧表/周期进行受限资料修订。')
     if type(args['submit']) is not bool:raise ValueError('submit必须明确布尔。')
     organization=await reads.resolve_reference('organization',args['organization_name']);references={'organization':organization}
     if before and before.get('OrganizationId')!=organization['instanceId']:raise ValueError('不允许在普通CAPA更新中变更组织。')
@@ -227,6 +229,12 @@ async def build_capa_closure(args,marker):
 
 async def build(kind,args,marker):
     if not isinstance(marker,str) or not re.fullmatch(r'MCP-QUAL:[0-9a-f]{32}',marker):raise ValueError('质量事务关联标记无效。')
+    if kind=='capa_approval_revision':
+        from tools.quality_capa_approval_revision import build
+        return await build(args,marker)
+    if kind=='quality_approval_assignment':
+        from tools.quality_approval_assignment import build
+        return await build(args,marker)
     if kind=='quality_approval_decision':
         from tools.quality_approval_decisions import build
         return await build(args,marker)
@@ -337,6 +345,13 @@ def checked(row,fingerprint):
 
 def transport(snapshot):
     if snapshot.get('api','shopfloor')=='shopfloor':
+        if snapshot.get('kind')=='capa_approval_revision':
+            from tools.quality_capa_approval_revision import validate_transport
+            validate_transport(snapshot)
+        if snapshot.get('kind')=='quality_approval_assignment':
+            from tools.quality_approval_assignment import validate_transport
+            validate_transport(snapshot)
+        if snapshot.get('service')=='AssignApprovalSheet' and snapshot.get('kind')!='quality_approval_assignment':raise ValueError('挂接服务与计划类型不符。')
         if snapshot.get('kind')=='quality_approval_decision':
             from tools.quality_approval_decisions import validate_transport
             validate_transport(snapshot)
@@ -376,7 +391,7 @@ def transport(snapshot):
         if snapshot.get('kind')=='quantity_loss' and snapshot.get('service')!='ChangeQty':
             raise ValueError('数量损失计划必须使用ChangeQty。')
         if snapshot.get('service') not in ('NCRCreate','NCRUpdate','NCRClose','NCRCloseQuality','NCREscalate','CreateCAPA','UpdateCAPA','CloseQualityObject',
-                'CollectSamplingData','CreateSamplingLot','CollectLotSamplingData','ExecuteSamplingLot','UpdateSamplingLot','CurrentSamplingStatusUpdate','ChangeQty','AddSPCAnnotation','RecordSPCViolation','TriageQualityObject','UpdateEvent','OpenQualityObject','ChangeOwner','CreateEvent','RouteApprovalSheet','CancelApprovalSheet','SignApproval'):
+                'CollectSamplingData','CreateSamplingLot','CollectLotSamplingData','ExecuteSamplingLot','UpdateSamplingLot','CurrentSamplingStatusUpdate','ChangeQty','AddSPCAnnotation','RecordSPCViolation','TriageQualityObject','UpdateEvent','OpenQualityObject','ChangeOwner','CreateEvent','RouteApprovalSheet','CancelApprovalSheet','SignApproval','AssignApprovalSheet'):
             raise ValueError('质量服务不在执行白名单。')
         if snapshot.get('service')=='UpdateEvent':
             from tools.quality_event_update import validate_transport
@@ -429,6 +444,8 @@ def transport(snapshot):
                 raise ValueError('批维护服务、目标或允许字段不符。')
         params={'execute':'true'}
         if snapshot['kind']=='event_create':params['$select']='QualityObject,CompletionMsg,Comments,ACEStatus,ACEMessage'
+        if snapshot['kind']=='capa_approval_revision':params['$select']='QualityObject,Comments,CompletionMsg,ACEStatus,ACEMessage'
+        if snapshot['kind']=='quality_approval_assignment':params['$select']='QualityObject,ApprovalSheet,Comments,CompletionMsg,ACEStatus,ACEMessage'
         if snapshot['kind']=='quality_approval_decision':params['$select']='QualityObject,ApprovalSheet,ApprovalSheetEntry,ApprovalDecision,Comments,CompletionMsg,ACEStatus,ACEMessage'
         return {'api':'shopfloor','method':'POST','path':'/api/'+snapshot['service'],'params':params}
     if snapshot.get('api')!='modeling' or snapshot['kind'] not in ('inspection_definition','sampling_binding','sampling_reference'):
@@ -457,7 +474,7 @@ def resource_sets(snap):
     reads_set=set(snap.get('resource_reads',[]));writes=set(snap.get('resource_writes',[]))
     # Sampling task snapshots do not always expose all resolved AQL/level IDs.
     # Keep a conservative shared gate until that dependency chain is verified.
-    if snap['kind'] in ('quality_approval','quality_approval_decision'):
+    if snap['kind'] in ('quality_approval','quality_approval_decision','quality_approval_assignment','capa_approval_revision'):
         reads_set.add('runtime:quality-event:org:'+snap['before']['context']['target']['OrganizationId'])
     if snap['kind'].startswith('event_'):
         org=snap.get('event_org_id') or (snap.get('before',{}).get('event') or {}).get('OrganizationId')
@@ -552,6 +569,12 @@ async def inspect_quality_transaction(plan_id:str,plan_digest:str)->str:
             with db_connect() as db:row=db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone()
             snap=checked(row,plan_digest)
             if row[2] not in ('unknown','in_flight'):raise ValueError('仅检查已尝试/未知质量计划。')
+            if snap['kind']=='capa_approval_revision':
+                from tools.quality_capa_approval_revision import inspect
+                return encode(await inspect(snap))
+            if snap['kind']=='quality_approval_assignment':
+                from tools.quality_approval_assignment import inspect
+                return encode(await inspect(snap))
             if snap['kind']=='quality_approval_decision':
                 from tools.quality_approval_decisions import inspect
                 return encode(await inspect(snap))

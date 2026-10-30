@@ -5,6 +5,7 @@ import re
 from typing import Literal
 from tools import mcp,quality as q,quality_plans as p,quality_approvals as a,quality_event_triage as t,quality_event_update as u
 from tools import quality_event_creation as creation
+from tools import quality_approval_history as history
 from tools.quality_spc_annotations import iid
 from tools.quality_definitions import resources
 from tools.modeling_details import raw_json
@@ -35,9 +36,11 @@ async def source(args):
     rows=[e for e in sheet['entries'] if e['ApprovalSheetEntryId']==ids['approval_entry_id']]
     if len(rows)!=1:raise ValueError('明确条目不属于原表。')
     entry=rows[0]
-    if (entry['IsFrozen'] or entry['Status']!=10 or entry['SubstituteOption']!=1 or not entry['ApproverId'] or not entry['ApproverRoleId']
-        or a.integer(entry['DecisionType'],'当前条目决策类型')!=0 or any(entry[k] is not None for k in ('ApprovedById','ApprovalDecisionId','LastDecisionId','LastCompletedOnGMT'))):
+    if (entry['IsFrozen'] or entry['Status']!=10 or entry['SubstituteOption']!=1 or entry['DelegationTaskId'] is not None or not entry['ApproverId'] or not entry['ApproverRoleId']
+        or a.integer(entry['DecisionType'],'当前条目决策类型')!=0 or any(entry[k] is not None for k in ('ApprovedById','ApprovalDecisionId','LastCompletedOnGMT'))):
         raise ValueError('仅原指定审批人的未签批Routed条目；不代签或覆盖已有决策。')
+    prior=None
+    if entry['LastDecisionId'] is not None:prior=await history.prior_decision_evidence(context,sheet,entry)
     if context['current_employee_entry_id']!=entry['ApprovalSheetEntryId']:raise ValueError('原生当前账号审批入口不是指定条目，不推测其他审批人身份。')
     if entry['SheetLevel']<1 or any(e['SheetLevel']<entry['SheetLevel'] and e['Status'] not in (30,40) for e in sheet['entries']):
         raise ValueError('前序层级尚未完成或层级无效，不越级签批。')
@@ -49,7 +52,7 @@ async def source(args):
     policy=await creation.notification_policy(org)
     if type(args['allow_notifications']) is not bool or policy['smtp_configured'] and policy['entries'] and not args['allow_notifications']:
         raise ValueError('签批可能通知下一层级或批准/拒绝结果，须明确allow_notifications=true。')
-    return dict(context=context,raw_target=raw,organization=org,sheet=sheet,entry=entry,decision=decision,approver=approver,role=role,notification_policy=policy)
+    return dict(context=context,raw_target=raw,organization=org,sheet=sheet,entry=entry,decision=decision,approver=approver,role=role,notification_policy=policy,prior_decision=prior)
 
 def body_for(args,before,marker):
     obj=before['context']['target'];sheet=before['sheet'];decision=before['decision']

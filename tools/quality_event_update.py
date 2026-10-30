@@ -59,15 +59,28 @@ async def context(args,signature_txn_type=SERVICE_TYPE):
     if args.get('event_instance_id') is not None:iid(args['event_instance_id'])
     await schema_check(SCHEMA)
     row=await event_record(args['event_name'],args.get('event_instance_id'))
-    if (not row or row['CDOTypeId']!=t.EVENT_TYPE or row['Status']!=1 or row['ChangeCount']<0
+    revision=args.get('approval_sheet_id') is not None or args.get('previous_cycle_gmt') is not None
+    if (not row or row['CDOTypeId']!=t.EVENT_TYPE or row['Status'] not in ((1,8) if revision else (1,)) or row['ChangeCount']<0
             or row['Category']<1 or row['IsFrozen'] or not row['IsSubmitted']):
         raise ValueError('文字更新仅支持已提交Active、未冻结的基础Event，不重开/关闭或提交草稿。')
     if (any(row[k] not in (None,'') for k in ('ProcessModelId','OrigProcessModelTemplateId','ChecklistId','CloseDateGMT','EventDataId'))
             or row['ChecklistSaved']):
         raise ValueError('事件已有流程、检查表、自定义事件数据或关闭信息，受限文字更新不覆盖这些内容。')
     for field in ('OwnerId','RoleId','PriorityLevelId','ReporterId'):iid(row[field],field)
-    if await q.sql_rows(f"SELECT TOP 1 ApprovalSheetId FROM ApprovalSheet WHERE ParentId='{row['EventId']}'",1):
-        raise ValueError('事件已有直接审批表，不用文字更新处理审批。')
+    approval_revision=None
+    if revision:
+        from tools import quality_approvals as a,quality_approval_history as h
+        if args.get('approval_sheet_id') is None or args.get('previous_cycle_gmt') is None:raise ValueError('审批资料修订须同时明确approval_sheet_id和previous_cycle_gmt。')
+        approval=await a.read_context('event',args['event_name'],args['organization_name'],row['EventId'])
+        if approval['target']['ChangeCount']!=row['ChangeCount'] or approval['target']['Status']!=row['Status']:raise ValueError('资料修订的原对象版本/状态不符。')
+        if len(approval['sheets'])!=1 or approval['sheets'][0]['ApprovalSheetId']!=iid(args['approval_sheet_id']):raise ValueError('受限资料修订仅支持原对象唯一的明确审批表。')
+        sheet=approval['sheets'][0]
+        if sheet['IsFrozen'] or sheet['Status'] not in (0,30) or approval['current_employee_entry_id'] is not None:raise ValueError('只允许拒绝/取消后且无待签条目的资料修订，不修改路由中的资料。')
+        if any(e['IsFrozen'] or e['SubstituteOption']!=1 or e['DelegationTaskId'] is not None for e in sheet['entries']):raise ValueError('不处理冻结条目、角色替代或委托修订。')
+        proof=await h.previous_cycle_evidence(approval,sheet,args['previous_cycle_gmt'])
+        approval_revision=dict(context=approval,previous_cycle=proof)
+    elif await q.sql_rows(f"SELECT TOP 1 ApprovalSheetId FROM ApprovalSheet WHERE ParentId='{row['EventId']}'",1):
+        raise ValueError('事件已有直接审批表，须明确旧周期进入受限审批资料修订。')
     if await q.sql_rows(f"SELECT TOP 1 RegulatoryReportId FROM RegulatoryReport WHERE ParentId='{row['EventId']}'",1):
         raise ValueError('事件已有法规报告，不以空明细覆盖。')
     linked=await q.sql_rows('SELECT TOP 21 NonconformanceReportId,EscalatedEventId,ContainerId,ChangeCount '
@@ -83,7 +96,9 @@ async def context(args,signature_txn_type=SERVICE_TYPE):
     org=await t.asset('organization',name=args['organization_name'],key=row['OrganizationId'],signature_txn_type=signature_txn_type)
     owner=await t.asset('owner',key=row['OwnerId']);role=await t.asset('role',key=row['RoleId'])
     priority=await t.asset('priority',key=row['PriorityLevelId'])
-    return {'event':row,'organization':org,'owner':owner,'role':role,'priority':priority,'linked_ncrs':links}
+    result={'event':row,'organization':org,'owner':owner,'role':role,'priority':priority,'linked_ncrs':links}
+    if approval_revision is not None:result['approval_revision']=approval_revision
+    return result
 
 
 async def contract():
@@ -122,13 +137,26 @@ def parse_reply(raw):
     return data
 
 
-def validate_common(data,body,before):
+def validate_common(data,body,before,loaded=False):
     if not p.wire_matches(body,data):raise ValueError('事件、组织、submit=false、备注或明确变更未完整回显。')
     mask=i.wire_int(data.get('AvailableActions'),'事件可用动作')
     if mask<0 or mask&EDIT_ACTION!=EDIT_ACTION:raise ValueError('当前账号/事件没有原生Edit动作，不覆盖动作位。')
     if i.wire_bool(data.get('IgnoreProcessModel'),'流程绕过标志') is not False:raise ValueError('流程绕过标志未知或不为false。')
-    for key in ('ESigRequirement','ApprovalSheetDetails','ApprovalSheetTemplate'):
+    revision=before.get('approval_revision')
+    for key in ('ESigRequirement','ApprovalSheetTemplate'):
         if key not in data or data[key] is not None:raise ValueError('签名、审批或检查表处理非空/未知，不提交文字更新。')
+    if revision and loaded:
+        # Load may read approval configuration. Never forward it to Execute/SaveApprovalSheet.
+        from tools import quality_approvals as a
+        sheet=revision['context']['sheets'][0];approval=data.get('ApprovalSheetDetails')
+        if (not isinstance(approval,dict) or iid(q.identifier(approval.get('ApprovalSheet')))!=sheet['ApprovalSheetId']
+            or a.integer(approval.get('Status'),'已加载审批状态')!=sheet['Status']):raise ValueError('Load审批表身份/状态与原表不符。')
+        entries=approval.get('ApprovalEntries')
+        if not isinstance(entries,list) or len(entries)!=len(sheet['entries']):raise ValueError('Load审批条目不完整。')
+        ids=[iid(q.identifier(e.get('ApprovalEntry'))) for e in entries if isinstance(e,dict)]
+        if len(ids)!=len(entries) or len(set(ids))!=len(ids) or set(ids)!={e['ApprovalSheetEntryId'] for e in sheet['entries']}:raise ValueError('Load审批条目身份/归属不符。')
+    elif 'ApprovalSheetDetails' not in data or data['ApprovalSheetDetails'] is not None:
+        raise ValueError('执行预览包含审批资料写入，不以文字修订覆盖审批配置。')
     if 'AdditionalESigReqs' not in data or data['AdditionalESigReqs'] not in (None,[]):raise ValueError('额外签名要求非空或未知。')
     for key in ARRAYS:
         if key not in data or data[key]!=[]:raise ValueError('批次/交叉引用明细非空或未知，不以文字更新改关联。')
@@ -139,9 +167,20 @@ def validate_common(data,body,before):
     for field,col in [('Organization','OrganizationId'),('Owner','OwnerId'),('Role','RoleId'),('PriorityLevel','PriorityLevelId')]:
         if q.identifier(detail[field])!=row[col]:raise ValueError('事件当前组织/归属/优先级不符。')
     for field,expected in [('TriageComplete',row['TriageComplete']),('IsCARRequiredToClose',row['IsCARRequiredToClose']),
-                           ('IsApprovalRequired',False),('UserHasRole',True),('UserIsOwner',True)]:
+                           ('IsApprovalRequired',revision['context']['current_context']['IsApprovalRequired'] if revision else False),('UserHasRole',True),('UserIsOwner',True)]:
         if i.wire_bool(detail[field],field) is not expected:raise ValueError('事件当前分流/CAR/审批/账号状态不满足受限要求。')
-    if any(detail[k] is not None for k in ('ProcessModel','CompletionApprovalSheet','EntryForApproval')) or detail['CompletionApprovalStatus'] not in (None,''):
+    if revision:
+        from tools import quality_approvals as a
+        expected=revision['context']['current_context']
+        for field in ('CompletionApprovalSheet','EntryForApproval'):
+            actual=a.optional(q.identifier(detail[field])) if detail[field] is not None else None
+            original=None if expected[field] is None else expected[field]['instance_id']
+            if actual!=original:raise ValueError('资料修订预览的原审批入口变化。')
+        left=detail['CompletionApprovalStatus'];right=expected['CompletionApprovalStatus']
+        if (None if left in (None,'') else a.integer(left,'审批状态'))!=(None if right in (None,'') else a.integer(right,'原审批状态')):
+            raise ValueError('资料修订预览的审批状态变化。')
+        if detail['ProcessModel'] is not None:raise ValueError('资料修订不处理嵌套流程。')
+    elif any(detail[k] is not None for k in ('ProcessModel','CompletionApprovalSheet','EntryForApproval')) or detail['CompletionApprovalStatus'] not in (None,''):
         raise ValueError('事件已有流程/审批上下文，不覆盖。')
     return {'available_actions_raw':mask,'edit_action_mask':EDIT_ACTION,
             'current_quality_context':{k:copy.deepcopy(detail[k]) for k in CURRENT_FIELDS.split(',')}}
@@ -191,7 +230,7 @@ async def load(before,marker):
     body=root_body(before,marker)
     raw=await request('POST','/api/UpdateEvent/PerformEvent',base_url=CAMSTAR_SHOPFLOOR_BASE_URL,
         body={'event':{'eventName':'Load'},'inputData':body},params={'$select':SELECT,'$expand':EXPAND},response_formatter=raw_json)
-    data=parse_reply(raw);current=validate_common(data,body,before)
+    data=parse_reply(raw);current=validate_common(data,body,before,loaded=True)
     return {'detail':loaded_detail(data,before),'current':current}
 
 
@@ -218,6 +257,7 @@ async def build_update(args,marker):
         'preview':{'verified_input_echo':body,'native_load':verified,**current,'dynamic_validation_verified':False,
                    'event_updated_verified':False,'note':'完整保留Load的原明细，仅改明确文字；submit=false不重新提交事件，不改归属/类别/流程/审批。'},
         'resource_reads':sorted(reads),'resource_writes':sorted({'runtime:quality-event:id:'+row['EventId']}
+            |({'runtime:approval-sheet:id:'+args['approval_sheet_id'].lower()} if before.get('approval_revision') else set())
             |{'runtime:container:id:'+r['ContainerId'] for r in before['linked_ncrs']}),
         'marker':marker,'arguments':args,'environment':p.environment()}
 
@@ -247,13 +287,15 @@ async def inspect_snapshot(snap):
 
 
 @mcp.tool
-async def get_quality_event_update_context(event_name:str,organization_name:str,event_instance_id:str|None=None)->str:
+async def get_quality_event_update_context(event_name:str,organization_name:str,event_instance_id:str|None=None,
+        approval_sheet_id:str|None=None,previous_cycle_gmt:str|None=None)->str:
     """只读检查基础Event文字更新前置，核对当前UpdateEvent/PerformEvent契约并调用固定Load事件读取原明细。
     限已提交Active、无流程/检查表/审批/自定义数据/法规报告/批次/交叉引用，当前账号有Edit动作且为责任人并有角色。
     显示原资料、报告人/日期及保持值；不保存计划、不提交业务、不认证审批或签名，不允许传任意事件名。
     """
     try:
-        args=dict(event_name=event_name,organization_name=organization_name,event_instance_id=event_instance_id)
+        args=dict(event_name=event_name,organization_name=organization_name,event_instance_id=event_instance_id,
+                  approval_sheet_id=approval_sheet_id,previous_cycle_gmt=previous_cycle_gmt)
         before=await context(args);verified=await contract();marker='MCP-QUAL:'+'0'*32;original=await load(before,marker)
         if await context(args)!=before:raise ValueError('读取更新上下文期间事件发生变化。')
         return q.encode({'complete':True,'before':before,'native_contract':verified,'original_detail':original['detail'],
@@ -263,11 +305,14 @@ async def get_quality_event_update_context(event_name:str,organization_name:str,
 
 @mcp.tool
 async def prepare_quality_event_update(event_name:str,organization_name:str,brief_description:str|None=None,
-        description:str|None=None,discovery_area:str|None=None,event_instance_id:str|None=None,comments:str='')->str:
+        description:str|None=None,discovery_area:str|None=None,event_instance_id:str|None=None,comments:str='',
+        approval_sheet_id:str|None=None,previous_cycle_gmt:str|None=None)->str:
     """准备原生UpdateEvent文字更新：仅简述/说明/发现区域，至少一项明确变化。省略/null保留；说明/区域可显式空字符串清空，简述须非空。
     先固定Load核对并完整保持原报告人/发现人、日期、优先级等明细，再做execute=false回显和独立重读；submit固定false不重新提交已提交事件。
     限已提交Active基础Event、无流程/检查表/审批/复杂关联/自定义数据及更新签名要求。保持类别/责任人/角色/分流/CAR策略，不做分派/升级或绕过权限。
+    可明确approval_sheet_id及previous_cycle_gmt修订唯一审批表拒绝/取消后的Active/InReview基础Event文字；旧周期持久历史须完整核实，无待签条目/角色替代。只读Load的审批明细不回填执行，预览必须没有审批明细写入；不改审批配置、不自动重提。
     execute_quality_transaction系统确认单次提交；unknown保留原事件及关联NCR容器占用，inspect只给原ID证据，最终证据人工review，不重试。
     """
     return await p.prepare('event_update',dict(event_name=event_name,organization_name=organization_name,event_instance_id=event_instance_id,
-        brief_description=brief_description,description=description,discovery_area=discovery_area,comments=comments))
+        brief_description=brief_description,description=description,discovery_area=discovery_area,comments=comments,
+        approval_sheet_id=approval_sheet_id,previous_cycle_gmt=previous_cycle_gmt))

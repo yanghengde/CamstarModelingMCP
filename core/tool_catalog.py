@@ -9,6 +9,10 @@ class ToolPolicy:
     always_confirm: bool = False
 
 TOOL_POLICIES = {
+    'prepare_capa_approval_revision': ToolPolicy('quality'),
+    'get_quality_approval_template': ToolPolicy('quality'),
+    'prepare_quality_approval_assignment': ToolPolicy('quality'),
+    'get_quality_approval_history': ToolPolicy('quality'),
     'prepare_quality_approval_decision': ToolPolicy('quality'),
     'prepare_quality_approval_action': ToolPolicy('quality'),
     'get_quality_approval_context': ToolPolicy('quality'),

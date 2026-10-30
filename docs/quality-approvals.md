@@ -1,5 +1,7 @@
 # Event/CAPA审批上下文只读核对
 
+2026-10-30当前范围见[完成审批及修订重提](quality-approval-cycle.md)与[统一交付清单](quality-completion-plan.md)：已增加模板挂接并路由、旧/新周期历史及Event/CAPA修订重提。以下带旧日期的阶段记录保留其当时边界和测试数量，不作为当前限制或验收结论。
+
 2026-10-29新增 `get_quality_approval_context`，该阶段质量工具66个；后续新增[表级路由/取消计划](quality-approval-actions.md)，当前68个工具。这是审批功能的读取与核对基础，不是路由、签批、退回、撤回或电子签名执行入口。
 
 ## 参数与使用

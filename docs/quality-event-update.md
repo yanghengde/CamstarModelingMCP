@@ -1,5 +1,7 @@
 # 质量事件文字资料维护：受限首版
 
+2026-10-30当前范围见[完成审批及修订重提](quality-approval-cycle.md)与[统一交付清单](quality-completion-plan.md)：已增加模板挂接并路由、旧/新周期历史及Event/CAPA修订重提。以下带旧日期的阶段记录保留其当时边界和测试数量，不作为当前限制或验收结论。
+
 2026-10-29。新增 `get_quality_event_update_context`、`prepare_quality_event_update`，该阶段quality分组为59个工具；后续新增[关闭前置诊断](quality-event-closure.md)，当前68个工具。在[首次分流](quality-event-triage.md)之后，提供原生 `UpdateEvent` 的简述、说明和发现区域维护。代码、参数、路由和模拟执行已接入；真实MES验收尚未完成。
 
 ## 工具及参数

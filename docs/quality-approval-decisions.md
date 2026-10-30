@@ -1,5 +1,7 @@
 # 原指定审批人的批准与拒绝计划
 
+2026-10-30当前范围见[完成审批及修订重提](quality-approval-cycle.md)与[统一交付清单](quality-completion-plan.md)：已增加模板挂接并路由、旧/新周期历史及Event/CAPA修订重提。以下带旧日期的阶段记录保留其当时边界和测试数量，不作为当前限制或验收结论。
+
 2026-10-29新增 `prepare_quality_approval_decision`，当前68个质量工具。支持当前认证员工对其原指定审批条目提交SignApproval批准或拒绝请求，不提供角色代签、身份覆盖或额外口令电子签名。
 
 ## 参数与顺序

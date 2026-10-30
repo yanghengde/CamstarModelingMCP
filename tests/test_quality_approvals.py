@@ -28,6 +28,7 @@ def env(base_env,monkeypatch):
  async def sql(query,maximum):
   if 'INFORMATION_SCHEMA.COLUMNS' in query:
    return [dict(TABLE_NAME=t,COLUMN_NAME=c) for t,cols in re.findall(r"TABLE_NAME='(\w+)' AND COLUMN_NAME IN \((.*?)\)",query) for c in re.findall(r"'([^']+)'",cols)]
+  if ' FROM SignApprovalHistory WHERE ' in query:return []
   for table,key in [('ApprovalSheet','sheets'),('ApprovalSheetEntry','entries'),('ApprovalDecision','decisions')]:
    if ' FROM '+table+' WHERE ' in query:
     if table=='ApprovalSheetEntry' and s['entry_hook']:s['entry_hook']()

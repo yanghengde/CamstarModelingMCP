@@ -38,7 +38,11 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
     disabled = {'patch_mfgorder': '当前服务 PATCH 契约未验证，工具已禁用；使用 update_mfgorder。'}
     caveats = {
         'prepare_quality_approval_decision': '认证原审批人的SignApproval批准/拒绝计划，固定当前周期/表/条目/允许决策10或20，Approve512及有效Employee须匹配。不代签、不收集口令，额外签名要求则拒绝。可能通知及推进层级须审阅，确认单次提交，unknown不重试；Rejected非退回且可能等后续层级。',
-        'prepare_quality_approval_action': '受限表级route/cancel计划：仅空白Pending首次路由或未签批Routed取消，固定原对象/表/周期，拒绝旧决策和签名要求。取消原生回Pending并写RoutingCanceled，不当作Cancelled20。可能通知须明确允许，确认单次提交，unknown不重试。',
+        'prepare_quality_approval_action': '受限表级route/cancel/resubmit计划：首次路由、未签批取消；重提须明确previous_cycle_gmt并逐条核对旧路由/决策/评论持久历史。拒绝角色替代/委托/签名要求，保留旧历史。取消原生回Pending并写RoutingCanceled，不当作Cancelled20。可能通知须明确允许，确认单次提交，unknown不重试。',
+        'prepare_capa_approval_revision': 'CAPA拒绝/取消后受限简述/说明修订：明确原表和previous_cycle_gmt，旧路由/决策/评论历史须核实；固定Load保持原明细，不回写审批配置。原生会刷新报告时间，必须allow_reported_date_refresh=true，权限/签名门禁；确认单次提交，不自动重提。',
+        'get_quality_approval_template': '只读有效必审模板、原指定审批人及允许决策，双重重读；不等于原对象/组织适用，不挂接/路由。',
+        'prepare_quality_approval_assignment': '首次挂接并立即路由FromCompleted完成审批，模板必须匹配原组织唯一Close映射；明确解决代码和处置说明。本地静态计划，无原生预览（可能清表），展示动态权限/签名未核实；确认单次提交，unknown不重试。',
+        'get_quality_approval_history': '原对象/审批表的精确GMT周期及路由、签批、取消历史，保留原条目/审批人/决策/评论/事务ID；最多100表历史、200签批历史，超限指定周期，无截断。双重重读，旧历史非本次成功归因，不解锁unknown。',
         'get_quality_approval_context': 'Event/CAPA直接审批表、层级、条目、允许决策、当前审批入口及组织签名策略，只读完整重读。Routed或EntryForApproval不等于签批权限，不调用路由/签批/撤回（含预览），不收集口令。',
         'prepare_quality_event_creation': '实际创建的本地静态计划，仅原生自动编号、Submit=false，准备不调用创建服务预览。明确报告人/发现人和时间，直接归属映射/编号配置须核实；可能通知时明确允许。确认单次提交，unknown保留组织级事件占用，响应ID仅候选，现场验收待补。',
         'prepare_quality_event_open': 'Closed基础Event原生开启为Active，无事件数据/流程/检查表/审批/签名或NCR联动；保持历史关闭信息，不手工改状态。确认单次提交，unknown不重试。',
