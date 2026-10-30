@@ -5,7 +5,8 @@ FastAPI 应用工厂
 """
 
 import os
-from contextlib import asynccontextmanager
+import asyncio
+from contextlib import asynccontextmanager,suppress
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
@@ -24,6 +25,14 @@ from tools import mcp
 from web.routes import router
 from web.workbench import router as workbench_router
 from web.mcp_transport import BearerTokenMiddleware
+from core.quality_signature_vault import VAULT
+from core import quality_signature_ui
+
+
+async def expire_signature_inputs():
+    while True:
+        await asyncio.sleep(5)
+        VAULT.expire()
 
 
 @asynccontextmanager
@@ -44,6 +53,8 @@ async def lifespan(app: FastAPI):
         await init_langgraph_runtime(oai_client, openai_tools)
 
     print("[READY] Web 服务启动就绪！")
+    quality_signature_ui.activate()
+    signature_reaper=asyncio.create_task(expire_signature_inputs())
     mcp_http_app = getattr(app.state, "mcp_http_app", None)
     try:
         # Mounted Starlette applications do not run their lifespan implicitly.
@@ -54,6 +65,11 @@ async def lifespan(app: FastAPI):
         else:
             yield
     finally:
+        signature_reaper.cancel()
+        with suppress(asyncio.CancelledError):await signature_reaper
+        await quality_signature_ui.close()
+        from core.signature_channel import close_client as close_signature_client
+        await close_signature_client()
         if AGENT_ENGINE == "langgraph":
             from agent.langgraph_runtime import close_langgraph_runtime
 

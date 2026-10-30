@@ -1,6 +1,6 @@
 # 原指定审批人的批准与拒绝计划
 
-本轮C2.A扩展见[角色替代审批](quality-role-approval.md)：仅原Role2且明确允许、原生当前员工角色/组织核验通过才开放，保持实际签署人；默认C1限制不变，委托及额外电子签名仍未开放。
+当前扩展见[角色替代审批](quality-role-approval.md)与[单人质量电子签名](quality-electronic-signature.md)：仅原Role2且明确允许、原生当前员工角色/组织核验通过才开放角色替代。组织要求本事务单人QualityESigDetail时，可明确require_quality_esign=true，使用独立本机页面输入并授权一次提交；不在聊天/工具参数输入口令。默认C1门禁保留，通用多签/协签及委托仍未开放，真实MES未验收。
 
 2026-10-30当前范围见[完成审批及修订重提](quality-approval-cycle.md)与[统一交付清单](quality-completion-plan.md)：已增加模板挂接并路由、旧/新周期历史及Event/CAPA修订重提。以下带旧日期的阶段记录保留其当时边界和测试数量，不作为当前限制或验收结论。
 

@@ -37,7 +37,7 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
               'reference': '基础资料与原因码', 'query': '查询服务', 'excel': '表格导入', 'system': '系统与能力发现'}
     disabled = {'patch_mfgorder': '当前服务 PATCH 契约未验证，工具已禁用；使用 update_mfgorder。'}
     caveats = {
-        'prepare_quality_approval_decision': '默认原审批人的SignApproval批准/拒绝计划；原Role2且明确allow_role_substitution=true时允许原生当前员工按角色/组织授权审批，核对原生授权函数及完整角色快照，同次核验/执行会话仅内存绑定、无身份覆盖。固定当前周期/表/条目/允许决策10或20，Approve512及有效Employee须匹配。不代签、不收集口令，额外签名要求则拒绝。可能通知及推进层级须审阅，确认单次提交，unknown不重试；Rejected非退回且可能等后续层级。',
+        'prepare_quality_approval_decision': '默认原审批人的SignApproval批准/拒绝计划；原Role2且明确allow_role_substitution=true时核对原生当前员工角色/组织授权及完整快照，同次核验/执行会话仅内存绑定。固定当前周期/表/条目/决策10或20，Approve512及有效Employee须匹配。组织要求本事务单人QualityESigDetail时可明确require_quality_esign=true，仅在返回的独立本机页面输入口令并核对授权；聊天/工具参数不收口令。verified HTTPS无不安全回退；输入一次性、短期、仅内存，captured不表示MES签名成功，失效须重新准备。通用多签/协签/委托仍拒绝。通知及层级须审阅，确认单次提交，unknown不重试；Rejected非退回。',
         'prepare_quality_approval_action': '受限表级route/cancel/resubmit计划：首次路由、未签批取消；重提须明确previous_cycle_gmt并逐条核对旧路由/决策/评论持久历史。原Role2须明确allow_role_substitution=true，保持原策略；拒绝委托/签名要求，保留旧历史。取消原生回Pending并写RoutingCanceled，不当作Cancelled20。可能通知须明确允许，确认单次提交，unknown不重试。',
         'prepare_capa_approval_revision': 'CAPA拒绝/取消后受限简述/说明修订：明确原表和previous_cycle_gmt，旧路由/决策/评论历史须核实；固定Load保持原明细，不回写审批配置。原生会刷新报告时间，必须allow_reported_date_refresh=true；原Role2须allow_role_substitution=true且保持策略，权限/签名门禁；确认单次提交，不自动重提。',
         'get_quality_approval_template': '只读有效必审模板、原审批人及允许决策，双重重读；原Role2模板须明确allow_role_substitution=true，不授予签署资格；不等于原对象/组织适用，不挂接/路由。',

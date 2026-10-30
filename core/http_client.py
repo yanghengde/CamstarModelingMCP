@@ -8,6 +8,7 @@ import logging
 import asyncio
 import time
 import httpx
+from contextvars import ContextVar
 
 from config import (
     CAMSTAR_BASE_URL,
@@ -26,6 +27,7 @@ logger = logging.getLogger("camstar-mcp")
 
 _cached_token: str | None = None
 _client: httpx.AsyncClient | None = None
+_request_client=ContextVar('camstar_verified_request_client',default=None)
 
 
 class BoundSessionChanged(ValueError):
@@ -52,6 +54,8 @@ def get_headers() -> dict:
 def get_client() -> httpx.AsyncClient:
     """Get or initialize the shared global AsyncClient."""
     global _client
+    bound=_request_client.get()
+    if bound is not None:return bound
     if _client is None or _client.is_closed:
         _client = httpx.AsyncClient(timeout=CAMSTAR_TIMEOUT, verify=False)
     return _client

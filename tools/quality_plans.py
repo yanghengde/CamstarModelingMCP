@@ -301,6 +301,11 @@ async def prepare(kind,args):
             'server_context':snapshot['preview'],
             'static_and_echo_verified':'verified_input_echo' in snapshot['preview'],'dynamic_validation_verified':False,
             'note':'静态校验或非执行回显不是业务批准、签名或质量判定。执行后先unknown；当前需最终证据人工核实。'}
+        if snapshot.get('quality_signature'):
+            from core.quality_signature_vault import VAULT
+            from tools.quality_signatures import display
+            result['signature_input_url']=VAULT.create(key,fingerprint,display(snapshot,fingerprint))
+            result['signature_input_status']=VAULT.status(key,fingerprint)
         if len(json.dumps(result,ensure_ascii=False))>78000:raise ValueError('计划预览超过输出上限，请缩小维护或采样批次。')
         with db_connect() as db:db.execute('INSERT INTO plans VALUES (?,?,?,?,?,NULL)',(key,fingerprint,json.dumps(snapshot,ensure_ascii=False),'ready',time.time()))
         return encode(result)
@@ -521,12 +526,42 @@ async def get_quality_transaction_plan(plan_id:str)->str:
     """只读质量事务计划、请求快照、执行响应和本地审计终态；ready有效1小时，已用/未知计划不能重放。"""
     with db_connect() as db:row=db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone()
     if not row:return encode({'error':'质量计划不存在。'})
-    return encode({'plan_id':plan_id,'plan_digest':row[0],'snapshot':json.loads(row[1]),'state':row[2],'expired':time.time()-row[3]>3600,'outcome':json.loads(row[4]) if row[4] else None})
+    snapshot=json.loads(row[1])
+    result={'plan_id':plan_id,'plan_digest':row[0],'snapshot':snapshot,'state':row[2],'expired':time.time()-row[3]>3600,'outcome':json.loads(row[4]) if row[4] else None}
+    if snapshot.get('quality_signature'):
+        from core.quality_signature_vault import VAULT
+        result['signature_input_status']=VAULT.status(plan_id,row[0])
+    return encode(result)
 
 
 @mcp.tool
 async def execute_quality_transaction(plan_id:str,plan_digest:str)->str:
     """确认后单次执行质量、检验、定义维护、抽样基础表、产品关联或建批/批维护计划。按白名单选择Modeling CRUD或Shopfloor POST；固定目标及适用版本，重建摘要并检查关联读写占用。Modeling无execute=false回显，Shopfloor默认核对回显；CreateEvent为无原生预览的静态自动编号计划，须明确审阅其限制。HTTP不重试，取消/超时保存unknown；inspect只给证据，人工最终证据才review，不自动成功或解锁。"""
+    try:
+        with db_connect() as db:row=db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone()
+        snapshot=checked(row,plan_digest)
+        if snapshot.get('quality_signature'):
+            from core.quality_signature_vault import VAULT
+            from core.signature_channel import verified_channel
+            # Claim before further reads: every execution invocation consumes the
+            # human grant, even if state/configuration/network checks later fail.
+            claimed=False
+            try:
+                with VAULT.claim(plan_id,plan_digest) as credential:
+                    claimed=True
+                    with verified_channel() as client:return await _execute_quality_transaction(plan_id,plan_digest,credential,client)
+            except asyncio.CancelledError:raise
+            except Exception:
+                if claimed:
+                    return encode({'submitted':None,'state':'unknown','verified_success':False,'retry_allowed':False,
+                        'error':'安全签名执行中断，无法确认是否已提交；输入不可复用。请查询计划及最终事务证据，不得自动重试。'})
+                return encode({'submitted':False,'error':'该计划没有可用的一次性签名输入；取消、过期、重启或已领取后须重新准备。'})
+        return await _execute_quality_transaction(plan_id,plan_digest)
+    except (ValueError,TypeError,KeyError,AttributeError,AttemptBusy,asyncio.TimeoutError):
+        return encode({'submitted':False,'error':'质量计划、摘要或安全输入不可用；未新增提交。请核对计划状态；签名输入失效须重新准备。'})
+
+
+async def _execute_quality_transaction(plan_id,plan_digest,credential=None,signature_client=None):
     try:
         with attempt_lock(PLAN_DB,'quality-domain'),attempt_lock(PLAN_DB,plan_id):
             with db_connect() as db:row=db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone()
@@ -534,18 +569,23 @@ async def execute_quality_transaction(plan_id:str,plan_digest:str)->str:
             if row[2]!='ready' or time.time()-row[3]>3600:raise ValueError('质量计划已使用或过期。')
             marker=snap.get('marker') or snap['body'].get('comments')
             role_approval=snap['kind']=='quality_approval_decision' and snap['preview'].get('signature_actor_policy')=='role'
+            signed_approval=bool(snap.get('quality_signature'))
+            protected_approval=role_approval or signed_approval
+            if signed_approval!=(credential is not None):raise ValueError('质量签名输入与计划要求不符，未提交。')
             binding={}
-            fresh=await asyncio.wait_for(build(snap['kind'],snap['arguments'],marker,execution_binding=binding) if role_approval
+            fresh=await asyncio.wait_for(build(snap['kind'],snap['arguments'],marker,execution_binding=binding) if protected_approval
                 else build(snap['kind'],snap['arguments'],marker),90)
             if digest(fresh)!=plan_digest:raise ValueError('质量对象/容器/引用或服务回显已变化，未提交。')
             route=transport(snap)
-            if role_approval:
+            if protected_approval:
                 # Use the exact transport session that returned the verified actor.
                 # No credential/hash enters the immutable plan or persisted outcome.
                 if binding.get('actor_id')!=snap['preview']['employee_id'] or not isinstance(binding.get('headers'),dict):
                     raise ValueError('角色审批未绑定同一已核实会话，未提交。')
                 post_headers=dict(binding.pop('headers'))
             else:post_headers=None
+            if signed_approval:
+                credential.valid()
             with db_connect() as db:
                 db.execute('BEGIN IMMEDIATE')
                 if db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone()!=row or time.time()-row[3]>3600:raise ValueError('领取前质量计划变化或过期。')
@@ -555,22 +595,30 @@ async def execute_quality_transaction(plan_id:str,plan_digest:str)->str:
                 attempt=uuid.uuid4().hex;db.execute("UPDATE plans SET state='in_flight' WHERE id=?",(plan_id,))
                 db.execute('INSERT INTO attempts VALUES (?,?,?,NULL)',(plan_id,attempt,time.time()))
             outcome={'state':'unknown','submission_attempted':True,'attempt_id':attempt,'verified_success':False,'retry_allowed':False}
+            payload=None
             try:
+                payload=snap['body']
+                if signed_approval:
+                    from tools.quality_signatures import payload as signature_payload
+                    payload=signature_payload(snap,credential)
                 base=CAMSTAR_BASE_URL if route['api']=='modeling' else CAMSTAR_SHOPFLOOR_BASE_URL
-                response=await asyncio.wait_for(get_client().request(route['method'],base.rstrip('/')+route['path'],
-                    headers=post_headers if role_approval else get_headers(),json=snap['body'],params=route['params'],follow_redirects=False),60)
-                if role_approval:
+                response=await asyncio.wait_for((signature_client if signed_approval else get_client()).request(route['method'],base.rstrip('/')+route['path'],
+                    headers=post_headers if protected_approval else get_headers(),json=payload,params=route['params'],follow_redirects=False),60)
+                if protected_approval:
                     # Debug/error bodies can echo authorization or cookie values.
                     # Keep the attempt/status, but no free-form response text for
                     # this credential-bound path; final evidence comes from MES history.
-                    outcome.update(http_status=response.status_code,raw_response=None,response_capture='omitted_for_role_session_privacy')
+                    outcome.update(http_status=response.status_code,raw_response=None,response_capture='omitted_for_signature_privacy' if signed_approval else 'omitted_for_role_session_privacy')
                 else:outcome.update(http_status=response.status_code,raw_response=response.text[:200000],response_truncated=len(response.text)>200000)
             except asyncio.CancelledError:
                 outcome['interrupted']=True;raise
             except Exception as error:
-                if role_approval:outcome.update(error_type=type(error).__name__,error='角色审批请求异常；未保存可能反射会话信息的异常正文，请按原对象历史核实。')
+                if protected_approval:outcome.update(error_type=type(error).__name__,error='受保护审批请求异常；未保存可能反射签名或会话信息的异常正文，请按原对象历史核实。')
                 else:outcome['error']=repr(error)
             finally:
+                if signed_approval:
+                    if isinstance(payload,dict):payload.get('qualityESigDetail',{}).clear()
+                    credential.close()
                 with db_connect() as db:
                     db.execute("UPDATE plans SET state='unknown',outcome=? WHERE id=? AND state='in_flight'",(json.dumps(outcome,ensure_ascii=False),plan_id))
                     db.execute('UPDATE attempts SET finished=? WHERE plan_id=?',(time.time(),plan_id))
