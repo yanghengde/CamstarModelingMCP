@@ -7,6 +7,7 @@ from typing import Literal
 
 from tools import mcp, quality as q, quality_approvals as a, quality_event_triage as t, quality_event_update as u, quality_plans as p
 from tools import quality_event_creation as creation
+from tools import quality_approval_authorization as authorization
 from tools.quality_definitions import resources
 from tools.quality_spc_annotations import iid, schema_check
 from tools.modeling_details import raw_json
@@ -20,7 +21,8 @@ SCHEMA={
  'ApprovalDecisionList':a.SCHEMA['ApprovalDecisionList'], 'ApprovalDecision':a.SCHEMA['ApprovalDecision']}
 
 
-async def template(name,key=None):
+async def template(name,key=None,allow_role_substitution=False):
+    authorization.role_opt_in({'allow_role_substitution':allow_role_substitution})
     name=q.text(name,'审批模板名称')
     where=f"ApprovalSheetTemplateId='{iid(key)}'" if key is not None else 'ApprovalSheetTemplateName='+q.literal(name)
     rows=await q.sql_rows('SELECT TOP 2 '+SCHEMA['ApprovalSheetTemplate']+' FROM ApprovalSheetTemplate WHERE '+where,2)
@@ -62,10 +64,11 @@ async def template(name,key=None):
         for field in ('Status','SheetLevel','SubstituteOption','ChangeCount','DecisionType','CompleteWithinQty','EditOption'):e[field]=a.integer(e[field],field)
         e['IsFrozen']=a.i.wire_bool(e['IsFrozen'],'模板条目冻结');e['EntryRequired']=a.i.wire_bool(e['EntryRequired'],'条目必填')
         for field in ('ApproverId','ApproverRoleId','AssignedApproverId','DelegationTaskId','ApprovalDecisionId','ApprovedById','LastDecisionId'):e[field]=a.optional(e[field])
-        if (e['IsFrozen'] or e['SheetLevel']<1 or e['SubstituteOption']!=1 or e['Status']!=0 or e['DecisionType']!=0
+        authorization.entry_policy(e,{'allow_role_substitution':allow_role_substitution})
+        if (e['IsFrozen'] or e['SheetLevel']<1 or e['Status']!=0 or e['DecisionType']!=0
             or any(e[k] is not None for k in ('DelegationTaskId','ApprovalDecisionId','ApprovedById','LastDecisionId','LastCompletedOnGMT'))
             or any(e[k] not in (None,'') for k in ('Comments','PLMApprovalCode','PLMApprovalURL'))):
-            raise ValueError('仅空白、有效原指定审批人的模板；角色替代、委托、PLM及已有签批不在C1范围。')
+            raise ValueError('仅空白有效模板；角色替代须原配置Role2并明选允许，委托、PLM及已有签批仍拒绝。')
         if type(e['CompleteWithinUOM']) is bool or str(e['CompleteWithinUOM']) not in ('0','0.0','1','1.0','24','24.0','168','168.0'):
             raise ValueError('模板期限单位未核实。')
         e['CompleteWithinUOM']=float(e['CompleteWithinUOM'])
@@ -84,6 +87,7 @@ async def template(name,key=None):
 
 
 async def source(args):
+    authorization.role_opt_in(args)
     if args['object_kind'] not in ('event','capa'):raise ValueError('对象类型仅event/capa。')
     await schema_check(SCHEMA)
     context=await a.read_context(args['object_kind'],args['name'],args['organization_name'],args.get('instance_id'))
@@ -91,13 +95,13 @@ async def source(args):
     if target['IsFrozen'] or target['Status']!=1 or context['sheets'] or context['current_employee_entry_id'] is not None or context['current_context']['CompletionApprovalSheet'] is not None:
         raise ValueError('首次挂接只支持未冻结Active且没有直接审批表/待签入口的对象；不复用旧表。')
     raw=await u.event_record(args['name'],target['Id']) if args['object_kind']=='event' else await q.find_record('capa',args['name'],target['Id'])
-    if not raw['IsSubmitted'] or raw['ProcessModelId']:raise ValueError('首次挂接须已提交且无嵌套流程。')
+    if not a.i.wire_bool(raw['IsSubmitted'],'对象提交状态') or raw['ProcessModelId']:raise ValueError('首次挂接须已提交且无嵌套流程。')
     if args['object_kind']=='event' and any(raw[k] for k in ('EventDataId','OrigProcessModelTemplateId','ChecklistId','ChecklistSaved')):
         raise ValueError('首次挂接不处理事件数据、检查表或原流程模板。')
     org=await t.asset('organization',key=target['OrganizationId'],name=args['organization_name'],signature_txn_type=7852)
     owner=await t.asset('owner',key=context['current_context']['Owner']['instance_id'])
     role=await t.asset('role',key=context['current_context']['Role']['instance_id'])
-    configured=await template(args['template_name'],args.get('template_instance_id'))
+    configured=await template(args['template_name'],args.get('template_instance_id'),args.get('allow_role_substitution',False))
     options=await q.closure_options(dict(qualityObject=dict(name=target['Name'],instanceId=target['Id']),organization=t.ref(org)))
     close=[r for r in options if r['Name']=='Close']
     if len(close)!=1:raise ValueError('当前原生Close处置动作未唯一核实。')
@@ -132,7 +136,7 @@ def body_for(args,before,marker):
             assignedApprover=None if e['AssignedApproverId'] is None else t.ref(actors['Employees',e['AssignedApproverId']]),
             completeWithinQty=e['CompleteWithinQty'],completeWithinUOM=e['CompleteWithinUOM'],delegationTask=None,editOption=e['EditOption'],
             entryRequired=e['EntryRequired'],plmApprovalCode=e['PLMApprovalCode'],plmApprovalURL=e['PLMApprovalURL'],
-            sheetLevel=e['SheetLevel'],specialInstructions=e['SpecialInstructions'],substituteOption=1)
+            sheetLevel=e['SheetLevel'],specialInstructions=e['SpecialInstructions'],substituteOption=e['SubstituteOption'])
         entries.append(entry)
     detail=dict(name='FromCompleted',executeAction=1,approvalDecisionList=dict(name=config['decision_list']['ApprovalDecisionListName'],instanceId=row['ApprovalDecisionListId']),
         approvalRequired=True,description=row['Description'],generalInstructions=row['GeneralInstructions'],approvalEntries=entries)
@@ -184,15 +188,16 @@ async def inspect(snap):
 
 
 @mcp.tool
-async def get_quality_approval_template(name:str,instance_id:str|None=None)->str:
-    """只读现有必审模板、完整命名审批条目及Approve10/Reject20决策，最多100条目/50决策，双重重读。安全投影审批人/角色，不读口令。
-    仅C1原指定审批人模板，不支持角色替代、委托、PLM、冻结或已有签批的模板。完整不等于当前对象/组织可采用；不挂接、不路由。
+async def get_quality_approval_template(name:str,instance_id:str|None=None,allow_role_substitution:bool=False)->str:
+    """只读现有必审模板、完整审批条目及Approve10/Reject20决策，最多100条目/50决策，双重重读。安全投影审批人/角色，不读口令。
+    默认仅原指定审批人模板；委托、PLM、冻结或已有签批仍拒绝。完整不等于当前对象/组织可采用；不挂接、不路由。
+    可明确allow_role_substitution=true读取原配置Role2模板；不修改策略、不认证当前员工签署资格，委托/额外签名仍不支持。
     """
     try:
         async def read():
             await schema_check({k:v for k,v in SCHEMA.items() if k!='ApprovalSheetMap'})
-            before=await template(name,instance_id)
-            if await template(name,instance_id)!=before:raise ValueError('模板读取期间发生变化。')
+            before=await template(name,instance_id,allow_role_substitution)
+            if await template(name,instance_id,allow_role_substitution)!=before:raise ValueError('模板读取期间发生变化。')
             return dict(complete=True,ready_for_execution=False,**before)
         out=await asyncio.wait_for(read(),90)
         if len(q.encode(out))>78000:raise ValueError('审批模板超过输出上限，不返回部分结果。')
@@ -203,11 +208,12 @@ async def get_quality_approval_template(name:str,instance_id:str|None=None)->str
 @mcp.tool
 async def prepare_quality_approval_assignment(name:str,organization_name:str,template_name:str,quality_resolution_code_name:str,
         close_description:str,comments:str,object_kind:Literal['event','capa']='event',instance_id:str|None=None,
-        template_instance_id:str|None=None,allow_notifications:bool=False)->str:
+        template_instance_id:str|None=None,allow_notifications:bool=False,allow_role_substitution:bool=False)->str:
     """准备首次挂接并立即路由完成审批（AssignApprovalSheet），不是单独挂表。只支持已提交Active、无直接审批表/复杂流程的Event/CAPA。
     明确已有必审模板、解决代码、完成处置说明及挂接评论；所选模板须等于组织唯一Close审批映射，不编造审批人/默认配置。仅命名审批人，无角色替代/委托/PLM/已知组织签名要求；配置通知时明确allow_notifications=true。
     只读源数据和当前Swagger，本地静态计划；禁止原生execute=false预览（其预校验可能清理审批）。动态权限/额外签名未核实须展示，MES最终校验。确认后execute_quality_transaction只发一次；unknown占用原对象，不重试或按同名表归因成功。
+    明确allow_role_substitution=true才允许已有Role2模板条目，原策略完整保持；不赋予当前员工替代签署资格，后续决策须单独核实原生角色/组织授权。
     """
     return await p.prepare('quality_approval_assignment',dict(name=name,organization_name=organization_name,template_name=template_name,
         quality_resolution_code_name=quality_resolution_code_name,close_description=close_description,comments=comments,object_kind=object_kind,
-        instance_id=instance_id,template_instance_id=template_instance_id,allow_notifications=allow_notifications))
+        instance_id=instance_id,template_instance_id=template_instance_id,allow_notifications=allow_notifications,allow_role_substitution=allow_role_substitution))

@@ -227,7 +227,7 @@ async def build_capa_closure(args,marker):
         'closure_options':options,'service':'CloseQualityObject','body':body,'preview':preview,'arguments':args,'environment':environment()}
 
 
-async def build(kind,args,marker):
+async def build(kind,args,marker,execution_binding=None):
     if not isinstance(marker,str) or not re.fullmatch(r'MCP-QUAL:[0-9a-f]{32}',marker):raise ValueError('质量事务关联标记无效。')
     if kind=='capa_approval_revision':
         from tools.quality_capa_approval_revision import build
@@ -237,7 +237,7 @@ async def build(kind,args,marker):
         return await build(args,marker)
     if kind=='quality_approval_decision':
         from tools.quality_approval_decisions import build
-        return await build(args,marker)
+        return await build(args,marker) if execution_binding is None else await build(args,marker,execution_binding=execution_binding)
     if kind=='quality_approval':
         from tools.quality_approval_actions import build
         return await build(args,marker)
@@ -533,9 +533,19 @@ async def execute_quality_transaction(plan_id:str,plan_digest:str)->str:
             snap=checked(row,plan_digest)
             if row[2]!='ready' or time.time()-row[3]>3600:raise ValueError('质量计划已使用或过期。')
             marker=snap.get('marker') or snap['body'].get('comments')
-            fresh=await asyncio.wait_for(build(snap['kind'],snap['arguments'],marker),90)
+            role_approval=snap['kind']=='quality_approval_decision' and snap['preview'].get('signature_actor_policy')=='role'
+            binding={}
+            fresh=await asyncio.wait_for(build(snap['kind'],snap['arguments'],marker,execution_binding=binding) if role_approval
+                else build(snap['kind'],snap['arguments'],marker),90)
             if digest(fresh)!=plan_digest:raise ValueError('质量对象/容器/引用或服务回显已变化，未提交。')
             route=transport(snap)
+            if role_approval:
+                # Use the exact transport session that returned the verified actor.
+                # No credential/hash enters the immutable plan or persisted outcome.
+                if binding.get('actor_id')!=snap['preview']['employee_id'] or not isinstance(binding.get('headers'),dict):
+                    raise ValueError('角色审批未绑定同一已核实会话，未提交。')
+                post_headers=dict(binding.pop('headers'))
+            else:post_headers=None
             with db_connect() as db:
                 db.execute('BEGIN IMMEDIATE')
                 if db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone()!=row or time.time()-row[3]>3600:raise ValueError('领取前质量计划变化或过期。')
@@ -548,11 +558,18 @@ async def execute_quality_transaction(plan_id:str,plan_digest:str)->str:
             try:
                 base=CAMSTAR_BASE_URL if route['api']=='modeling' else CAMSTAR_SHOPFLOOR_BASE_URL
                 response=await asyncio.wait_for(get_client().request(route['method'],base.rstrip('/')+route['path'],
-                    headers=get_headers(),json=snap['body'],params=route['params'],follow_redirects=False),60)
-                outcome.update(http_status=response.status_code,raw_response=response.text[:200000],response_truncated=len(response.text)>200000)
+                    headers=post_headers if role_approval else get_headers(),json=snap['body'],params=route['params'],follow_redirects=False),60)
+                if role_approval:
+                    # Debug/error bodies can echo authorization or cookie values.
+                    # Keep the attempt/status, but no free-form response text for
+                    # this credential-bound path; final evidence comes from MES history.
+                    outcome.update(http_status=response.status_code,raw_response=None,response_capture='omitted_for_role_session_privacy')
+                else:outcome.update(http_status=response.status_code,raw_response=response.text[:200000],response_truncated=len(response.text)>200000)
             except asyncio.CancelledError:
                 outcome['interrupted']=True;raise
-            except Exception as error:outcome['error']=repr(error)
+            except Exception as error:
+                if role_approval:outcome.update(error_type=type(error).__name__,error='角色审批请求异常；未保存可能反射会话信息的异常正文，请按原对象历史核实。')
+                else:outcome['error']=repr(error)
             finally:
                 with db_connect() as db:
                     db.execute("UPDATE plans SET state='unknown',outcome=? WHERE id=? AND state='in_flight'",(json.dumps(outcome,ensure_ascii=False),plan_id))

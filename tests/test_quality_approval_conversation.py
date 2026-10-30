@@ -16,6 +16,9 @@ def chosen(messages):
     ('请重新提交审批','prepare_quality_approval_action',True),
     ('请修改被拒绝CAPA的纠正措施说明','prepare_capa_approval_revision',True),
     ('查看CAPA修改后重新提交审批需要哪些条件','prepare_capa_approval_revision',False),
+    ('请按角色替代批准这条审批','prepare_quality_approval_decision',True),
+    ('以角色授权批准这条记录','prepare_quality_approval_decision',True),
+    ('查询角色替代批准记录，不要执行','get_quality_approval_history',False),
 ])
 def test_approval_language_routes_to_expected_handler(question,expected,write):
     names=chosen([dict(role='user',content=question)])

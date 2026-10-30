@@ -55,6 +55,8 @@ async def event_record(name='',instance_id=None):
 
 
 async def context(args,signature_txn_type=SERVICE_TYPE):
+    from tools import quality_approval_authorization as authorization
+    authorization.role_opt_in(args)
     q.text(args['event_name'],'事件名称');q.text(args['organization_name'],'组织名称')
     if args.get('event_instance_id') is not None:iid(args['event_instance_id'])
     await schema_check(SCHEMA)
@@ -76,7 +78,9 @@ async def context(args,signature_txn_type=SERVICE_TYPE):
         if len(approval['sheets'])!=1 or approval['sheets'][0]['ApprovalSheetId']!=iid(args['approval_sheet_id']):raise ValueError('受限资料修订仅支持原对象唯一的明确审批表。')
         sheet=approval['sheets'][0]
         if sheet['IsFrozen'] or sheet['Status'] not in (0,30) or approval['current_employee_entry_id'] is not None:raise ValueError('只允许拒绝/取消后且无待签条目的资料修订，不修改路由中的资料。')
-        if any(e['IsFrozen'] or e['SubstituteOption']!=1 or e['DelegationTaskId'] is not None for e in sheet['entries']):raise ValueError('不处理冻结条目、角色替代或委托修订。')
+        for entry in sheet['entries']:
+            authorization.entry_policy(entry,args)
+            if entry['IsFrozen']:raise ValueError('不处理冻结条目的审批资料修订。')
         proof=await h.previous_cycle_evidence(approval,sheet,args['previous_cycle_gmt'])
         approval_revision=dict(context=approval,previous_cycle=proof)
     elif await q.sql_rows(f"SELECT TOP 1 ApprovalSheetId FROM ApprovalSheet WHERE ParentId='{row['EventId']}'",1):
@@ -288,14 +292,14 @@ async def inspect_snapshot(snap):
 
 @mcp.tool
 async def get_quality_event_update_context(event_name:str,organization_name:str,event_instance_id:str|None=None,
-        approval_sheet_id:str|None=None,previous_cycle_gmt:str|None=None)->str:
+        approval_sheet_id:str|None=None,previous_cycle_gmt:str|None=None,allow_role_substitution:bool=False)->str:
     """只读检查基础Event文字更新前置，核对当前UpdateEvent/PerformEvent契约并调用固定Load事件读取原明细。
     限已提交Active、无流程/检查表/审批/自定义数据/法规报告/批次/交叉引用，当前账号有Edit动作且为责任人并有角色。
     显示原资料、报告人/日期及保持值；不保存计划、不提交业务、不认证审批或签名，不允许传任意事件名。
     """
     try:
         args=dict(event_name=event_name,organization_name=organization_name,event_instance_id=event_instance_id,
-                  approval_sheet_id=approval_sheet_id,previous_cycle_gmt=previous_cycle_gmt)
+                  approval_sheet_id=approval_sheet_id,previous_cycle_gmt=previous_cycle_gmt,allow_role_substitution=allow_role_substitution)
         before=await context(args);verified=await contract();marker='MCP-QUAL:'+'0'*32;original=await load(before,marker)
         if await context(args)!=before:raise ValueError('读取更新上下文期间事件发生变化。')
         return q.encode({'complete':True,'before':before,'native_contract':verified,'original_detail':original['detail'],
@@ -306,13 +310,14 @@ async def get_quality_event_update_context(event_name:str,organization_name:str,
 @mcp.tool
 async def prepare_quality_event_update(event_name:str,organization_name:str,brief_description:str|None=None,
         description:str|None=None,discovery_area:str|None=None,event_instance_id:str|None=None,comments:str='',
-        approval_sheet_id:str|None=None,previous_cycle_gmt:str|None=None)->str:
+        approval_sheet_id:str|None=None,previous_cycle_gmt:str|None=None,allow_role_substitution:bool=False)->str:
     """准备原生UpdateEvent文字更新：仅简述/说明/发现区域，至少一项明确变化。省略/null保留；说明/区域可显式空字符串清空，简述须非空。
     先固定Load核对并完整保持原报告人/发现人、日期、优先级等明细，再做execute=false回显和独立重读；submit固定false不重新提交已提交事件。
     限已提交Active基础Event、无流程/检查表/审批/复杂关联/自定义数据及更新签名要求。保持类别/责任人/角色/分流/CAR策略，不做分派/升级或绕过权限。
     可明确approval_sheet_id及previous_cycle_gmt修订唯一审批表拒绝/取消后的Active/InReview基础Event文字；旧周期持久历史须完整核实，无待签条目/角色替代。只读Load的审批明细不回填执行，预览必须没有审批明细写入；不改审批配置、不自动重提。
     execute_quality_transaction系统确认单次提交；unknown保留原事件及关联NCR容器占用，inspect只给原ID证据，最终证据人工review，不重试。
+    若原表含Role2条目，须明确allow_role_substitution=true才可保持原策略修订文字；仍由原责任人/角色操作，不修改策略或授予签署资格。
     """
     return await p.prepare('event_update',dict(event_name=event_name,organization_name=organization_name,event_instance_id=event_instance_id,
         brief_description=brief_description,description=description,discovery_area=discovery_area,comments=comments,
-        approval_sheet_id=approval_sheet_id,previous_cycle_gmt=previous_cycle_gmt))
+        approval_sheet_id=approval_sheet_id,previous_cycle_gmt=previous_cycle_gmt,allow_role_substitution=allow_role_substitution))

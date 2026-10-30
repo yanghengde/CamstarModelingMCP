@@ -1,5 +1,7 @@
 # Camstar质量API与MCP工具
 
+本轮C2.A扩展见[角色替代审批](quality-role-approval.md)：仅原Role2且明确允许、原生当前员工角色/组织核验通过才开放，保持实际签署人；默认C1限制不变，委托及额外电子签名仍未开放。
+
 2026-10-30当前范围见[完成审批及修订重提](quality-approval-cycle.md)与[统一交付清单](quality-completion-plan.md)：已增加模板挂接并路由、旧/新周期历史及Event/CAPA修订重提。以下带旧日期的阶段记录保留其当时边界和测试数量，不作为当前限制或验收结论。
 
 先前47工具收尾快照见[阶段交付说明](quality-delivery.md)。后续高级功能已开始开发，当前68个工具，第三阶段扩展[原生全检与测量自动扣量](quality-inspection-effects.md)；第二阶段新增[数量损失准备与批报废前置检查](quality-quantity-loss.md)，第一阶段为[受限批返工](quality-lot-rework.md)，完整顺序与交付边界见[高级功能计划](quality-advanced-roadmap.md)。不是全部质量功能或MES验收完成。

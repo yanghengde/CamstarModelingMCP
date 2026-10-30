@@ -116,3 +116,12 @@ def test_changed_old_history_after_preparation_blocks_revision_write(env):
 def test_neither_approval_parameter_can_be_used_alone(env):
     assert 'error' in update(approval_sheet_id=SHEET)
     assert 'error' in update(previous_cycle_gmt=OLD)
+
+
+def test_role_sheet_revision_requires_opt_in_and_preserves_actual_old_signer(env):
+    env['approval_context']['sheets'][0]['entries'][0].update(SubstituteOption=2,ApprovedById=OTHER)
+    env['sign_history'][0]['ApprovedById']=OTHER
+    assert 'error' in prepare()
+    ready=prepare(allow_role_substitution=True);assert ready.get('state')=='ready',ready
+    assert 'approvalSheetDetails' not in ready['request_preview']['body']
+    assert snap(ready)['before']['approval_revision']['previous_cycle']['history']['SignApprovalHistory'][0]['ApprovedById']==OTHER

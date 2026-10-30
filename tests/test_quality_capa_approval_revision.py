@@ -160,6 +160,16 @@ def test_actual_mcp_schema_explains_reported_time_side_effect(env):
     asyncio.run(check())
 
 
+def test_capa_role_sheet_revision_does_not_rewrite_original_or_actual_approver(env):
+    env['approval_context']['sheets'][0]['entries'][0].update(SubstituteOption=2,ApprovedById=OTHER)
+    env['sign_history'][0]['ApprovedById']=OTHER
+    assert 'error' in prepare()
+    ready=prepare(allow_role_substitution=True);assert ready.get('state')=='ready',ready
+    stored=snap(ready)['before']['previous_cycle']['history']['SignApprovalHistory'][0]
+    assert stored['ApproverId']==OWNER and stored['ApprovedById']==OTHER
+    assert 'approvalSheetDetails' not in ready['request_preview']['body']
+
+
 @pytest.mark.parametrize('origin',['rejected','cancelled'])
 def test_simulated_capa_revision_resubmit_approval_and_old_new_cycle_history(env,monkeypatch,origin):
     from tools import quality_approval_actions as action,quality_approval_decisions as decision,quality_approval_history as h

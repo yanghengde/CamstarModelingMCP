@@ -28,6 +28,10 @@ _cached_token: str | None = None
 _client: httpx.AsyncClient | None = None
 
 
+class BoundSessionChanged(ValueError):
+    """A role approval cannot use an identity preview that rotates session cookies."""
+
+
 def get_headers() -> dict:
     """Build common request headers with dynamic Bearer auth."""
     global _cached_token
@@ -70,13 +74,16 @@ def build_url(path: str, base_url: str = CAMSTAR_BASE_URL) -> str:
 async def request(method: str, path: str, body: dict | None = None,
                   params: dict | None = None,
                   base_url: str = CAMSTAR_BASE_URL,
-                  response_formatter=smart_response, retry_read_only: bool = False) -> str:
+                  response_formatter=smart_response, retry_read_only: bool = False,
+                  bound_headers: dict | None = None, require_stable_session: bool = False) -> str:
     """
     Central HTTP request dispatcher.
     Returns the response text after smart truncation, or an error message.
     """
     url = build_url(path, base_url=base_url)
-    headers = get_headers()
+    # Internal session pinning: the caller keeps this copy in memory only.
+    # It is not an MCP parameter and must never be serialized into a plan/log.
+    headers = get_headers() if bound_headers is None else dict(bound_headers)
 
     logger.info("%s %s", method.upper(), url)
 
@@ -99,6 +106,9 @@ async def request(method: str, path: str, body: dict | None = None,
                     raise
             await asyncio.sleep(min(0.25, max(0, deadline - time.monotonic())))
 
+        if require_stable_session and resp.headers.get_list('set-cookie'):
+            raise BoundSessionChanged('审批核验期间会话被建立或刷新，已停止准备且未提交；核实稳定会话后重新准备，不自动重试。')
+
         if resp.status_code >= 400:
             return (
                 f"❌ HTTP {resp.status_code} Error\n"
@@ -117,6 +127,8 @@ async def request(method: str, path: str, body: dict | None = None,
 
         return response_formatter(data)
 
+    except BoundSessionChanged:
+        raise
     except (httpx.TimeoutException, asyncio.TimeoutError):
         return f"❌ Request timed out after {CAMSTAR_TIMEOUT}s: {method.upper()} {url}"
     except Exception as exc:

@@ -3,6 +3,7 @@ import copy
 import json
 import re
 from tools import mcp,quality as q,quality_plans as p,quality_approvals as a,quality_event_triage as t,quality_event_update as u,quality_approval_history as h
+from tools import quality_approval_authorization as authorization
 from tools.quality_definitions import resources
 from tools.quality_spc_annotations import iid,schema_check
 from tools.modeling_details import raw_json
@@ -20,6 +21,7 @@ EXPAND='ServiceDetail($select=CDOTypeId,'+','.join(FIELDS)+'),QualityObjectDetai
 
 
 async def source(args):
+    authorization.role_opt_in(args)
     if args.get('allow_reported_date_refresh') is not True:raise ValueError('原生CAPA修订会刷新报告时间，必须明确allow_reported_date_refresh=true；不承诺保留原报告时间。')
     await schema_check(SCHEMA)
     ctx=await a.read_context('capa',args['name'],args['organization_name'],args.get('instance_id'))
@@ -28,7 +30,9 @@ async def source(args):
         raise ValueError('CAPA修订仅支持未冻结Active/InReview类别5及其唯一明确审批表。')
     sheet=ctx['sheets'][0]
     if sheet['IsFrozen'] or sheet['Status'] not in (0,30) or ctx['current_employee_entry_id'] is not None:raise ValueError('CAPA须已拒绝/取消且没有待签条目。')
-    if any(e['IsFrozen'] or e['SubstituteOption']!=1 or e['DelegationTaskId'] is not None for e in sheet['entries']):raise ValueError('CAPA修订不处理冻结、角色替代或委托。')
+    for entry in sheet['entries']:
+        authorization.entry_policy(entry,args)
+        if entry['IsFrozen']:raise ValueError('CAPA修订不处理冻结审批条目。')
     proof=await h.previous_cycle_evidence(ctx,sheet,args['previous_cycle_gmt'])
     rows=await q.sql_rows('SELECT TOP 2 '+SCHEMA['CAPA']+f" FROM CAPA WHERE CAPAId='{obj['Id']}'",2)
     a.complete(rows,SCHEMA['CAPA'])
@@ -182,11 +186,12 @@ async def inspect(snap):
 
 @mcp.tool
 async def prepare_capa_approval_revision(name:str,organization_name:str,approval_sheet_id:str,previous_cycle_gmt:str,comments:str,
-        brief_description:str|None=None,description:str|None=None,instance_id:str|None=None,allow_reported_date_refresh:bool=False)->str:
+        brief_description:str|None=None,description:str|None=None,instance_id:str|None=None,allow_reported_date_refresh:bool=False,allow_role_substitution:bool=False)->str:
     """准备唯一审批表拒绝/取消后的CAPA简述/说明修订。明确原对象/组织/表ID、旧GMT周期、非空comments及至少一项实际文字变化。
     限已提交未冻结Active/InReview类别5、无流程/附加组织/自定义数据/法规报告/交叉引用；旧周期路由/决策/评论持久历史逐条核实。固定Load完整保持原报告人、发生时间、优先级、严重度和系统性问题；审批明细只读不回写。
     原生CAPADetail.ModifyEntity会刷新报告时间，必须明确allow_reported_date_refresh=true；不通过回填旧值承诺保留时间。当前原责任人/角色、Edit2、无签名要求须核实。submit=false，不自动重提或改变审批人；确认后统一执行器单次提交，unknown不重试。
+    原表含Role2时须明确allow_role_substitution=true，完整保持策略；修订由原责任人/角色操作，不赋予角色替代签署资格，不处理委托。
     """
     return await p.prepare('capa_approval_revision',dict(name=name,organization_name=organization_name,approval_sheet_id=approval_sheet_id,
         previous_cycle_gmt=previous_cycle_gmt,comments=comments,brief_description=brief_description,description=description,
-        instance_id=instance_id,allow_reported_date_refresh=allow_reported_date_refresh))
+        instance_id=instance_id,allow_reported_date_refresh=allow_reported_date_refresh,allow_role_substitution=allow_role_substitution))

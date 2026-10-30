@@ -6,6 +6,7 @@ from typing import Literal
 from tools import mcp,quality as q,quality_plans as p,quality_approvals as a,quality_event_triage as t,quality_event_update as u
 from tools import quality_event_creation as creation
 from tools import quality_approval_history as history
+from tools import quality_approval_authorization as authorization
 from tools.quality_definitions import resources
 from tools.quality_event_lifecycle import contract
 from tools.quality_spc_annotations import iid
@@ -17,6 +18,7 @@ SERVICES={'route':('RouteApprovalSheet',7838),'cancel':('CancelApprovalSheet',78
 SELECT='QualityObject,Organization,ApprovalSheet,Comments,AvailableActions,IgnoreProcessModel,ESigRequirement,AdditionalESigReqs,QualityObjectDetail'
 
 async def source(args):
+    authorization.role_opt_in(args)
     kind=args['object_kind'];name=q.text(args['name']);sheet_id=iid(args['approval_sheet_id']);q.text(args['organization_name'])
     context=await a.read_context(kind,name,args['organization_name'],args.get('instance_id'))
     target=context['target'];action=args['action'];service,typ=SERVICES[action]
@@ -27,7 +29,7 @@ async def source(args):
             raise ValueError('受限审批不处理事件数据、检查表、嵌套流程或未提交事件。')
     else:
         raw=await q.find_record('capa',name,target['Id'])
-        if raw['ProcessModelId'] or not raw['IsSubmitted']:raise ValueError('CAPA必须已提交且无流程上下文。')
+        if raw['ProcessModelId'] or not a.i.wire_bool(raw['IsSubmitted'],'CAPA提交状态'):raise ValueError('CAPA必须已提交且无流程上下文。')
     org=await t.asset('organization',name=args['organization_name'],key=target['OrganizationId'],signature_txn_type=typ)
     sheets=[s for s in context['sheets'] if s['ApprovalSheetId']==sheet_id]
     if len(sheets)!=1:raise ValueError('明确审批表不属于原质量对象。')
@@ -42,10 +44,10 @@ async def source(args):
     if not sheet['entries'] or not sheet['decision_list'] or sheet['decision_list']['IsFrozen'] or not sheet['allowed_decisions']:
         raise ValueError('审批表须有完整条目及有效决策列表。')
     for entry in sheet['entries']:
-        if entry['SubstituteOption']!=1 or entry['DelegationTaskId'] is not None:raise ValueError('当前表级操作不处理角色替代或委托审批。')
+        authorization.entry_policy(entry,args)
         if action=='resubmit':
-            if entry['IsFrozen'] or entry['SubstituteOption']!=1 or entry['SheetLevel']<1 or not entry['ApproverId'] or not entry['ApproverRoleId']:
-                raise ValueError('重提仅支持有效层级、未冻结的原指定审批人，不支持角色替代。')
+            if entry['IsFrozen'] or entry['SheetLevel']<1 or not entry['ApproverId'] or not entry['ApproverRoleId']:
+                raise ValueError('重提须有效层级、未冻结且原审批人/角色明确；角色替代须明选允许。')
             continue
         if entry['IsFrozen'] or entry['Status'] not in ((0,) if action=='route' else (0,10)):
             raise ValueError('条目已冻结或已处理，不撤销已有签批结论。')
@@ -125,12 +127,15 @@ async def inspect(snap):
 
 @mcp.tool
 async def prepare_quality_approval_action(action:Literal['route','cancel','resubmit'],name:str,organization_name:str,approval_sheet_id:str,
-        comments:str,object_kind:Literal['event','capa']='event',instance_id:str|None=None,allow_notifications:bool=False,previous_cycle_gmt:str|None=None)->str:
+        comments:str,object_kind:Literal['event','capa']='event',instance_id:str|None=None,allow_notifications:bool=False,previous_cycle_gmt:str|None=None,
+        allow_role_substitution:bool=False)->str:
     """准备直接质量审批表级路由/取消，固定原对象、审批表ID和完整周期/条目。仅未处理Pending表首次路由或未签批Routed表取消；不清空历史决策、不签批或代签。
     明确非空说明，当前原责任人/角色须核实，取消须CancelApproval256。无嵌套流程/事件数据/检查表或电子签名要求；可能通知时明确allow_notifications=true。
     resubmit仅拒绝或原生取消后的表，必须明确previous_cycle_gmt；逐条核对同周期持久路由及决策历史，再原生开启新周期，不删除历史、不改审批人/事件资料。签名及角色替代仍拒绝。
     原生CancelApprovalSheet将表回Pending并写RoutingCanceled历史，不能当作Cancelled20；普通route仍拒绝旧周期/决策。
+    仅原配置允许Role2且明确allow_role_substitution=true，才允许表中含角色替代条目；不改原策略/审批人，不处理委托/额外签名。实际角色签批仍由单独决策入口核实当前员工授权。
     准备用专用表级服务execute=false回显，不调用通用RouteApproval。execute_quality_transaction系统确认单次提交，unknown占用原对象/表，inspect只读证据，不重试。
     """
     return await p.prepare('quality_approval',dict(action=action,name=name,organization_name=organization_name,approval_sheet_id=approval_sheet_id,
-        comments=comments,object_kind=object_kind,instance_id=instance_id,allow_notifications=allow_notifications,previous_cycle_gmt=previous_cycle_gmt))
+        comments=comments,object_kind=object_kind,instance_id=instance_id,allow_notifications=allow_notifications,previous_cycle_gmt=previous_cycle_gmt,
+        allow_role_substitution=allow_role_substitution))
