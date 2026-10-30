@@ -47,7 +47,7 @@
 
 固定Load通过 `POST /api/UpdateEvent/PerformEvent` 的 `event.eventName="Load"`、`inputData` 信封调用。运行时必须先读取当前Swagger并核实该输入模型，**不为PerformEvent假设execute=false行为**，也不允许调用方指定其他事件。标准CLF中的此Load构建临时明细；部署自定义仍需现场核实。
 
-准备时对 `POST /api/UpdateEvent?execute=false` 核对完整输入回显，随后重新读取源记录和第二次独立Load，必须仍是原值。执行前通过统一执行器再次重建并比较快照；源资料、权限、签名、配置、引用或关联变化均使原计划失效。
+2026-10-30修正：标准UpdateEvent继承的CreateEvent_PreValidate在Submit=false时强制Transaction::IsExecute=true并禁用字段校验，已提交事件及审批文字修订同样受影响。准备禁止调用普通`POST /api/UpdateEvent?execute=false`假预览，只固定Load读取原值，生成本地静态文字差异，并重新读取源记录和第二次独立Load。`static_and_echo_verified=false`，不宣称修改后载荷或动态字段校验已通过。执行前通过统一执行器再次重建并比较快照；源资料、权限、签名、配置、引用或关联变化均使原计划失效。确认后才单次实际UpdateEvent保存。
 
 `Submit`始终为false。标准FinishModifyEntity仅在Submit=true时调用SubmitEvent；这里的false不表示撤回原已提交事件，也不支持提交草稿。已有流程、审批、检查表和复杂关联在当前入口拒绝，不清空配置以求通过。
 
@@ -63,4 +63,4 @@
 
 测试结果见[本轮汇总](quality-fixtures/event-update-summary.json)、[全量JUnit](quality-fixtures/event-update-junit.xml)、[新增测试](quality-fixtures/event-update-new-junit.xml)、[离线HTTPX守卫](quality-fixtures/event-update-network.json)及[工具/参数/问法核对](quality-fixtures/event-update-tool-manifest.json)。守卫覆盖父pytest进程的HTTPX传输，故障子进程有自己的守卫，不是操作系统级网络隔离。
 
-真实验收仍需核实部署自定义、当前固定Load信封及非执行回显，选择明确事件审阅计划后核对单次更新、未改报告人/时间/其他明细、最终历史和关联事务。事件创建、更多字段更新、开启/关闭、重新分派、复杂审批与电子签名仍见[后续开发计划](quality-advanced-roadmap.md)，本轮不表示全部质量功能完成。
+真实验收仍需核实部署自定义、当前固定Load信封及Submit=false保存行为，选择明确事件审阅静态计划后核对单次更新、未改报告人/时间/其他明细、最终历史和关联事务。Pending草稿新增明确资料维护入口，见[草稿维护说明](quality-event-draft-editing.md)；原工具仍只维护已提交事件文字。当前整体进度及剩余范围见[统一交付清单](quality-completion-plan.md)，不表示全部质量功能完成。

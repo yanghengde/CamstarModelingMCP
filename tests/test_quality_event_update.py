@@ -214,14 +214,16 @@ def test_current_native_status_and_owner_context_must_match(env,field,value):
     assert 'error' in prepare()
 
 
-def test_final_preview_and_second_independent_load_must_remain_unchanged(env):
-    env['update_hook']=lambda data:data['ServiceDetail'].update(Description='ignored patch')
-    assert 'error' in prepare()
-    env['update_hook']=None
+def test_only_static_patch_and_second_independent_load_must_remain_unchanged(env):
+    def dangerous_preview(data):raise AssertionError('Submit=false ordinary preview could execute')
+    env['update_hook']=dangerous_preview
+    ready=prepare();assert ready.get('state')=='ready',ready
+    assert not ready['static_and_echo_verified'] and ready['server_context']['static_preview_only']
+    assert all(call.args[0]=='GET' or call.args[1].endswith('/PerformEvent') for call in u.request.await_args_list)
     def changed(data):
         if env['load_count']>=2:data['ServiceDetail']['Reporter']['Name']='Changed actor name'
     env['load_count']=0;env['load_hook']=changed
-    assert 'error' in prepare() and not p.PLAN_DB.exists()
+    assert 'error' in prepare()
 
 
 @pytest.mark.parametrize('what',['event','source_text','owner','signature','approval','ncr','loaded_reference'])

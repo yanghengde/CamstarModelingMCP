@@ -186,7 +186,7 @@ def test_inventory_does_not_offer_container_scrap():
 
 def test_quality_registry_loading_routing_and_confirmations():
     names={n for n,p in TOOL_POLICIES.items() if p.group=='quality'}
-    assert len(names)==74
+    assert len(names)==75
     registered={t.name for t in asyncio.run(mcp.list_tools())}
     assert names<=registered and all(get_tool_func(n) for n in names)
     reads={n for n in names if TOOL_POLICIES[n].effect=='read'}

@@ -38,7 +38,7 @@ def entry_policy(entry,args):
 
 
 def capture_headers(service='SignApproval'):
-    if service not in ('SignApproval','NCRUpdate','DelegateTask'):raise ValueError('不支持的签名会话绑定服务。')
+    if service not in ('SignApproval','NCRUpdate','DelegateTask','UpdateEvent'):raise ValueError('不支持的签名会话绑定服务。')
     headers=dict(http.get_headers())
     if not isinstance(headers.get('Authorization'),str) or not headers['Authorization'].strip():
         raise ValueError('角色审批缺少已配置的认证会话，不接受匿名会话或员工参数覆盖。')

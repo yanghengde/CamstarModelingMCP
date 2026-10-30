@@ -94,7 +94,7 @@ def validate_transport(snap):
         or snap['body']['submit'] is not True):raise ValueError('事件正式提交服务、原草稿、原明细或Submit=true不符。')
 
 
-async def inspect(snap):
+async def inspect(snap,submit_flag=True):
     current=await u.event_record(instance_id=snap['target_id']);bounded=None
     if current:bounded=json.loads(await q.get_quality_history('quality_object',current['EventName'],snap['target_id'],limit=20))
     await schema_check({'UpdateEventHistory':'UpdateEventHistoryId,HistoryId,HistoryMainlineId,TxnId,Submit,ChangeCount',
@@ -103,18 +103,18 @@ async def inspect(snap):
     rows=await q.sql_rows('SELECT TOP 21 s.UpdateEventHistoryId,s.HistoryId,s.HistoryMainlineId,s.TxnId,s.Submit,s.ChangeCount,'
         'h.TxnType,h.ReversalStatus,h.Comments FROM UpdateEventHistory s JOIN HistoryMainline h '
         'ON h.HistoryMainlineId=s.HistoryMainlineId AND h.HistoryId=s.HistoryId AND h.TxnId=s.TxnId '
-        f"WHERE s.HistoryId='{snap['target_id']}' AND s.Submit=1 AND h.Comments="+q.literal(snap['body']['comments'])+
+        f"WHERE s.HistoryId='{snap['target_id']}' AND s.Submit={1 if submit_flag else 0} AND h.Comments="+q.literal(snap['body']['comments'])+
         ' ORDER BY s.UpdateEventHistoryId',21)
-    if len(rows)>20:raise ValueError('正式提交候选历史超过20条，不返回部分证据。')
+    if len(rows)>20:raise ValueError('UpdateEvent候选历史超过20条，不返回部分证据。')
     clean=[];seen=set()
     for raw in rows:
-        if not isinstance(raw,dict) or not set(columns.split(','))<=raw.keys():raise ValueError('正式提交历史字段缺失。')
+        if not isinstance(raw,dict) or not set(columns.split(','))<=raw.keys():raise ValueError('UpdateEvent历史字段缺失。')
         row={k:copy.deepcopy(raw[k]) for k in columns.split(',')}
         for f in ('UpdateEventHistoryId','HistoryId','HistoryMainlineId','TxnId'):row[f]=iid(row[f])
         row['Submit']=u.i.wire_bool(row['Submit'],'历史Submit')
         for f in ('ChangeCount','TxnType','ReversalStatus'):row[f]=u.i.wire_int(row[f],f)
-        if (row['HistoryId']!=snap['target_id'] or row['Comments']!=snap['body']['comments'] or not row['Submit'] or row['TxnType']!=7578 or row['UpdateEventHistoryId'] in seen):
-            raise ValueError('提交历史不属于原对象/标记/UpdateEvent Submit=true事务，或清单重复。')
+        if (row['HistoryId']!=snap['target_id'] or row['Comments']!=snap['body']['comments'] or row['Submit'] is not submit_flag or row['TxnType']!=7578 or row['UpdateEventHistoryId'] in seen):
+            raise ValueError('UpdateEvent历史不属于原对象/标记/预期Submit分支，或清单重复。')
         seen.add(row['UpdateEventHistoryId']);clean.append(row)
     # State only controls which read-only context is worth checking next; it
     # cannot clear the unknown attempt or authorize a downstream mutation.
@@ -122,7 +122,8 @@ async def inspect(snap):
     return dict(original_event_id=snap['target_id'],current_event=current,bounded_quality_history=bounded,submission_history_candidates=clean,
         manual_triage_context_candidate=candidate,verified_success=False,state_changed=False,retry_allowed=False,
         automatic_triage_completed_verified=False,next_action_authorized=False,
-        note='当前Active/IsSubmitted或分流标志仅证据，不归因本次提交。unknown须最终人工审计；之后按实际状态查询首次分流上下文，不重复提交或自动补发分流。')
+        history_submit_flag_selected=submit_flag,
+        note='当前状态与UpdateEvent历史标志仅证据，不归因本次保存/提交。unknown须最终人工审计，不重试或自动推进下游事务。')
 
 
 async def read_context(args):

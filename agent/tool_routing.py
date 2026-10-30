@@ -19,8 +19,9 @@ GROUP_TERMS = {
     "query": r"query|inquiry|sql|历史|状态|进度|在制|追溯",
     "excel": r"excel|csv|表格|附件|导入|上传",
 }
-WRITE_TERMS = re.compile(r"正式提交|提交事件|提交草稿|转派|委托给|(?:角色替代|角色授权).{0,20}(?:批准|拒绝|签批)|(?:批准|拒绝|签批).{0,20}(?:角色替代|角色授权)|挂接审批|挂审批|重提|重新提交审批|发起审批|路由|取消审批|撤回审批|开启|重开|重新分派|分派|reassign|reopen|损失|扣量|报废|scrap|loss|冻结|解冻|关闭|登记|创建|新建|新增|修改|更新|调整|调到|变更|改成|改为|删除|重建|绑定|解绑|升版|导入|启动|开工|移站|过站|进站|出站|返工|不良|投料|补投|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
+WRITE_TERMS = re.compile(r"保存草稿|补齐|补充资料|正式提交|提交事件|提交草稿|转派|委托给|(?:角色替代|角色授权).{0,20}(?:批准|拒绝|签批)|(?:批准|拒绝|签批).{0,20}(?:角色替代|角色授权)|挂接审批|挂审批|重提|重新提交审批|发起审批|路由|取消审批|撤回审批|开启|重开|重新分派|分派|reassign|reopen|损失|扣量|报废|scrap|loss|冻结|解冻|关闭|登记|创建|新建|新增|修改|更新|调整|调到|变更|改成|改为|删除|重建|绑定|解绑|升版|导入|启动|开工|移站|过站|进站|出站|返工|不良|投料|补投|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
 ROUTING_INSTRUCTION = (
+    "Pending事件草稿编辑先get_quality_event_update_context(purpose=edit_pending_draft)，只读原资料和缺项；用户明确值后prepare_quality_event_draft_update，changes仅明确简述/说明/区域、报告人/发现人及其组织、优先级和带时区发生/报告时间，省略/null保留，文字可显式空串。报告人不是当前执行身份，不代选人员或当前时间，不改事件组织/责任人/角色/分类。Submit=false标准PreValidate会跳过字段校验并强制内部执行，准备只能固定Load+静态差异，禁止普通execute=false假预览。核实实际当前责任人及原生角色组织、同次会话，验证证书HTTPS；准备结果static_and_echo_verified=false，不声称补齐后已可正式提交。系统确认单次execute_quality_transaction保存原Pending，unknown不重试；最终人工证据review后，独立prepare_quality_event_submission重新检查签名/AutoTriage/通知并另行确认Submit=true，不能串成自动提交或绕过门禁。"
     "实际批准/拒绝用prepare_quality_approval_decision，action仅approve/reject；明确原对象/组织/表ID/条目ID/原列表决策ID及非空comments，决策原码Approve10/Reject20与审批表状态码不同。默认仅原指定审批人、SubstituteOption1和原生当前EntryForApproval匹配、Routed表/条目及Approve512；不传Employee/口令。前序层级未完成拒绝越级，默认拒绝额外电子签名要求。组织要求本事务单人QualityESigDetail签名时，明确require_quality_esign=true才进入受控签名链路：展示返回的signature_input_url，用户仅在独立本机页面核对计划和实际员工并输入口令，禁止在聊天、MCP参数或代理中收集/转发口令。get_quality_transaction_plan只读signature_input_status；captured只表示暂存，不表示MES验证或签批成功。过期/取消/重启/任何执行领取后输入失效，不能复用；通用多签/协签/日期委托仍拒绝。存在通知配置须明确allow_notifications=true，可能推进层级；Rejected不保证表立即拒绝，不等于退回。确认同一计划后execute_quality_transaction单次提交，unknown保留对象/表占用，inspect仅给证据，不重试。"
     "实际审批表操作用prepare_quality_approval_action，action仅route/cancel/resubmit，必须明确原对象/组织、approval_sheet_id和非空comments。route只允许空白Pending表首次路由；resubmit须明确previous_cycle_gmt，逐条核对旧路由/决策/评论持久历史后，才允许拒绝或取消表原生开启新周期，保留旧历史；cancel只允许未签批Routed表，原生回Pending并写RoutingCanceled历史，不等于Cancelled20。不是拒绝/签批/退回决策入口，不替代电子签名。可能通知时明确allow_notifications=true；确认同一计划后execute_quality_transaction单次提交，unknown保留原对象/表占用，inspect只给原ID证据，不重试。禁止使用通用RouteApproval或CancelApproval替代表级服务。"
     "一次性审批转派先get_quality_approval_context读取原对象/表/条目/周期，原因候选用list_quality_references(kind=delegation_reason)，再prepare_quality_approval_delegation，明确原ID及approval_cycle_gmt、target_employee_name、delegation_reason_name、非空comments和allow_notifications=true。仅原当前指定审批人本人、Named1、当前层级、无已签结论和本周期转派链；核实双方角色组织及实际会话。不改Employee或直接改Approver、不创建日期委托配置。系统确认同一计划单次DelegateTask，unknown保留原对象/表占用，最终人工证据审计前不得继续签批。新审批人使用自己的合法会话，先get_quality_approval_context(include_delegation_history=true,delegation_entry_id=原条目ID)读取唯一本周期原生转派历史，再prepare_quality_approval_decision(allow_delegated_approval=true,delegation_history_id=原历史ID)批准/拒绝；实际当前员工须等于新Approver并核对角色组织，保留原分配人、当前审批人与ApprovedBy，角色替代不能同时选。组织要求单人质量签名时可组合require_quality_esign=true，口令仅本人在独立页面输入。日期自动委托、转委托、批量、撤销委托及委托配置维护未实现，不能把这些要求自动改成永久的一次转派。"
@@ -106,16 +107,18 @@ def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
     triage_submission = re.search(r"(?:^|请|帮我)\s*(?:完成|办理|确认|提交).*(?:分流|triage)", current, re.I)
     event_text_clear = (re.search(r"清空|清除", current) and re.search(GROUP_TERMS['quality'], context)
                         and re.search(r"简述|说明|发现区域", current))
+    event_draft_save = re.search(r"保存",current) and re.search(r"草稿",context) and re.search(GROUP_TERMS['quality'],context)
     level_reset = (re.search(r"恢复|复位|重置|撤销", current)
                    and re.search(r"检验水平|采样状态", context))
     approval_decision_submission = re.search(r"^(?:(?:请|帮我|提交|执行)\s*)*(?:批准|拒绝|签批)", current)
-    wants_write = bool(WRITE_TERMS.search(current) or task_submission or collection_submission or inspection_submission or triage_submission or event_text_clear or level_reset or approval_decision_submission)
+    wants_write = bool(WRITE_TERMS.search(current) or task_submission or collection_submission or inspection_submission or triage_submission or event_text_clear or event_draft_save or level_reset or approval_decision_submission)
     if re.search(r"查询|查看|追溯|了解|有哪些|历史", current) and not re.search(
         r"执行|创建|新建|新增|修改|更新|删除|重建|绑定|解绑|升版|导入|启动|开工|请将|请把|帮我把|create|update|delete|patch|import", current, re.I
     ):
         wants_write = False
     submission_check = re.search(r"^(?:请)?(?:查看|查询|检查|核验|了解|说明).*(?:事件|草稿).*(?:提交).*(?:条件|要求|规则|步骤|历史|配置|资料)",current.strip())
-    if submission_check or (re.search(r"事件|草稿",context) and re.search(r"(?:不要|无需|禁止)\s*(?:执行|提交)",current)):
+    draft_check = re.search(r"^(?:请)?(?:查看|查询|检查|核验|了解|说明).*(?:事件|草稿).*(?:保存|编辑|补齐|补充).*(?:条件|要求|规则|步骤|历史|配置|资料)",current.strip())
+    if submission_check or draft_check or (re.search(r"事件|草稿",context) and re.search(r"(?:不要|无需|禁止)\s*(?:执行|提交|保存)",current)):
         wants_write = False
     creation_check = re.search(r"^(?:请)?(?:查看|查询|检查|核验|验证).*事件.*(?:创建|新建).*(?:前置|参数|配置|资料|条件|规则)[？?。]?$", current.strip())
     if creation_check:

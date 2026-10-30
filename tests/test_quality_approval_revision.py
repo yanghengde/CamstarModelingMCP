@@ -86,24 +86,24 @@ def test_only_explicit_terminal_cycle_can_be_revised(env,mode):
     assert 'error' in prepare();env['client'].request.assert_not_awaited()
 
 
-@pytest.mark.parametrize('stage',['load','preview'])
+@pytest.mark.parametrize('stage',['load','second_load'])
 @pytest.mark.parametrize('mode',['sheet','status','actor','role','signature','approval_write'])
-def test_load_and_preview_must_keep_original_approval_context(env,stage,mode):
+def test_independent_loads_must_keep_original_approval_context(env,stage,mode):
     def hook(data):
+        if stage=='second_load' and env['load_count']<2:return
         if mode=='sheet':data['QualityObjectDetail']['CompletionApprovalSheet']={'InstanceId':OTHER}
         elif mode=='status':data['QualityObjectDetail']['CompletionApprovalStatus']=10
         elif mode=='actor':data['QualityObjectDetail']['UserIsOwner']=False
         elif mode=='role':data['QualityObjectDetail']['UserHasRole']=False
         elif mode=='signature':data['ESigRequirement']={}
-        elif stage=='preview':data['ApprovalSheetDetails']={}
         else:data['ApprovalSheetDetails']['ApprovalEntries']=[]
-    env['approval_load_hook' if stage=='load' else 'approval_preview_hook']=hook
+    env['approval_load_hook']=hook
     assert 'error' in prepare();env['client'].request.assert_not_awaited()
 
 
 def test_revision_still_requires_actual_text_change_and_current_edit_permission(env):
     assert 'error' in prepare(description='Original description')
-    env['approval_preview_hook']=lambda d:d.update(AvailableActions=1)
+    env['approval_load_hook']=lambda d:d.update(AvailableActions=1)
     assert 'error' in prepare()
 
 

@@ -249,18 +249,19 @@ async def build_update(args,marker):
     for arg,value in changes.items():detail[TEXT_FIELDS[arg][0]]=value
     if detail==original['detail']:raise ValueError('明确字段与原值相同，没有资料变更。')
     body=root_body(before,marker,args.get('comments',''));body['serviceDetail']=detail
-    raw=await request('POST','/api/UpdateEvent',base_url=CAMSTAR_SHOPFLOOR_BASE_URL,body=body,
-                      params={'execute':'false','$select':SELECT,'$expand':EXPAND},response_formatter=raw_json)
-    data=parse_reply(raw);current=validate_common(data,body,before)
-    if i.wire_int(data['ServiceDetail'].get('CDOTypeId'),'事件明细类型')!=DETAIL_TYPE:raise ValueError('更新回显不是7541事件明细。')
+    # Standard inherited CreateEvent_PreValidate forces Transaction::IsExecute
+    # for every Submit=false request, including edits of submitted Events. A
+    # regular execute=false POST is therefore unsafe as a preview here too.
+    current=original['current']
     # A final independent Load must still return the original detail, not the patch.
     if await context(args)!=before or await load(before,marker)!=original:raise ValueError('准备期间原事件、权限/签名、关联或原明细发生变化。')
     row=before['event'];reads=set()
     for key in ('organization','owner','role','priority'):reads.update(resources(before[key]['entity'],before[key]))
     return {'kind':'event_update','action':'update_text','service':'UpdateEvent','name':row['EventName'],'target_id':row['EventId'],
         'scope_key':'quality-event:id:'+row['EventId'],'before':before,'original_detail':original['detail'],'body':body,
-        'preview':{'verified_input_echo':body,'native_load':verified,**current,'dynamic_validation_verified':False,
-                   'event_updated_verified':False,'note':'完整保留Load的原明细，仅改明确文字；submit=false不重新提交事件，不改归属/类别/流程/审批。'},
+        'preview':{'native_load':verified,**current,'dynamic_validation_verified':False,'static_preview_only':True,
+                   'patched_request_echo_verified':False,'regular_nonexecuting_post_requested':False,
+                   'event_updated_verified':False,'note':'固定Load与本地静态文字差异，不调用Submit=false普通POST假预览（标准会强制内部执行并禁用字段校验）。完整保持其它资料，不重新提交或改归属/类别/流程/审批；确认后才一次实际保存。'},
         'resource_reads':sorted(reads),'resource_writes':sorted({'runtime:quality-event:id:'+row['EventId']}
             |({'runtime:approval-sheet:id:'+args['approval_sheet_id'].lower()} if before.get('approval_revision') else set())
             |{'runtime:container:id:'+r['ContainerId'] for r in before['linked_ncrs']}),
@@ -293,20 +294,22 @@ async def inspect_snapshot(snap):
 
 @mcp.tool
 async def get_quality_event_update_context(event_name:str,organization_name:str,event_instance_id:str|None=None,
-        approval_sheet_id:str|None=None,previous_cycle_gmt:str|None=None,allow_role_substitution:bool=False,purpose:Literal['update_text','submit_pending']='update_text')->str:
+        approval_sheet_id:str|None=None,previous_cycle_gmt:str|None=None,allow_role_substitution:bool=False,purpose:Literal['update_text','submit_pending','edit_pending_draft']='update_text')->str:
     """只读检查基础Event文字更新前置，核对当前UpdateEvent/PerformEvent契约并调用固定Load事件读取原明细。
     限已提交Active、无流程/检查表/审批/自定义数据/法规报告/批次/交叉引用，当前账号有Edit动作且为责任人并有角色。
     显示原资料、报告人/日期及保持值；不保存计划、不提交业务、不认证审批或签名，不允许传任意事件名。
     purpose='submit_pending'只读已有Pending未提交草稿、原Load保持值及自动分流/通知配置，不授权通知或正式提交；实际用prepare_quality_event_submission。不能与审批文字修订参数混用。
+    purpose='edit_pending_draft'只读Pending草稿资料与缺项；原值可以不完整，不补默认值，当前责任人/角色与会话须核实。保存准备使用prepare_quality_event_draft_update，无普通POST假预览。
     """
     try:
         args=dict(event_name=event_name,organization_name=organization_name,event_instance_id=event_instance_id,
                   approval_sheet_id=approval_sheet_id,previous_cycle_gmt=previous_cycle_gmt,allow_role_substitution=allow_role_substitution)
-        if purpose=='submit_pending':
+        if purpose in ('submit_pending','edit_pending_draft'):
             if approval_sheet_id is not None or previous_cycle_gmt is not None or allow_role_substitution:raise ValueError('草稿正式提交核验不能混入审批资料修订参数。')
-            from tools.quality_event_submission import read_context
+            if purpose=='submit_pending':from tools.quality_event_submission import read_context
+            else:from tools.quality_event_drafts import read_context
             return q.encode(await read_context(args))
-        if purpose!='update_text':raise ValueError('上下文用途仅update_text/submit_pending。')
+        if purpose!='update_text':raise ValueError('上下文用途仅update_text/submit_pending/edit_pending_draft。')
         before=await context(args);verified=await contract();marker='MCP-QUAL:'+'0'*32;original=await load(before,marker)
         if await context(args)!=before:raise ValueError('读取更新上下文期间事件发生变化。')
         return q.encode({'complete':True,'before':before,'native_contract':verified,'original_detail':original['detail'],
@@ -319,9 +322,9 @@ async def prepare_quality_event_update(event_name:str,organization_name:str,brie
         description:str|None=None,discovery_area:str|None=None,event_instance_id:str|None=None,comments:str='',
         approval_sheet_id:str|None=None,previous_cycle_gmt:str|None=None,allow_role_substitution:bool=False)->str:
     """准备原生UpdateEvent文字更新：仅简述/说明/发现区域，至少一项明确变化。省略/null保留；说明/区域可显式空字符串清空，简述须非空。
-    先固定Load核对并完整保持原报告人/发现人、日期、优先级等明细，再做execute=false回显和独立重读；submit固定false不重新提交已提交事件。
+    固定Load核对并完整保持原报告人/发现人、日期、优先级等明细，本地静态差异与独立重读；submit固定false不重新提交已提交事件。标准PreValidate会强制执行Submit=false请求，禁止普通execute=false POST假预览，static_and_echo_verified=false。
     限已提交Active基础Event、无流程/检查表/审批/复杂关联/自定义数据及更新签名要求。保持类别/责任人/角色/分流/CAR策略，不做分派/升级或绕过权限。
-    可明确approval_sheet_id及previous_cycle_gmt修订唯一审批表拒绝/取消后的Active/InReview基础Event文字；旧周期持久历史须完整核实，无待签条目/角色替代。只读Load的审批明细不回填执行，预览必须没有审批明细写入；不改审批配置、不自动重提。
+    可明确approval_sheet_id及previous_cycle_gmt修订唯一审批表拒绝/取消后的Active/InReview基础Event文字；旧周期持久历史须完整核实，无待签条目/角色替代。只读Load的审批明细不回填静态执行载荷；不改审批配置、不自动重提。
     execute_quality_transaction系统确认单次提交；unknown保留原事件及关联NCR容器占用，inspect只给原ID证据，最终证据人工review，不重试。
     若原表含Role2条目，须明确allow_role_substitution=true才可保持原策略修订文字；仍由原责任人/角色操作，不修改策略或授予签署资格。
     """
