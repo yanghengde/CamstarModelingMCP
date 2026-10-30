@@ -234,8 +234,11 @@ def loaded_detail(data,before):
 async def load(before,marker):
     body=root_body(before,marker)
     raw=await request('POST','/api/UpdateEvent/PerformEvent',base_url=CAMSTAR_SHOPFLOOR_BASE_URL,
-        body={'event':{'eventName':'Load'},'inputData':body},params={'$select':SELECT,'$expand':EXPAND},response_formatter=raw_json)
+        body={'event':{'eventName':'Load'},'inputData':body},params={'$select':SELECT+(',Classification,SubClassification' if 'classifications' in before else ''),'$expand':EXPAND},response_formatter=raw_json)
     data=parse_reply(raw);current=validate_common(data,body,before,loaded=True)
+    if 'classifications' in before:
+        from tools.quality_event_classification import verify_loaded
+        verify_loaded(data,before)
     return {'detail':loaded_detail(data,before),'current':current}
 
 
@@ -294,22 +297,30 @@ async def inspect_snapshot(snap):
 
 @mcp.tool
 async def get_quality_event_update_context(event_name:str,organization_name:str,event_instance_id:str|None=None,
-        approval_sheet_id:str|None=None,previous_cycle_gmt:str|None=None,allow_role_substitution:bool=False,purpose:Literal['update_text','submit_pending','edit_pending_draft']='update_text')->str:
+        approval_sheet_id:str|None=None,previous_cycle_gmt:str|None=None,allow_role_substitution:bool=False,
+        purpose:Literal['update_text','submit_pending','edit_pending_draft','classify_pending_draft']='update_text',
+        classification_name:str|None=None,subclassification_name:str|None=None)->str:
     """只读检查基础Event文字更新前置，核对当前UpdateEvent/PerformEvent契约并调用固定Load事件读取原明细。
     限已提交Active、无流程/检查表/审批/自定义数据/法规报告/批次/交叉引用，当前账号有Edit动作且为责任人并有角色。
     显示原资料、报告人/日期及保持值；不保存计划、不提交业务、不认证审批或签名，不允许传任意事件名。
     purpose='submit_pending'只读已有Pending未提交草稿、原Load保持值及自动分流/通知配置，不授权通知或正式提交；实际用prepare_quality_event_submission。不能与审批文字修订参数混用。
     purpose='edit_pending_draft'只读Pending草稿资料与缺项；原值可以不完整，不补默认值，当前责任人/角色与会话须核实。保存准备使用prepare_quality_event_draft_update，无普通POST假预览。
+    purpose='classify_pending_draft'只读原分类/子分类、组织完整映射及组合阻塞；可同时明确classification_name/subclassification_name比较拟选组合，不保存或生成修改计划。标准UpdateEvent这两字段只读且无保存映射，不能直接改库、同名CreateEvent覆盖或猜通用HTTP。分类对有效也非修改/提交许可。
     """
     try:
         args=dict(event_name=event_name,organization_name=organization_name,event_instance_id=event_instance_id,
                   approval_sheet_id=approval_sheet_id,previous_cycle_gmt=previous_cycle_gmt,allow_role_substitution=allow_role_substitution)
+        if purpose=='classify_pending_draft':
+            if approval_sheet_id is not None or previous_cycle_gmt is not None or allow_role_substitution:raise ValueError('分类核验不能混入审批资料修订参数。')
+            from tools.quality_event_classification import read_context
+            return q.encode(await read_context(args|dict(classification_name=classification_name,subclassification_name=subclassification_name)))
+        if classification_name is not None or subclassification_name is not None:raise ValueError('拟选分类仅允许purpose=classify_pending_draft只读比较，不混入保存或正式提交。')
         if purpose in ('submit_pending','edit_pending_draft'):
             if approval_sheet_id is not None or previous_cycle_gmt is not None or allow_role_substitution:raise ValueError('草稿正式提交核验不能混入审批资料修订参数。')
             if purpose=='submit_pending':from tools.quality_event_submission import read_context
             else:from tools.quality_event_drafts import read_context
             return q.encode(await read_context(args))
-        if purpose!='update_text':raise ValueError('上下文用途仅update_text/submit_pending/edit_pending_draft。')
+        if purpose!='update_text':raise ValueError('上下文用途仅update_text/submit_pending/edit_pending_draft/classify_pending_draft。')
         before=await context(args);verified=await contract();marker='MCP-QUAL:'+'0'*32;original=await load(before,marker)
         if await context(args)!=before:raise ValueError('读取更新上下文期间事件发生变化。')
         return q.encode({'complete':True,'before':before,'native_contract':verified,'original_detail':original['detail'],

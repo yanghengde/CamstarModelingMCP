@@ -9,6 +9,7 @@ from tools.process_context import ReadContext
 from tools.modeling_details import raw_json,_has_next_link
 from tools.collection_validation import timestamp_valid,timestamp_ticks
 from core.http_client import request
+from tools import quality_event_classification as classification
 from config import CAMSTAR_SHOPFLOOR_BASE_URL
 
 CLASS_COLUMNS='EventId,ChangeCount,ClassificationId,SubClassificationId'
@@ -38,6 +39,8 @@ async def source(args,enforce_notice=True):
         raise ValueError('草稿分类身份或版本未核实。')
     classifications={k:iid(classes[0][k]) for k in ('ClassificationId','SubClassificationId')}
     org=await t.asset('organization',name=args['organization_name'],key=row['OrganizationId'],signature_txn_type=7578)
+    class_config=await classification.configuration(org,classifications)
+    classification.require_submission(class_config)
     owner=await t.asset('owner',key=row['OwnerId']);role=await t.asset('role',key=row['RoleId']);priority=await t.asset('priority',key=row['PriorityLevelId'])
     configuration=await t.triage_configuration(row)
     spec=configuration['spec'];root=await ReadContext(1).get('TriageSpecs',spec['InstanceID'],
@@ -49,7 +52,7 @@ async def source(args,enforce_notice=True):
     if enforce_notice and notification['smtp_configured'] and notification['entries'] and not args.get('allow_notifications',False):
         raise ValueError('正式提交可能原生发送责任归属通知，须明确allow_notifications=true。')
     return dict(event=row,organization=org,owner=owner,role=role,priority=priority,classifications=classifications,linked_ncrs=[],
-        triage_configuration=configuration,auto_triage_business_rules=[],notification_policy=notification)
+        triage_configuration=configuration,auto_triage_business_rules=[],notification_policy=notification,classification_configuration=class_config)
 
 
 def body_for(before,original,marker,comments):
@@ -72,12 +75,13 @@ async def build(args,marker):
     # Unlike the save-draft branch, Submit=true does not activate the standard
     # PreValidate override that forces Transaction::IsExecute=true.
     raw=await request('POST','/api/UpdateEvent',base_url=CAMSTAR_SHOPFLOOR_BASE_URL,body=body,
-        params={'execute':'false','$select':u.SELECT,'$expand':u.EXPAND},response_formatter=raw_json)
-    data=u.parse_reply(raw);current=u.validate_common(data,body,before)
+        params={'execute':'false','$select':u.SELECT+',Classification,SubClassification','$expand':u.EXPAND},response_formatter=raw_json)
+    data=u.parse_reply(raw);current=u.validate_common(data,body,before);classification.verify_loaded(data,before)
     if u.i.wire_int(data['ServiceDetail'].get('CDOTypeId'),'事件明细类型')!=7541:raise ValueError('提交回显不是原7541事件明细。')
     if await source(args)!=before or await original_detail(before,marker)!=original:raise ValueError('准备正式提交期间草稿、原资料、权限、分类、分流或通知配置变化。')
     row=before['event'];reads=set()
     for state in [before[k] for k in ('organization','owner','role','priority')]+[before['triage_configuration']['spec']]:reads.update(resources(state['entity'],state))
+    reads.update(classification.read_resources(before['classification_configuration']))
     return dict(kind='event_submit',action='submit_pending',service='UpdateEvent',name=row['EventName'],target_id=row['EventId'],scope_key='quality-event:id:'+row['EventId'],
         before=before,original_detail=original['detail'],body=body,arguments=args,marker=marker,environment=p.environment(),
         resource_reads=sorted(reads),resource_writes=['runtime:quality-event:id:'+row['EventId']],

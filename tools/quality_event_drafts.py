@@ -5,6 +5,7 @@ import re
 from pydantic import BaseModel,ConfigDict,Field
 from tools import mcp,quality as q,quality_plans as p,quality_event_update as u,quality_event_triage as t
 from tools import quality_approval_authorization as auth,quality_event_submission as submission,quality_event_lifecycle as lifecycle
+from tools import quality_event_classification as classification
 from tools.quality_spc_annotations import iid,schema_check
 from tools.quality_definitions import resources
 from tools.collection_validation import timestamp_valid,timestamp_ticks
@@ -54,15 +55,16 @@ async def source(args):
     org=await t.asset('organization',name=args['organization_name'],key=row['OrganizationId'],signature_txn_type=None)
     owner=await t.asset('owner',key=iid(row['OwnerId']));role=await t.asset('role',key=iid(row['RoleId']))
     priority=await t.asset('priority',key=iid(row['PriorityLevelId'])) if row['PriorityLevelId'] not in (None,'') else None
-    return dict(event=row,organization=org,owner=owner,role=role,priority=priority,classifications=class_ids,linked_ncrs=[])
+    config=await classification.configuration(org,class_ids)
+    return dict(event=row,organization=org,owner=owner,role=role,priority=priority,classifications=class_ids,linked_ncrs=[],classification_configuration=config)
 
 
 async def load(before,marker,bound):
     body=u.root_body(before,marker)
     raw=await request('POST','/api/UpdateEvent/PerformEvent',base_url=CAMSTAR_SHOPFLOOR_BASE_URL,
-        body={'event':{'eventName':'Load'},'inputData':body},params={'$select':u.SELECT+',Employee,ESigDetails,QualityESigDetail',
+        body={'event':{'eventName':'Load'},'inputData':body},params={'$select':u.SELECT+',Employee,ESigDetails,QualityESigDetail,Classification,SubClassification',
             '$expand':u.EXPAND},bound_headers=bound,require_stable_session=True,response_formatter=u.raw_json)
-    data=u.parse_reply(raw);current=u.validate_common(data,body,before,loaded=True)
+    data=u.parse_reply(raw);current=u.validate_common(data,body,before,loaded=True);classification.verify_loaded(data,before)
     detail=data.get('ServiceDetail')
     allowed=set(u.DETAIL_FIELDS)|{'CDOTypeId','InstanceId','Parent','DisplayName','HistoryDetail','SmartBarcode'}
     if not isinstance(detail,dict) or set(detail)-allowed:
@@ -130,6 +132,7 @@ async def build(args,marker,execution_binding=None):
         body=body_for(before,detail,marker,args['comments']);row=before['event'];reads=set()
         for state in list(before[k] for k in ('organization','owner','role','priority'))+list(resolved.values()):
             if state:reads.update(resources(state['entity'],state))
+        reads.update(classification.read_resources(before['classification_configuration']))
         if execution_binding is not None:execution_binding.update(headers=bound,actor_id=original['employee_id'])
         return dict(kind='event_draft_update',action='save_pending_draft',service='UpdateEvent',name=row['EventName'],target_id=row['EventId'],
             scope_key='quality-event:id:'+row['EventId'],before=before,original_detail=original['detail'],resolved_changes=resolved,actor_authorization=proof,
@@ -158,7 +161,8 @@ async def read_context(args):
         original=await load(before,'MCP-QUAL:'+'0'*32,bound)
         if await source(args)!=before:raise ValueError('读取草稿期间原数据或配置变化。')
         return dict(complete=True,before=before,native_contract=verified,original_detail=original['detail'],server_context=original['current'],
-            missing_submission_fields=missing_fields(original['detail'],before),ready_for_execution=False,ready_for_submission=False,
+            missing_submission_fields=missing_fields(original['detail'],before),classification_validation=before['classification_configuration']['current'],
+            classification_write_support=classification.write_support(),ready_for_execution=False,ready_for_submission=False,
             regular_nonexecuting_post_requested=False,note='只读原草稿和Load保持值。保存与正式提交是两个独立计划，未确认任何资料变更或提交许可。')
 
 
