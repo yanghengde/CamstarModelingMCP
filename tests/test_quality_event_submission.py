@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock
 import pytest
 from fastmcp import Client
 from tools import mcp,get_tool_func,quality_event_submission as s,quality_event_update as u,quality_event_triage as t,quality_plans as p
+from tools import quality_event_classification as classification
 from tests.test_quality_event_update import env as update_env
 from tests.test_quality_event_triage import env as triage_env,EVENT,ORG,OWNER,ROLE,PRIORITY,SPEC,OTHER,echo
 from agent.safety import evaluate_mutations,MutationCounts,plan_preview
@@ -23,12 +24,24 @@ def env(update_env,monkeypatch):
     state.update(business_rules=[],notice=dict(smtp_configured=False,entries=[],notification_effect_verified=False),
         classes=dict(EventId=EVENT,ChangeCount=1,ClassificationId='000000000000b001',SubClassificationId='000000000000b002'),
         submission_posts=[],submit_mode=None,history_rows=[])
+    state['classification_refs']={
+        '000000000000b001':dict(entity='Classifications',InstanceID='000000000000b001',Name='Class',IsFrozen=False,ChangeCount=1),
+        '000000000000b002':dict(entity='SubClassifications',InstanceID='000000000000b002',Name='Sub',IsFrozen=False,ChangeCount=1)}
+    state['classification_maps']=[dict(EventClassificationSpecMapId='000000000000b003',CDOTypeId=8001,OrganizationId=ORG,
+        ClassificationId='000000000000b001',SubClassificationId='000000000000b002',ChecklistTemplateId=None,FailureModeGroupId=None,
+        OwnerId=None,RoleId=None,PEDefault=False,IsFrozen=False,ChangeCount=1)]
+    state['classification_hook']=None
     original_sql=t.q.sql_rows
     async def sql(query,maximum):
         if 'INFORMATION_SCHEMA.COLUMNS' in query:
             import re
             return [dict(TABLE_NAME=table,COLUMN_NAME=col) for table,cols in re.findall(r"TABLE_NAME='(\w+)' AND COLUMN_NAME IN \((.*?)\)",query) for col in re.findall(r"'([^']+)'",cols)]
         if query.startswith('SELECT TOP 1 '+s.CLASS_COLUMNS):return [copy.deepcopy(state['classes'])]
+        if ' FROM EventClassificationSpecMap WHERE ' in query:return copy.deepcopy(state['classification_maps'])
+        for table,column in [('Classification','ClassificationId'),('SubClassification','SubClassificationId')]:
+            if f' FROM {table} WHERE ' in query:
+                key=query.split("='")[-1].rstrip("'");row=state['classification_refs'].get(key)
+                return [{column:key,'ChangeCount':row['ChangeCount']}] if row else []
         if 'FROM UpdateEventHistory s JOIN HistoryMainline h ' in query:return copy.deepcopy(state['history_rows'])
         return await original_sql(query,maximum)
     monkeypatch.setattr(t.q,'sql_rows',AsyncMock(side_effect=sql))
@@ -38,9 +51,27 @@ def env(update_env,monkeypatch):
             assert entity=='TriageSpecs' and key==SPEC and 'BusinessRules' in params['$select']
             return dict(InstanceID=SPEC,Name='Spec',IsFrozen=False,BusinessRules=copy.deepcopy(state['business_rules']))
     monkeypatch.setattr(s,'ReadContext',RuleContext)
+    class ClassContext:
+        def __init__(self,*x):pass
+        async def get(self,entity,key=None,params=None):
+            assert params['$select']=='InstanceID,Name,IsFrozen' and entity in ('Classifications','SubClassifications')
+            rows=[{k:copy.deepcopy(r[k]) for k in ('InstanceID','Name','IsFrozen')} for r in state['classification_refs'].values()
+                if r['entity']==entity and (key is not None and r['InstanceID']==key or key is None and params['$filter']=='Name eq '+t.q.literal(r['Name'])[1:])]
+            return rows[0] if key and len(rows)==1 else {'value':rows}
+    monkeypatch.setattr(classification,'ReadContext',ClassContext)
     monkeypatch.setattr(s.creation,'notification_policy',AsyncMock(side_effect=lambda *x:copy.deepcopy(state['notice'])))
     # u.request is the existing fixed Load/save-preview simulator; submit calls
     # deliberately select the same native service with a true Submit field.
+    base_request=u.request
+    async def classified_request(method,path,**kw):
+        raw=await base_request(method,path,**kw)
+        if method=='GET':return raw
+        outer=json.loads(raw);data=outer.get('data',outer)
+        for col,field in [('ClassificationId','Classification'),('SubClassificationId','SubClassification')]:
+            key=state['classes'][col];data[field]=None if key is None else dict(InstanceId=key)
+        if state['classification_hook']:state['classification_hook'](data)
+        return json.dumps(outer)
+    monkeypatch.setattr(u,'request',AsyncMock(side_effect=classified_request))
     monkeypatch.setattr(s,'request',u.request)
     client=state['client']
     async def submit(method,url,**kw):

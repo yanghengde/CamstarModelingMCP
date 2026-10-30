@@ -140,6 +140,7 @@ async def build(args,marker,execution_binding=None):
             preview=dict(native_load=verified,original_detail_verified=True,static_preview_only=True,patched_request_echo_verified=False,
                 regular_nonexecuting_post_requested=False,employee_id=original['employee_id'],edit_context=original['current'],
                 remaining_submission_fields=missing_fields(detail,before),ready_for_submission=False,dynamic_validation_verified=False,draft_saved_verified=False,
+                classification_validation=before['classification_configuration']['current'],classification_write_support=classification.write_support(),
                 note='仅固定Load与本地变更计划；Submit=false会强制内部执行，禁止普通POST假预览。确认后一次真实保存，保持Pending，不调用AutoTriage/正式提交；native字段校验被草稿分支禁用，MES最终效果待验收。'))
 
 
@@ -178,6 +179,7 @@ async def inspect(snap):
 async def prepare_quality_event_draft_update(event_name:str,organization_name:str,changes:EventDraftChanges,comments:str,event_instance_id:str|None=None)->str:
     """准备已有Pending2 Category1未提交草稿的资料保存，不正式提交。可明确修改简述/说明/发现区域、报告人/发现人及其组织、优先级、带时区发生/报告时间；省略/null保留，文字可显式空串清除。
     先get_quality_event_update_context(purpose='edit_pending_draft')核对原资料/缺项；不自动选人员/时间，不改事件组织/责任人/角色/分类。无流程/审批/检查表/法规报告/事件数据/NCR关联。
+    原分类/子分类只读保持并核对原组织完整映射与配置版本；分类缺失/组合不符可保留草稿其它资料，正式提交会拒绝。分类修改原生写入未核实，先purpose='classify_pending_draft'诊断，不能给changes传分类或用CreateEvent覆盖。
     Submit=false原生PreValidate会禁用字段校验并强制内部执行，所以准备只调用固定Load与本地静态差异，不调用普通execute=false POST假预览。严格验证允许变更、原Edit2/责任人/原生角色组织及同一内存会话，验证证书HTTPS。
     系统确认后仅一次UpdateEvent execute=true、Submit=false保存。保持原ID/Pending，缺资料可继续保留；保存不完成签名、不运行正式提交AutoTriage，也不保证已具备提交条件。
     unknown不重试，最终人工证据审计后重新prepare_quality_event_submission进行独立Submit=true复核/确认，不能把保存和提交合并或绕过提交签名/通知/规则门禁。

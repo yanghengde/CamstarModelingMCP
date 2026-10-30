@@ -21,6 +21,7 @@ GROUP_TERMS = {
 }
 WRITE_TERMS = re.compile(r"保存草稿|补齐|补充资料|正式提交|提交事件|提交草稿|转派|委托给|(?:角色替代|角色授权).{0,20}(?:批准|拒绝|签批)|(?:批准|拒绝|签批).{0,20}(?:角色替代|角色授权)|挂接审批|挂审批|重提|重新提交审批|发起审批|路由|取消审批|撤回审批|开启|重开|重新分派|分派|reassign|reopen|损失|扣量|报废|scrap|loss|冻结|解冻|关闭|登记|创建|新建|新增|修改|更新|调整|调到|变更|改成|改为|删除|重建|绑定|解绑|升版|导入|启动|开工|移站|过站|进站|出站|返工|不良|投料|补投|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
 ROUTING_INSTRUCTION = (
+    "草稿分类/子分类先get_quality_event_update_context(purpose=classify_pending_draft)读取原ID、原分类和原组织完整组合；拟选比较须同时明确classification_name/subclassification_name，仅只读，不生成计划。标准UpdateEvent分类字段只读且保存映射不含分类；独立UpdateEventDetails/Data也未核实分类持久写入路径。禁止把有ref字段或组合有效当成可修改，禁止给prepare_quality_event_draft_update传分类、同名CreateEvent覆盖、直接改库或通用HTTP。分类修改能力尚未实现，应如实说明依赖原生修改服务/正式部署扩展契约；不能自动改成创建替代事件。正式提交必须重新核对原分类配置及原组织唯一有效组合，固定Load/Submit=true回显分类与SQL原值一致，执行前重建包括完整映射/引用版本的摘要；不修改分类或映射。"
     "Pending事件草稿编辑先get_quality_event_update_context(purpose=edit_pending_draft)，只读原资料和缺项；用户明确值后prepare_quality_event_draft_update，changes仅明确简述/说明/区域、报告人/发现人及其组织、优先级和带时区发生/报告时间，省略/null保留，文字可显式空串。报告人不是当前执行身份，不代选人员或当前时间，不改事件组织/责任人/角色/分类。Submit=false标准PreValidate会跳过字段校验并强制内部执行，准备只能固定Load+静态差异，禁止普通execute=false假预览。核实实际当前责任人及原生角色组织、同次会话，验证证书HTTPS；准备结果static_and_echo_verified=false，不声称补齐后已可正式提交。系统确认单次execute_quality_transaction保存原Pending，unknown不重试；最终人工证据review后，独立prepare_quality_event_submission重新检查签名/AutoTriage/通知并另行确认Submit=true，不能串成自动提交或绕过门禁。"
     "实际批准/拒绝用prepare_quality_approval_decision，action仅approve/reject；明确原对象/组织/表ID/条目ID/原列表决策ID及非空comments，决策原码Approve10/Reject20与审批表状态码不同。默认仅原指定审批人、SubstituteOption1和原生当前EntryForApproval匹配、Routed表/条目及Approve512；不传Employee/口令。前序层级未完成拒绝越级，默认拒绝额外电子签名要求。组织要求本事务单人QualityESigDetail签名时，明确require_quality_esign=true才进入受控签名链路：展示返回的signature_input_url，用户仅在独立本机页面核对计划和实际员工并输入口令，禁止在聊天、MCP参数或代理中收集/转发口令。get_quality_transaction_plan只读signature_input_status；captured只表示暂存，不表示MES验证或签批成功。过期/取消/重启/任何执行领取后输入失效，不能复用；通用多签/协签/日期委托仍拒绝。存在通知配置须明确allow_notifications=true，可能推进层级；Rejected不保证表立即拒绝，不等于退回。确认同一计划后execute_quality_transaction单次提交，unknown保留对象/表占用，inspect仅给证据，不重试。"
     "实际审批表操作用prepare_quality_approval_action，action仅route/cancel/resubmit，必须明确原对象/组织、approval_sheet_id和非空comments。route只允许空白Pending表首次路由；resubmit须明确previous_cycle_gmt，逐条核对旧路由/决策/评论持久历史后，才允许拒绝或取消表原生开启新周期，保留旧历史；cancel只允许未签批Routed表，原生回Pending并写RoutingCanceled历史，不等于Cancelled20。不是拒绝/签批/退回决策入口，不替代电子签名。可能通知时明确allow_notifications=true；确认同一计划后execute_quality_transaction单次提交，unknown保留原对象/表占用，inspect只给原ID证据，不重试。禁止使用通用RouteApproval或CancelApproval替代表级服务。"
@@ -120,6 +121,9 @@ def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
     draft_check = re.search(r"^(?:请)?(?:查看|查询|检查|核验|了解|说明).*(?:事件|草稿).*(?:保存|编辑|补齐|补充).*(?:条件|要求|规则|步骤|历史|配置|资料)",current.strip())
     if submission_check or draft_check or (re.search(r"事件|草稿",context) and re.search(r"(?:不要|无需|禁止)\s*(?:执行|提交|保存)",current)):
         wants_write = False
+    draft_classification_edit = re.search(r"草稿",context) and re.search(r"(?:修改|调整|变更|改成|改为|更改|补齐|补充|维护).{0,30}(?:子分类|分类)|(?:子分类|分类).{0,20}(?:改成|改为|修改|调整|变更)",current)
+    if draft_classification_edit:
+        wants_write = False # No verified native persistence adapter; diagnostics remain visible.
     creation_check = re.search(r"^(?:请)?(?:查看|查询|检查|核验|验证).*事件.*(?:创建|新建).*(?:前置|参数|配置|资料|条件|规则)[？?。]?$", current.strip())
     if creation_check:
         wants_write = False

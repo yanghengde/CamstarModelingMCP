@@ -141,6 +141,7 @@ async def read_context(args):
 async def prepare_quality_event_submission(event_name:str,organization_name:str,comments:str,event_instance_id:str|None=None,allow_notifications:bool=False)->str:
     """准备已有Pending2未提交基础Event的正式提交，固定原ID，原生UpdateEvent Submit=true，不创建同名替代草稿或直接改状态。
     先get_quality_event_update_context(purpose='submit_pending')只读核对。Load完整保持原报告人/发现人/时间/优先级及文字，不接受同时改资料/类别/责任人。
+    原分类/子分类配置与原组织完整映射须唯一有效，本受限入口保守拒绝冻结配置；Load/提交回显只读分类与原SQL一致。配置版本、组合或映射默认变化使旧计划失效；分类修改尚无已核实原生路径，不直接改库/同名CreateEvent覆盖。
     原生提交会调用AutoTriage；本轮仅空BusinessRules且保留原类别/归属/CAR、无自动流程/检查表的唯一分流配置。可能发送归属通知时明确allow_notifications=true。
     需Edit2、责任人及角色，原签名要求非空/未知拒绝；审批、事件数据/NCR/法规报告等复杂上下文仍拒绝。Submit=true回显和独立重读后系统确认单次提交，unknown不重试。
     inspect只给原ID证据；最终人工审计后，按实际IsSubmitted/Status/TriageComplete查询首次分流，不把提交当作分流/审批/关闭完成，不自动补发分流。

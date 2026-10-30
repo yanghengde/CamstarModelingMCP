@@ -19,7 +19,7 @@ UpdateEvent的PreValidate与CreateEvent共用：Submit=false分支会DisableFiel
 正式提交准备必填event_name、organization_name、非空comments；可加原event_instance_id消歧，allow_notifications默认false。没有Submit、Status、IsSubmitted、TriageComplete、Employee或原资料修改参数，也不接受任意原生事件名。只支持：
 
 - CDOType7489、Category1、Pending2，未提交、未分流、未冻结，原Owner/Role/优先级、报告人、发现人和非空简述均明确。
-- 原流程/原流程模板、检查表、事件数据、关闭信息、法规报告、审批表及关联NCR均为空。分类/子分类ID和原版本须核实，不修改分类。发生/报告时间必须完整且本地时间/GMT一致，报告时间不得早于发生时间，不补当前时间。
+- 原流程/原流程模板、检查表、事件数据、关闭信息、法规报告、审批表及关联NCR均为空。分类/子分类ID、配置版本及原组织完整映射须核实，所选组合须唯一；受限入口保守拒绝冻结配置，完整映射最多100条，未知/重复/超限拒绝。Load和正式提交回显必须保持原分类，不在请求中修改分类；分类修改原生写入尚未核实，见[分类核验说明](quality-event-classification.md)。发生/报告时间必须完整且本地时间/GMT一致，报告时间不得早于发生时间，不补当前时间。
 - 组织唯一类别映射、有效TriageSpec、唯一保留当前类别的明细；不改变Owner/Role/CAR，不自动路由或挂流程/检查表。BusinessRules必须完整展开且为空，空或缺失规则配置不按默认猜测。
 - 原生Edit动作2、UserIsOwner及UserHasRole满足，IgnoreProcessModel=false，签名及审批要求明确为空；不能通过普通确认代签。本轮提交签名未开放，C2.B/C2.C已有其它签名能力不自动适用于此事务。
 
