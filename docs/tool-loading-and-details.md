@@ -23,7 +23,7 @@
 
 详情响应增加 warnings，区分服务端仍有后续页、请求字段缺失、本地分页片段以及 offset 越界。pages 中 pagination=local 明确这是本地切片，available_count 仅表示本次服务端响应内的数组条数；出现服务端 nextLink 时不将其视为服务端总量。空或 null 的 nextLink 不再误报有后续页。
 
-默认隐藏 21 个 OData key 重复入口，以及实时 Swagger 未声明的 patch_mfgorder、patch_mfgline、patch_producttype。直接 MCP 注册仍保留这些兼容入口，因此隐藏不等于禁用或验证通过。
+默认隐藏 OData key 重复入口。2026-10-31 更新：patch_spec、patch_product、patch_workflow、patch_mfgorder、patch_mfgline、patch_producttype 均保留兼容注册，但默认隐藏且函数直接拒绝，不发送 HTTP；能力目录标为 disabled。普通字段修改使用对应 update 工具，见[建模更新契约](modeling-updates.md)。
 
 当前实测 schema JSON 字符数（不是 token，也不是收费或时延实测）：
 

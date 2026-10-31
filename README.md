@@ -163,15 +163,17 @@ python main.py
 
 ### Spec 实体（`/api/Specs`）
 
+建模字段更新统一使用实例 ID 和最小 JSON PUT；程序调用方式、同类修复与验收范围见 [建模更新契约](docs/modeling-updates.md)。修改代码后需重启服务，让模型重新加载工具参数。
+
 | 工具 | 方法 | 说明 |
 |---|---|---|
 | `list_specs` | GET | OData 查询 Spec 列表 |
 | `get_spec` | GET | 按 key 获取单条 Spec |
 | `get_spec_by_odata_key` | GET | OData 键语法获取 |
 | `create_spec` | POST | 创建新 Spec |
-| `update_spec` | PUT | 全量更新 Spec |
-| `update_spec_by_odata_key` | PUT | OData 键全量更新 |
-| `patch_spec` | PATCH | 部分字段更新 |
+| `update_spec` | PUT | 按实例 ID 提交明确字段的最小更新 |
+| `update_spec_by_odata_key` | PUT | OData 键最小更新兼容入口 |
+| `patch_spec` | — | 已禁用兼容入口，不发送请求 |
 | `delete_spec` | DELETE | 删除 Spec |
 | `delete_spec_by_odata_key` | DELETE | OData 键删除 |
 | `get_specs_count` | GET | 获取 Spec 总数 |
@@ -184,7 +186,7 @@ python main.py
 | `list_operations` | GET | OData 查询 Operation 列表 |
 | `get_operation` | GET | 按 key 获取单条 |
 | `create_operation` | POST | 创建新 Operation |
-| `update_operation` | PUT | 全量更新 |
+| `update_operation` | PUT | 按实例 ID 提交明确字段的最小更新 |
 | `delete_operation` | DELETE | 删除 Operation |
 | `get_operations_count` | GET | 获取总数 |
 | *(+ OData 变体及 RequestSelectionValues)* | — | — |

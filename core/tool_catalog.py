@@ -8,6 +8,16 @@ class ToolPolicy:
     default_visible: bool = True
     always_confirm: bool = False
 
+
+# Collection-level Modeling PATCH can create/revise objects. It is not a
+# verified partial-update API; retain registered names only for compatibility.
+DISABLED_MODELING_PATCH_TOOLS = {
+    f"patch_{entity}": f"Error: 集合 PATCH 不用于普通字段更新；创建/升版语义未在此工具核实，"
+                       f"已禁用此兼容入口。请使用 update_{entity}(key=实际InstanceID, "
+                       "body_json=最小变更JSON)，随后回读核实；不要回传根对象 UseRor。"
+    for entity in ("spec", "product", "workflow", "mfgorder", "mfgline", "producttype")
+}
+
 TOOL_POLICIES = {
     'prepare_capa_approval_revision': ToolPolicy('quality'),
     'get_quality_approval_template': ToolPolicy('quality'),
@@ -179,7 +189,7 @@ TOOL_POLICIES = {
     'create_spec': ToolPolicy('spec', 'create', True, False),
     'update_spec': ToolPolicy('spec', 'update', True, False),
     'update_spec_by_odata_key': ToolPolicy('spec', 'update', False, False),
-    'patch_spec': ToolPolicy('spec', 'update', True, False),
+    'patch_spec': ToolPolicy('spec', 'update', False, False),
     'delete_spec': ToolPolicy('spec', 'delete', True, False),
     'delete_spec_by_odata_key': ToolPolicy('spec', 'delete', False, False),
     'get_specs_count': ToolPolicy('spec', 'read', True, False),
@@ -200,7 +210,7 @@ TOOL_POLICIES = {
     'create_workflow': ToolPolicy('workflow', 'create', True, False),
     'update_workflow': ToolPolicy('workflow', 'update', True, False),
     'update_workflow_by_odata_key': ToolPolicy('workflow', 'update', False, False),
-    'patch_workflow': ToolPolicy('workflow', 'update', True, False),
+    'patch_workflow': ToolPolicy('workflow', 'update', False, False),
     'delete_workflow': ToolPolicy('workflow', 'delete', True, False),
     'delete_workflow_by_odata_key': ToolPolicy('workflow', 'delete', False, False),
     'get_workflows_count': ToolPolicy('workflow', 'read', True, False),
@@ -218,7 +228,7 @@ TOOL_POLICIES = {
     'create_product': ToolPolicy('product', 'create', True, False),
     'update_product': ToolPolicy('product', 'update', True, False),
     'update_product_by_odata_key': ToolPolicy('product', 'update', False, False),
-    'patch_product': ToolPolicy('product', 'update', True, False),
+    'patch_product': ToolPolicy('product', 'update', False, False),
     'delete_product': ToolPolicy('product', 'delete', True, False),
     'delete_product_by_odata_key': ToolPolicy('product', 'delete', False, False),
     'get_products_count': ToolPolicy('product', 'read', True, False),

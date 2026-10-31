@@ -10,6 +10,8 @@ from typing import Optional
 
 from tools import mcp
 from core.http_client import request
+from core.modeling_payload import build_update_payload
+from core.tool_catalog import DISABLED_MODELING_PATCH_TOOLS
 
 
 @mcp.tool
@@ -108,18 +110,20 @@ async def create_workflow(
 @mcp.tool
 async def update_workflow(
     key: str,
-    name: str,
-    revision: str,
+    name: Optional[str] = None,
+    revision: Optional[str] = None,
     description: Optional[str] = None,
     status: Optional[int] = None,
     body_json: Optional[str] = None,
 ) -> str:
-    """
-    Fully update (replace) an existing Workflow by key.
-    PUT /api/Workflows/{key}
-
-    Required fields: name, revision.
-    Optional: description, status, or any extra fields via body_json.
+    """Update explicit fields of an existing Workflows object using JSON PUT.
+    Only key is required; prefer the InstanceID returned by a read tool.
+    Omitted fields are preserved. Supply only user-requested changes; do not
+    echo a GET snapshot, read-only fields, or root UseRor. body_json accepts
+    a JSON object with write fields (case normalized to the bundled schema).
+    Collection PATCH is not the ordinary update path. Read back the same
+    instance with the corresponding get tool and verify the changed fields.
+    A timeout/unknown result requires read-only verification, never a retry.
     """
     payload: dict = {
         "name": name,
@@ -130,12 +134,10 @@ async def update_workflow(
     if status is not None:
         payload["status"] = status
 
-    if body_json:
-        try:
-            extra = json.loads(body_json)
-            payload.update(extra)
-        except json.JSONDecodeError as e:
-            return f"❌ Invalid body_json: {e}"
+    try:
+        payload = build_update_payload("Workflows", payload, body_json)
+    except ValueError as exc:
+        return f"❌ {exc}"
 
     return await request("PUT", f"/api/Workflows/{key}", body=payload)
 
@@ -143,18 +145,20 @@ async def update_workflow(
 @mcp.tool
 async def update_workflow_by_odata_key(
     key: str,
-    name: str,
-    revision: str,
+    name: Optional[str] = None,
+    revision: Optional[str] = None,
     description: Optional[str] = None,
     status: Optional[int] = None,
     body_json: Optional[str] = None,
 ) -> str:
-    """
-    Fully update (replace) an existing Workflow using OData key syntax.
-    PUT /api/Workflows({key})
-
-    Required fields: name, revision.
-    Optional: description, status, or any extra fields via body_json.
+    """Update explicit fields of an existing Workflows object using JSON PUT.
+    Only key is required; prefer the InstanceID returned by a read tool.
+    Omitted fields are preserved. Supply only user-requested changes; do not
+    echo a GET snapshot, read-only fields, or root UseRor. body_json accepts
+    a JSON object with write fields (case normalized to the bundled schema).
+    Collection PATCH is not the ordinary update path. Read back the same
+    instance with the corresponding get tool and verify the changed fields.
+    A timeout/unknown result requires read-only verification, never a retry.
     """
     payload: dict = {
         "name": name,
@@ -165,12 +169,10 @@ async def update_workflow_by_odata_key(
     if status is not None:
         payload["status"] = status
 
-    if body_json:
-        try:
-            extra = json.loads(body_json)
-            payload.update(extra)
-        except json.JSONDecodeError as e:
-            return f"❌ Invalid body_json: {e}"
+    try:
+        payload = build_update_payload("Workflows", payload, body_json)
+    except ValueError as exc:
+        return f"❌ {exc}"
 
     return await request("PUT", f"/api/Workflows({key})", body=payload)
 
@@ -179,18 +181,11 @@ async def update_workflow_by_odata_key(
 async def patch_workflow(
     body_json: str,
 ) -> str:
+    """Disabled compatibility entry: collection PATCH is not ordinary update.
+    Use the corresponding update tool with InstanceID and minimal JSON, then
+    read back the same instance. This tool never sends an HTTP request.
     """
-    Patch an existing Workflow (partial update). Key should be in the URL or payload if Camstar uses it like Specs do.
-    PATCH /api/Workflows
-    Wait, Camstar patch typically takes no key in URL, but requires OData/InstanceId in body, or similar.
-    Provide the partial JSON payload in body_json.
-    """
-    try:
-        payload = json.loads(body_json)
-    except json.JSONDecodeError as e:
-        return f"❌ Invalid JSON in body_json: {e}"
-
-    return await request("PATCH", "/api/Workflows", body=payload)
+    return DISABLED_MODELING_PATCH_TOOLS["patch_workflow"]
 
 
 @mcp.tool

@@ -10,6 +10,8 @@ from typing import Optional
 
 from tools import mcp
 from core.http_client import request
+from core.modeling_payload import build_update_payload
+from core.tool_catalog import DISABLED_MODELING_PATCH_TOOLS
 
 
 @mcp.tool
@@ -109,36 +111,37 @@ async def create_spec(
 @mcp.tool
 async def update_spec(
     key: str,
-    name: str,
-    revision: str,
-    operation_name: str,
+    name: Optional[str] = None,
+    revision: Optional[str] = None,
+    operation_name: Optional[str] = None,
     description: Optional[str] = None,
     status: Optional[int] = None,
     body_json: Optional[str] = None,
 ) -> str:
-    """
-    Fully update (replace) an existing Spec by key.
-    PUT /api/Specs/{key}
-
-    Required fields: name, revision, operation (by name).
-    Optional: description, status, or any extra fields via body_json.
+    """Update explicit fields of an existing Specs object using JSON PUT.
+    Only key is required; prefer the InstanceID returned by a read tool.
+    Omitted fields are preserved. Supply only user-requested changes; do not
+    echo a GET snapshot, read-only fields, or root UseRor. body_json accepts
+    a JSON object with write fields (case normalized to the bundled schema).
+    Collection PATCH is not the ordinary update path. Read back the same
+    instance with the corresponding get tool and verify the changed fields.
+    A timeout/unknown result requires read-only verification, never a retry.
+    Example: update_spec(key="<InstanceID>", body_json='{"allowReprocess":true}').
     """
     payload: dict = {
         "name": name,
         "revision": revision,
-        "operation": {"name": operation_name},
+        "operation": {"name": operation_name} if operation_name is not None else None,
     }
     if description is not None:
         payload["description"] = description
     if status is not None:
         payload["status"] = status
 
-    if body_json:
-        try:
-            extra = json.loads(body_json)
-            payload.update(extra)
-        except json.JSONDecodeError as e:
-            return f"❌ Invalid body_json: {e}"
+    try:
+        payload = build_update_payload("Specs", payload, body_json)
+    except ValueError as exc:
+        return f"❌ {exc}"
 
     return await request("PUT", f"/api/Specs/{key}", body=payload)
 
@@ -146,56 +149,48 @@ async def update_spec(
 @mcp.tool
 async def update_spec_by_odata_key(
     key: str,
-    name: str,
-    revision: str,
-    operation_name: str,
+    name: Optional[str] = None,
+    revision: Optional[str] = None,
+    operation_name: Optional[str] = None,
     description: Optional[str] = None,
     status: Optional[int] = None,
     body_json: Optional[str] = None,
 ) -> str:
-    """
-    Fully update (replace) an existing Spec using OData key syntax.
-    PUT /api/Specs({key})
-
-    Required fields: name, revision, operation (by name).
-    Optional: description, status, or any extra fields via body_json.
+    """Update explicit fields of an existing Specs object using JSON PUT.
+    Only key is required; prefer the InstanceID returned by a read tool.
+    Omitted fields are preserved. Supply only user-requested changes; do not
+    echo a GET snapshot, read-only fields, or root UseRor. body_json accepts
+    a JSON object with write fields (case normalized to the bundled schema).
+    Collection PATCH is not the ordinary update path. Read back the same
+    instance with the corresponding get tool and verify the changed fields.
+    A timeout/unknown result requires read-only verification, never a retry.
+    Example: update_spec(key="<InstanceID>", body_json='{"allowReprocess":true}').
     """
     payload: dict = {
         "name": name,
         "revision": revision,
-        "operation": {"name": operation_name},
+        "operation": {"name": operation_name} if operation_name is not None else None,
     }
     if description is not None:
         payload["description"] = description
     if status is not None:
         payload["status"] = status
 
-    if body_json:
-        try:
-            extra = json.loads(body_json)
-            payload.update(extra)
-        except json.JSONDecodeError as e:
-            return f"❌ Invalid body_json: {e}"
+    try:
+        payload = build_update_payload("Specs", payload, body_json)
+    except ValueError as exc:
+        return f"❌ {exc}"
 
     return await request("PUT", f"/api/Specs({key})", body=payload)
 
 
 @mcp.tool
 async def patch_spec(body_json: str) -> str:
+    """Disabled compatibility entry: collection PATCH is not ordinary update.
+    Use the corresponding update tool with InstanceID and minimal JSON, then
+    read back the same instance. This tool never sends an HTTP request.
     """
-    Partially update (patch) a Spec.
-    PATCH /api/Specs
-
-    Provide a JSON string with the fields to update (must include at least
-    the identifying fields like name + revision).
-    Returns the updated Spec key string on success.
-    """
-    try:
-        payload = json.loads(body_json)
-    except json.JSONDecodeError as e:
-        return f"❌ Invalid body_json: {e}"
-
-    return await request("PATCH", "/api/Specs", body=payload)
+    return DISABLED_MODELING_PATCH_TOOLS["patch_spec"]
 
 
 @mcp.tool

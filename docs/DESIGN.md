@@ -311,9 +311,9 @@ def get_tool_func(name: str):
 | `get_spec` | GET | `/api/Specs/{key}` | 按 key 获取单条 |
 | `get_spec_by_odata_key` | GET | `/api/Specs({key})` | OData 键语法获取 |
 | `create_spec` | POST | `/api/Specs` | 创建新 Spec |
-| `update_spec` | PUT | `/api/Specs/{key}` | 全量更新 |
-| `update_spec_by_odata_key` | PUT | `/api/Specs({key})` | OData 键全量更新 |
-| `patch_spec` | PATCH | `/api/Specs` | 部分更新 |
+| `update_spec` | PUT | `/api/Specs/{key}` | 按实例 ID 提交最小字段更新，随后回读 |
+| `update_spec_by_odata_key` | PUT | `/api/Specs({key})` | OData 键最小更新兼容入口 |
+| `patch_spec` | — | 不发送请求 | 集合 PATCH 兼容入口已禁用，不能当作普通更新 |
 | `delete_spec` | DELETE | `/api/Specs/{key}` | 删除 |
 | `delete_spec_by_odata_key` | DELETE | `/api/Specs({key})` | OData 键删除 |
 | `get_specs_count` | GET | `/api/Specs/$count` | 获取总数 |

@@ -2,7 +2,7 @@
 import json
 from typing import Literal
 
-from core.tool_catalog import TOOL_POLICIES
+from core.tool_catalog import TOOL_POLICIES, DISABLED_MODELING_PATCH_TOOLS
 from tools import mcp
 
 
@@ -35,7 +35,7 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
     labels = {'quality': '质量、NCR、CAPA、检验与抽样/SPC', 'collection': '数据采集定义、参数维护与采集执行', 'material': 'BOM 与用料', 'resource': '设备资源与工序资源配置', 'workflow': '工艺路线', 'spec': '规格与工序配置', 'operation': '操作定义',
               'product': '产品', 'mfgorder': '工单及现场进度', 'container': '容器与生产事务',
               'reference': '基础资料与原因码', 'query': '查询服务', 'excel': '表格导入', 'system': '系统与能力发现'}
-    disabled = {'patch_mfgorder': '当前服务 PATCH 契约未验证，工具已禁用；使用 update_mfgorder。'}
+    disabled = DISABLED_MODELING_PATCH_TOOLS
     caveats = {
         'get_quality_event_data_context': '只读已有8085标准EventData问题描述/设备位置及扩展收到/报告日期，保持原Event/28项映射值和禁用清单；仅已提交Active Category1且无复杂关联。可include_date_storage=true读取四列实际SQL类型/精度；默认不增加日期元数据查询，日期准备会自动强制核对。固定Load、验证证书HTTPS，无普通POST假预览或计划，执行就绪恒false。日期须明确偏移量且不推断MES时区，不同于原Event发生/报告时间。任意现场EventCustomData字段仍需部署契约。',
         'prepare_quality_event_data_update': '封闭changes仅problem_description(255)/device_location(30 UTF-16字符)、date_received收到日期/report_date扩展报告日期。省略/null保持，文字空串清除，日期不支持清除；日期完整含明确偏移量、最多7位小数，成对生成Local/GMT，同一时刻不同写法保留原对。不改Event发生/报告时间或MES时区，不臆定两种扩展日期先后。实际SQL datetime只接受整秒，datetime2必须精确可表示；不舍入/截断，类型/精度变化阻止旧计划。固定Load+静态差异、HTTPS及原责任人角色/会话核实，签名/复杂关联拒绝，确认单次保存，unknown不重试；日期SQL/Load同值亦不归因成功，最终人工审计才继续，现场未验收。',

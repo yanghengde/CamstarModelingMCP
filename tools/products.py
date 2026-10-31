@@ -10,6 +10,8 @@ from typing import Optional
 
 from tools import mcp
 from core.http_client import request
+from core.modeling_payload import build_update_payload
+from core.tool_catalog import DISABLED_MODELING_PATCH_TOOLS
 
 
 @mcp.tool
@@ -108,36 +110,36 @@ async def create_product(
 @mcp.tool
 async def update_product(
     key: str,
-    name: str,
-    revision: str,
-    product_type_name: str,
+    name: Optional[str] = None,
+    revision: Optional[str] = None,
+    product_type_name: Optional[str] = None,
     description: Optional[str] = None,
     status: Optional[int] = None,
     body_json: Optional[str] = None,
 ) -> str:
-    """
-    Fully update (replace) an existing Product by key.
-    PUT /api/Products/{key}
-
-    Required fields: name, revision, productType (by name).
-    Optional: description, status, or any extra fields via body_json.
+    """Update explicit fields of an existing Products object using JSON PUT.
+    Only key is required; prefer the InstanceID returned by a read tool.
+    Omitted fields are preserved. Supply only user-requested changes; do not
+    echo a GET snapshot, read-only fields, or root UseRor. body_json accepts
+    a JSON object with write fields (case normalized to the bundled schema).
+    Collection PATCH is not the ordinary update path. Read back the same
+    instance with the corresponding get tool and verify the changed fields.
+    A timeout/unknown result requires read-only verification, never a retry.
     """
     payload: dict = {
         "name": name,
         "revision": revision,
-        "productType": {"name": product_type_name},
+        "productType": {"name": product_type_name} if product_type_name is not None else None,
     }
     if description is not None:
         payload["description"] = description
     if status is not None:
         payload["status"] = status
 
-    if body_json:
-        try:
-            extra = json.loads(body_json)
-            payload.update(extra)
-        except json.JSONDecodeError as e:
-            return f"❌ Invalid body_json: {e}"
+    try:
+        payload = build_update_payload("Products", payload, body_json)
+    except ValueError as exc:
+        return f"❌ {exc}"
 
     return await request("PUT", f"/api/Products/{key}", body=payload)
 
@@ -145,56 +147,47 @@ async def update_product(
 @mcp.tool
 async def update_product_by_odata_key(
     key: str,
-    name: str,
-    revision: str,
-    product_type_name: str,
+    name: Optional[str] = None,
+    revision: Optional[str] = None,
+    product_type_name: Optional[str] = None,
     description: Optional[str] = None,
     status: Optional[int] = None,
     body_json: Optional[str] = None,
 ) -> str:
-    """
-    Fully update (replace) an existing Product using OData key syntax.
-    PUT /api/Products({key})
-
-    Required fields: name, revision, productType (by name).
-    Optional: description, status, or any extra fields via body_json.
+    """Update explicit fields of an existing Products object using JSON PUT.
+    Only key is required; prefer the InstanceID returned by a read tool.
+    Omitted fields are preserved. Supply only user-requested changes; do not
+    echo a GET snapshot, read-only fields, or root UseRor. body_json accepts
+    a JSON object with write fields (case normalized to the bundled schema).
+    Collection PATCH is not the ordinary update path. Read back the same
+    instance with the corresponding get tool and verify the changed fields.
+    A timeout/unknown result requires read-only verification, never a retry.
     """
     payload: dict = {
         "name": name,
         "revision": revision,
-        "productType": {"name": product_type_name},
+        "productType": {"name": product_type_name} if product_type_name is not None else None,
     }
     if description is not None:
         payload["description"] = description
     if status is not None:
         payload["status"] = status
 
-    if body_json:
-        try:
-            extra = json.loads(body_json)
-            payload.update(extra)
-        except json.JSONDecodeError as e:
-            return f"❌ Invalid body_json: {e}"
+    try:
+        payload = build_update_payload("Products", payload, body_json)
+    except ValueError as exc:
+        return f"❌ {exc}"
 
     return await request("PUT", f"/api/Products({key})", body=payload)
 
 
 @mcp.tool
 async def patch_product(body_json: str) -> str:
+    """Disabled compatibility entry: collection PATCH is not ordinary update.
+    Use the corresponding update tool with InstanceID and minimal JSON, then
+    read back the same instance. This tool never sends an HTTP request.
     """
-    Partially update (patch) a Product.
-    PATCH /api/Products
-
-    Provide a JSON string with the fields to update (must include at least
-    the identifying fields like name + revision).
-    Returns the updated Product key string on success.
-    """
-    try:
-        payload = json.loads(body_json)
-    except json.JSONDecodeError as e:
-        return f"❌ Invalid body_json: {e}"
-
-    return await request("PATCH", "/api/Products", body=payload)
+    return DISABLED_MODELING_PATCH_TOOLS["patch_product"]
 
 
 @mcp.tool

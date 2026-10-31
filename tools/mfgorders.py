@@ -10,6 +10,8 @@ from typing import Optional
 
 from tools import mcp
 from core.http_client import request
+from core.modeling_payload import build_update_payload
+from core.tool_catalog import DISABLED_MODELING_PATCH_TOOLS
 
 
 _REVISIONED_REF_KEYS = {
@@ -179,10 +181,10 @@ async def create_mfgorder(
 @mcp.tool
 async def update_mfgorder(
     key: str,
-    name: str,
-    product_name: str,
-    product_revision: str,
-    qty: float,
+    name: Optional[str] = None,
+    product_name: Optional[str] = None,
+    product_revision: Optional[str] = None,
+    qty: Optional[float] = None,
     description: Optional[str] = None,
     order_status_name: Optional[str] = None,
     order_type_name: Optional[str] = None,
@@ -195,17 +197,20 @@ async def update_mfgorder(
     reporting_factory_name: Optional[str] = None,
     body_json: Optional[str] = None,
 ) -> str:
+    """Update explicit fields of an existing MfgOrders object using JSON PUT.
+    Only key is required; prefer the InstanceID returned by a read tool.
+    Omitted fields are preserved. Supply only user-requested changes; do not
+    echo a GET snapshot, read-only fields, or root UseRor. body_json accepts
+    a JSON object with write fields (case normalized to the bundled schema).
+    Collection PATCH is not the ordinary update path. Read back the same
+    instance with the corresponding get tool and verify the changed fields.
+    A timeout/unknown result requires read-only verification, never a retry.
     """
-    Fully update (replace) an existing MfgOrder by key.
-    PUT /api/MfgOrders/{key}
-
-    Required fields: name, product_name, product_revision, qty.
-    Optional: description, orderStatus, orderType, priority, dates,
-    UOM, mfgLine, reportingFactory, or any extra fields via body_json.
-    """
+    if (product_name is None) != (product_revision is None):
+        return "Error: 修改 Product 引用须同时明确 product_name 和 product_revision。"
     payload: dict = {
         "name": name,
-        "product": {"name": product_name, "revision": product_revision},
+        "product": {"name": product_name, "revision": product_revision} if product_name is not None else None,
         "qty": qty,
     }
     if description is not None:
@@ -229,9 +234,10 @@ async def update_mfgorder(
     if reporting_factory_name is not None:
         payload["reportingFactory"] = {"name": reporting_factory_name}
 
-    merge_error = _merge_body_json(payload, body_json)
-    if merge_error:
-        return merge_error
+    try:
+        payload = build_update_payload("MfgOrders", payload, body_json)
+    except ValueError as exc:
+        return f"❌ {exc}"
 
     return await request("PUT", f"/api/MfgOrders/{key}", body=payload)
 
@@ -239,10 +245,10 @@ async def update_mfgorder(
 @mcp.tool
 async def update_mfgorder_by_odata_key(
     key: str,
-    name: str,
-    product_name: str,
-    product_revision: str,
-    qty: float,
+    name: Optional[str] = None,
+    product_name: Optional[str] = None,
+    product_revision: Optional[str] = None,
+    qty: Optional[float] = None,
     description: Optional[str] = None,
     order_status_name: Optional[str] = None,
     order_type_name: Optional[str] = None,
@@ -255,17 +261,20 @@ async def update_mfgorder_by_odata_key(
     reporting_factory_name: Optional[str] = None,
     body_json: Optional[str] = None,
 ) -> str:
+    """Update explicit fields of an existing MfgOrders object using JSON PUT.
+    Only key is required; prefer the InstanceID returned by a read tool.
+    Omitted fields are preserved. Supply only user-requested changes; do not
+    echo a GET snapshot, read-only fields, or root UseRor. body_json accepts
+    a JSON object with write fields (case normalized to the bundled schema).
+    Collection PATCH is not the ordinary update path. Read back the same
+    instance with the corresponding get tool and verify the changed fields.
+    A timeout/unknown result requires read-only verification, never a retry.
     """
-    Fully update (replace) an existing MfgOrder using OData key syntax.
-    PUT /api/MfgOrders({key})
-
-    Required fields: name, product_name, product_revision, qty.
-    Optional: description, orderStatus, orderType, priority, dates,
-    UOM, mfgLine, reportingFactory, or any extra fields via body_json.
-    """
+    if (product_name is None) != (product_revision is None):
+        return "Error: 修改 Product 引用须同时明确 product_name 和 product_revision。"
     payload: dict = {
         "name": name,
-        "product": {"name": product_name, "revision": product_revision},
+        "product": {"name": product_name, "revision": product_revision} if product_name is not None else None,
         "qty": qty,
     }
     if description is not None:
@@ -289,24 +298,21 @@ async def update_mfgorder_by_odata_key(
     if reporting_factory_name is not None:
         payload["reportingFactory"] = {"name": reporting_factory_name}
 
-    merge_error = _merge_body_json(payload, body_json)
-    if merge_error:
-        return merge_error
+    try:
+        payload = build_update_payload("MfgOrders", payload, body_json)
+    except ValueError as exc:
+        return f"❌ {exc}"
 
     return await request("PUT", f"/api/MfgOrders({key})", body=payload)
 
 
 @mcp.tool
 async def patch_mfgorder(body_json: str) -> str:
+    """Disabled compatibility entry: collection PATCH is not ordinary update.
+    Use the corresponding update tool with InstanceID and minimal JSON, then
+    read back the same instance. This tool never sends an HTTP request.
     """
-    Partially update (patch) a MfgOrder.
-    PATCH /api/MfgOrders
-
-    Provide a JSON string with the fields to update (must include at least
-    the identifying fields like name).
-    Returns the updated MfgOrder key string on success.
-    """
-    return "Error: 此 PATCH 在当前服务 Swagger 中未验证，已禁用。请使用对应 update 工具。"
+    return DISABLED_MODELING_PATCH_TOOLS["patch_mfgorder"]
 
 
 @mcp.tool

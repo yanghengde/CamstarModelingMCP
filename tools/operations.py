@@ -9,6 +9,7 @@ import json
 from typing import Optional
 from tools import mcp
 from core.http_client import request
+from core.modeling_payload import build_update_payload
 
 
 @mcp.tool
@@ -106,34 +107,34 @@ async def create_operation(
 @mcp.tool
 async def update_operation(
     key: str,
-    name: str,
-    thruput_reporting_level: str,
+    name: Optional[str] = None,
+    thruput_reporting_level: Optional[str] = None,
     description: Optional[str] = None,
     notes: Optional[str] = None,
     body_json: Optional[str] = None,
 ) -> str:
-    """
-    Fully update (replace) an existing Operation by key.
-    PUT /api/Operations/{key}
-
-    Required fields: name, thruput_reporting_level (e.g., 'BOX', 'CARRIER', 'COMPONENT', 'PANEL', 'PCB').
-    Optional: description, notes, or any extra fields via body_json.
+    """Update explicit fields of an existing Operations object using JSON PUT.
+    Only key is required; prefer the InstanceID returned by a read tool.
+    Omitted fields are preserved. Supply only user-requested changes; do not
+    echo a GET snapshot, read-only fields, or root UseRor. body_json accepts
+    a JSON object with write fields (case normalized to the bundled schema).
+    Collection PATCH is not the ordinary update path. Read back the same
+    instance with the corresponding get tool and verify the changed fields.
+    A timeout/unknown result requires read-only verification, never a retry.
     """
     payload: dict = {
         "name": name,
-        "thruputReportingLevel": {"name": thruput_reporting_level},
+        "thruputReportingLevel": {"name": thruput_reporting_level} if thruput_reporting_level is not None else None,
     }
     if description is not None:
         payload["description"] = description
     if notes is not None:
         payload["notes"] = notes
 
-    if body_json:
-        try:
-            extra = json.loads(body_json)
-            payload.update(extra)
-        except json.JSONDecodeError as e:
-            return f"❌ Invalid body_json: {e}"
+    try:
+        payload = build_update_payload("Operations", payload, body_json)
+    except ValueError as exc:
+        return f"❌ {exc}"
 
     return await request("PUT", f"/api/Operations/{key}", body=payload)
 
@@ -141,34 +142,34 @@ async def update_operation(
 @mcp.tool
 async def update_operation_by_odata_key(
     key: str,
-    name: str,
-    thruput_reporting_level: str,
+    name: Optional[str] = None,
+    thruput_reporting_level: Optional[str] = None,
     description: Optional[str] = None,
     notes: Optional[str] = None,
     body_json: Optional[str] = None,
 ) -> str:
-    """
-    Fully update (replace) an existing Operation using OData key syntax.
-    PUT /api/Operations({key})
-
-    Required fields: name, thruput_reporting_level (e.g., 'BOX', 'CARRIER', 'COMPONENT', 'PANEL', 'PCB').
-    Optional: description, notes, or any extra fields via body_json.
+    """Update explicit fields of an existing Operations object using JSON PUT.
+    Only key is required; prefer the InstanceID returned by a read tool.
+    Omitted fields are preserved. Supply only user-requested changes; do not
+    echo a GET snapshot, read-only fields, or root UseRor. body_json accepts
+    a JSON object with write fields (case normalized to the bundled schema).
+    Collection PATCH is not the ordinary update path. Read back the same
+    instance with the corresponding get tool and verify the changed fields.
+    A timeout/unknown result requires read-only verification, never a retry.
     """
     payload: dict = {
         "name": name,
-        "thruputReportingLevel": {"name": thruput_reporting_level},
+        "thruputReportingLevel": {"name": thruput_reporting_level} if thruput_reporting_level is not None else None,
     }
     if description is not None:
         payload["description"] = description
     if notes is not None:
         payload["notes"] = notes
 
-    if body_json:
-        try:
-            extra = json.loads(body_json)
-            payload.update(extra)
-        except json.JSONDecodeError as e:
-            return f"❌ Invalid body_json: {e}"
+    try:
+        payload = build_update_payload("Operations", payload, body_json)
+    except ValueError as exc:
+        return f"❌ {exc}"
 
     return await request("PUT", f"/api/Operations({key})", body=payload)
 
