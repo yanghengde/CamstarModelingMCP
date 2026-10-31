@@ -202,10 +202,13 @@ python main.py
 | `container_move` | POST | 通过 MoveStd 将 Container 移动到下一工步 |
 | `container_move_in` | POST | 将 Container 移入当前工步/资源开始处理 |
 | `container_move_out` | POST | 将 Container 移出当前工步并继续流转 |
+| `get_moveout_diagnostics` | 只读查询 | 核对真实容器 ID、状态、层级/工序配置及 ChangeQty 必填明细证据，不执行过站 |
 | `container_defect` | POST | 通过 ContainerDefect 记录 Container 缺陷 |
 | `rework` | POST | 通过原始 Rework 服务将 Container 转入返工流程 |
 
 移动工具现在先核实实际 ID、Active/InProcess 及层级 AllowMove，Level 不进入写入引用。Agent 本轮移动失败后停止同一容器的后续移动尝试，只读查询不因历史写入次数被重复要求确认。详见[移动参数与审批修复](docs/container-movement-recovery.md)。
+
+`get_container_details` 顶层 `container_instance_id`/`container_ref` 明确返回真实 Container 引用；`view_record_instance_id` 仅为临时视图行，不能用于移动。新工具及共享执行规则需重启服务、刷新外部 MCP 工具定义后生效。
 
 ### Container 编号与层级维护
 

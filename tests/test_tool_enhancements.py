@@ -59,11 +59,13 @@ def test_details_preserve_refs_and_report_pagination(monkeypatch):
 
 
 def test_query_status_uses_verified_navigation_and_instance_id(monkeypatch):
-    mock = AsyncMock(return_value='{"ContainerStatusDetails":{"StepName":"A"}}')
+    mock = AsyncMock(return_value='{"ContainerStatusDetails":{"InstanceID":"001af500000000a5","StepName":"A","Container":{"Name":"SN","InstanceId":"0004108000000109","CDOTypeName":"Container"}}}')
     monkeypatch.setattr(container_inquiry, "request", mock)
-    result = json.loads(asyncio.run(container_inquiry.get_container_details("SN", "id")))
+    result = json.loads(asyncio.run(container_inquiry.get_container_details("SN", "0004108000000109")))
     assert result["data"]["ContainerStatusDetails"]["StepName"] == "A"
-    assert mock.call_args.kwargs["body"] == {"container": {"name": "SN", "instanceId": "id"}}
+    assert result['container_instance_id']=='0004108000000109'
+    assert result['view_record_instance_id']=='001af500000000a5'
+    assert mock.call_args.kwargs["body"] == {"container": {"name": "SN", "instanceId": "0004108000000109"}}
     assert mock.call_args.kwargs["params"]["$expand"] == "ContainerStatusDetails"
 
 

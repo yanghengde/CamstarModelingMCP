@@ -249,6 +249,7 @@ TOOL_POLICIES = {
     'container_move': ToolPolicy('container', 'update', True, False),
     'container_move_in': ToolPolicy('container', 'update', True, False),
     'container_move_out': ToolPolicy('container', 'update', True, False),
+    'get_moveout_diagnostics': ToolPolicy('container', 'read', True, False),
     'container_defect': ToolPolicy('quality', 'update', True, True),
     'rework': ToolPolicy('quality', 'update', True, True),
     'list_numbering_rules': ToolPolicy('reference', 'read', True, False),

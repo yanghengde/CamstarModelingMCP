@@ -94,7 +94,7 @@ def test_transaction_details_error_is_not_assumed_to_be_missing_root_field(monke
     _, _, request = setup(monkeypatch)
     request.return_value = '❌ HTTP 400: Field "Transaction Details" requires input'
     result = asyncio.run(moves.container_move_out("SN_T_0029"))
-    assert "未证明缺少顶层" in result and "ThruputReportingLevel" in result
+    assert "未证明缺少顶层" in result and "ChangeQty.ServiceDetails" in result
     request.assert_awaited_once()
 
 

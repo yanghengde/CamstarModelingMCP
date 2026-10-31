@@ -38,11 +38,48 @@ async def _inquiry(service: str, body: dict, fields: list[str] | None = None,
 @mcp.tool
 async def get_container_details(container_name: str, container_instance_id: str | None = None,
                                 view: Literal["info", "status"] = "status") -> str:
-    """Read Container using fixed Query ViewContainerStatus or ContainerInfoInquiry. Supply container_instance_id for nonunique names. This Query server rejects Level in ContainerRef. Returns server fields; missing fields are unknown, not proof of unset configuration. No Shopfloor mutation."""
+    """Read Container through fixed Query inquiries. Use returned TOP-LEVEL
+    container_instance_id for subsequent Container references/movement. For status,
+    its source is data.ContainerStatusDetails.Container.InstanceId; the adjacent
+    data.ContainerStatusDetails.InstanceID is a temporary VIEW ROW, never a Container.
+    Supply an actual Container ID for nonunique names. Errors are JSON envelopes,
+    not permission to replace an invalid ID or retry writes. No Shopfloor mutation.
+    Missing fields remain unknown. This Query server rejects Level in ContainerRef.
+    """
     if not container_name.strip() or view not in {"info", "status"}:
         return "Error: container_name is required and view must be info or status."
-    return await _inquiry("ContainerInfoInquiry" if view == "info" else "ViewContainerStatus",
-                          {"container": _container(container_name, container_instance_id)})
+    service = "ContainerInfoInquiry" if view == "info" else "ViewContainerStatus"
+    raw = await _inquiry(service, {"container": _container(container_name, container_instance_id)})
+    try:
+        result = json.loads(raw)
+    except (ValueError, TypeError):
+        return raw_json({'source':service, 'complete':False, 'error':'容器查询失败或返回非JSON；'+str(raw),
+                         'requested_container_instance_id':container_instance_id,
+                         'note':'InstanceID必须来自真实Container引用，不可使用ContainerStatusDetails视图行ID；仅只读核实，未修改或替换目标。'})
+    if not isinstance(result, dict):
+        return raw_json({'source':service, 'complete':False, 'error':'容器查询返回非对象响应。'})
+    if result.get('error'):
+        result.update(complete=False, requested_container_instance_id=container_instance_id)
+        return raw_json(result)
+    data = result.get('data', {})
+    if not isinstance(data, dict):
+        return raw_json({'source':service, 'complete':False, 'error':'容器查询data不是对象。'})
+    row = data.get('ContainerStatusDetails') if view == 'status' else data
+    ref = row.get('Container') if isinstance(row, dict) else None
+    cid = (ref.get('InstanceId') or ref.get('InstanceID')) if isinstance(ref, dict) else None
+    source = 'data.ContainerStatusDetails.Container' if view == 'status' else 'data.Container'
+    valid = (isinstance(ref, dict) and ref.get('Name') == container_name.strip()
+             and isinstance(cid, str) and re.fullmatch('[0-9a-fA-F]{16}', cid))
+    identity = {'container_instance_id':cid if valid else None,
+                'container_ref':ref if valid else None, 'identity_source':source,
+                'view_record_instance_id':row.get('InstanceID') if view == 'status' and isinstance(row,dict) else None,
+                'identity_note':'视图行InstanceID不是容器ID；过站仅使用container_instance_id或container_ref。'}
+    result = {**identity, **result}
+    if not valid:
+        result.update(complete=False, error='返回中未取得匹配名称的实际Container引用，不使用视图行ID替代。')
+    elif container_instance_id and cid != container_instance_id:
+        result.update(complete=False, error='返回的实际Container ID与请求ID不符，未替换目标。')
+    return raw_json(result)
 
 
 @mcp.tool

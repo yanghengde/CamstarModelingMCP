@@ -1,0 +1,92 @@
+{
+  "checked_date": "2026-10-31",
+  "source_kind": "local_vendor_metadata_read_only",
+  "source_sha256": "76eae4ba015cf5e754a851e073e722c70e8c19e37bb1447bd888e4ebc32de247",
+  "live_deployment_equivalence_verified": false,
+  "runtime_failure_trace_verified": false,
+  "applies_to": {
+    "error_code": "13500597",
+    "field_label": "Transaction Details"
+  },
+  "subservice_fields": [
+    {
+      "FieldName": "ServiceDetails",
+      "FieldID": 6001,
+      "CDODefId": 4000,
+      "LabelName": "Transaction Details",
+      "Required": 2,
+      "IsListType": true,
+      "FieldDefinition": {
+        "type": "FieldDefinition",
+        "name": "ChangeQtyDetails"
+      },
+      "owner": "ChangeQty"
+    },
+    {
+      "FieldName": "ServiceDetails",
+      "FieldID": 6005,
+      "CDODefId": 3390,
+      "LabelName": "Containers to Thruput",
+      "Required": 0,
+      "IsListType": true,
+      "FieldDefinition": {
+        "type": "FieldDefinition",
+        "name": "ThruputDetail"
+      },
+      "owner": "Thruput"
+    }
+  ],
+  "moveout_changeqty": {
+    "FieldName": "ChangeQty",
+    "CreateOnInitialize": true,
+    "Required": 0,
+    "AllowClientToUpdate": true,
+    "FieldDefinition": {
+      "type": "FieldDefinition",
+      "name": "ChangeQty"
+    }
+  },
+  "live_rest_root_exposes_changeqty": false,
+  "live_rest_root_exposes_service_details": false,
+  "conclusion": "The exact error label matches ChangeQty.ServiceDetails in the local native definition, unlike Thruput.ServiceDetails. This narrows the candidate; it does not prove the live failure stack.",
+  "next_contract_requirement": "Verify deployed MoveOut.ChangeQty initialization/required-detail handling or expose a supported subservice input. Do not invent quantity adjustments, zero-loss lines, bypass flags or substitute transactions.",
+  "live_subservice_swagger": {
+    "ChangeQty": {
+      "http_status": 200,
+      "required": [
+        "container",
+        "serviceDetails"
+      ],
+      "serviceDetails": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ChangeQtyDetails"
+        },
+        "description": "CdoId: 4000; FieldId: 6001; Workspace: csi; Flags: Required; Annotations: The individual items a user inputs to specifically explain why the quantity is being changed."
+      }
+    },
+    "Thruput": {
+      "http_status": 200,
+      "required": [
+        "container"
+      ],
+      "serviceDetails": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ThruputDetail"
+        },
+        "description": "CdoId: 3390; FieldId: 6005; Workspace: csi; Flags: None; Annotations: Details on what quantity/child containers where processed by each resource, etc.",
+        "nullable": true
+      }
+    }
+  },
+  "live_subservice_swagger_source": {
+    "method": "GET",
+    "paths": [
+      "/swagger/ChangeQty/swagger.json",
+      "/swagger/Thruput/swagger.json"
+    ],
+    "checked_date": "2026-10-31",
+    "note": "Matching field/CDO IDs and required flags; not a MoveOut runtime failure trace."
+  }
+}

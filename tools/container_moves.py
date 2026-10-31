@@ -7,6 +7,7 @@ Swagger: Shopfloor /api/MoveStd, /api/MoveIn, /api/MoveOut
 import json
 import math
 import re
+from pathlib import Path
 from typing import Optional
 
 from core.http_client import request_shopfloor
@@ -83,9 +84,15 @@ async def _movement_context(name, instance_id, level_name, service):
     """Read current identity and static move permission; never POST Shopfloor."""
     if instance_id and not re.fullmatch(r"[0-9a-fA-F]{16}", instance_id):
         raise ValueError("container_instance_id 须为查询返回的16位 InstanceID。")
-    result = json.loads(await get_container_details(name, instance_id, view="status"))
+    raw = await get_container_details(name, instance_id, view="status")
+    try:
+        result = json.loads(raw)
+    except (ValueError, TypeError):
+        raise ValueError('容器状态查询返回非JSON：'+str(raw)) from None
+    if not isinstance(result, dict) or result.get('error'):
+        raise ValueError('容器状态查询失败：'+str(result.get('error') if isinstance(result,dict) else result))
     status = result.get("data", {}).get("ContainerStatusDetails")
-    if result.get("error") or result.get("complete") is not True or not isinstance(status, dict):
+    if result.get("complete") is not True or not isinstance(status, dict):
         raise ValueError("容器状态读取失败或不完整；未执行移动。")
     ref = status.get("Container") or {}
     cid = ref.get("InstanceId") or ref.get("InstanceID")
@@ -190,9 +197,52 @@ async def _submit(service, payload, instance_id, level_name):
     result = await request_shopfloor("POST", "/api/" + service, body=payload)
     if service == "MoveOut" and "Transaction Details" in result:
         return result + ("\nMoveOut 是含 Move/Thruput/ChangeQty 的组合事务；此错误未证明缺少顶层 JSON 字段。"
-                         "请只读核实 Operation.ThruputReportingLevel、容器层级和吞吐对象/子容器，"
-                         "并取得实际子事务失败证据；停止写入重试，不拼接 Details/ServiceDetails 或只补 Qty。")
+                         "本机原生定义中 Transaction Details 精确对应 ChangeQty.ServiceDetails（Required=2）；"
+                         "Thruput.ServiceDetails 的标签为 Containers to Thruput。候选已收敛到 ChangeQty，"
+                         "实时 ChangeQty Swagger 也将同ID字段标为必填，但尚未取得 MoveOut 运行失败栈。用 get_moveout_diagnostics 只读查看证据；"
+                         "需核实服务端 MoveOut.ChangeQty 自动创建/必填明细处理，不为过站改工序吞吐层级，"
+                         "不造零调整/损失明细，不关校验或换事务，不重发。")
     return result
+
+
+@mcp.tool
+async def get_moveout_diagnostics(container_name: str, container_instance_id: Optional[str] = None) -> str:
+    """只读核对真实容器ID、当前状态、AllowMove、工序吞吐层级及MoveOut原生静态证据。
+    不调用Shopfloor执行/预览/事件，不修改配置，不生成可执行计划。
+    Transaction Details在本机原生副本中匹配ChangeQty.ServiceDetails；与实际部署及
+    失败栈的一致性尚未验证，不能作为最终根因证明。层级Parent/ChildLevels配置
+    不证明实际容器没有子容器。本工具不替代实际族谱查询或原生失败日志。
+    """
+    out = {'complete':False, 'writes_executed':False, 'root_cause_verified':False,
+           'ready_for_execution':False, 'actual_child_containers_verified':False, 'errors':[]}
+    try:
+        path = Path(__file__).resolve().parents[1] / 'docs' / 'moveout-native-requirements.json'
+        out['native_contract_evidence'] = json.loads(path.read_text(encoding='utf-8'))
+        raw = await get_container_details(container_name, container_instance_id, view='status')
+        data = json.loads(raw)
+        if data.get('error') or data.get('complete') is not True:
+            raise ValueError(str(data.get('error') or '容器读取不完整。'))
+        row = data.get('data',{}).get('ContainerStatusDetails',{})
+        ref = row.get('Container',{})
+        cid = ref.get('InstanceId') or ref.get('InstanceID')
+        if (ref.get('Name') != container_name.strip() or not isinstance(cid,str)
+                or not re.fullmatch('[0-9a-fA-F]{16}',cid)
+                or container_instance_id and cid != container_instance_id):
+            raise ValueError('实际Container身份未核实；不能使用视图行ID。')
+        out.update(container_instance_id=cid, container_ref=ref,
+            status_view_record_instance_id=row.get('InstanceID'),
+            status={k:row.get(k) for k in ('StepName','OperationName','InProcess','Status','Qty','LastMoveDate')})
+        ctx = ReadContext(max_requests=6)
+        level = await ctx.resolve('ContainerLevels', row.get('ContainerLevel'), revisioned=False)
+        operation = await ctx.resolve('Operations', row.get('Operation'), revisioned=False)
+        out.update(level={k:level.get(k) for k in ('InstanceID','Name','AllowMove')},
+                   operation={k:operation.get(k) for k in ('InstanceID','Name','ThruputReportingLevel')})
+        out['complete'] = True
+        out['notes'] = ['静态定义匹配不是实际失败栈；不据此更改配置或构造ChangeQty明细。',
+                        'ParentLevels/ChildLevels是层级配置，不是实际容器子成员清单。']
+    except (ValueError, TypeError, KeyError, AttributeError, OSError) as exc:
+        out['errors'].append(str(exc))
+    return json.dumps(out, ensure_ascii=False)
 
 
 def _add_common_fields(

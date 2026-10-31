@@ -34,3 +34,15 @@
 本轮 168 项离线测试通过，覆盖上述移动回归及既有建模更新、工具路由/目录、审批、MCP、SSE 和 LangGraph 检查点测试；网络拦截插件未报告真实测试网络请求。
 
 实际根因尚未通过原生失败日志及相关现场配置确认；没有声称已修复 MES 内部事务、完成真实 MoveOut、验证六站整条链路或实现新的完整路线批量执行器。代码及新工具定义需重启程序后生效，外部 MCP 客户端也需刷新定义。
+
+## 后续修复：视图身份与 ChangeQty 明细证据
+
+同日再次只读核实：ViewContainerStatus 的 `ContainerStatusDetails.InstanceID` 是 ViewContainerAsParent 临时行 ID，连续查询会变化；真实 ID 位于 `ContainerStatusDetails.Container.InstanceId`。SN_T_0029 的真实 ID 为 `0004108000000109`。查询工具现在额外返回顶层 `container_instance_id`、`container_ref`、`identity_source` 和单独标明的 `view_record_instance_id`。缺少真实引用或与请求 ID 不符时返回不完整错误，不自动改用名称重查并替换移动目标。原始非 JSON 服务错误包装成可解析的 JSON，移动前检保留其诊断内容。
+
+新增 `get_moveout_diagnostics`，已接入 MCP 注册、能力目录、工具路由和两个引擎的共享规则。它只查询状态、ContainerLevel、Operation，读取本地证据，不发送任何 Shopfloor 执行/预览/事件请求。`complete` 仅指当前诊断上下文读取完整；`ready_for_execution`、`root_cause_verified` 恒为 false。层级的 ParentLevels/ChildLevels 是配置关系，不能当作容器实际子成员；需要实际族谱时另查 `get_container_trace(section="current_family")`。只读查看现有工序配置不需要额外变更授权。
+
+原生元数据中 **ChangeQty.ServiceDetails** 的标签精确为 **Transaction Details**（CDODefId 4000、FieldID 6001、Required 数值 2），而 Thruput.ServiceDetails 的标签为 Containers to Thruput（3390、6005、Required 0）。当前部署 GET Swagger 也证实 ChangeQty 的同 ID `serviceDetails` 是 required 数组成员，Thruput 的明细则不在 required 内。本机 MoveOut.ChangeQty 字段 CreateOnInitialize=true，但 MoveOut REST 根对象未暴露 ChangeQty 或 ServiceDetails。证据及来源哈希见 [moveout-native-requirements.json](moveout-native-requirements.json)。
+
+这使候选从笼统的 Thruput/ChangeQty 收敛到 ChangeQty 的自动创建与必填明细处理，仍不是实际运行失败栈。尚需部署侧核对 MoveOut 初始化该子事务时何时需要明细，或提供正式支持的子事务输入契约；客户端不能通过虚构数量调整/损失行、修改吞吐层级、关闭校验或替换事务解决。本次只读现场核实仍为第一站、InProcess=true、AllowMove=true、LastMoveDate 未变，没有实际移动或配置修改。
+
+本次195项离线测试通过，覆盖视图ID变化、真实引用缺失/不匹配、非JSON错误、移动请求的真实ID、只读诊断、移动失败停止规则、工具注册/路由、MCP传输及既有容器层级维护；测试网络由 offline_test_guard 拦截。真实调用验证仅包含固定只读Query查询、建模GET及Swagger GET。
