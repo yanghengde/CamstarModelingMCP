@@ -57,3 +57,13 @@
 共享提示及停止消息明确：失败停止范围仅当前请求，包括其审批中断恢复；独立的新请求会重新核实身份、状态/历史和路线，并沿用现有审批机制决定执行，不因历史失败或诊断未评估而直接拒绝，也不重放旧请求。两个引擎原有当前请求失败后停止写入的保护保持。回归覆盖两个引擎的新请求恢复、旧请求禁止重试、诊断未知值及非根因结论；所有移动调用均为模拟。
 
 本次89项针对性离线测试通过，包含上述新回归、移动前检、两引擎审批/停止规则、能力目录及MCP传输。测试使用项目venv、独立临时数据库和offline_test_guard；本次未执行真实移动。
+
+## 2026-10-31 继续排查：方法绑定与非执行回显
+
+只列举 SDK 的 Events 集合会漏掉 Methods。以只读方式核对同一哈希的 MDB 原始表后，发现 MoveOut 的 ExecuteSubServices 方法绑定（CLFEventMapID 2872，CDODefID 6843，CLFEventID 22，csi）调用 CompoundTxn_ExecuteSubServices。其 CallMultipleTimes 参数依次为 ChangeQty、Thruput、Move，补充证据已写入 moveout-native-requirements.json，由现有诊断工具读取。此前“直接事件绑定只有 AfterExecute”的结果不能解释为没有其他执行方法。
+
+本机 MoveOut.InitializeService 指向仅含 Noop 的 ShopFloor_InitializeService；CompoundTxn.InitServices 只有注释。检查的 CompoundTxn.ExecuteService 模板映射 SubServiceSetup 后调用原生 ExecuteService，其说明为校验并执行服务。这些模板中未见创建 ChangeQty.ServiceDetails 或空明细跳过条件，但尚未排除其他继承钩子、原生实现或现场覆盖，不能标记实际根因已确认。
+
+现场仅进行 execute=false 的 MoveOut 请求以及状态查询，未提交移动。显式字段回显确认容器真实 ID、MoveAllQty=true、ThruputAllQty=true、IsDBTxn=false、OP-STAMPING 和 BOX；Qty/Qty2 未返回不等于零。HTTP 200 的 Update completed successfully 只说明此次非执行请求成功，不能作为过站成功或校验通过的证据。回读仍是首站、InProcess=true、Qty=1，LastMoveDate/LastActivityDate 均为 2026-10-31T09:48:34。见 [moveout-preview-evidence.json](moveout-preview-evidence.json)。
+
+实际 MoveOut 修复仍未完成。下一步需要 172.27.84.223 的原失败日志/事务跟踪或可访问的部署源码，核对 ChangeQty 是否进入执行、ServiceDetails 数量、必填检查调用栈以及现场方法覆盖。未修改厂商 MDB、服务端部署、制造配置或移动请求参数。

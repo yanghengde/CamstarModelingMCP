@@ -95,5 +95,42 @@
     "The standalone ChangeQty schema cannot prove which fields are automatically populated or whether that subservice executes inside MoveOut.",
     "Absence of a direct root input does not prove MoveOut cannot initialize its own details or that a deployment change is required.",
     "Read-only diagnostics do not evaluate execution readiness or override per-request movement policy."
-  ]
+  ],
+  "local_execute_subservices_binding": {
+    "source_kind": "local_vendor_metadata_read_only",
+    "source_sha256": "76eae4ba015cf5e754a851e073e722c70e8c19e37bb1447bd888e4ebc32de247",
+    "table": "CLFEventMap",
+    "CDODefID": 6843,
+    "CLFEventMapID": 2872,
+    "CLFEventID": 22,
+    "Name": "ExecuteSubServices",
+    "CLFID": 407,
+    "WorkspaceCode": "csi",
+    "function": "CallMultipleTimes",
+    "CLFFunctionID": 1444,
+    "parameters": {
+      "Event": "ExecuteService",
+      "Value2": "Thruput",
+      "Value5": "",
+      "CDO": "CLF::__CDOID",
+      "ParameterName": "SubService",
+      "Value3": "Move",
+      "Value1": "ChangeQty",
+      "Value6": "",
+      "Value4": ""
+    },
+    "configured_order": [
+      "ChangeQty",
+      "Thruput",
+      "Move"
+    ],
+    "runtime_failure_trace_verified": false,
+    "note": "Method bindings are separate from the vendor Events collection. Listing event_binding alone does not enumerate these methods. The configured sequence is static evidence, not proof of the deployed execution path."
+  },
+  "local_initialization_and_dispatch": {
+    "MoveOut.InitializeService": "ShopFloor_InitializeService (CLFID 676), Noop",
+    "CompoundTxn.InitServices": "CompoundTxn_InitServices (CLFID 3222), comments only",
+    "CompoundTxn.ExecuteService": "SubServiceSetup map, then ExecuteService; native ExecuteService description: Validate and Execute a service",
+    "scope": "Inspected local templates do not show creation of ChangeQty.ServiceDetails or an empty-detail guard. Other inherited hooks/native implementations and live overrides remain unverified."
+  }
 }
