@@ -80,6 +80,7 @@ EXPERIENCE_DB = os.getenv(
     "EXPERIENCE_DB",
     os.path.join("data", "agent_experience.sqlite"),
 )
+CHAT_RUN_DB = os.getenv("CHAT_RUN_DB", os.path.join("data", "chat_runs.sqlite"))
 
 # ---------------------------------------------------------------------------
 # MCP Streamable HTTP transport

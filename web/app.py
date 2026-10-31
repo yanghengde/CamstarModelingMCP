@@ -27,6 +27,7 @@ from web.workbench import router as workbench_router
 from web.mcp_transport import BearerTokenMiddleware
 from core.quality_signature_vault import VAULT
 from core import quality_signature_ui
+from web.chat_runs import RUNS
 
 
 async def expire_signature_inputs():
@@ -43,6 +44,7 @@ async def lifespan(app: FastAPI):
 
     # 恢复历史记忆
     init_memory()
+    RUNS.initialize()
 
     # 注册 MCP 工具
     await register_tools()
@@ -65,6 +67,7 @@ async def lifespan(app: FastAPI):
         else:
             yield
     finally:
+        await RUNS.shutdown()
         signature_reaper.cancel()
         with suppress(asyncio.CancelledError):await signature_reaper
         await quality_signature_ui.close()

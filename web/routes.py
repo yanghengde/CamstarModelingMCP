@@ -3,15 +3,16 @@ import uuid
 import shutil
 from typing import Literal
 
-from fastapi import APIRouter, File, Query, UploadFile
+from fastapi import APIRouter, File, Query, UploadFile, HTTPException
 from fastapi.responses import HTMLResponse, StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from config import CAMSTAR_USERNAME, ENABLE_PERFORMANCE_LOG, AGENT_ENGINE
-from agent.memory import get_user_messages, get_sessions, create_session, set_active_session, get_active_session
+from agent.memory import get_user_messages, get_sessions, create_session, set_active_session, get_active_session, user_memories
 from agent.llm_client import chat_stream
 from agent.experience import get_experience_status, list_candidates
 from core.perf_logger import get_perf_logs
+from web.chat_runs import RUNS, RunConflict
 
 router = APIRouter()
 
@@ -20,6 +21,7 @@ class ChatRequest(BaseModel):
     message: str
     username: str
     session_id: str = None
+    request_id: str | None = Field(default=None, min_length=1, max_length=128)
 
 
 @router.get("/")
@@ -49,7 +51,9 @@ async def workflow_endpoint(username: str, session_id: str):
 @router.get("/sessions/{username}")
 def sessions_endpoint(username: str):
     """获取用户所有会话"""
-    return {"sessions": get_sessions(username), "active_session": get_active_session(username)}
+    statuses = RUNS.session_statuses(username)
+    return {"sessions": [{**session, "run": statuses.get(session['id'])} for session in get_sessions(username)],
+            "active_session": get_active_session(username)}
 
 
 @router.post("/sessions/{username}/new")
@@ -64,15 +68,64 @@ def history_endpoint(username: str, session_id: str = None):
     """获取指定用户的聊天历史。"""
     if session_id:
         set_active_session(username, session_id)
-    return {"messages": get_user_messages(username, session_id)}
+    messages = get_user_messages(username, session_id)
+    return {"messages": messages, "run": RUNS.latest(username, session_id or get_active_session(username))}
+
+
+def start_chat_run(req):
+    session_id = req.session_id or get_active_session(req.username)
+    if req.session_id and req.session_id not in user_memories.get(req.username, {}).get('sessions', {}):
+        raise HTTPException(404, "对话不存在，请重新选择。")
+    if not session_id:
+        session_id = create_session(req.username)
+    if not req.message.strip():
+        raise HTTPException(422, "消息不能为空。")
+    try:
+        return RUNS.start(req.username, session_id, req.message, req.request_id or uuid.uuid4().hex,
+                          len(get_user_messages(req.username, session_id)), chat_stream, workflow_endpoint)
+    except RunConflict as exc:
+        raise HTTPException(409, {"message": str(exc), "run": exc.run}) from exc
+    except ValueError as exc:
+        raise HTTPException(409, str(exc)) from exc
+
+
+@router.post('/api/chat/runs', status_code=202)
+async def create_chat_run(req: ChatRequest):
+    """Accept once, run on the server, and return before execution finishes."""
+    return start_chat_run(req)
+
+
+@router.get('/api/chat/runs/{run_id}')
+async def get_chat_run(run_id: str, username: str):
+    run = RUNS.get(username, run_id)
+    if not run:
+        raise HTTPException(404, '任务不存在。')
+    return run
+
+
+@router.get('/api/chat/runs/{run_id}/events')
+async def chat_run_events(run_id: str, username: str, after: int = Query(default=0, ge=0)):
+    if not RUNS.get(username, run_id):
+        raise HTTPException(404, '任务不存在。')
+    return StreamingResponse(RUNS.events(username, run_id, after), media_type='text/event-stream',
+                             headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
+
+
+@router.post('/api/chat/runs/{run_id}/cancel')
+async def cancel_chat_run(run_id: str, username: str):
+    run = RUNS.cancel(username, run_id)
+    if not run:
+        raise HTTPException(404, '任务不存在。')
+    return run
 
 
 @router.post("/chat")
 async def chat_endpoint(req: ChatRequest):
-    """流式聊天接口 (SSE)。"""
+    """Backward-compatible SSE subscription to a server-owned background run."""
+    run = start_chat_run(req)
     return StreamingResponse(
-        chat_stream(req.username, req.message, req.session_id),
-        media_type="text/event-stream"
+        RUNS.events(req.username, run['id']), media_type="text/event-stream",
+        headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'}
     )
 
 
