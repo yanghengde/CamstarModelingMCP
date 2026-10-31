@@ -39,10 +39,21 @@
 
 同日再次只读核实：ViewContainerStatus 的 `ContainerStatusDetails.InstanceID` 是 ViewContainerAsParent 临时行 ID，连续查询会变化；真实 ID 位于 `ContainerStatusDetails.Container.InstanceId`。SN_T_0029 的真实 ID 为 `0004108000000109`。查询工具现在额外返回顶层 `container_instance_id`、`container_ref`、`identity_source` 和单独标明的 `view_record_instance_id`。缺少真实引用或与请求 ID 不符时返回不完整错误，不自动改用名称重查并替换移动目标。原始非 JSON 服务错误包装成可解析的 JSON，移动前检保留其诊断内容。
 
-新增 `get_moveout_diagnostics`，已接入 MCP 注册、能力目录、工具路由和两个引擎的共享规则。它只查询状态、ContainerLevel、Operation，读取本地证据，不发送任何 Shopfloor 执行/预览/事件请求。`complete` 仅指当前诊断上下文读取完整；`ready_for_execution`、`root_cause_verified` 恒为 false。层级的 ParentLevels/ChildLevels 是配置关系，不能当作容器实际子成员；需要实际族谱时另查 `get_container_trace(section="current_family")`。只读查看现有工序配置不需要额外变更授权。
+新增 `get_moveout_diagnostics`，已接入 MCP 注册、能力目录、工具路由和两个引擎的共享规则。它只查询状态、ContainerLevel、Operation，读取本地证据，不发送任何 Shopfloor 执行/预览/事件请求。`complete` 仅指当前诊断上下文读取完整；`root_cause_verified` 为 false；`ready_for_execution=null`、`execution_assessment.status=not_evaluated` 表示未评估执行就绪，不能解释为业务拒绝。层级的 ParentLevels/ChildLevels 是配置关系，不能当作容器实际子成员；需要实际族谱时另查 `get_container_trace(section="current_family")`。只读查看现有工序配置不需要额外变更授权。
 
 原生元数据中 **ChangeQty.ServiceDetails** 的标签精确为 **Transaction Details**（CDODefId 4000、FieldID 6001、Required 数值 2），而 Thruput.ServiceDetails 的标签为 Containers to Thruput（3390、6005、Required 0）。当前部署 GET Swagger 也证实 ChangeQty 的同 ID `serviceDetails` 是 required 数组成员，Thruput 的明细则不在 required 内。本机 MoveOut.ChangeQty 字段 CreateOnInitialize=true，但 MoveOut REST 根对象未暴露 ChangeQty 或 ServiceDetails。证据及来源哈希见 [moveout-native-requirements.json](moveout-native-requirements.json)。
 
 这使候选从笼统的 Thruput/ChangeQty 收敛到 ChangeQty 的自动创建与必填明细处理，仍不是实际运行失败栈。尚需部署侧核对 MoveOut 初始化该子事务时何时需要明细，或提供正式支持的子事务输入契约；客户端不能通过虚构数量调整/损失行、修改吞吐层级、关闭校验或替换事务解决。本次只读现场核实仍为第一站、InProcess=true、AllowMove=true、LastMoveDate 未变，没有实际移动或配置修改。
 
 本次195项离线测试通过，覆盖视图ID变化、真实引用缺失/不匹配、非JSON错误、移动请求的真实ID、只读诊断、移动失败停止规则、工具注册/路由、MCP传输及既有容器层级维护；测试网络由 offline_test_guard 拦截。真实调用验证仅包含固定只读Query查询、建模GET及Swagger GET。
+
+
+## 后续修复：未评估不等于拒绝，新请求不沿用旧失败禁令
+
+原先诊断恒定返回 `ready_for_execution=false`，会使模型把只读工具没有评估的内容当作否定执行的依据。改为 null 和显式 `execution_assessment.status=not_evaluated`；这不授权执行，也不替代实际移动前检。新增 `diagnosis.status=unconfirmed_hypothesis`、`contract_blocker_verified=false`、`runtime_initialization_observed=false`，明确独立 ChangeQty 的必填字段、MoveOut 根Swagger未暴露明细，不证明 MoveOut 无法自动生成明细或必须修改部署。
+
+本地原生只读复核看到 MoveOut 的 Move、Thruput、ChangeQty 字段均 CreateOnInitialize=true，直接事件绑定只有 AfterExecute 的 SetCompletionMessage；公开可读的 MoveOut_InitSubServiceHistories 只设置历史引用。这些静态内容没有给出实际失败时的明细填充状态，不能作为运行根因证据。本轮未修改厂商元数据、服务端初始化或制造配置。
+
+共享提示及停止消息明确：失败停止范围仅当前请求，包括其审批中断恢复；独立的新请求会重新核实身份、状态/历史和路线，并沿用现有审批机制决定执行，不因历史失败或诊断未评估而直接拒绝，也不重放旧请求。两个引擎原有当前请求失败后停止写入的保护保持。回归覆盖两个引擎的新请求恢复、旧请求禁止重试、诊断未知值及非根因结论；所有移动调用均为模拟。
+
+本次89项针对性离线测试通过，包含上述新回归、移动前检、两引擎审批/停止规则、能力目录及MCP传输。测试使用项目venv、独立临时数据库和offline_test_guard；本次未执行真实移动。

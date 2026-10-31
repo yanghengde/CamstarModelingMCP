@@ -49,7 +49,7 @@
   "live_rest_root_exposes_changeqty": false,
   "live_rest_root_exposes_service_details": false,
   "conclusion": "The exact error label matches ChangeQty.ServiceDetails in the local native definition, unlike Thruput.ServiceDetails. This narrows the candidate; it does not prove the live failure stack.",
-  "next_contract_requirement": "Verify deployed MoveOut.ChangeQty initialization/required-detail handling or expose a supported subservice input. Do not invent quantity adjustments, zero-loss lines, bypass flags or substitute transactions.",
+  "next_contract_requirement": "Inspect the deployed MoveOut initialization/validation path and failure trace before deciding whether a payload or server change is needed. Do not invent adjustment details, bypass flags or substitute transactions.",
   "live_subservice_swagger": {
     "ChangeQty": {
       "http_status": 200,
@@ -88,5 +88,12 @@
     ],
     "checked_date": "2026-10-31",
     "note": "Matching field/CDO IDs and required flags; not a MoveOut runtime failure trace."
-  }
+  },
+  "contract_blocker_verified": false,
+  "runtime_initialization_observed": false,
+  "scope_limits": [
+    "The standalone ChangeQty schema cannot prove which fields are automatically populated or whether that subservice executes inside MoveOut.",
+    "Absence of a direct root input does not prove MoveOut cannot initialize its own details or that a deployment change is required.",
+    "Read-only diagnostics do not evaluate execution readiness or override per-request movement policy."
+  ]
 }

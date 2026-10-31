@@ -212,9 +212,24 @@ async def get_moveout_diagnostics(container_name: str, container_instance_id: Op
     Transaction Details在本机原生副本中匹配ChangeQty.ServiceDetails；与实际部署及
     失败栈的一致性尚未验证，不能作为最终根因证明。层级Parent/ChildLevels配置
     不证明实际容器没有子容器。本工具不替代实际族谱查询或原生失败日志。
+    ready_for_execution=null表示未评估执行就绪，不能解释为禁止执行。
+    静态必填字段不证明MoveOut不能自动填充明细或已经存在契约阻塞。
+    仅当前请求的真实移动失败触发停止规则，历史失败不构成永久禁令。
     """
     out = {'complete':False, 'writes_executed':False, 'root_cause_verified':False,
-           'ready_for_execution':False, 'actual_child_containers_verified':False, 'errors':[]}
+           'ready_for_execution':None, 'actual_child_containers_verified':False, 'errors':[],
+           'execution_assessment': {
+               'status':'not_evaluated',
+               'reason':'只读诊断未执行事务，也不评估当前请求的授权或失败停止状态。',
+               'failure_fence_scope':'current_agent_request',
+           },
+           'diagnosis': {
+               'status':'unconfirmed_hypothesis',
+               'candidate':'ChangeQty.ServiceDetails',
+               'contract_blocker_verified':False,
+               'runtime_initialization_observed':False,
+               'unsupported_inference':'根Swagger未暴露子服务明细，不证明服务不能自动生成明细或必须修改部署。',
+           }}
     try:
         path = Path(__file__).resolve().parents[1] / 'docs' / 'moveout-native-requirements.json'
         out['native_contract_evidence'] = json.loads(path.read_text(encoding='utf-8'))
@@ -239,7 +254,9 @@ async def get_moveout_diagnostics(container_name: str, container_instance_id: Op
                    operation={k:operation.get(k) for k in ('InstanceID','Name','ThruputReportingLevel')})
         out['complete'] = True
         out['notes'] = ['静态定义匹配不是实际失败栈；不据此更改配置或构造ChangeQty明细。',
-                        'ParentLevels/ChildLevels是层级配置，不是实际容器子成员清单。']
+                        'ParentLevels/ChildLevels是层级配置，不是实际容器子成员清单。',
+                        'ready_for_execution=null表示本工具未评估，不是阻止移动的证据。',
+                        '新请求有明确移动授权时重新核实状态/历史及路线；历史失败不等于本轮失败，不自动重放旧请求。']
     except (ValueError, TypeError, KeyError, AttributeError, OSError) as exc:
         out['errors'].append(str(exc))
     return json.dumps(out, ensure_ascii=False)

@@ -31,7 +31,8 @@ def movement_call_blocked(call, blocked):
 
 
 MOVEMENT_RETRY_BLOCKED = (
-    "Error: 本轮此容器的移动已失败或结果未知，已停止后续移动写入；"
+    "Error: 当前请求中此容器的移动已失败或结果未知，已停止本请求后续移动写入；"
     "不能换参数、事务类型或跳到下一站重试。请只读核实状态、历史、层级及工序配置；"
-    "Transaction Details 也可能来自内部子事务，不据此猜测 Details/ServiceDetails。"
+    "Transaction Details 也可能来自内部子事务，不据此猜测 Details/ServiceDetails 或断言契约阻塞。"
+    "此停止状态不跨独立的新请求；新请求仍须核实状态/历史和用户授权，不能自动重放。"
 )

@@ -100,8 +100,14 @@ def test_diagnostics_is_read_only_and_does_not_infer_children_or_readiness(monke
     assert result['complete'] and result['container_instance_id'] == CID
     assert result['status_view_record_instance_id'] == VID
     assert result['level']['AllowMove'] is True
-    for flag in ('writes_executed', 'root_cause_verified', 'ready_for_execution', 'actual_child_containers_verified'):
+    for flag in ('writes_executed', 'root_cause_verified', 'actual_child_containers_verified'):
         assert result[flag] is False
+    assert result['ready_for_execution'] is None
+    assert result['execution_assessment']['status'] == 'not_evaluated'
+    assert result['execution_assessment']['failure_fence_scope'] == 'current_agent_request'
+    assert result['diagnosis']['contract_blocker_verified'] is False
+    assert result['diagnosis']['status'] == 'unconfirmed_hypothesis'
+    assert result['diagnosis']['runtime_initialization_observed'] is False
     fields = {f['owner']: f for f in result['native_contract_evidence']['subservice_fields']}
     assert fields['ChangeQty']['LabelName'] == 'Transaction Details'
     assert fields['Thruput']['LabelName'] != 'Transaction Details'
@@ -120,6 +126,8 @@ def test_failed_diagnostics_cannot_claim_complete(monkeypatch, raw):
     monkeypatch.setattr(moves.ReadContext, 'resolve', resolve)
     result = json.loads(asyncio.run(moves.get_moveout_diagnostics(NAME)))
     assert not result['complete'] and result['errors']
+    assert result['ready_for_execution'] is None
+    assert not result['diagnosis']['contract_blocker_verified']
     resolve.assert_not_awaited()
 
 
@@ -129,3 +137,5 @@ def test_diagnostics_registered_as_read_and_policy_explains_identity_and_evidenc
     assert 'ViewContainerAsParent' in MOVEMENT_RULE
     assert 'ChangeQty.ServiceDetails' in MOVEMENT_RULE
     assert '不证明实际容器没有子容器' in MOVEMENT_RULE
+    assert '禁止据此宣称已经确认契约阻塞' in MOVEMENT_RULE
+    assert '历史对话中的失败不能直接作为本轮已失败' in MOVEMENT_RULE

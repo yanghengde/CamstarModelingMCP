@@ -160,8 +160,44 @@ def test_policy_explanation_is_used_by_both_engines():
     assert not movement_failed('"MoveOut updated"')
 
 
-def legacy_scenario(monkeypatch, batches, execute):
-    messages = [{"role": "system", "content": "offline"}, {"role": "assistant", "content": "context"}]
+def test_new_explicit_request_does_not_inherit_previous_failure_fence(monkeypatch):
+    messages = [{'role': 'system', 'content': 'offline'},
+                {'role': 'assistant', 'content': '历史移动失败，SN_T_0029未移动。'}]
+    snapshot = SimpleNamespace(tasks=[], values={'blocked_movement_targets': ['sn_t_0029']})
+    monkeypatch.setattr(runtime, '_graph', SimpleNamespace(aget_state=AsyncMock(return_value=snapshot)))
+    monkeypatch.setattr(runtime, 'get_user_messages', lambda *a: messages)
+    monkeypatch.setattr(runtime, 'save_user_session', lambda *a: None)
+    monkeypatch.setattr(runtime, '_sync_legacy_messages', AsyncMock(return_value={'final_reply': 'done'}))
+    monkeypatch.setattr(runtime, 'get_stream_writer', lambda: lambda _: None)
+    monkeypatch.setattr(runtime, 'record_perf', lambda *a, **k: None)
+    monkeypatch.setattr(runtime, 'record_tool_outcome', lambda **k: None)
+    read = AsyncMock(return_value='{"complete":true}')
+    execute = AsyncMock(return_value='updated')
+    monkeypatch.setattr(runtime, 'get_tool_func', lambda name: read if name.startswith('get_') else execute)
+
+    async def stream(state, config):
+        assert state['blocked_movement_targets'] == []
+        # Read current state before a new movement, without replaying old calls.
+        for name in ('get_container_details', 'container_move_out'):
+            state['pending_tool_calls'] = [call(name, {'container_name': 'SN_T_0029'})]
+            assert runtime._policy_node(state) == {}
+            state.update(await runtime._execute_tool_node(state))
+        yield 'offline'
+
+    monkeypatch.setattr(runtime, '_stream_graph', stream)
+
+    async def run():
+        return [event async for event in runtime.langgraph_chat_stream(
+            'offline', '继续进行全部movein和out的动作', 'session')]
+
+    asyncio.run(run())
+    read.assert_awaited_once()
+    execute.assert_awaited_once()
+
+
+def legacy_scenario(monkeypatch, batches, execute, messages=None):
+    if messages is None:
+        messages = [{"role": "system", "content": "offline"}, {"role": "assistant", "content": "context"}]
     monkeypatch.setattr(llm_client, "get_user_messages", lambda *a: messages)
     monkeypatch.setattr(llm_client, "save_user_session", lambda *a: None)
     monkeypatch.setattr(llm_client, "record_perf", lambda *a, **k: None)
@@ -182,6 +218,21 @@ def legacy_scenario(monkeypatch, batches, execute):
         return [event async for event in llm_client.legacy_chat_stream("offline", "进行moveout并读取状态", "test")]
     asyncio.run(run())
     return read, messages
+
+
+def test_legacy_new_request_reads_then_moves_despite_historical_failure(monkeypatch):
+    execute = AsyncMock(return_value='updated')
+    history = [{'role': 'system', 'content': 'offline'},
+               {'role': 'assistant', 'content': None, 'tool_calls': [
+                   call('container_move_out', {'container_name': 'SN_T_0029'})]},
+               {'role': 'tool', 'name': 'container_move_out', 'tool_call_id': 'container_move_out',
+                'content': '❌ Field "Transaction Details" requires input'},
+               {'role': 'assistant', 'content': '上一次请求已停止。'}]
+    batches = [[call('get_container_details', {'container_name': 'SN_T_0029'})],
+               [call('container_move_out', {'container_name': 'SN_T_0029'})]]
+    read, _ = legacy_scenario(monkeypatch, batches, execute, history)
+    read.assert_awaited_once()
+    execute.assert_awaited_once()
 
 
 def test_legacy_does_not_repeat_failed_move_with_new_parameters(monkeypatch):
