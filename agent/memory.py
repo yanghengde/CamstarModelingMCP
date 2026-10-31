@@ -142,6 +142,7 @@ def get_sessions(username: str) -> list:
     # 按时间或自然序号直接吐出列表信息
     return sorted(
         [{"id": k, "title": v.get("title", "会话"), "updated_at": v.get("updated_at", 0),
+          "auto_confirm": v.get("auto_confirm") is True,
           "has_messages": any(
               message.get("role") in ("user", "assistant") and bool(message.get("content"))
               for message in v.get("messages", [])
@@ -149,6 +150,18 @@ def get_sessions(username: str) -> list:
          for k, v in sessions.items()],
         key=lambda item: (item["updated_at"], item["id"]),
     )
+
+
+def session_auto_confirm(username: str, session_id: str) -> bool:
+    return user_memories.get(username, {}).get("sessions", {}).get(session_id, {}).get("auto_confirm") is True
+
+
+AUTO_CONFIRM_INSTRUCTION = (
+    "用户已开启本次对话自动确认：需求明确且参数齐全时直接调用工具推进操作，"
+    "不要重复询问是否执行。仍需完成计划预检、参数校验和结果核验；"
+    "遇到必须由用户选择的选项、歧义或缺失信息时询问用户，不得代选或编造。"
+    "用户明确要求先确认时遵从该要求；业务签名、身份验证和工具自身校验照常执行。"
+)
 
 
 def create_session(username: str) -> str:

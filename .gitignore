@@ -11,6 +11,8 @@ __pycache__/
 
 # Dependencies
 .pytest_cache/
+# Local pytest --basetemp output (temporary databases and session fixtures)
+/.pytest_auto_confirm_tmp/
 htmlcov/
 dist/
 build/

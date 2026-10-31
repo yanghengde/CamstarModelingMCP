@@ -103,3 +103,36 @@ def test_sequential_normal_moves_do_not_interrupt_but_sensitive_followup_does(mo
     result = runtime._policy_node({'update_count': 12, 'pending_tool_calls': [
         call('change_container_quantity', {'container_name': 'SN1', 'qty': 2})]})
     assert len(observed) == 1 and result['approved_plan']
+
+
+def test_session_auto_confirmation_preserves_explicit_review_and_unknown_tools(saved_plan):
+    proposal = saved_plan(kind='sampling_binding')
+    assert evaluate_mutations(MutationCounts(), [proposal]).requires_approval
+    assert not evaluate_mutations(MutationCounts(), [proposal], auto_confirm=True).requires_approval
+    assert evaluate_mutations(MutationCounts(), [proposal], auto_confirm=True, require_review=True).requires_approval
+    assert evaluate_mutations(MutationCounts(), [call('unknown_tool', {})], auto_confirm=True).requires_approval
+
+
+def test_auto_confirmation_is_scoped_to_user_and_session(monkeypatch, tmp_path):
+    from agent import memory
+    monkeypatch.setattr(memory, 'SESSIONS_DIR', str(tmp_path))
+    monkeypatch.setattr(memory, 'MEMORY_FILE', str(tmp_path / 'absent.json'))
+    monkeypatch.setattr(memory, 'user_memories', {})
+    first = memory.create_session('alice')
+    second = memory.create_session('alice')
+    memory.user_memories['alice']['sessions'][first]['auto_confirm'] = True
+    memory.save_session('alice', first)
+    assert memory.session_auto_confirm('alice', first)
+    assert not memory.session_auto_confirm('alice', second)
+    assert not memory.session_auto_confirm('bob', first)
+    assert memory.load_memory()['alice']['sessions'][first]['auto_confirm'] is True
+    monkeypatch.setattr(runtime, 'interrupt', lambda payload: pytest.fail('unexpected confirmation'))
+    assert runtime._policy_node({'username': 'alice', 'session_id': first, 'pending_tool_calls': [
+        call('change_container_quantity', {'container_name': 'SN1', 'qty': 2})]}) == {}
+    memory.user_memories['alice']['sessions'][first]['auto_confirm'] = False
+    observed = []
+    monkeypatch.setattr(runtime, 'plan_preview', lambda calls: '数量调整')
+    monkeypatch.setattr(runtime, 'interrupt', lambda payload: observed.append(payload) or {'approved': True})
+    runtime._policy_node({'username': 'alice', 'session_id': first, 'pending_tool_calls': [
+        call('change_container_quantity', {'container_name': 'SN1', 'qty': 2})]})
+    assert len(observed) == 1

@@ -58,6 +58,8 @@ function renderMarkdown(element, text) {
 }
 function setBusy(value) {
     loading = value; busy = value || runIsActive();
+    $('autoConfirmToggle').disabled = value || !initialized;
+    $('autoConfirmToggle').checked = sessions.find(item => item.id === sessionId)?.auto_confirm === true;
     for (const id of ['inputBox','sendBtn','uploadBtn','newChatTopBtn','removeAttachmentBtn','approveBtn','rejectBtn']) $(id).disabled = value || !initialized;
     for (const id of ['inputBox','sendBtn','uploadBtn','removeAttachmentBtn','approveBtn','rejectBtn']) $(id).disabled = busy || !initialized;
     $('sendBtn').hidden = runIsActive();
@@ -156,6 +158,7 @@ async function refreshSessions() {
     }
     rememberSession();
     renderSessions();
+    $('autoConfirmToggle').checked = sessions.find(item => item.id === sessionId)?.auto_confirm === true;
 }
 function appendMessage(role, text) {
     $('msgs').querySelector('.welcome')?.remove();
@@ -362,6 +365,21 @@ $('stopBtn').onclick = async () => {
     } catch (error) { notice(error.message); }
 };
 $('approveBtn').onclick = () => send('确认执行'); $('rejectBtn').onclick = () => send('取消执行');
+$('autoConfirmToggle').onchange = async event => {
+    const enabled = event.target.checked, target = sessionId;
+    if (!target || loading) return;
+    const resume = enabled && pendingApproval && !busy;
+    setBusy(true);
+    try {
+        const result = await api(`/sessions/${encodeURIComponent(username)}/${encodeURIComponent(target)}/confirmation`, {
+            method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({auto_confirm:enabled})
+        });
+        const session = sessions.find(item => item.id === target);
+        if (session) session.auto_confirm = result.auto_confirm;
+    } catch (error) { notice(error.message); return; }
+    finally { setBusy(false); }
+    if (resume && sessionId === target) await send('确认执行');
+};
 $('newChatTopBtn').onclick = async () => { if (loading) return; detachRunView(); setBusy(true); try { await newSession(); clearAttachment(); setComposerText(''); await refreshSessions(); await loadHistory(); setView('chat'); } catch(error) { notice(error.message); } finally { setBusy(false); } };
 $('uploadBtn').onclick = () => $('fileInput').click();
 $('removeAttachmentBtn').onclick = clearAttachment;

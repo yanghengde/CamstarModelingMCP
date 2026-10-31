@@ -128,6 +128,7 @@ def evaluate_mutations(
     pending_tool_calls: Iterable[dict],
     intended: MutationCounts | None = None,
     require_review: bool = False,
+    auto_confirm: bool = False,
 ) -> SafetyDecision:
     pending_tool_calls = list(pending_tool_calls)
     pending = count_tool_calls(pending_tool_calls)
@@ -156,6 +157,10 @@ def evaluate_mutations(
         categories.append("需核对业务影响的操作")
     if require_review and any(confirmation_policy(call)[0] is not None for call in pending_tool_calls):
         categories.append('用户要求执行前确认')
+    if auto_confirm and not require_review and all(
+        (call.get('function') or {}).get('name') in TOOL_POLICIES for call in pending_tool_calls
+    ):
+        categories = []
     return SafetyDecision(bool(categories), tuple(categories), totals)
 
 

@@ -147,12 +147,15 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
             state.get("request_message", ""), tool_names
         )
         model_messages = list(state.get("messages", []))
+        from agent.memory import session_auto_confirm, AUTO_CONFIRM_INSTRUCTION
         language_message = {
             "role": "system",
             "content": USER_FACING_LANGUAGE_RULE + "\n" + QUERY_EFFICIENCY_RULE + "\n" + ROUTING_INSTRUCTION + "\n" + APPROVAL_FLOW_RULE,
         }
         insert_at = 1 if model_messages and model_messages[0].get("role") == "system" else 0
         model_messages.insert(insert_at, language_message)
+        if session_auto_confirm(state.get('username', ''), state.get('session_id', '')):
+            model_messages.insert(insert_at + 1, {'role': 'system', 'content': AUTO_CONFIRM_INSTRUCTION})
         if experience_context:
             context_message = {
                 "role": "system",
@@ -249,6 +252,7 @@ def _route_after_agent(state: AgentState) -> str:
 
 
 def _policy_node(state: AgentState) -> dict[str, Any]:
+    from agent.memory import session_auto_confirm
     pending = state.get("pending_tool_calls", [])
     actionable = [call for call in pending
                   if not movement_call_blocked(call, state.get("blocked_movement_targets", []))]
@@ -261,6 +265,7 @@ def _policy_node(state: AgentState) -> dict[str, Any]:
     decision = evaluate_mutations(
         _completed_counts(state), actionable, intended=intended,
         require_review=requests_execution_review(state.get('request_message', '')),
+        auto_confirm=session_auto_confirm(state.get('username', ''), state.get('session_id', '')),
     )
     if state.get('approved_plan') and state['approved_plan'] != fingerprint:
         decision = SafetyDecision(True, ('已确认计划发生变化',), decision.totals)

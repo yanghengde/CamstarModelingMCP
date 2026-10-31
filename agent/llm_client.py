@@ -116,6 +116,9 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             selected_tools = select_tools(openai_tools, chat_messages)
             model_messages = list(chat_messages)
             model_messages.insert(1, {"role": "system", "content": ROUTING_INSTRUCTION})
+            from agent.memory import session_auto_confirm, AUTO_CONFIRM_INSTRUCTION
+            if session_auto_confirm(username, actual_session_id):
+                model_messages.insert(2, {'role': 'system', 'content': AUTO_CONFIRM_INSTRUCTION})
             metrics = InferenceMetrics()
             response_stream = await oai_client.chat.completions.create(
                 model=LLM_MODEL,
@@ -197,10 +200,12 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
                 yield f"data: {json.dumps({'type': 'done', 'reply': full_content}, ensure_ascii=False)}\n\n"
             break
 
+        from agent.memory import session_auto_confirm
         decision = evaluate_mutations(
             MutationCounts(turn_create_count, turn_update_count, turn_delete_count),
             [call for call in response_tool_calls if not movement_call_blocked(call, blocked_movement_targets)],
             require_review=requests_execution_review(message),
+            auto_confirm=session_auto_confirm(username, actual_session_id),
         )
         for tool_call in response_tool_calls:
             func_name = tool_call["function"]["name"]

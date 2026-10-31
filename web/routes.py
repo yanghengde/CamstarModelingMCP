@@ -5,7 +5,7 @@ from typing import Literal
 
 from fastapi import APIRouter, File, Query, UploadFile, HTTPException
 from fastapi.responses import HTMLResponse, StreamingResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StrictBool
 
 from config import CAMSTAR_USERNAME, ENABLE_PERFORMANCE_LOG, AGENT_ENGINE
 from agent.memory import get_user_messages, get_sessions, create_session, set_active_session, get_active_session, user_memories
@@ -22,6 +22,21 @@ class ChatRequest(BaseModel):
     username: str
     session_id: str = None
     request_id: str | None = Field(default=None, min_length=1, max_length=128)
+
+
+class ConfirmationSettings(BaseModel):
+    auto_confirm: StrictBool
+
+
+@router.put('/sessions/{username}/{session_id}/confirmation')
+async def confirmation_settings(username: str, session_id: str, req: ConfirmationSettings):
+    from agent.memory import save_session
+    session = user_memories.get(username, {}).get('sessions', {}).get(session_id)
+    if session is None:
+        raise HTTPException(404, '对话不存在。')
+    session['auto_confirm'] = req.auto_confirm
+    save_session(username, session_id)
+    return {'auto_confirm': req.auto_confirm}
 
 
 @router.get("/")
