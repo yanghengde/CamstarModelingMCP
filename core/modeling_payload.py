@@ -10,6 +10,7 @@ from pathlib import Path
 
 
 SCHEMAS = {
+    "UOMs": ("modeling-uoms-swagger.json", "UOMEntity"),
     "Specs": ("modeling-specs-swagger.json", "SpecEntity"),
     "Operations": ("modeling-operations-swagger.json", "OperationEntity"),
     "Products": ("modeling-product-swagger.json", "ProductEntity"),

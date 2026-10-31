@@ -16,12 +16,13 @@ GROUP_TERMS = {
     "product": r"product|产品|bom|物料清单",
     "mfgorder": r"mfgorder|工单|订单|生产进度|开工准备|开工配置|前置任务|后置任务|过程任务|待执行任务|待办任务",
     "container": r"container|容器|追溯|父子|拆分|合并|拆批|合批|装箱|拆箱|split|combine|associate|disassociate|序列号|批次|在制|过站|移站|进站|出站|开工|挂起|释放|返工|不良",
-    "reference": r"allowmove|编号|层级|产线|产品类型|numbering|level|mfgline|producttype",
+    "reference": r"uom|计量单位|单位|allowmove|编号|层级|产线|产品类型|numbering|level|mfgline|producttype",
     "query": r"query|inquiry|sql|历史|状态|进度|在制|追溯",
     "excel": r"excel|csv|表格|附件|导入|上传",
 }
 WRITE_TERMS = re.compile(r"保存草稿|补齐|补充资料|正式提交|提交事件|提交草稿|转派|委托给|(?:角色替代|角色授权).{0,20}(?:批准|拒绝|签批)|(?:批准|拒绝|签批).{0,20}(?:角色替代|角色授权)|挂接审批|挂审批|重提|重新提交审批|发起审批|路由|取消审批|撤回审批|开启|重开|重新分派|分派|reassign|reopen|损失|扣量|报废|scrap|loss|冻结|解冻|关闭|登记|创建|新建|新增|修改|更新|调整|调到|变更|改成|改为|删除|重建|绑定|解绑|升版|导入|启动|开工|移站|过站|进站|出站|返工|不良|投料|补投|确认|继续执行|挂起|释放|create|update|delete|patch|start|move|rework|import", re.I)
 ROUTING_INSTRUCTION = (
+    "单位主数据用reference组list_uoms/get_uom查询，create_uom/update_uom维护。创建采集点、检验指标或其他需单位的定义时，先核实真实UOM名称/ID；不得将EACH/UNIT当作所有测量的默认单位。缺失单位且用户明确要求新增时先create_uom并核实verified=true，再引用；若名称/含义不明确先询问。重命名是全局变更，不代表单位换算，不能改写历史数值。" +
     "用户明确要求执行且参数完整时，普通少量操作不重复征询确认；新建检验指标/检验项目/抽检计划由执行层核实有效计划后可免逐项确认。需确认的操作直接交系统审批门，不先用聊天再问一遍；仅预览不执行。" +
     MODELING_UPDATE_RULE + "\n" + MOVEMENT_RULE + "\n" + CONTAINER_LEVEL_RULE + "\n" +
     "事件扩展日期沿用get_quality_event_data_context(include_date_storage=true)和prepare_quality_event_data_update，不新增工具。changes.date_received对应EventData.DateReceived/DateReceivedGMT，report_date对应EventData.ReportDate/ReportDateGMT；不能当成Event.OccurrenceDate/ReportedDate，也不能按含糊的报告日期自动代换字段。上下文未明确时先读两组原值并澄清具体字段。输入须完整带明确偏移量，最多7位小数，不补午夜/当前时间或默认时区；省略/null保持，日期清除未支持，禁止传原始GMT字段。准备自动查实际SQL类型/精度，datetime仅整秒，datetime2精确表示，不截断/舍入。Local由明确输入表达、GMT成对推导，不推断MES时区，不臆定收到/报告日期先后；同一时刻换格式/偏移量不重写。仍只有静态差异，禁止普通假预览。确认单次保存后inspect仅原ID的SQL及固定Load日期证据；同一时刻匹配亦不归因本次成功，不自动review/解锁，unknown仍需人工最终事务证据。"

@@ -15,7 +15,7 @@ async def load_tool_group(
 
     workflow=routes/steps; spec=specifications; operation=operations;
     product=products; mfgorder=orders; container=execution/status/history;
-    collection=definition/point/group maintenance, Spec binding, sampling preview/submission/history/verification; material=BOM/material requirements/version comparison; resource=equipment/groups/spec resource context; reference=levels/numbering/lines/types; query=general Inquiry; excel=import.
+    collection=definition/point/group maintenance, Spec binding, sampling preview/submission/history/verification; material=BOM/material requirements/version comparison; resource=equipment/groups/spec resource context; reference=UOM units/levels/numbering/lines/types; query=general Inquiry; excel=import.
     include_writes exposes write definitions only, never authorizes execution.
     """
     names = [name for name, policy in TOOL_POLICIES.items()

@@ -19,6 +19,10 @@ DISABLED_MODELING_PATCH_TOOLS = {
 }
 
 TOOL_POLICIES = {
+    'list_uoms': ToolPolicy('reference'),
+    'get_uom': ToolPolicy('reference'),
+    'create_uom': ToolPolicy('reference', 'create'),
+    'update_uom': ToolPolicy('reference', 'update', always_confirm=True),
     'prepare_capa_approval_revision': ToolPolicy('quality'),
     'get_quality_approval_template': ToolPolicy('quality'),
     'prepare_quality_approval_assignment': ToolPolicy('quality'),

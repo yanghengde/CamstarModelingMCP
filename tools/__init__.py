@@ -34,6 +34,7 @@ from tools import container_moves       # Shopfloor Move/MoveIn/MoveOut 事务
 from tools import container_quality     # Shopfloor ContainerDefect/Rework 事务
 from tools import quality, quality_plans, quality_inspection, quality_definitions, quality_lots, quality_lot_execution, quality_history, quality_sampling_references, quality_lot_maintenance, quality_configuration, quality_current_sampling, quality_ncr_escalation, quality_ncr_closure, quality_lot_rework, quality_quantity_loss
 from tools import numbering_rules       # NumberingRule 查询
+from tools import uoms                  # UOM 计量单位查询与维护
 from tools import container_levels      # ContainerLevel 完整建模维护与字段契约/选择值
 from tools import queries               # Query API 查询
 from tools import mfglines             # MfgLine 实体
@@ -98,7 +99,7 @@ def get_tool_func(name: str):
         return None
     for module in [quality_event_data, quality_event_drafts, quality_event_submission, quality_capa_approval_revision, quality_approval_assignment, quality_approval_history, quality_approval_decisions, quality_approval_delegation, quality_approval_actions, quality_approvals, quality_event_lifecycle, quality_event_creation, quality_event_close_plan, quality_event_closure, quality_event_update, quality_event_triage, quality_spc_violations, quality_spc_annotations, quality_spc, quality, quality_plans, quality_inspection, quality_definitions, quality_lots, quality_lot_execution, quality_history, quality_sampling_references, quality_lot_maintenance, quality_configuration, quality_current_sampling, quality_ncr_escalation, quality_ncr_closure, quality_lot_rework, quality_quantity_loss, collection_groups, collection_group_history, collection_verification, collection_modeling, component_issue_bulk, component_issue_reasons, component_issue_plans, document_files, collection_recovery, spec_documents, mfgorder_task_recovery, mfgorder_task_history, mfgorder_task_plans, mfgorder_task_preview, mfgorder_tasks, container_transfer_reconciliation, container_transfer_plans, container_transfers, collection_reconciliation, collection_submission, collection_history, collection_validation, component_issue, production_readiness, data_collection, boms, resources, production_basics, modeling_workspace, container_genealogy, container_trace,import_plans, order_progress, process_context, modeling_details, container_inquiry, tool_discovery, specs, operations, workflows, workflow_steps, products, mfgorders,
                    container_start, container_moves, container_quality,
-                   numbering_rules,
+                   numbering_rules, uoms,
                    container_levels, queries,
                    mfglines, producttypes, excel_importer, system_info]:
         func = getattr(module, name, None)
