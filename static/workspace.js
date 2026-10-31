@@ -38,7 +38,11 @@ function matchingRecords() {
 const statusLabels = {idle:'准备就绪', complete:'任务已完成', completed:'任务已完成', queued:'任务已提交，正在后台启动', running:'后台执行中 · 可切换页面', cancelling:'正在停止执行…', cancelled:'执行已停止，请核实已提交操作', failed:'执行出现错误，请检查回复与运行日志', interrupted:'上次执行已中断，请核实实际结果', limited:'已达到执行上限', incomplete:'上次流程尚未完成，请核对执行结果后继续', unavailable:'流程状态暂不可用', approval_required:'等待确认操作'};
 async function api(url, options) {
     const response = await fetch(url, options);
-    const data = await response.json();
+    let data;
+    try { data = await response.json(); }
+    catch (_) {
+        throw new Error(response.ok ? `接口返回了无效数据（${url}）` : `请求失败（HTTP ${response.status}，${url}），请查看运行日志`);
+    }
     if (!response.ok) {
         const error = new Error(typeof data.detail === 'string' ? data.detail : data.detail?.message || `请求失败（${response.status}）`);
         error.detail = data.detail;
