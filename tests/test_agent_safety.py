@@ -6,7 +6,7 @@ from agent.safety import (
     is_explicit_confirmation,
     is_explicit_rejection,
 )
-from config import SAFE_CREATE_THRESHOLD, SAFE_DELETE_THRESHOLD
+from config import SAFE_CREATE_THRESHOLD, SAFE_DELETE_THRESHOLD, SAFE_UPDATE_THRESHOLD
 import pytest
 
 
@@ -87,3 +87,27 @@ def test_serial_range_is_counted_as_intended_creations():
         "创建 SN0000001 到 SN0000050", [_call("container_start")]
     )
     assert intended.creates == 50
+
+
+def test_read_after_failed_move_attempts_never_requires_another_approval():
+    completed = MutationCounts(creates=SAFE_CREATE_THRESHOLD + 1,
+                               updates=SAFE_UPDATE_THRESHOLD + 1,
+                               deletes=SAFE_DELETE_THRESHOLD + 1)
+    for calls in ([], [_call("get_container_details")],
+                  [_call("get_container_details"), _call("get_container_history")]):
+        decision = evaluate_mutations(completed, calls, intended=completed)
+        assert not decision.requires_approval
+        assert decision.categories == ()
+        assert decision.totals == completed
+
+
+def test_history_of_other_mutation_types_does_not_gate_current_type():
+    decision = evaluate_mutations(MutationCounts(creates=SAFE_CREATE_THRESHOLD + 1),
+                                  [_call("container_move_in")])
+    assert "创建" not in decision.categories
+
+
+def test_read_fix_does_not_approve_next_write_after_threshold():
+    completed = MutationCounts(updates=SAFE_UPDATE_THRESHOLD + 1)
+    assert not evaluate_mutations(completed, [_call("get_container_details")]).requires_approval
+    assert evaluate_mutations(completed, [_call("container_move_in")]).requires_approval

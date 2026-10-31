@@ -99,7 +99,8 @@ def evaluate_mutations(
     intended: MutationCounts | None = None,
 ) -> SafetyDecision:
     pending_tool_calls = list(pending_tool_calls)
-    totals = completed + count_tool_calls(pending_tool_calls)
+    pending = count_tool_calls(pending_tool_calls)
+    totals = completed + pending
     if intended is not None:
         totals = MutationCounts(
             creates=max(totals.creates, intended.creates),
@@ -107,11 +108,13 @@ def evaluate_mutations(
             deletes=max(totals.deletes, intended.deletes),
         )
     categories: list[str] = []
-    if totals.creates > SAFE_CREATE_THRESHOLD:
+    # Past attempts still count, but cannot turn a current read into a write.
+    # Check each category only when that category is actually pending now.
+    if pending.creates and totals.creates > SAFE_CREATE_THRESHOLD:
         categories.append("创建")
-    if totals.updates > SAFE_UPDATE_THRESHOLD:
+    if pending.updates and totals.updates > SAFE_UPDATE_THRESHOLD:
         categories.append("修改")
-    if totals.deletes > SAFE_DELETE_THRESHOLD:
+    if pending.deletes and totals.deletes > SAFE_DELETE_THRESHOLD:
         categories.append("删除")
     if any(TOOL_POLICIES.get((call.get("function") or {}).get("name", ""))
            and TOOL_POLICIES[(call.get("function") or {})["name"]].always_confirm

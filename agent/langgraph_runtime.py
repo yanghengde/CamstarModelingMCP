@@ -49,6 +49,7 @@ from config import (
 )
 from core.perf_logger import record_perf
 from core.inference_metrics import InferenceMetrics, stream_options
+from core.movement_policy import movement_targets, movement_failed, movement_call_blocked, MOVEMENT_RETRY_BLOCKED
 from tools import get_tool_func
 from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCTION
 
@@ -68,6 +69,7 @@ class AgentState(TypedDict, total=False):
     final_reply: str
     stop_reason: str
     read_failures: int
+    blocked_movement_targets: list[str]
 
 
 _client: Any = None
@@ -246,14 +248,16 @@ def _route_after_agent(state: AgentState) -> str:
 
 def _policy_node(state: AgentState) -> dict[str, Any]:
     pending = state.get("pending_tool_calls", [])
+    actionable = [call for call in pending
+                  if not movement_call_blocked(call, state.get("blocked_movement_targets", []))]
     fingerprint = plan_fingerprint(pending)
     if state.get("approved_plan") == fingerprint:
         return {}
     intended = infer_intended_mutations(
-        state.get("request_message", ""), pending
+        state.get("request_message", ""), actionable
     )
     decision = evaluate_mutations(
-        _completed_counts(state), pending, intended=intended
+        _completed_counts(state), actionable, intended=intended
     )
     if not decision.requires_approval:
         return {}
@@ -318,7 +322,9 @@ async def _execute_tool_node(state: AgentState) -> dict[str, Any]:
         started = time.time()
         try:
             tool_func = get_tool_func(func_name)
-            if tool_func is None:
+            if movement_targets(func_name, func_args) & set(state.get("blocked_movement_targets", [])):
+                result = MOVEMENT_RETRY_BLOCKED
+            elif tool_func is None:
                 result = f"Error: tool '{func_name}' not found"
             elif (func_name.startswith(("get_", "list_"))
                   and int(state.get("read_failures", 0)) >= MAX_READ_FAILURES):
@@ -380,6 +386,9 @@ async def _execute_tool_node(state: AgentState) -> dict[str, Any]:
         "content": str(result),
     }
     read_failures = int(state.get("read_failures", 0))
+    blocked_targets = set(state.get("blocked_movement_targets", []))
+    if movement_failed(result):
+        blocked_targets.update(movement_targets(func_name, func_args))
     if func_name.startswith(("get_", "list_")):
         failed = str(result).startswith(("❌", "Error"))
         if not failed:
@@ -396,6 +405,7 @@ async def _execute_tool_node(state: AgentState) -> dict[str, Any]:
         "update_count": updates,
         "delete_count": deletes,
         "read_failures": read_failures,
+        "blocked_movement_targets": sorted(blocked_targets),
     }
 
 
@@ -577,6 +587,7 @@ async def langgraph_chat_stream(
             "final_reply": "",
             "stop_reason": "",
             "read_failures": 0,
+            "blocked_movement_targets": [],
         }
         try:
             async for event in _stream_graph(initial_state, graph_config):

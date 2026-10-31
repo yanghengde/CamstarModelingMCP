@@ -6,6 +6,11 @@ from tools import container_moves
 
 
 class ContainerMoveTests(unittest.IsolatedAsyncioTestCase):
+    async def asyncSetUp(self):
+        self.context_patch = patch.object(container_moves, "_movement_context", AsyncMock(return_value="0000000000000001"))
+        self.context_patch.start()
+        self.addCleanup(self.context_patch.stop)
+
     async def test_move_std_default_payload(self):
         request_mock = AsyncMock(return_value="ok")
         with patch.object(container_moves, "request_shopfloor", request_mock):
@@ -26,7 +31,7 @@ class ContainerMoveTests(unittest.IsolatedAsyncioTestCase):
             {
                 "container": {
                     "name": "SN-0001",
-                    "level": {"name": "PCB"},
+                    "instanceId": "0000000000000001",
                 },
                 "close": False,
                 "moveAllQty": True,
@@ -51,7 +56,7 @@ class ContainerMoveTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(
             request_mock.await_args.kwargs["body"],
             {
-                "container": {"name": "SN-0001"},
+                "container": {"name": "SN-0001", "instanceId": "0000000000000001"},
                 "resource": {"name": "LINE-01"},
                 "comments": "begin processing",
             },
@@ -75,7 +80,7 @@ class ContainerMoveTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(
             request_mock.await_args.kwargs["body"],
             {
-                "container": {"name": "LOT-0001"},
+                "container": {"name": "LOT-0001", "instanceId": "0000000000000001"},
                 "thruputAllQty": False,
                 "close": False,
                 "moveAllQty": False,
@@ -105,10 +110,7 @@ class ContainerMoveTests(unittest.IsolatedAsyncioTestCase):
                 container_name="SN-0001",
                 body_json=json.dumps(
                     {
-                        "Container": {
-                            "Name": "SN-0002",
-                            "Level": {"Name": "PCB"},
-                        },
+                        "Resource": {"Name": "LINE-01"},
                         "Comments": "override",
                     }
                 ),
@@ -117,8 +119,8 @@ class ContainerMoveTests(unittest.IsolatedAsyncioTestCase):
         payload = request_mock.await_args.kwargs["body"]
         self.assertNotIn("Container", payload)
         self.assertNotIn("Comments", payload)
-        self.assertEqual(payload["container"]["name"], "SN-0002")
-        self.assertEqual(payload["container"]["level"], {"name": "PCB"})
+        self.assertEqual(payload["container"]["name"], "SN-0001")
+        self.assertEqual(payload["resource"], {"name": "LINE-01"})
         self.assertEqual(payload["comments"], "override")
 
 

@@ -202,6 +202,8 @@ python main.py
 | `container_defect` | POST | 通过 ContainerDefect 记录 Container 缺陷 |
 | `rework` | POST | 通过原始 Rework 服务将 Container 转入返工流程 |
 
+移动工具现在先核实实际 ID、Active/InProcess 及层级 AllowMove，Level 不进入写入引用。Agent 本轮移动失败后停止同一容器的后续移动尝试，只读查询不因历史写入次数被重复要求确认。详见[移动参数与审批修复](docs/container-movement-recovery.md)。
+
 ### Container 编号参考数据
 
 | 工具 | 方法 | 说明 |

@@ -37,6 +37,9 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
               'reference': '基础资料与原因码', 'query': '查询服务', 'excel': '表格导入', 'system': '系统与能力发现'}
     disabled = DISABLED_MODELING_PATCH_TOOLS
     caveats = {
+        'container_move': '基础MoveStd；写入前读取实际容器ID、Active、InProcess和层级AllowMove。Level不入请求体；不能在用户要求MoveIn/MoveOut时自动替代。仅基础字段，本轮失败后Agent禁止再次移动同一容器；非完整路线执行器。',
+        'container_move_in': '基础MoveIn；实际ID、Active、InProcess=false和层级AllowMove前检；已进站拒绝。Level仅本地核对，采集/签名不支持，成功后须另行回读；未声称整路线已验收。',
+        'container_move_out': '基础MoveOut；实际ID、Active、InProcess=true和层级AllowMove前检。Transaction Details可能来自内部Thruput/ChangeQty，顶层Details/ServiceDetails无写入契约；禁止猜参/自动替代/失败后本轮重试。具体内部失败原因及完整路线事务仍需现场验收。',
         'get_quality_event_data_context': '只读已有8085标准EventData问题描述/设备位置及扩展收到/报告日期，保持原Event/28项映射值和禁用清单；仅已提交Active Category1且无复杂关联。可include_date_storage=true读取四列实际SQL类型/精度；默认不增加日期元数据查询，日期准备会自动强制核对。固定Load、验证证书HTTPS，无普通POST假预览或计划，执行就绪恒false。日期须明确偏移量且不推断MES时区，不同于原Event发生/报告时间。任意现场EventCustomData字段仍需部署契约。',
         'prepare_quality_event_data_update': '封闭changes仅problem_description(255)/device_location(30 UTF-16字符)、date_received收到日期/report_date扩展报告日期。省略/null保持，文字空串清除，日期不支持清除；日期完整含明确偏移量、最多7位小数，成对生成Local/GMT，同一时刻不同写法保留原对。不改Event发生/报告时间或MES时区，不臆定两种扩展日期先后。实际SQL datetime只接受整秒，datetime2必须精确可表示；不舍入/截断，类型/精度变化阻止旧计划。固定Load+静态差异、HTTPS及原责任人角色/会话核实，签名/复杂关联拒绝，确认单次保存，unknown不重试；日期SQL/Load同值亦不归因成功，最终人工审计才继续，现场未验收。',
         'prepare_quality_event_draft_update': '原Pending2未提交/未分流Category1草稿资料保存；明确文字/报告人/发现人及组织/优先级/带时区日期，省略/null保持原值。无流程/检查表/审批/NCR/事件数据关联。仅固定Load+本地静态差异，不调用可能强制执行的Submit=false普通假预览；static_and_echo_verified=false。核对原责任人/角色组织及原生当前员工，同次会话绑定、验证证书HTTPS；确认单次Submit=false保存，字段原生动态校验未证明。unknown最终人工审计后才独立准备正式提交，签名/AutoTriage/通知门禁不变，现场未验收。',

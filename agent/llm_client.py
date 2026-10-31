@@ -19,9 +19,10 @@ from agent.memory import get_user_messages, save_user_session, update_session_ti
 from tools import mcp, get_tool_func
 from core.tool_catalog import TOOL_POLICIES
 from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCTION
-from agent.safety import MutationCounts, count_tool_calls, evaluate_mutations, approval_prompt, is_explicit_confirmation
+from agent.safety import MutationCounts, classify_tool, count_tool_calls, evaluate_mutations, approval_prompt, is_explicit_confirmation
 from core.perf_logger import record_perf
 from core.inference_metrics import InferenceMetrics, stream_options
+from core.movement_policy import movement_targets, movement_failed, movement_call_blocked, MOVEMENT_RETRY_BLOCKED
 
 logger = logging.getLogger(__name__)
 
@@ -98,6 +99,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
     turn_create_count = 0
     turn_update_count = 0
     turn_delete_count = 0
+    blocked_movement_targets = set()
 
     while True:
         loops += 1
@@ -196,12 +198,19 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
 
         decision = evaluate_mutations(
             MutationCounts(turn_create_count, turn_update_count, turn_delete_count),
-            response_tool_calls,
+            [call for call in response_tool_calls if not movement_call_blocked(call, blocked_movement_targets)],
         )
         for tool_call in response_tool_calls:
             func_name = tool_call["function"]["name"]
             func_args_str = tool_call["function"]["arguments"]
-            if decision.requires_approval:
+            if movement_call_blocked(tool_call, blocked_movement_targets):
+                chat_messages.append({"role": "tool", "tool_call_id": tool_call["id"],
+                                      "name": func_name, "content": MOVEMENT_RETRY_BLOCKED})
+                continue
+            if decision.requires_approval and (
+                classify_tool(func_name) is not None
+                or TOOL_POLICIES.get(func_name) and TOOL_POLICIES[func_name].always_confirm
+            ):
                 chat_messages.append({"role": "tool", "tool_call_id": tool_call["id"],
                                       "name": func_name, "content": approval_prompt(decision) + "\n请使用 LangGraph 模式完成绑定执行计划的确认；legacy 模式不执行此操作。"})
                 continue
@@ -222,7 +231,9 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             tool_start_time = time.time()
             try:
                 tool_func = get_tool_func(func_name)
-                if tool_func is None:
+                if movement_targets(func_name, func_args) & blocked_movement_targets:
+                    result = MOVEMENT_RETRY_BLOCKED
+                elif tool_func is None:
                     result = f"Error: tool '{func_name}' not found"
                 else:
                     result = await tool_func(**func_args)
@@ -240,6 +251,8 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
                 result = f"Error executing {func_name}: {e}"
             
             tool_duration = time.time() - tool_start_time
+            if movement_failed(result):
+                blocked_movement_targets.update(movement_targets(func_name, func_args))
             record_perf(f"Tool_Execute", tool_duration, username, actual_session_id, {"tool": func_name, "prompt": message})
 
             chat_messages.append({
