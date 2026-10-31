@@ -54,11 +54,11 @@ def test_batch_count_uses_list_or_count_arguments():
     assert count_tool_calls(calls) == MutationCounts(creates=7)
 
 
-def test_safety_decision_uses_cumulative_counts():
+def test_large_cumulative_creation_still_requires_review():
     completed = MutationCounts(creates=SAFE_CREATE_THRESHOLD)
     decision = evaluate_mutations(completed, [_call("container_start")])
     assert decision.requires_approval is True
-    assert "创建" in decision.categories
+    assert decision.totals.creates == SAFE_CREATE_THRESHOLD + 1
 
 
 def test_delete_threshold_blocks_as_configured():
@@ -107,7 +107,19 @@ def test_history_of_other_mutation_types_does_not_gate_current_type():
     assert "创建" not in decision.categories
 
 
-def test_read_fix_does_not_approve_next_write_after_threshold():
+def test_normal_single_write_after_many_operations_does_not_interrupt():
     completed = MutationCounts(updates=SAFE_UPDATE_THRESHOLD + 1)
     assert not evaluate_mutations(completed, [_call("get_container_details")]).requires_approval
-    assert evaluate_mutations(completed, [_call("container_move_in")]).requires_approval
+    assert not evaluate_mutations(completed, [_call("container_move_in")]).requires_approval
+
+
+def test_size_limits_still_apply_to_current_proposal_and_risky_calls():
+    pending = [_call('update_spec') for _ in range(SAFE_UPDATE_THRESHOLD + 1)]
+    assert evaluate_mutations(MutationCounts(), pending).requires_approval
+    for name in ('release_container', 'change_container_quantity', 'issue_components',
+                 'review_quality_transaction', 'execute_workflow_import_plan'):
+        assert evaluate_mutations(MutationCounts(), [_call(name)]).requires_approval
+
+
+def test_unknown_tool_is_never_exempted():
+    assert evaluate_mutations(MutationCounts(), [_call('unregistered_write')]).requires_approval

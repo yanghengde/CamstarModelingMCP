@@ -252,7 +252,7 @@ def test_legacy_mixed_batch_still_reads_when_new_write_requires_approval(monkeyp
     execute = AsyncMock(return_value="updated")
     batches = [[call("container_move_out", {"container_name": f"C{i}"})]
                for i in range(SAFE_UPDATE_THRESHOLD)]
-    batches.append([call("container_move_out", {"container_name": "NEW"}),
+    batches.append([call("release_container", {"container_name": "NEW"}),
                     call("get_container_details", {"container_name": "NEW"})])
     read, messages = legacy_scenario(monkeypatch, batches, execute)
     assert execute.await_count == SAFE_UPDATE_THRESHOLD

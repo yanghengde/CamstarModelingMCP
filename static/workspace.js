@@ -181,6 +181,10 @@ async function refreshWorkflow() {
     pendingApproval = !runIsActive() && data.status === 'approval_required';
     $('approvalCard').hidden = !pendingApproval;
     $('approvalText').textContent = data.approval?.message || '';
+    const details = $('approvalDetails');
+    details.hidden = !data.approval?.execution_details;
+    details.open = false;
+    $('approvalDetailsText').textContent = data.approval?.execution_details || '';
     status(statusLabels[activeRun?.status] || statusLabels[data.status] || '准备就绪');
 }
 function detachRunView() {

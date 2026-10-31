@@ -279,7 +279,8 @@ def test_mcp_definition_prepare_confirmation_and_inspection_keep_unknown(env):
                 out=await client.call_tool(name,args);assert not out.is_error;return json.loads(out.content[0].text)
             ready=await call('prepare_inspection_definition',{'definition_kind':'sample_data_point','action':'create','name':'New','revision':'A','changes':{'data_type':'float'}})
             keys={k:ready[k] for k in ('plan_id','plan_digest')};calls=[{'function':{'name':'execute_quality_transaction','arguments':json.dumps(keys)}}]
-            assert evaluate_mutations(MutationCounts(),calls).requires_approval
+            assert ready['confirmation_required'] is False
+            assert not evaluate_mutations(MutationCounts(),calls).requires_approval
             assert 'modeling' in plan_preview(calls) and 'SampleDataPoints' in plan_preview(calls)
             assert (await call('execute_quality_transaction',keys))['state']=='unknown'
             inspected=await call('inspect_quality_transaction',keys)

@@ -112,7 +112,7 @@ MCP_ALLOWED_HOSTS = _csv_env(
 )
 MCP_ALLOWED_ORIGINS = _csv_env("MCP_ALLOWED_ORIGINS", "")
 
-# 安全卡点阈值：当修改行为超过多少条时要求强制确认
+# 确认阈值：创建保留任务累计上限，普通修改按本次待执行范围判断；高风险操作另行确认
 SAFE_CREATE_THRESHOLD = int(os.getenv("SAFE_CREATE_THRESHOLD", "20"))
 SAFE_UPDATE_THRESHOLD = int(os.getenv("SAFE_UPDATE_THRESHOLD", "3"))
 SAFE_DELETE_THRESHOLD = int(os.getenv("SAFE_DELETE_THRESHOLD", "0")) # Default 0 means >= 1 triggers it

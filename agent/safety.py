@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import json
 import re
+import sqlite3
+import time
 from dataclasses import dataclass
 from typing import Iterable
 
@@ -57,6 +59,34 @@ def classify_tool(name: str) -> str | None:
     return None if policy.effect == "read" else policy.effect
 
 
+def confirmation_policy(tool_call):
+    """Resolve risk from the saved immutable plan, never caller-supplied flags."""
+    function = tool_call.get('function') or {}
+    name = function.get('name') or ''
+    policy = TOOL_POLICIES.get(name)
+    if policy is None:
+        return 'unknown', True
+    if name == 'execute_quality_transaction':
+        try:
+            from tools import quality_plans as plans
+            from core.approval_policy import routine_quality_creation
+            args = json.loads(function.get('arguments') or '{}')
+            if not isinstance(args, dict) or set(args) != {'plan_id', 'plan_digest'}:
+                return policy.effect, True
+            if not plans.PLAN_DB.is_file():
+                return policy.effect, True
+            with plans.db_connect() as db:
+                row = db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',
+                                 (args['plan_id'],)).fetchone()
+            snapshot = plans.checked(row, args['plan_digest'])
+            if row[2] == 'ready' and 0 <= time.time() - row[3] <= 3600 and routine_quality_creation(snapshot):
+                return 'create', False
+        except (ValueError, TypeError, KeyError, AttributeError, sqlite3.Error):
+            pass
+        return policy.effect, True
+    return (None if policy.effect == 'read' else policy.effect), policy.always_confirm
+
+
 def _argument_item_count(arguments: str) -> int:
     """Estimate how many records a single batch-shaped tool call affects."""
     try:
@@ -82,7 +112,7 @@ def count_tool_calls(tool_calls: Iterable[dict]) -> MutationCounts:
     creates = updates = deletes = 0
     for tool_call in tool_calls:
         function = tool_call.get("function") or {}
-        category = classify_tool(str(function.get("name") or ""))
+        category, _ = confirmation_policy(tool_call)
         amount = _argument_item_count(str(function.get("arguments") or "{}"))
         if category == "create":
             creates += amount
@@ -97,6 +127,7 @@ def evaluate_mutations(
     completed: MutationCounts,
     pending_tool_calls: Iterable[dict],
     intended: MutationCounts | None = None,
+    require_review: bool = False,
 ) -> SafetyDecision:
     pending_tool_calls = list(pending_tool_calls)
     pending = count_tool_calls(pending_tool_calls)
@@ -108,19 +139,31 @@ def evaluate_mutations(
             deletes=max(totals.deletes, intended.deletes),
         )
     categories: list[str] = []
-    # Past attempts still count, but cannot turn a current read into a write.
-    # Check each category only when that category is actually pending now.
+    # Historical updates do not re-confirm each subsequent ordinary write.
+    # Keep the cumulative creation cap so splitting a large creation into
+    # single calls cannot silently bypass its existing size limit.
+    scope = pending if intended is None else MutationCounts(
+        creates=max(pending.creates, intended.creates),
+        updates=max(pending.updates, intended.updates),
+        deletes=max(pending.deletes, intended.deletes))
     if pending.creates and totals.creates > SAFE_CREATE_THRESHOLD:
         categories.append("创建")
-    if pending.updates and totals.updates > SAFE_UPDATE_THRESHOLD:
+    if pending.updates and scope.updates > SAFE_UPDATE_THRESHOLD:
         categories.append("修改")
-    if pending.deletes and totals.deletes > SAFE_DELETE_THRESHOLD:
+    if pending.deletes and scope.deletes > SAFE_DELETE_THRESHOLD:
         categories.append("删除")
-    if any(TOOL_POLICIES.get((call.get("function") or {}).get("name", ""))
-           and TOOL_POLICIES[(call.get("function") or {})["name"]].always_confirm
-           for call in pending_tool_calls):
-        categories.append("批量导入/路线重建（影响数量需核对）")
+    if any(confirmation_policy(call)[1] for call in pending_tool_calls):
+        categories.append("需核对业务影响的操作")
+    if require_review and any(confirmation_policy(call)[0] is not None for call in pending_tool_calls):
+        categories.append('用户要求执行前确认')
     return SafetyDecision(bool(categories), tuple(categories), totals)
+
+
+def requests_execution_review(message: str) -> bool:
+    """An explicit request to review before writing overrides routine exemptions."""
+    return bool(re.search(
+        r'(?:先|提交前|执行前|创建前).{0,24}(?:确认|审核|审阅)|'
+        r'等我确认|经我确认|确认后再|确认后才能|确认后执行|确认后提交', message or ''))
 
 
 def infer_intended_mutations(
@@ -221,15 +264,9 @@ def is_explicit_rejection(text: str) -> bool:
 
 
 def approval_prompt(decision: SafetyDecision) -> str:
-    actions = "、".join(decision.categories)
-    totals = decision.totals
     return (
-        f"⚠️ 安全确认：当前任务累计涉及 {totals.creates} 条创建、"
-        f"{totals.updates} 条修改、{totals.deletes} 条删除，"
-        f"其中“{actions}”需要确认。操作已暂停且尚未继续执行。\n"
-        "数量是工具调用的估计影响量；批量导入或重建需另行核对完整范围。\n\n"
-        "请回复明确指令（例如“确认创建”“确认修改”或“确认删除”）继续，"
-        "或回复“取消执行”。"
+        "以下操作需要你确认，目前尚未提交这些操作。\n"
+        "核对无误后点击“确认执行”，或回复“确认执行”；如需调整，请取消后说明修改内容。"
     )
 
 
@@ -253,8 +290,7 @@ def plan_preview(calls):
     for index, call in enumerate(calls, 1):
         function = call.get("function") or {}
         arguments = str(function.get("arguments") or "{}")
-        suffix = "（参数过长，仅展示前 2000 字符；不是完整数据变更预览）" if len(arguments) > 2000 else ""
-        lines.append(f"{index}. {function.get('name')}: {arguments[:2000]}{suffix}")
+        lines.append(f"{index}. {function.get('name')}: {arguments}")
         if function.get('name') in {'execute_quality_transaction','review_quality_transaction'}:
             try:
                 from tools.quality_plans import confirmation_summary

@@ -59,7 +59,7 @@ async def simulated_stream(username, message, session_id):
 
 
 async def workflow(username, session_id):
-    return {'status': 'approval_required', 'approval': {'message': '仅用于离线测试的确认计划。'}} if pending.get(session_id) else {'status': 'complete'}
+    return {'status': 'approval_required', 'approval': {'message': '创建抽检计划 IQC_DEMO，版本 A。\n抽检频率：每 5 个抽检 1 个。\n全检：否。\n检验完成后自动过站：否。', 'execution_details': '离线演示参数：sampleRate=5；inspectAll=false；<b>只按文本展示</b>'}} if pending.get(session_id) else {'status': 'complete'}
 
 
 routes.chat_stream = simulated_stream

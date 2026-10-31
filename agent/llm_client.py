@@ -20,6 +20,7 @@ from tools import mcp, get_tool_func
 from core.tool_catalog import TOOL_POLICIES
 from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCTION
 from agent.safety import MutationCounts, classify_tool, count_tool_calls, evaluate_mutations, approval_prompt, is_explicit_confirmation
+from agent.safety import requests_execution_review
 from core.perf_logger import record_perf
 from core.inference_metrics import InferenceMetrics, stream_options
 from core.movement_policy import movement_targets, movement_failed, movement_call_blocked, MOVEMENT_RETRY_BLOCKED
@@ -199,6 +200,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
         decision = evaluate_mutations(
             MutationCounts(turn_create_count, turn_update_count, turn_delete_count),
             [call for call in response_tool_calls if not movement_call_blocked(call, blocked_movement_targets)],
+            require_review=requests_execution_review(message),
         )
         for tool_call in response_tool_calls:
             func_name = tool_call["function"]["name"]

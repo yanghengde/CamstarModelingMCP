@@ -285,7 +285,7 @@ async def build_definition(args,marker):
 @mcp.tool
 async def prepare_inspection_definition(definition_kind:Literal['sample_data_point','sample_test','sampling_plan'],
         action:Literal['create','update','revise'],name:str,revision:str,changes:InspectionDefinitionChanges,source_revision:str='')->str:
-    """准备检验点SampleDataPoint、测试SampleTest或抽样计划SamplingPlan的创建/更新/升版，不写MES。变化字段按类型闭合校验；引用必须固定版本。测量点列表为明确完整替换；计划tests为add/update/remove明细增量，重名需detail_instance_id。升版仅明确当前ROR源；冻结拒绝。Modeling为静态预览，没有execute=false验证，不等于业务批准。由execute_quality_transaction确认后单次提交。"""
+    """准备检验点SampleDataPoint、测试SampleTest或抽样计划SamplingPlan的创建/更新/升版，不写MES。变化字段按类型闭合校验；引用必须固定版本。测量点列表为明确完整替换；计划tests为add/update/remove明细增量，重名需detail_instance_id。升版仅明确当前ROR源；冻结拒绝。Modeling为静态预览，没有execute=false验证，不等于业务批准。由execute_quality_transaction按风险策略单次提交，新建定义可免逐项确认；更新/升版仍需确认。"""
     from tools import quality_plans as plans
     try:
         normalized=InspectionDefinitionChanges.model_validate(changes).model_dump(exclude_unset=True)

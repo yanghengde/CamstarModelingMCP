@@ -32,6 +32,8 @@ from agent.experience import (
 from agent.prompts import USER_FACING_LANGUAGE_RULE, QUERY_EFFICIENCY_RULE, APPROVAL_FLOW_RULE
 from agent.safety import (
     MutationCounts,
+    SafetyDecision,
+    requests_execution_review,
     approval_prompt, plan_fingerprint, plan_preview,
     classify_tool,
     count_tool_calls,
@@ -257,15 +259,21 @@ def _policy_node(state: AgentState) -> dict[str, Any]:
         state.get("request_message", ""), actionable
     )
     decision = evaluate_mutations(
-        _completed_counts(state), actionable, intended=intended
+        _completed_counts(state), actionable, intended=intended,
+        require_review=requests_execution_review(state.get('request_message', '')),
     )
+    if state.get('approved_plan') and state['approved_plan'] != fingerprint:
+        decision = SafetyDecision(True, ('已确认计划发生变化',), decision.totals)
     if not decision.requires_approval:
         return {}
 
+    from agent.approval_display import business_preview
+    execution_details = plan_preview(pending)
     approval = interrupt(
         {
             "type": "approval_required",
-            "message": approval_prompt(decision) + "\n\n" + plan_preview(pending),
+            "message": approval_prompt(decision) + "\n\n" + business_preview(pending, execution_details),
+            "execution_details": execution_details,
             "plan_id": fingerprint,
             "counts": decision.totals.as_dict(),
             "categories": list(decision.categories),
@@ -309,6 +317,7 @@ async def _execute_tool_node(state: AgentState) -> dict[str, Any]:
     function = tool_call.get("function") or {}
     func_name = str(function.get("name") or "")
     func_args_str = str(function.get("arguments") or "{}")
+    call_count = count_tool_calls([tool_call])
     writer({"type": "step", "func": func_name, "args": func_args_str})
 
     func_args: dict[str, Any] = {}
@@ -370,14 +379,9 @@ async def _execute_tool_node(state: AgentState) -> dict[str, Any]:
     creates = int(state.get("create_count", 0))
     updates = int(state.get("update_count", 0))
     deletes = int(state.get("delete_count", 0))
-    category = classify_tool(func_name)
-    call_count = count_tool_calls([tool_call])
-    if category == "create":
-        creates += call_count.creates
-    elif category == "update":
-        updates += call_count.updates
-    elif category == "delete":
-        deletes += call_count.deletes
+    creates += call_count.creates
+    updates += call_count.updates
+    deletes += call_count.deletes
 
     tool_message = {
         "role": "tool",
@@ -460,6 +464,16 @@ async def get_workflow_status(username: str, session_id: str) -> dict[str, Any]:
     snapshot = await _graph.aget_state(_graph_config(username, session_id))
     approval = _first_interrupt_value(snapshot)
     if approval is not None:
+        # Reformat existing pending approvals for display without changing the
+        # stored interrupt, its arguments, or the plan fingerprint.
+        message = approval.get('message', '')
+        if '待执行工具与参数：' in message and not approval.get('execution_details'):
+            from agent.approval_display import business_preview
+            details = '待执行工具与参数：' + message.split('待执行工具与参数：', 1)[1]
+            approval = {**approval,
+                        'message': '请核对以下操作，确认后提交；如需调整，请取消后说明修改内容。\n\n'
+                                   + business_preview(snapshot.values.get('pending_tool_calls', []), details),
+                        'execution_details': details}
         return {**result, "status": "approval_required", "approval": approval}
     if snapshot.values:
         reason = snapshot.values.get("stop_reason", "")

@@ -75,7 +75,7 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
         'get_spc_annotation_context': '只读原始数值采集历史点、固定定义/SPC组及所有图的有界注释历史；不是本次提交核实或放行。',
         'prepare_spc_annotation': '原生AddSPCAnnotation受限计划，真实历史点/父链、容器归属、固定定义和完整SPC组须核实；Exclude=false，有效排除/签名要求未知则拒绝；确认单次提交、unknown不重试，现场写入尚待验收。',
         'analyze_spc_series': '本地i_mr/xbar_r计算及显式WECO四规则，独立基线或有版本固定控制配置二选一；保留原ID/顺序/摘要，不核实MES来源，不把规格限当控制限，不写入、不放行。',
-        'execute_quality_transaction': 'NCR/CAPA/检验/定义维护/产品关联/抽样批创建确认后单次提交，预览不等于业务批准；结果先unknown，当前只有人工最终证据审计可解占用，现场写入验收待补。',
+        'execute_quality_transaction': '质量计划单次提交；用户明确执行时，已核实有效计划的新建检验指标/项目/抽检计划免逐项确认。其他质量维护、生产关联、检验提交及处置仍须确认；结果先unknown，最终证据人工审计后才解占用，不重放。',
         'inspect_quality_transaction': '仅当前记录/历史证据，不做成功归因、不解除占用；未验证非空请求到历史链。',
         'prepare_nonconformance_report': 'NCRCreate/Update/Close；更新省略失败码保留现有完整清单，传入则完整替换；关闭需NCR解决代码。',
         'prepare_capa': '固定类别5，submit=false草稿；提交不是批准或关闭，不代填电子签名。',

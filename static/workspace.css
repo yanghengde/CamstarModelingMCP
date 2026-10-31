@@ -341,3 +341,9 @@
 .run-badge.interrupted, .run-badge.failed { color: #9c493d; background: #f9e8e4; }
 .record-card .session-title { display: block; }
 .record-card .run-badge { display: inline-block; margin-top: 5px; }
+
+/* Business approval summary with optional exact execution details. */
+.approval details{margin:12px 0;color:var(--text);}
+.approval summary{cursor:pointer;}
+.approval pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;font-size:12px;}
+.approval p{max-height:340px;overflow:auto;}

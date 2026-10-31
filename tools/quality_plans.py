@@ -311,7 +311,8 @@ async def prepare(kind,args):
         marker='MCP-QUAL:'+uuid.uuid4().hex;snapshot=await asyncio.wait_for(build(kind,args,marker),90)
         key=uuid.uuid4().hex;fingerprint=digest(snapshot)
         route=transport(snapshot)
-        result={'plan_id':key,'plan_digest':fingerprint,'state':'ready','submitted':False,'confirmation_required':True,'expires_in_seconds':3600,
+        from core.approval_policy import routine_quality_creation
+        result={'plan_id':key,'plan_digest':fingerprint,'state':'ready','submitted':False,'confirmation_required':not routine_quality_creation(snapshot),'expires_in_seconds':3600,
             'request_preview':{**route,'body':snapshot['body']},'before':snapshot['before'],
             'server_context':snapshot['preview'],
             'static_and_echo_verified':'verified_input_echo' in snapshot['preview'],'dynamic_validation_verified':False,
@@ -580,7 +581,7 @@ async def get_quality_transaction_plan(plan_id:str)->str:
 
 @mcp.tool
 async def execute_quality_transaction(plan_id:str,plan_digest:str)->str:
-    """确认后单次执行质量、检验、定义维护、抽样基础表、产品关联或建批/批维护计划。按白名单选择Modeling CRUD或Shopfloor POST；固定目标及适用版本，重建摘要并检查关联读写占用。Modeling无execute=false回显，Shopfloor默认核对回显；CreateEvent为无原生预览的静态自动编号计划，须明确审阅其限制。HTTP不重试，取消/超时保存unknown；inspect只给证据，人工最终证据才review，不自动成功或解锁。"""
+    """按风险策略单次执行质量、检验、定义维护、抽样基础表、产品关联或建批/批维护计划。用户明确要求执行时，新建检验指标/项目/抽检计划可免逐项确认；已有配置修改/升版、生产关联、检验及处置仍需确认。按白名单选择Modeling CRUD或Shopfloor POST；固定目标及适用版本，重建摘要并检查关联读写占用。Modeling无execute=false回显，Shopfloor默认核对回显；CreateEvent为无原生预览的静态自动编号计划，须明确审阅其限制。HTTP不重试，取消/超时保存unknown；inspect只给证据，人工最终证据才review，不自动成功或解锁。"""
     try:
         with db_connect() as db:row=db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone()
         snapshot=checked(row,plan_digest)
