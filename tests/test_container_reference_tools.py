@@ -74,7 +74,7 @@ class ContainerReferenceToolTests(unittest.IsolatedAsyncioTestCase):
             await container_levels.get_container_level("Unit")
 
         request_mock.assert_awaited_once_with(
-            "GET", "/api/ContainerLevels/Unit"
+            "GET", "/api/ContainerLevels/Unit", response_formatter=container_levels.raw_json
         )
 
 

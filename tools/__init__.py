@@ -34,7 +34,7 @@ from tools import container_moves       # Shopfloor Move/MoveIn/MoveOut 事务
 from tools import container_quality     # Shopfloor ContainerDefect/Rework 事务
 from tools import quality, quality_plans, quality_inspection, quality_definitions, quality_lots, quality_lot_execution, quality_history, quality_sampling_references, quality_lot_maintenance, quality_configuration, quality_current_sampling, quality_ncr_escalation, quality_ncr_closure, quality_lot_rework, quality_quantity_loss
 from tools import numbering_rules       # NumberingRule 查询
-from tools import container_levels      # ContainerLevel 查询
+from tools import container_levels      # ContainerLevel 完整建模维护与字段契约/选择值
 from tools import queries               # Query API 查询
 from tools import mfglines             # MfgLine 实体
 from tools import producttypes         # ProductType 实体

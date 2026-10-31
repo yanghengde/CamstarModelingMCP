@@ -17,6 +17,7 @@ SCHEMAS = {
     "MfgOrders": ("modeling-mfgorders-swagger.json", "MfgOrderEntity"),
     "MfgLines": ("modeling-mfglines-swagger.json", "MfgLineEntity"),
     "ProductTypes": ("modeling-producttypes-swagger.json", "ProductTypeEntity"),
+    "ContainerLevels": ("modeling-containerlevels-swagger.json", "ContainerLevelEntity"),
 }
 
 
@@ -78,10 +79,12 @@ def _normalize(value, schema, schemas, path):
     }
     if kind in valid and not valid[kind]():
         raise ValueError(f"{path} 类型须为 {kind}。")
+    if kind == 'integer' and schema.get('format') == 'int32' and not -(2**31) <= value < 2**31:
+        raise ValueError(f"{path} 须为32位整数。")
     return value
 
 
-def build_update_payload(entity, fields, body_json=None):
+def build_update_payload(entity, fields, body_json=None, *, allow_empty=False):
     """Normalize explicit fields only; creation-required fields are not injected.
 
     Named arguments omitted as None preserve the current field. Explicit JSON
@@ -100,9 +103,10 @@ def build_update_payload(entity, fields, body_json=None):
         keys = {key.casefold(): key for key in payload}
         for key, value in extra.items():
             payload[keys.get(key.casefold(), key)] = value
-    if not payload:
+    if not payload and not allow_empty:
         raise ValueError("未提供变更字段；请提交明确的最小变更。")
-    if any(key.casefold() == "useror" for key in payload):
+    ror_schema = next((value for key, value in schema['properties'].items() if key.casefold() == 'useror'), {})
+    if any(key.casefold() == "useror" for key in payload) and ror_schema.get('type') != 'array':
         raise ValueError("根对象 UseRor/useROR 不属于普通更新范围（此前整对象写入曾报 __useROR 错误）；"
                          "请省略。引用内 useROR 与根字段不同；修改当前版本须明确 isRevOfRcd。")
     if any(key.casefold() == "objecttochange" for key in payload):

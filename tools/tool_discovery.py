@@ -37,6 +37,11 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
               'reference': '基础资料与原因码', 'query': '查询服务', 'excel': '表格导入', 'system': '系统与能力发现'}
     disabled = DISABLED_MODELING_PATCH_TOOLS
     caveats = {
+        'get_container_level_schema': '覆盖当前归档契约的全部字段；指定field_name返回精确嵌套/引用schema。只读字段和路径目标选择器不能写。契约声明可写不等于该字段已完成现场持久化验收。',
+        'create_container_level': '完整层级创建：常用具名字段及body_json全可写契约。先查同名，不覆盖或补默认配置；POST一次后查唯一ID并回读。未执行真实业务创建验收，不创建容器。',
+        'update_container_level': '完整层级更新：名称、AllowMove、唯一性、编号规则、父子层级、属性、WIP/UI配置及契约内其他可写字段，复杂结构先查get_container_level_schema。省略保持、JSON null显式清除；冻结/未知拒绝，已符合目标不写；单次PUT后按请求字段回读。扩展列表/控制字段仅提交并返回证据，field_checks=null不当已验证；未知结果不重试。全局配置，不自动执行或恢复过站；实际保存/复杂明细仍待现场验收。',
+        'delete_container_level': '删除整个层级建模对象，非单容器解绑；核实实际ID、原名和冻结状态，应用沿用删除确认策略。不额外调用其他对象的删除接口；服务端可因引用等规则拒绝。DELETE一次后核实404；未知响应后不存在也不当本次已验证，未现场验收。',
+        'request_container_level_selection_values': '读取原生字段候选，支持上下文JSON；不保存配置或自动选择值。字段表达式应来自契约，不猜查询路径。',
         'container_move': '基础MoveStd；写入前读取实际容器ID、Active、InProcess和层级AllowMove。Level不入请求体；不能在用户要求MoveIn/MoveOut时自动替代。仅基础字段，本轮失败后Agent禁止再次移动同一容器；非完整路线执行器。',
         'container_move_in': '基础MoveIn；实际ID、Active、InProcess=false和层级AllowMove前检；已进站拒绝。Level仅本地核对，采集/签名不支持，成功后须另行回读；未声称整路线已验收。',
         'container_move_out': '基础MoveOut；实际ID、Active、InProcess=true和层级AllowMove前检。Transaction Details可能来自内部Thruput/ChangeQty，顶层Details/ServiceDetails无写入契约；禁止猜参/自动替代/失败后本轮重试。具体内部失败原因及完整路线事务仍需现场验收。',

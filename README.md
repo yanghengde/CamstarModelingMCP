@@ -207,12 +207,20 @@ python main.py
 
 移动工具现在先核实实际 ID、Active/InProcess 及层级 AllowMove，Level 不进入写入引用。Agent 本轮移动失败后停止同一容器的后续移动尝试，只读查询不因历史写入次数被重复要求确认。详见[移动参数与审批修复](docs/container-movement-recovery.md)。
 
-### Container 编号参考数据
+### Container 编号与层级维护
 
 | 工具 | 方法 | 说明 |
 |---|---|---|
 | `list_numbering_rules` / `get_numbering_rule` | GET | 查询并校验自动编号规则 |
 | `list_container_levels` / `get_container_level` | GET | 查询 Level 及其默认编号规则 |
+| `get_container_levels_count` | GET | 查询层级数量 |
+| `get_container_level_schema` | 本地只读 | 查看全部字段及复杂字段的完整类型定义 |
+| `create_container_level` | POST | 创建层级，支持完整可写字段 |
+| `update_container_level` | PUT | 更新明确字段，支持唯一性、编号、父子层级、属性、WIP/UI 等配置并回读 |
+| `delete_container_level` | DELETE | 删除指定层级并核实结果 |
+| `request_container_level_selection_values` | POST（读） | 读取原生字段候选值 |
+
+完整字段范围、调用示例与验证边界见[ContainerLevel 完整建模工具](docs/container-level-modeling.md)。新增工具需重启服务并刷新 MCP 工具定义后生效。
 
 ### Query API（`/Query/api`）
 
