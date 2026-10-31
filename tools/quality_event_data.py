@@ -57,8 +57,8 @@ class EventDataChanges(BaseModel):
     model_config=ConfigDict(extra='forbid',strict=True)
     problem_description:str|None=Field(default=None,max_length=255)
     device_location:str|None=Field(default=None,max_length=30)
-    date_received:str|None=Field(default=None,max_length=50)
-    report_date:str|None=Field(default=None,max_length=50)
+    date_received:str|None=Field(default=None,max_length=50,description='EventData收到日期，完整到秒且含明确时区偏移量；null保持，不改Event发生/报告时间。')
+    report_date:str|None=Field(default=None,max_length=50,description='EventData扩展报告日期，完整到秒且含明确时区偏移量；null保持，不是Event.ReportedDate。')
 
 
 # Preserve Python callers while the public schema describes text and dates.
@@ -306,8 +306,21 @@ async def date_evidence(snap,current):
             local_value,gmt_value=actual[local],actual[gmt];planned=expected[gmt]
             matches=all(timestamp_valid(v) for v in (local_value,gmt_value,planned)) and timestamp_ticks(local_value)==timestamp_ticks(gmt_value)==timestamp_ticks(planned)
             fields[key]=dict(observed_local=local_value,observed_gmt=gmt_value,planned_gmt=planned,same_instant=matches)
+        # Date readback must also make an unexpected rewrite of Event root
+        # timestamps visible. These comparisons never attribute the change.
+        time_keys={wire(f) for f in (*u.DATE_FIELDS,*DATA_DATES)}
+        def same(field,left,right):
+            if isinstance(left,dict):return isinstance(right,dict) and left.get('instanceId')==right.get('instanceId')
+            if field in time_keys and left is not None and right is not None:
+                return timestamp_valid(left) and timestamp_valid(right) and timestamp_ticks(left)==timestamp_ticks(right)
+            return left==right
+        root_mismatches=[f for f,v in snap['original_values']['root'].items() if not same(f,v,loaded['values']['root'][f])]
+        date_keys={wire(f) for k in requested for f in dates.INPUTS[k]}
+        other_mismatches=[f for f,v in expected.items() if f not in date_keys and not same(f,v,actual[f])]
         return unavailable|dict(complete=True,native_and_sql_original_values_consistent=True,fields=fields,
             all_planned_instants_match=all(f['same_instant'] for f in fields.values()),data_change_count=before['data']['ChangeCount'],
+            root_values_match_plan=not root_mismatches,root_value_mismatches=sorted(root_mismatches),
+            other_data_values_match_plan=not other_mismatches,other_data_value_mismatches=sorted(other_mismatches),
             observed_sql_dates={f:before['data'][f] for f in DATA_DATES},mes_timezone_inferred=False)
     except (ValueError,TypeError,KeyError,AttributeError,OverflowError):return unavailable|dict(reason='current_read_context_unavailable')
 

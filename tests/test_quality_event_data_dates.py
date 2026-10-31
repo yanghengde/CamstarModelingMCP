@@ -63,6 +63,7 @@ def test_two_dates_with_different_offsets_save_readback_and_review_preserve_root
     assert not evidence['verified_success'] and evidence['date_evidence']['complete'] and evidence['date_evidence']['all_planned_instants_match'],evidence
     assert evidence['date_evidence']['fields']['date_received']['observed_local']=='2026-11-01T15:33:04.1234567+08:00'
     assert not evidence['date_evidence']['causal_success_verified'] and not evidence['date_evidence']['retry_allowed']
+    assert evidence['date_evidence']['root_values_match_plan'] and evidence['date_evidence']['other_data_values_match_plan']
     assert result(p.get_quality_transaction_plan(ready['plan_id']))['state']=='unknown'
     next_plan=prepare(changes=dict(report_date='2026-11-02T12:00:00+08:00'));assert next_plan.get('state')=='ready',next_plan
     assert 'error' in execute(next_plan) and len(env['data_posts'])==1
@@ -214,6 +215,17 @@ def test_coherent_but_different_current_dates_are_evidence_of_mismatch_not_autom
     assert not out['verified_success'] and result(p.get_quality_transaction_plan(ready['plan_id']))['state']=='unknown'
 
 
+def test_matching_data_dates_do_not_hide_unexpected_root_time_or_other_field_changes(env):
+    ready=prepare(changes=dict(report_date='2026-11-01T12:00:00Z'));execute(ready)
+    env['extra'].update(ReportedDate='2026-10-29 12:00:00',ReportedDateGMT='2026-10-29 04:00:00')
+    env['data']['ProblemDescription']='Changed by another operation'
+    out=result(p.inspect_quality_transaction(ready['plan_id'],ready['plan_digest']))
+    dates=out['date_evidence'];assert dates['complete'] and dates['all_planned_instants_match']
+    assert not dates['root_values_match_plan'] and 'reportedDateGMT' in dates['root_value_mismatches']
+    assert not dates['other_data_values_match_plan'] and 'problemDescription' in dates['other_data_value_mismatches']
+    assert not out['verified_success'] and result(p.get_quality_transaction_plan(ready['plan_id']))['state']=='unknown'
+
+
 def test_date_inspector_refuses_replacement_data_and_never_queries_it(env):
     ready=prepare(changes=dict(report_date='2026-11-01T12:00:00Z'));execute(ready);env['extra']['EventDataId']=OTHER
     e.q.sql_rows.reset_mock()
@@ -249,7 +261,8 @@ def test_metadata_and_date_inspection_errors_do_not_reflect_session_credentials(
     assert 'error' in reply and TOKEN not in json.dumps(reply)
     out=result(e.get_quality_event_data_context('E','Org',include_date_storage=True))
     assert not out['complete'] and TOKEN not in json.dumps(out)
-    env['data_hook']=lambda data:(_ for _ in ()).throw(ValueError(TOKEN))
+    def reflected_error(data):raise ValueError(TOKEN)
+    env['data_hook']=reflected_error
     proof=result(p.inspect_quality_transaction(ready['plan_id'],ready['plan_digest']))
     assert not proof['verified_success'] and not proof['date_evidence']['complete'] and TOKEN not in json.dumps(proof)
 
