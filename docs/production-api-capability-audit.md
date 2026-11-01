@@ -1,5 +1,7 @@
 # 生产基础能力 API 事实盘点
 
+> 当前状态以 [2026-11-01 核心能力缺口与支持边界](core-capability-gaps.md) 和运行时能力目录为准。以下为历史核查记录，冻结/解冻、数量损失、采集、工单任务等已有后续实现。
+
 核对日期：2026-10-22。依据当前配置的 Modeling、Shopfloor、Query 服务实时 Swagger，以及 tools/ 下的 MCP 实现和注册清单。本次仅 GET 接口定义，未执行业务写入；Swagger HTTP 200 证明契约可读，不代表事务权限、现场状态或业务流程已验证。
 
 原始证据：production-api-audit-evidence.json。每项保存服务名、Swagger 相对地址、方法、请求体引用及关键 schema。完整下载件位于 tmp/<服务>-<名称>.json。

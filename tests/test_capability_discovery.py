@@ -29,3 +29,29 @@ def test_discovery_always_available():
     assert 'get_capabilities' in {t['function']['name'] for t in selected}
     data=json.loads(asyncio.run(get_capabilities(group='reference')))
     assert 'list_production_reasons' in {t['name'] for g in data['groups'] for t in g['tools']}
+
+
+def test_core_gap_snapshot_is_scoped_and_not_a_live_health_claim():
+    overview = json.loads(asyncio.run(get_capabilities()))['capability_gaps']
+    assert overview['checked_at'] and overview['live_health_check'] is False
+    items = {g['id']: g for g in overview['items']}
+    assert items['G09']['status'] == 'partial'  # Restricted Container loss is implemented.
+    assert items['G20']['status'] == 'partial' and 'UOM已有' in items['G20']['current']
+    assert items['G01']['status'] == 'contract_unconfirmed'  # Never invent a release transaction.
+    material = json.loads(asyncio.run(get_capabilities(group='material')))['capability_gaps']
+    assert material['items'] and all('material' in g['groups'] for g in material['items'])
+    assert not any(g['id'] == 'G14' for g in material['items'])
+
+
+def test_gap_evidence_and_source_references_are_complete():
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    data = json.loads((root / 'docs/core-capability-gaps.json').read_text(encoding='utf-8'))
+    assert len({g['id'] for g in data['gaps']}) == len(data['gaps'])
+    for gap in data['gaps']:
+        assert gap['groups'] and set(gap['groups']) <= {p.group for p in TOOL_POLICIES.values()}
+        assert all((root / path).is_file() for path in gap['code'])
+        for ref in gap['contracts']:
+            contract = data['contracts'][ref]
+            assert contract['http_status'] == 200 and contract['operations']
+            assert contract['listed_in_catalog'] and len(contract['sha256']) == 64

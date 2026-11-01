@@ -1,9 +1,28 @@
 """Request additional model tool definitions; never executes business tools."""
 import json
+from pathlib import Path
 from typing import Literal
 
 from core.tool_catalog import TOOL_POLICIES, DISABLED_MODELING_PATCH_TOOLS
 from tools import mcp
+
+
+def capability_gap_summary(group=None):
+    """Read the reviewed snapshot, never infer support from a Swagger name."""
+    path = Path(__file__).resolve().parents[1] / 'docs/core-capability-gaps.json'
+    try:
+        data = json.loads(path.read_text(encoding='utf-8'))
+        labels = {'not_integrated': '未接入', 'partial': '部分支持', 'blocked': '执行门禁关闭',
+                  'contract_unconfirmed': '业务契约待确认', 'validation_pending': '验收与自动核对待补'}
+        gaps = [g for g in data['gaps'] if group is None or group in g['groups']]
+        return {'checked_at': data.get('checked_at'), 'source': 'docs/core-capability-gaps.json',
+                'document': 'docs/core-capability-gaps.md', 'scope': data['scope'],
+                'live_health_check': False, 'items': [
+                    {**{k: g[k] for k in ('id', 'title', 'groups', 'status', 'priority', 'current', 'missing')},
+                     'status_label': labels[g['status']], 'swagger_contracts': g['contracts']}
+                    for g in gaps]}
+    except (OSError, ValueError, KeyError, TypeError):
+        return {'available': False, 'note': '能力缺口盘点快照不可用，请核对项目文档；不能推断没有缺口。'}
 
 
 @mcp.tool
@@ -29,7 +48,9 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
     """查询本系统真实能力目录。回答你能做什么、支持哪些操作、参数和限制时先调用。
     Omit arguments for a grouped overview; use group for tools in that domain,
     or exact tool_name for its actual description and complete input schema.
-    Read-only local registry inspection, never executes a business tool.
+    Includes reviewed Swagger capability gaps and audit date for overview/group queries.
+    Distinguish missing/partial/blocked/unvalidated capabilities in Chinese.
+    Read-only local registry and audit snapshot inspection, never executes a business tool.
     """
     registered = {tool.name: tool for tool in await mcp.list_tools()}
     labels = {'quality': '质量、NCR、CAPA、检验与抽样/SPC', 'collection': '数据采集定义、参数维护与采集执行', 'material': 'BOM 与用料', 'resource': '设备资源与工序资源配置', 'workflow': '工艺路线', 'spec': '规格与工序配置', 'operation': '操作定义',
@@ -141,7 +162,8 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
     }
     result = {'source': 'live MCP registry + explicit tool policies',
               'limitations': ['工具已注册不代表现场事务验收通过；权限、配置和状态由产品校验。',
-                              '未提供已验证的独立工单下发、整单报工、生产容器报废能力。',
+                              '独立工单下发及整单报工尚未形成已验证闭环；基础单容器数量损失/全量报废已有受限计划，复杂场景及现场写入验收待补。',
+                              '确认方式取决于当前对话设置和执行层策略，不能笼统声称所有写入都需逐项确认；缺失选择/参数或用户明确要求先确认时仍等待用户。',
                               '目录查询不加载业务工具，不授予写入权限。']}
     if group is not None and group not in labels:
         return json.dumps({'error': '未知分组', 'groups': labels}, ensure_ascii=False)
@@ -156,6 +178,7 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
                           'always_confirm_in_app': policy.always_confirm,
                           'limitations': disabled.get(tool_name) or caveats.get(tool_name)}
     else:
+        result['capability_gaps'] = capability_gap_summary(group)
         entries = []
         for name, policy in TOOL_POLICIES.items():
             if name not in registered or not policy.default_visible or (group and policy.group != group):
