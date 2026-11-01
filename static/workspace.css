@@ -348,4 +348,24 @@
 .approval pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;font-size:12px;}
 .approval p{max-height:340px;overflow:auto;}
 
-.confirmation-setting{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:#425563;margin:0 0 10px}.confirmation-setting input{accent-color:#00877d;width:16px;height:16px}.confirmation-setting span{color:#74828b;font-size:12px}
+
+
+/* Conversation confirmation picker; native popover escapes the composer scroll area. */
+.confirmation-mode { display:flex; align-items:center; gap:6px; padding:6px 9px; border-radius:20px; color:#66707b; font-size:12px; white-space:nowrap; transition:background .15s; }
+.confirmation-mode:hover:not(:disabled), .confirmation-mode[aria-expanded="true"] { background:#f0f1f2; }
+.confirmation-mode .icon { width:16px; height:16px; }
+.confirmation-mode.is-auto { color:#bc6027; background:#faf2eb; }
+.mode-chevron { width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:1.4; }
+.confirmation-menu { position:fixed; inset:auto; margin:0; width:370px; max-width:calc(100vw - 24px); padding:8px; border:1px solid #e5e7e9; border-radius:16px; background:#fff; color:var(--text); box-shadow:0 8px 30px #17212b20; }
+.confirmation-menu::backdrop { background:transparent; }
+.confirmation-menu-heading { padding:8px 10px 10px; font-size:13px; color:var(--muted); }
+.confirmation-menu [role="menuitemradio"] { width:100%; display:flex; align-items:center; gap:11px; padding:11px 10px; border-radius:9px; text-align:left; }
+.confirmation-menu [role="menuitemradio"]:hover, .confirmation-menu [role="menuitemradio"]:focus-visible { background:#f6f7f8; }
+.confirmation-menu strong { display:block; font-size:14px; font-weight:500; line-height:1.6; }
+.confirmation-menu small { display:block; font-size:12px; color:var(--muted); line-height:1.6; }
+.confirmation-menu [data-confirmation="auto"], .confirmation-menu [data-confirmation="auto"] small { color:#bc6027; }
+.mode-check { margin-left:auto; padding-left:8px; visibility:hidden; }
+[aria-checked="true"] > .mode-check { visibility:visible; }
+.confirmation-menu-note { margin:6px 10px 4px; padding-top:10px; border-top:1px solid var(--border); font-size:12px; line-height:1.7; color:var(--muted); }
+#notice { pointer-events:none; }
+@media(max-width:480px) { .composer-tools { gap:3px; flex-wrap:wrap; } .confirmation-mode { padding:6px; } }

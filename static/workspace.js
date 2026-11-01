@@ -46,6 +46,7 @@ async function api(url, options) {
     if (!response.ok) {
         const error = new Error(typeof data.detail === 'string' ? data.detail : data.detail?.message || `请求失败（${response.status}）`);
         error.detail = data.detail;
+        error.status = response.status;
         throw error;
     }
     return data;
@@ -58,8 +59,8 @@ function renderMarkdown(element, text) {
 }
 function setBusy(value) {
     loading = value; busy = value || runIsActive();
-    $('autoConfirmToggle').disabled = value || !initialized;
-    $('autoConfirmToggle').checked = sessions.find(item => item.id === sessionId)?.auto_confirm === true;
+    renderConfirmationMode();
+    if (value) $('confirmationMenu').hidePopover();
     for (const id of ['inputBox','sendBtn','uploadBtn','newChatTopBtn','removeAttachmentBtn','approveBtn','rejectBtn']) $(id).disabled = value || !initialized;
     for (const id of ['inputBox','sendBtn','uploadBtn','removeAttachmentBtn','approveBtn','rejectBtn']) $(id).disabled = busy || !initialized;
     $('sendBtn').hidden = runIsActive();
@@ -158,7 +159,7 @@ async function refreshSessions() {
     }
     rememberSession();
     renderSessions();
-    $('autoConfirmToggle').checked = sessions.find(item => item.id === sessionId)?.auto_confirm === true;
+    renderConfirmationMode();
 }
 function appendMessage(role, text) {
     $('msgs').querySelector('.welcome')?.remove();
@@ -365,9 +366,53 @@ $('stopBtn').onclick = async () => {
     } catch (error) { notice(error.message); }
 };
 $('approveBtn').onclick = () => send('确认执行'); $('rejectBtn').onclick = () => send('取消执行');
-$('autoConfirmToggle').onchange = async event => {
-    const enabled = event.target.checked, target = sessionId;
+function renderConfirmationMode() {
+    const enabled = sessions.find(item => item.id === sessionId)?.auto_confirm === true;
+    const label = enabled ? '自动确认' : '标准确认';
+    $('confirmationModeLabel').textContent = label;
+    $('confirmationModeBtn').classList.toggle('is-auto', enabled);
+    $('confirmationModeBtn').disabled = loading || !initialized;
+    $('confirmationModeBtn').setAttribute('aria-label', `操作确认方式：${label}`);
+    for (const option of $('confirmationMenu').querySelectorAll('[data-confirmation]')) {
+        option.setAttribute('aria-checked', String((option.dataset.confirmation === 'auto') === enabled));
+    }
+}
+function positionConfirmationMenu() {
+    const menu = $('confirmationMenu');
+    if (!menu.matches(':popover-open')) return;
+    const anchor = $('confirmationModeBtn').getBoundingClientRect();
+    menu.style.left = `${Math.max(12, Math.min(anchor.left, window.innerWidth - menu.offsetWidth - 12))}px`;
+    menu.style.top = `${Math.max(12, anchor.top - menu.offsetHeight - 8)}px`;
+}
+$('confirmationMenu').addEventListener('toggle', event => {
+    const open = event.newState === 'open';
+    $('confirmationModeBtn').setAttribute('aria-expanded', String(open));
+    if (open) {
+        positionConfirmationMenu();
+        $('confirmationMenu').querySelector('[aria-checked="true"]').focus();
+    }
+});
+window.addEventListener('resize', positionConfirmationMenu);
+$('confirmationMenu').addEventListener('keydown', event => {
+    const options = [...$('confirmationMenu').querySelectorAll('[data-confirmation]')];
+    const index = options.indexOf(document.activeElement);
+    if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+        event.preventDefault();
+        options[event.key === 'Home' ? 0 : event.key === 'End' ? options.length - 1 :
+            (index + (event.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length].focus();
+    }
+    if (event.key === 'Escape') {
+        event.preventDefault(); event.stopPropagation();
+        $('confirmationMenu').hidePopover(); $('confirmationModeBtn').focus();
+    }
+});
+$('confirmationMenu').onclick = async event => {
+    const option = event.target.closest('[data-confirmation]');
+    if (!option) return;
+    const enabled = option.dataset.confirmation === 'auto', target = sessionId;
     if (!target || loading) return;
+    $('confirmationMenu').hidePopover(); $('confirmationModeBtn').focus();
+    if (enabled === (sessions.find(item => item.id === target)?.auto_confirm === true)) return;
     const resume = enabled && pendingApproval && !busy;
     setBusy(true);
     try {
@@ -376,7 +421,13 @@ $('autoConfirmToggle').onchange = async event => {
         });
         const session = sessions.find(item => item.id === target);
         if (session) session.auto_confirm = result.auto_confirm;
-    } catch (error) { notice(error.message); return; }
+        $('notice').hidden = true;
+    } catch (error) {
+        notice(error.status === 404 && error.message === 'Not Found'
+            ? '确认方式未保存：后台尚未加载此功能，请重启服务后刷新页面。'
+            : error.message);
+        return;
+    }
     finally { setBusy(false); }
     if (resume && sessionId === target) await send('确认执行');
 };
