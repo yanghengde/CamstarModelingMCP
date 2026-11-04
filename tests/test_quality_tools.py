@@ -180,13 +180,13 @@ def test_context_sampling_parent_and_no_quality_verdict(monkeypatch):
 def test_inventory_does_not_offer_container_scrap():
     out=result(q.get_quality_api_inventory())
     scrap=next(x for x in out['families'] if x['domain']=='报废')
-    assert set(scrap['tools'])=={'prepare_container_quantity_loss','get_sampling_lot_scrap_readiness'} and 'PartScrap' in scrap['discovered']
+    assert set(scrap['tools'])=={'prepare_container_quantity_loss','get_sampling_lot_scrap_readiness','prepare_sampling_lot_scrap'} and 'PartScrap' in scrap['discovered']
     assert 'scrap_container' not in scrap['tools']
 
 
 def test_quality_registry_loading_routing_and_confirmations():
     names={n for n,p in TOOL_POLICIES.items() if p.group=='quality'}
-    assert len(names)==79
+    assert len(names)==80
     registered={t.name for t in asyncio.run(mcp.list_tools())}
     assert names<=registered and all(get_tool_func(n) for n in names)
     reads={n for n in names if TOOL_POLICIES[n].effect=='read'}

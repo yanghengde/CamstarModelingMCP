@@ -22,9 +22,10 @@ FIELDS = {'ContainerId', 'ContainerName', 'CDOTypeId', 'Status', 'CurrentHoldCou
 
 
 class Dependencies:
-    def __init__(self, extra_assets=None):
+    def __init__(self, extra_assets=None, request_limit=40):
         self.assets = ASSETS | (extra_assets or {})
-        self.ctx = ReadContext(40); self.states = {}; self.refs = []
+        self.request_limit = request_limit
+        self.ctx = ReadContext(request_limit); self.states = {}; self.refs = []
 
     async def asset(self, entity, ref):
         table, column, revisioned = self.assets[entity]
@@ -55,7 +56,7 @@ class Dependencies:
         return root
 
     async def stable(self):
-        fresh = Dependencies(self.assets)
+        fresh = Dependencies(self.assets, request_limit=self.request_limit)
         for entity, ref, pair in self.refs:
             root = await fresh.asset(entity, ref)
             if (entity, root['InstanceID']) != pair or fresh.states[pair] != self.states[pair]:
@@ -78,14 +79,17 @@ async def record(cid):
     return row
 
 
-async def snapshot(name, cid=None, *, allow_secondary_quantity=False):
+async def snapshot(name, cid=None, *, allow_secondary_quantity=False, expected_sampling_lot_id=None):
     ref, status = await q.container_identity(name, cid)
     row = await record(ref['instanceId'])
     if row is None or row['ContainerName'] != ref['name']: raise ValueError('数量处置容器名称/ID不一致。')
     if row['CDOTypeId'] != 1040: raise ValueError('第一阶段仅支持基础Container类型，不支持Batch或其他子类型。')
     if row['Status'] != 1 or row['CurrentHoldCount'] != 0 or row['InRework'] is not False:
         raise ValueError('数量处置要求Active、明确无冻结且未在返工。')
-    if row['SamplingLotId']: raise ValueError('抽样批成员不能通过单容器损失工具替代整批报废。')
+    if expected_sampling_lot_id is not None:
+        if not q.valid_id(expected_sampling_lot_id) or row['SamplingLotId'] != expected_sampling_lot_id:
+            raise ValueError('原生批处置成员不属于原批。')
+    elif row['SamplingLotId']: raise ValueError('抽样批成员不能通过单容器损失工具替代整批报废。')
     if row['ParentContainerId'] or row['ChildCount'] != 0 or row['CarrierId']:
         raise ValueError('第一阶段不处理父子容器或已绑定载具的数量处置。')
     if allow_secondary_quantity:
@@ -287,9 +291,16 @@ async def prepare_container_quantity_loss(container_name: str, loss_reason_name:
 
 
 @mcp.tool
-async def get_sampling_lot_scrap_readiness(lot_name: str, lot_instance_id: str | None = None) -> str:
-    """只读抽样批报废前置与接口阻塞，不创建可执行计划、不判合格。完整最多50成员/50任务，重读一致；展示原生会跳过的非Active/零数量成员，数量逐成员原样展示，不混算或推断单位。标准csi分支存在但ScrapReason标注未实现、与LossDetails要求的LossReason不同，部署映射/全量扣量/关闭/清理及原子性未验证，ready_for_execution固定false。不能改走PartScrap或循环调用单容器ChangeQty替代整批报废。"""
+async def get_sampling_lot_scrap_readiness(lot_name: str, lot_instance_id: str | None = None, loss_reason_name: str | None = None) -> str:
+    """只读完整抽样批报废前置，不创建计划。明确loss_reason_name时实时核对LossReason持久ID在原生ScrapReason槽的真实类型、每个成员原因组、全量LossDetails/关闭生产数量默认及完整批预览。成功返回preflight_passed=true，实际提交仍须prepare_sampling_lot_scrap及统一确认。省略原因只读取完整成员/任务及待核实项。ready_for_execution始终false，执行结果/原子性和最终历史须现场验收。"""
     try:
+        if loss_reason_name is not None:
+            from tools.quality_lot_scrap import build_scrap
+            snapshot = await build_scrap(dict(lot_name=lot_name, lot_instance_id=lot_instance_id,
+                loss_reason_name=loss_reason_name, comments=''), 'MCP-QUAL:' + '0' * 32)
+            return q.encode(dict(complete=True, ready_for_execution=False, preflight_passed=True,
+                plan_created=False, mes_write_performed=False, view=snapshot['before'],
+                native_preview=snapshot['preview'], blockers=[], automatic_fallback=False))
         view = await e.lot_view(lot_name, lot_instance_id); issues = []
         for member in view['members']:
             if i.wire_int(member.get('Status'), '成员状态') != 1 or i.numeric(str(member.get('Qty')), '成员数量') <= 0:
@@ -298,10 +309,10 @@ async def get_sampling_lot_scrap_readiness(lot_name: str, lot_instance_id: str |
         return q.encode({'complete': True, 'ready_for_execution': False, 'plan_created': False, 'mes_write_performed': False,
             'contract_review_date': '2026-10-28', 'contract_is_live_health_check': False,
             'quality_verdict': None, 'view': view, 'member_issues': issues, 'native_batch_branch_observed': True,
-            'native_batch_branch_runtime_verified': False, 'blockers': [
-                {'code': 'scrap_entry_declared_unimplemented', 'detail': 'ExecuteSamplingLot.ScrapReason仍标注当前版本未实现。'},
-                {'code': 'scrap_and_loss_reason_types_differ', 'detail': '入口ScrapReason与原生LossDetails.ReasonCode要求的LossReason不是同一类型，不能按同名互换。'},
-                {'code': 'deployed_batch_effects_unverified', 'detail': '部署覆盖、整批原子性、全量扣量/关闭、成员抽样明细清理及最终历史未核实。'}],
-            'automatic_fallback': False, 'note': '不生成结果3计划；PartScrap是资源相关事务，单容器ChangeQty拒绝抽样批成员。'})
+            'native_batch_branch_runtime_verified': False, 'preflight_passed': False, 'blockers': [
+                {'code': 'explicit_loss_reason_required', 'detail': '明确LossReason名称后才核对当前部署的持久ID绑定及成员原因适用组。'},
+                {'code': 'native_defaults_review_required', 'detail': '整批内部全量损失使用原生关闭和生产数量默认，须明确核对。'},
+                {'code': 'deployed_batch_effects_unverified', 'detail': '实际整批原子性、扣量/关闭和最终历史仍待现场验收。'}],
+            'automatic_fallback': False, 'note': '带明确原因复核后可使用prepare_sampling_lot_scrap准备原生结果3；不循环提交成员扣量。'})
     except (ValueError, TypeError, KeyError, AttributeError) as error:
         return q.encode({'complete': False, 'ready_for_execution': False, 'plan_created': False, 'mes_write_performed': False, 'error': str(error)})

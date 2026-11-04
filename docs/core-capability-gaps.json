@@ -181,8 +181,8 @@
       ],
       "status": "partial",
       "priority": "P1",
-      "current": "基础单容器部分损失/明确全量报废已有受限LossDetails计划。",
-      "missing": "Batch、抽样批成员、层级、载具及双单位未开放；PartScrap不是生产容器报废。",
+      "current": "基础单容器单/双单位部分损失及单单位明确全量LossDetails计划已有实现。",
+      "missing": "Batch子类型、层级及载具受限，实际生产数量及最终历史仍待验收。",
       "contracts": [
         "Shopfloor/ChangeQty",
         "Shopfloor/PartScrap"
@@ -199,10 +199,10 @@
       "groups": [
         "quality"
       ],
-      "status": "blocked",
+      "status": "validation_pending",
       "priority": "P1",
-      "current": "已有只读报废前置检查、整批通过和受限整批返工计划。",
-      "missing": "ExecuteSamplingLot结果3尚未开放；原因类型和实际成员影响待核实。",
+      "current": "已有显式LossReason ID绑定、完整成员/原因组和原生默认值核对的整批结果3计划，正式单次ExecuteSamplingLot。",
+      "missing": "真实多成员报废、原子性/回滚、采样清理、关闭与最终父子历史尚待现场验收。",
       "contracts": [
         "Shopfloor/ExecuteSamplingLot",
         "Shopfloor/SamplingLotTxn",
@@ -212,9 +212,10 @@
       "code": [
         "tools/quality_lot_rework.py",
         "tools/quality_quantity_loss.py",
-        "tools/quality_lot_execution.py"
+        "tools/quality_lot_execution.py",
+        "tools/quality_lot_scrap.py"
       ],
-      "next_step": "核实ScrapReason/LossReason原生映射，验证整批成员及历史副作用。"
+      "next_step": "在获准的隔离批上完成正向报废、失败回滚及最终历史核实。"
     },
     {
       "id": "G11",

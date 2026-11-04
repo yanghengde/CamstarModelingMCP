@@ -291,6 +291,9 @@ async def build(kind,args,marker,execution_binding=None):
     if kind=='current_sampling':
         from tools.quality_current_sampling import build_update
         return await build_update(args,marker)
+    if kind=='lot_scrap':
+        from tools.quality_lot_scrap import build_scrap
+        return await build_scrap(args,marker)
     if kind=='lot_rework':
         from tools.quality_lot_rework import build_rework
         return await build_rework(args,marker)
@@ -438,6 +441,8 @@ def transport(snapshot):
             raise ValueError('批维护计划必须使用UpdateSamplingLot。')
         if snapshot.get('kind')=='current_sampling' and snapshot.get('service')!='CurrentSamplingStatusUpdate':
             raise ValueError('当前采样维护计划必须使用CurrentSamplingStatusUpdate。')
+        if snapshot.get('kind')=='lot_scrap' and snapshot.get('service')!='ExecuteSamplingLot':
+            raise ValueError('批报废计划必须使用ExecuteSamplingLot。')
         if snapshot.get('kind')=='lot_rework' and snapshot.get('service')!='ExecuteSamplingLot':
             raise ValueError('批返工计划必须使用ExecuteSamplingLot。')
         if snapshot.get('kind')=='quantity_loss' and snapshot.get('service')!='ChangeQty':
@@ -475,14 +480,17 @@ def transport(snapshot):
         if snapshot.get('service')=='CollectSamplingData':
             from tools.quality_inspection_effects import validate_transport
             validate_transport(snapshot)
-        if snapshot.get('service')=='ExecuteSamplingLot' and snapshot.get('kind')=='lot_rework':
+        if snapshot.get('service')=='ExecuteSamplingLot' and snapshot.get('kind')=='lot_scrap':
+            from tools.quality_lot_scrap import validate_transport
+            validate_transport(snapshot)
+        elif snapshot.get('service')=='ExecuteSamplingLot' and snapshot.get('kind')=='lot_rework':
             from tools.quality_lot_rework import validate_transport
             validate_transport(snapshot)
         elif snapshot.get('service')=='ExecuteSamplingLot' and (snapshot.get('kind')!='lot_completion'
                 or snapshot.get('action')!='ok' or type(snapshot['body'].get('samplingLotResult')) is not int
                 or snapshot['body']['samplingLotResult']!=1 or snapshot['body'].get('samplingCompleted') is not True
                 or set(snapshot['body'])!={'samplingLot','samplingCompleted','samplingLotResult','comments'}):
-            raise ValueError('整批OK计划仅接受结果1；返工须独立批返工计划，报废尚未开放。')
+            raise ValueError('整批OK计划仅接受结果1；返工2和报废3须分别使用独立准备计划。')
         if snapshot.get('service')=='CollectLotSamplingData' and (snapshot.get('kind')!='lot_inspection' or snapshot.get('action')!='collect'):
             raise ValueError('批采样服务与计划类型不符。')
         if snapshot.get('service')=='UpdateSamplingLot':
@@ -537,7 +545,7 @@ def resource_sets(snap):
         if reads.valid_id(org):reads_set.add('runtime:quality-event:org:'+org.lower())
     gate='modeling:sampling-reference-config:gate'
     if snap['kind']=='sampling_reference':writes.add(gate)
-    elif snap['kind'] in ('inspection','lot_inspection','lot_completion','lot_rework','quantity_loss','lot_maintenance','current_sampling','sampling_lot','inspection_definition','sampling_binding'):
+    elif snap['kind'] in ('inspection','lot_inspection','lot_completion','lot_rework','lot_scrap','quantity_loss','lot_maintenance','current_sampling','sampling_lot','inspection_definition','sampling_binding'):
         reads_set.add(gate)
     if snap['kind']=='inspection':
         from tools.quality_definitions import resources
@@ -758,6 +766,9 @@ async def inspect_quality_transaction(plan_id:str,plan_digest:str)->str:
                 return encode(await inspect_snapshot(snap))
             if snap['kind']=='current_sampling':
                 from tools.quality_current_sampling import inspect_snapshot
+                return encode(await inspect_snapshot(snap))
+            if snap['kind']=='lot_scrap':
+                from tools.quality_lot_scrap import inspect_snapshot
                 return encode(await inspect_snapshot(snap))
             if snap['kind']=='lot_rework':
                 from tools.quality_lot_rework import inspect_snapshot

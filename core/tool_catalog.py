@@ -53,6 +53,7 @@ TOOL_POLICIES = {
     'prepare_spc_annotation': ToolPolicy('quality'),
     'analyze_spc_series': ToolPolicy('quality'),
     'prepare_quality_ncr_closure': ToolPolicy('quality'),
+    'prepare_sampling_lot_scrap': ToolPolicy('quality'),
     'prepare_sampling_lot_rework': ToolPolicy('quality'),
     'prepare_container_quantity_loss': ToolPolicy('quality'),
     'get_sampling_lot_scrap_readiness': ToolPolicy('quality'),

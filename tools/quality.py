@@ -59,15 +59,15 @@ async def get_quality_api_inventory()->str:
                  'get_inspection_result_history','find_quality_execution_candidates','reconcile_quality_execution',
                  'get_sampling_reference_definition','prepare_sampling_reference_definition','preview_sampling_table_lookup',
                  'prepare_sampling_lot_update','get_sampling_lot_maintenance_history','check_sampling_plan_configuration',
-                 'get_current_sampling_status','prepare_current_sampling_status_update','prepare_sampling_lot_rework'],
-             'limitations':'单容器计数/测量提交计划、检验定义及AQL/检验水平维护、配置查表预览、产品关联、抽样批创建及只读详情。Modeling仅静态校验；零计数且无有效采样历史批的数量/频率调整、批采样记录及MES已通过批的OK执行计划已封装；另有同Workflow明确默认路径的受限批返工计划；批报废未开放；单容器可显式允许MES已有全检规则或测量按本次样本数内部自动扣量，二者互斥，计数/拒收扣量、事件及批高级组合仍未开放，单容器移站false；真实写入验收待补。'},
+                 'get_current_sampling_status','prepare_current_sampling_status_update','prepare_sampling_lot_rework','prepare_sampling_lot_scrap'],
+             'limitations':'单容器计数/测量提交计划、检验定义及AQL/检验水平维护、配置查表预览、产品关联、抽样批创建及只读详情。Modeling仅静态校验；零计数且无有效采样历史批的数量/频率调整、批采样记录及MES已通过批的OK执行计划已封装；另有同Workflow明确默认路径的受限批返工计划；批报废已有显式LossReason ID的原生结果3计划，实际效果待验收；单容器可显式允许MES已有全检规则或测量按本次样本数内部自动扣量，二者互斥，计数/拒收扣量、事件及批高级组合仍未开放，单容器移站false；真实写入验收待补。'},
             {'domain':'SPC','discovered':['SPCControls','SPCChartDefs','RecordSPCViolation','AddSPCAnnotation','InlineSPCTxn'],
              'tools':['list_quality_references','get_quality_reference_details','analyze_spc_series','get_spc_annotation_context','prepare_spc_annotation','get_spc_violation_context','prepare_spc_violation'],
              'limitations':'配置查询、本地i_mr/xbar_r和WECO计算，非现场引擎结果；原始历史点受限注释。新增明确报告结果的单点越限违例登记，要求来源、原值、报告控制限、完整规则归属及无通知/自动处置配置；不认证报告或编译规则/外部引擎，不自动把本地判异写成原生违例，真实写入待验收。自动引擎判定、区内运行/派生值、排除/恢复、冻结/资源状态及自动放行未开放。'},
             {'domain':'不良/返工/冻结','discovered':['ContainerDefect','Rework','Hold','Release'],
              'tools':['container_defect','rework','hold_container','release_container'],'limitations':'已有直接封装，不能假定具备新NCR/CAPA事务journal。需确认、现场写入验收待完成，不盲重试。'},
-            {'domain':'报废','checked_date':'2026-10-28','discovered':['PartScrap','ScrapReasons','ChangeQty','LossReasons','ExecuteSamplingLot'],'tools':['prepare_container_quantity_loss','get_sampling_lot_scrap_readiness'],
-             'limitations':'单个基础Container支持原生LossDetails的部分损失/明确全量报废准备；不支持Batch/抽样批成员/层级/双单位/载具。PartScrap要求resource/scrapQty，不等于Container报废。抽样批报废仅只读前置检查，原因类型冲突及部署效果未核实，结果3仍阻断，真实写入待验收。'},
+            {'domain':'报废','checked_date':'2026-11-04','discovered':['PartScrap','ScrapReasons','ChangeQty','LossReasons','ExecuteSamplingLot'],'tools':['prepare_container_quantity_loss','get_sampling_lot_scrap_readiness','prepare_sampling_lot_scrap'],
+             'limitations':'基础Container支持单/双单位部分损失和单单位全量损失。抽样批有明确LossReason持久ID、完整成员及原生默认值的结果3计划，统一单次ExecuteSamplingLot；不循环提交成员ChangeQty。Batch子类型/层级/载具及批双单位仍受限，实际原子性、扣量、关闭及最终历史待现场验收。'},
         ]})
 
 

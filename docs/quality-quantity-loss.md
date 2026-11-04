@@ -1,3 +1,5 @@
+2026-11-04更新：原生整批结果3计划已接入，使用明确LossReason ID并现场Load核实具体类型。当前范围、验收状态见[整批报废说明](quality-lot-scrap.md)。
+
 # 数量损失准备与抽样批报废前置检查
 
 2026-10-28，高级功能第二阶段继续开发，质量分组由48增至50个工具。本轮实现**单个基础Container的部分数量损失或明确全量损失准备**，以及**不能执行的抽样批报废前置检查**。多成员抽样批报废仍未完成，没有开放ExecuteSamplingLot结果3，不能将本轮称为全部批报废交付。[开发计划](quality-advanced-roadmap.md)
@@ -64,7 +66,7 @@
 
 非执行回显中现场还返回 `ES_Scrapped=false` 等自定义字段。新工具只展示已返回的该字段，不代填、不推断其业务作用，`custom_scrap_process_verified=false`。原生字段回显不代表模块审批、签名或工厂自定义报废流程已核实。
 
-## 为什么抽样批报废仍不能执行
+## 抽样批报废的历史限制与本轮接入
 
 官方Designer元数据组件只读核对的标准csi快照SHA256为 `7bef30314ab7f05106f0b02b1a1af9075f1bc2f59c9452d2573ff477b9138c0c`，不是部署自定义覆盖证明。
 
@@ -73,7 +75,7 @@
 - 映射ExecuteSamplingLotToChangeQty只转发Employee、Factory、TxnDate、TxnDateGMT、User，不转发关闭/数量/评论选项。不能把根层参数或单独ChangeQty的行为假定为整批子服务行为。
 - 部署覆盖、全量扣量和归零关闭、多成员原子性、成员抽样明细清理及最终历史均无正目标验证。
 
-因此 `get_sampling_lot_scrap_readiness` 明确返回这些阻塞。它基于2026-10-28的已归档契约，不是实时模块健康检查；即使成员全Active且数量为正，也不会返回可执行或生成结果3计划。[原生分支](quality-fixtures/lot-scrap-native-discovery.json)、[映射与字段](quality-fixtures/lot-scrap-native-contracts.json)、[原因类型继承](quality-fixtures/lot-scrap-reason-types.json)、[ExecuteSamplingLot契约](quality-fixtures/lot-scrap-executesamplinglot-schema.json)
+2026-11-04现场Load已验证显式LossReason持久ID可以进入ScrapReason槽并回显真实CDOTypeName=LossReason。新增prepare_sampling_lot_scrap据此逐次核对类型，而不是按名称替换。get_sampling_lot_scrap_readiness可带loss_reason_name运行同一前置检查，正式结果3计划使用独立入口。原子性、关闭、清理及最终历史仍需隔离现场验收。上述类型声明保留为历史依据，当前接入详见[整批报废说明](quality-lot-scrap.md)。
 
 ## 单次执行与未知结果
 

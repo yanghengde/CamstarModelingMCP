@@ -1,0 +1,327 @@
+{
+  "status": "awaiting_explicit_batch_and_destructive_test_approval",
+  "logical_root_object_count": 29,
+  "modeling_objects": [
+    {
+      "entity": "LossReasonGroups",
+      "name": "CDX-C4-20261104-LG",
+      "revision": null
+    },
+    {
+      "entity": "ReworkReasons",
+      "name": "CDX-C4-20261104-RW",
+      "revision": null
+    },
+    {
+      "entity": "ReworkReasonGroups",
+      "name": "CDX-C4-20261104-RG",
+      "revision": null
+    },
+    {
+      "entity": "Operations",
+      "name": "CDX-C4-20261104-INSP",
+      "revision": null
+    },
+    {
+      "entity": "Operations",
+      "name": "CDX-C4-20261104-REPAIR",
+      "revision": null
+    },
+    {
+      "entity": "Specs",
+      "name": "CDX-C4-20261104-SI",
+      "revision": "1"
+    },
+    {
+      "entity": "Specs",
+      "name": "CDX-C4-20261104-SR",
+      "revision": "1"
+    },
+    {
+      "entity": "Workflows",
+      "name": "CDX-C4-20261104-WF",
+      "revision": "1"
+    },
+    {
+      "entity": "SampleTests",
+      "name": "CDX-C4-20261104-TEST",
+      "revision": "1"
+    },
+    {
+      "entity": "SamplingPlans",
+      "name": "CDX-C4-20261104-PLAN",
+      "revision": "1"
+    },
+    {
+      "entity": "Products",
+      "name": "CDX-C4-20261104-P",
+      "revision": "1"
+    },
+    {
+      "entity": "MfgOrders",
+      "name": "CDX-C4-20261104-MO",
+      "revision": null
+    },
+    {
+      "entity": "Products",
+      "name": "CDX-C4-20261104-Q",
+      "revision": "1"
+    },
+    {
+      "entity": "MfgOrders",
+      "name": "CDX-C4-20261104-QMO",
+      "revision": null
+    },
+    {
+      "entity": "Products",
+      "name": "CDX-C4-20261104-T",
+      "revision": "1"
+    },
+    {
+      "entity": "MfgOrders",
+      "name": "CDX-C4-20261104-TMO",
+      "revision": null
+    },
+    {
+      "entity": "HoldReasons",
+      "name": "CDX-C4-20261104-HOLD",
+      "revision": null
+    },
+    {
+      "entity": "ReleaseReasons",
+      "name": "CDX-C4-20261104-RELEASE",
+      "revision": null
+    }
+  ],
+  "containers": [
+    {
+      "name": "CDX-C4-20261104-R01",
+      "product": "CDX-C4-20261104-P",
+      "revision": "1",
+      "mfg_order": "CDX-C4-20261104-MO",
+      "qty": 1,
+      "uom": "EACH"
+    },
+    {
+      "name": "CDX-C4-20261104-R02",
+      "product": "CDX-C4-20261104-P",
+      "revision": "1",
+      "mfg_order": "CDX-C4-20261104-MO",
+      "qty": 1,
+      "uom": "EACH"
+    },
+    {
+      "name": "CDX-C4-20261104-S01",
+      "product": "CDX-C4-20261104-P",
+      "revision": "1",
+      "mfg_order": "CDX-C4-20261104-MO",
+      "qty": 1,
+      "uom": "EACH"
+    },
+    {
+      "name": "CDX-C4-20261104-S02",
+      "product": "CDX-C4-20261104-P",
+      "revision": "1",
+      "mfg_order": "CDX-C4-20261104-MO",
+      "qty": 1,
+      "uom": "EACH"
+    },
+    {
+      "name": "CDX-C4-20261104-F01",
+      "product": "CDX-C4-20261104-P",
+      "revision": "1",
+      "mfg_order": "CDX-C4-20261104-MO",
+      "qty": 1,
+      "uom": "EACH"
+    },
+    {
+      "name": "CDX-C4-20261104-F02",
+      "product": "CDX-C4-20261104-P",
+      "revision": "1",
+      "mfg_order": "CDX-C4-20261104-MO",
+      "qty": 1,
+      "uom": "EACH"
+    },
+    {
+      "name": "CDX-C4-20261104-D01",
+      "product": "CDX-C4-20261104-Q",
+      "revision": "1",
+      "mfg_order": "CDX-C4-20261104-QMO",
+      "qty": 10,
+      "uom": "EACH",
+      "qty2": 5,
+      "uom2": "UNIT"
+    },
+    {
+      "name": "CDX-C4-20261104-A01",
+      "product": "CDX-C4-20261104-T",
+      "revision": "1",
+      "mfg_order": "CDX-C4-20261104-TMO",
+      "qty": 2,
+      "uom": "EACH"
+    }
+  ],
+  "sampling_lots": [
+    {
+      "name": "CDX-C4-20261104-LR",
+      "qty": 2,
+      "uom": "EACH",
+      "product": "CDX-C4-20261104-P",
+      "revision": "1"
+    },
+    {
+      "name": "CDX-C4-20261104-LS",
+      "qty": 2,
+      "uom": "EACH",
+      "product": "CDX-C4-20261104-P",
+      "revision": "1"
+    },
+    {
+      "name": "CDX-C4-20261104-LF",
+      "qty": 2,
+      "uom": "EACH",
+      "product": "CDX-C4-20261104-P",
+      "revision": "1"
+    }
+  ],
+  "level": "BOX",
+  "owner": "PRODUCTION",
+  "start_reason": "NORMAL",
+  "factory": null,
+  "numbering": "explicit",
+  "safe_create_threshold": 20,
+  "business_writes_performed": 0,
+  "existing_loss_reason": {
+    "name": "SCRAP",
+    "instance_id": "00102c8000000002",
+    "used_for": [
+      "Operation.LossReasons",
+      "SampleTest.AQLRejectReasons via new LossReasonGroup"
+    ]
+  },
+  "tests": [
+    "two_member_native_rework",
+    "two_member_native_scrap",
+    "controlled_failure_with_no_partial_commit",
+    "dual_unit_partial_loss",
+    "single_unit_full_loss_and_close"
+  ],
+  "constraints": [
+    "Only listed new isolated objects may be mutated",
+    "Recheck new Start context and intended names before creating Containers",
+    "Stop on systemic errors or unexpected membership and do not retry unknown writes",
+    "Final parent/child histories and quantities must be audited before acceptance"
+  ],
+  "name_checks": [
+    {
+      "entity": "LossReasonGroups",
+      "name": "CDX-C4-20261104-LG",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "ReworkReasons",
+      "name": "CDX-C4-20261104-RW",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "ReworkReasonGroups",
+      "name": "CDX-C4-20261104-RG",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "Operations",
+      "name": "CDX-C4-20261104-INSP",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "Operations",
+      "name": "CDX-C4-20261104-REPAIR",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "Specs",
+      "name": "CDX-C4-20261104-SI",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "Specs",
+      "name": "CDX-C4-20261104-SR",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "Workflows",
+      "name": "CDX-C4-20261104-WF",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "SampleTests",
+      "name": "CDX-C4-20261104-TEST",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "SamplingPlans",
+      "name": "CDX-C4-20261104-PLAN",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "Products",
+      "name": "CDX-C4-20261104-P",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "MfgOrders",
+      "name": "CDX-C4-20261104-MO",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "Products",
+      "name": "CDX-C4-20261104-Q",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "MfgOrders",
+      "name": "CDX-C4-20261104-QMO",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "Products",
+      "name": "CDX-C4-20261104-T",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "MfgOrders",
+      "name": "CDX-C4-20261104-TMO",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "HoldReasons",
+      "name": "CDX-C4-20261104-HOLD",
+      "existing": 0,
+      "complete": true
+    },
+    {
+      "entity": "ReleaseReasons",
+      "name": "CDX-C4-20261104-RELEASE",
+      "existing": 0,
+      "complete": true
+    }
+  ],
+  "existing_containers": [],
+  "existing_lots": []
+}
