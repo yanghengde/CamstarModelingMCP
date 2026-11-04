@@ -13,7 +13,7 @@ from core.http_client import request
 from config import CAMSTAR_SHOPFLOOR_BASE_URL
 
 TASK_COLUMNS='ContainerSampleDataId,ContainerId,SamplingPlanId,SampleTestId,InspectionLevelId,AQLLevelId,TotalSamplesRequired,CompletedSamples,Rejects,AllowedRejects,InspectAllContQty,InspectAllQtyOnFailure,ChangeCount'
-CONTAINER_COLUMNS='ContainerId,ContainerName,ProductId,Status,CurrentHoldCount,InQualityControl,SamplingRequired,SamplingPassed,SamplingLotId,Qty,ChangeCount'
+CONTAINER_COLUMNS='ContainerId,ContainerName,ProductId,Status,COALESCE(CurrentHoldCount,0) AS CurrentHoldCount,InQualityControl,SamplingRequired,SamplingPassed,SamplingLotId,Qty,ChangeCount'
 TEST_FIELDS=('InstanceID','Name','Revision','Status','IsFrozen','SampleType','Instructions','AllowMoveOnFailure',
     'AQLRejectReasons','DecreaseByRejectCountReason','DecreaseBySampleSizeReason','DefaultFailureMode',
     'DefaultPEDescription','Classification','SubClassification','ScrapCountedRejectsByReason')

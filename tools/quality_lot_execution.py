@@ -8,8 +8,10 @@ from tools.modeling_details import raw_json,_has_next_link
 from core.http_client import request
 from config import CAMSTAR_SHOPFLOOR_BASE_URL
 
-TASK_COLUMNS='LotSampleDataId,SamplingLotId,SamplingPlanId,SampleTestId,SamplingPlanDetailId,SpecId,ResourceId,VendorItemId,TotalSamplesRequired,CompletedSamples,Rejects,AllowedRejects,SamplesTested,SamplesFailed,InspectAllContQty,InspectAllQtyOnFailure,ChangeCount'
-MEMBER_COLUMNS='ContainerId,ContainerName,SamplingLotId,ProductId,Status,CurrentHoldCount,ParentContainerId,ChildCount,Qty,Qty2,ChangeCount'
+# Native additive counters are SQL NULL until the first collection. Normalize
+# only these known numeric columns in SQL; missing/malformed wire values still fail.
+TASK_COLUMNS='LotSampleDataId,SamplingLotId,SamplingPlanId,SampleTestId,SamplingPlanDetailId,SpecId,ResourceId,VendorItemId,TotalSamplesRequired,COALESCE(CompletedSamples,0) AS CompletedSamples,COALESCE(Rejects,0) AS Rejects,AllowedRejects,COALESCE(SamplesTested,0) AS SamplesTested,COALESCE(SamplesFailed,0) AS SamplesFailed,InspectAllContQty,InspectAllQtyOnFailure,ChangeCount'
+MEMBER_COLUMNS='ContainerId,ContainerName,SamplingLotId,ProductId,Status,COALESCE(CurrentHoldCount,0) AS CurrentHoldCount,ParentContainerId,ChildCount,Qty,Qty2,ChangeCount'
 INTS=('TotalSamplesRequired','CompletedSamples','Rejects','AllowedRejects','SamplesTested','SamplesFailed','ChangeCount')
 
 
@@ -98,9 +100,14 @@ async def build_collection(args,marker):
     body={'container':ref,'samplingLot':{'name':lot['MfgLotName'],'instanceId':lot['MfgLotId']},
         'sampleTest':test_ref,'lotSampleDataItem':{'instanceId':task['LotSampleDataId']},'serviceDetails':details,
         'moveContainerOnCompletion':False,'isExternal':False,'isWebhook':False,'comments':marker+(' '+comment if comment else '')}
+    # CollectLotSampling_Execution adds this ROOT input for counted tests.
+    # Bind both writable context fields to the actual definition/submission;
+    # native nonexecuting previews otherwise default SamplesTested to one.
+    body['samplesTested'] = count
+    body['sampleType'] = definition['test']['SampleType']
     if len(json.dumps(body,ensure_ascii=False))>22000:raise ValueError('批采样请求超过预览长度上限。')
     preview=await inspection.inspection_preview(body,'CollectLotSamplingData')
-    for field,value in (('RequiredSamples',task['TotalSamplesRequired']),('SamplesTested',task['SamplesTested']),
+    for field,value in (('RequiredSamples',task['TotalSamplesRequired']),('SamplesTested',count),
                         ('AllowedRejects',task['AllowedRejects']),('SampleType',definition['test']['SampleType'])):
         if type(preview['task_context'].get(field)) not in (str,int) or str(preview['task_context'][field])!=str(value):
             raise ValueError('批采样服务回显与整批任务不符：'+field)
@@ -180,7 +187,7 @@ def completion_blockers(view):
 
 @mcp.tool
 async def get_sampling_lot_readiness(lot_name:str,lot_instance_id:str|None=None)->str:
-    """读取完整有界抽样批、最多50个成员和50个任务，分别展示MES完成/通过标志及OK执行前置阻塞。不自行判质量，不把前置满足说成签名/权限/业务批准。超界失败，不用分页子集批准整批。本工具只查OK前置；返工另用prepare_sampling_lot_rework，报废未开放。"""
+    """读取完整有界抽样批、最多50个成员和50个任务，分别展示MES完成/通过标志及OK执行前置阻塞。不自行判质量，不把前置满足说成签名/权限/业务批准。超界失败，不用分页子集批准整批。返工使用prepare_sampling_lot_rework，报废使用prepare_sampling_lot_scrap。"""
     try:
         view=await lot_view(lot_name,lot_instance_id);blockers=completion_blockers(view)
         return reads.encode({'data':view,'complete':True,'ok_preconditions_satisfied':not blockers,'blockers':blockers,

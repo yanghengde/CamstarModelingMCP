@@ -64,10 +64,15 @@ async def workflow_steps(ctx, root):
                                          'Parent': {'Name': root['Name'], 'InstanceId': wid}, 'runtime_step': row}
         selected = []
         for path in reworks:
-            if path.get('@odata.type') != '#modeling.ReworkPathChanges': raise ValueError('路径不是明确ReworkPathChanges。')
+            # OData omits @odata.type for the declared navigation element type.
+            # Bind that omitted annotation to the actual persisted subtype below.
+            if path.get('@odata.type') not in (None, '#modeling.ReworkPathChanges'):
+                raise ValueError('路径不是明确ReworkPathChanges。')
             found = [x for x in paths if x['FromStepId'] == row['WorkflowStepId'] and x['PathName'] == path.get('Name')]
             if len(found) != 1 or not q.valid_id(found[0].get('PathId')): raise ValueError('返工路径持久身份不唯一。')
             record = found[0]; route = stable_model(path) | {'InstanceID': record['PathId'], 'runtime_path': record}
+            if i.wire_int(record.get('CDOTypeId'), '持久路径类型') != 7112:
+                raise ValueError('持久路径不是ReworkPath。')
             if record.get('ReturnToStepId'):
                 raise ValueError('第一阶段不处理额外ReturnToStep配置。')
             for field in ('ToStep', 'ReEntryStep', 'EndReworkStep'):

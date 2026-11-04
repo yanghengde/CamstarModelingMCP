@@ -22,12 +22,12 @@
 
 超时、HTTP400和成功回复均先保存unknown及原批/原成员占用，禁止自动重放。inspect按原ID读取余额、单位、关闭状态及任务清理，复读后返回证据。部分观察到的效果逐成员展示，不能将其归为整批成功。
 
-原生最终父子事务关联和实际回滚原子性仍待隔离现场验收。当前状态或任务缺失不能自动解锁。最终审核沿 `review_quality_transaction`，保留明确审计依据。
+隔离批 LS 的最终父子事务关联已验证。最终审核沿 `review_quality_transaction`，仍须提供具体事务证据。
 
 ## 验证与剩余工作
 
 全项目4424项及2项子测试通过，离线HTTPX真实传输尝试0。专项覆盖具体原因类型、完整成员、原生默认值、错误子类型、签名要求、配置/数量变化、确认、未知防重及部分结果可见性。现场已验证LossReason ID的Load绑定和独立非执行LossDetails默认值。
 
-当前现场没有SamplingLot，既有工序LossReasons未配置。真实多成员报废、返工、失败回滚、数量/生产数量和最终历史需按[隔离验收方案](c4-isolated-acceptance.md)执行。C4目前为代码交付、现场未验收。
+隔离批 LS 的两名成员均已扣量至零并关闭，原成员采样任务已清理。MES 历史确认同一事务下两笔成员损失，原因均为 SCRAP，并记录了生产数量选项。负向验收覆盖 LF 的整批返工失败，报废分支尚无独立失败注入证据。详见[隔离验收记录](c4-isolated-acceptance.md)。
 
 本地证据包括 `docs/quality-fixtures/c4-reason-load-probe.json`、`c4-scrap-child-live-preview.json`、`c4-completion-live-read.json`、`c4-final-junit.xml` 和 `c4-final-network.json`。

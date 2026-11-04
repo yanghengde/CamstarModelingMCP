@@ -1,4 +1,4 @@
-"""Typed native LossDetails plans; SamplingLot scrap remains blocked by contract conflict."""
+"""Typed native LossDetails plans for single containers and batch scrap probes."""
 import copy
 import json
 from decimal import localcontext
@@ -13,7 +13,7 @@ from config import CAMSTAR_SHOPFLOOR_BASE_URL
 ASSETS = {'Specs': ('Spec', 'SpecId', True), 'Operations': ('Operation', 'OperationId', False),
           'LossReasons': ('LossReason', 'LossReasonId', False),
           'LossReasonGroups': ('LossReasonGroup', 'LossReasonGroupId', False), 'UOMs': ('UOM', 'UOMId', False)}
-COLUMNS = ('c.ContainerId,c.ContainerName,c.CDOTypeId,c.Status,c.CurrentHoldCount,c.ChangeCount,c.ProductId,'
+COLUMNS = ('c.ContainerId,c.ContainerName,c.CDOTypeId,c.Status,COALESCE(c.CurrentHoldCount,0) AS CurrentHoldCount,c.ChangeCount,c.ProductId,'
            'c.SamplingLotId,c.ParentContainerId,c.ChildCount,c.Qty,c.Qty2,c.UOMId,c.UOM2Id,c.CurrentStatusId,'
            's.CurrentStatusId AS StatusRecordId,s.CarrierId,s.InRework,s.SpecId,s.WorkflowStepId')
 FIELDS = {'ContainerId', 'ContainerName', 'CDOTypeId', 'Status', 'CurrentHoldCount', 'ChangeCount', 'ProductId',

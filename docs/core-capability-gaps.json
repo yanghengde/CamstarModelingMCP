@@ -181,8 +181,8 @@
       ],
       "status": "partial",
       "priority": "P1",
-      "current": "基础单容器单/双单位部分损失及单单位明确全量LossDetails计划已有实现。",
-      "missing": "Batch子类型、层级及载具受限，实际生产数量及最终历史仍待验收。",
+      "current": "基础单容器单/双单位部分损失及单单位明确全量LossDetails计划已有实现。双单位部分损失和单单位全量关闭已在隔离容器上核对余额、生产数量选项及最终历史。",
+      "missing": "Batch子类型、层级及载具受限。",
       "contracts": [
         "Shopfloor/ChangeQty",
         "Shopfloor/PartScrap"
@@ -191,7 +191,7 @@
         "tools/quality_quantity_loss.py",
         "tools/production_basics.py"
       ],
-      "next_step": "逐类验证数量、关闭选项、原因及父子事务证据。"
+      "next_step": "有明确业务需求时再核实Batch子类型、层级及载具场景。"
     },
     {
       "id": "G10",
@@ -199,10 +199,10 @@
       "groups": [
         "quality"
       ],
-      "status": "validation_pending",
+      "status": "partial",
       "priority": "P1",
-      "current": "已有显式LossReason ID绑定、完整成员/原因组和原生默认值核对的整批结果3计划，正式单次ExecuteSamplingLot。",
-      "missing": "真实多成员报废、原子性/回滚、采样清理、关闭与最终父子历史尚待现场验收。",
+      "current": "已有显式LossReason ID绑定、完整成员/原因组和原生默认值核对的整批结果3计划。隔离批已验证单次原生执行、两个成员归零关闭、采样清理与最终父子历史。",
+      "missing": "独立报废失败注入尚未验收，已验证的负向场景是冻结成员导致整批返工失败。",
       "contracts": [
         "Shopfloor/ExecuteSamplingLot",
         "Shopfloor/SamplingLotTxn",
@@ -215,7 +215,7 @@
         "tools/quality_lot_execution.py",
         "tools/quality_lot_scrap.py"
       ],
-      "next_step": "在获准的隔离批上完成正向报废、失败回滚及最终历史核实。"
+      "next_step": "如需扩大失败覆盖，单独验证报废子事务失败时的批状态。"
     },
     {
       "id": "G11",

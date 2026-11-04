@@ -66,7 +66,7 @@ def env(lot_env, monkeypatch):
         return await original_sql(query,maximum)
     monkeypatch.setattr(r.q,'sql_rows',AsyncMock(side_effect=sql))
     state['step_rows']=[dict(WorkflowStepId=SRC,WorkflowStepName='Inspect',WorkflowId=WF,StepType=1,SpecId=SPEC,SpecBaseId=None,ChangeCount=1),dict(WorkflowStepId=DST,WorkflowStepName='Repair',WorkflowId=WF,StepType=1,SpecId=TARGET,SpecBaseId=None,ChangeCount=1)]
-    state['path_rows']=[dict(PathId=PATH,PathName='Default',FromStepId=SRC,ToStepId=DST,ReEntryStepId=None,EndReworkStepId=None,ReturnToStepId=None,CDOTypeId=1,ChangeCount=1)]
+    state['path_rows']=[dict(PathId=PATH,PathName='Default',FromStepId=SRC,ToStepId=DST,ReEntryStepId=None,EndReworkStepId=None,ReturnToStepId=None,CDOTypeId=7112,ChangeCount=1)]
     state['read_serial']=0
     async def read(method,path,body=None,params=None,**kw):
         assert method=='GET' and body is None
@@ -322,7 +322,15 @@ def test_nonexecuting_route_absence_is_unknown_not_fabricated_validation(env):
 
 @pytest.mark.parametrize('table,field,value',[('step_rows','WorkflowStepId',key(999)),('step_rows','SpecId',key(999)),
     ('path_rows','PathName','Other'),('path_rows','ToStepId',key(999)),('path_rows','ReEntryStepId',DST),
-    ('path_rows','EndReworkStepId',DST)])
+    ('path_rows','EndReworkStepId',DST),('path_rows','CDOTypeId',1440)])
 def test_persistent_step_and_path_identities_must_agree_with_model(env,table,field,value):
     env[table][0][field]=value
     assert 'error' in prepare();env['client'].request.assert_not_awaited()
+
+
+def test_rework_navigation_can_omit_type_annotation(env):
+    path = env['models']['Workflows'][0]['Steps'][0]['ReworkPaths'][0]
+    path.pop('@odata.type')
+    ready = prepare()
+    assert ready.get('state') == 'ready', ready
+    assert ready['server_context']['member_routes'][0]['path']['instanceId'] == PATH

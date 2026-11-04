@@ -70,7 +70,7 @@ async def routes(snapshot, current_members):
         except (ValueError, TypeError, KeyError, AttributeError):
             results.append(dict(container_id=cid, available=False, reason='original_member_route_unavailable'))
             continue
-        if ref['instanceId'] != cid or row['ChangeCount'] != current['ChangeCount']:
+        if ref['instanceId'] != cid or row['ChangeCount'] != inspection.wire_int(current['ChangeCount'], '成员变更计数'):
             raise ValueError('读取原成员当前路线期间记录变化。')
         in_rework = inspection.wire_bool(status.get('InRework'), '当前返工标志')
         expected = dict(workflow_id=route['workflow']['instanceId'], step_id=route['to_step']['instanceId'],

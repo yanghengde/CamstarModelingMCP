@@ -64,7 +64,7 @@ def env(monkeypatch,tmp_path):
     async def preview(*a,**kw):
         data=echo(kw['body'])
         if a[1]=='/api/CollectLotSamplingData':
-            task=state['tasks'][0];data.update(RequiredSamples=str(task['TotalSamplesRequired']),SamplesTested=str(task['SamplesTested']),
+            task=state['tasks'][0];data.update(RequiredSamples=str(task['TotalSamplesRequired']),SamplesTested=str(kw['body']['samplesTested']),
                 AllowedRejects=str(task['AllowedRejects']),SampleType=str(state['definition']['test']['SampleType']),SamplingStatus='In Process')
             for d in data['ServiceDetails']:
                 d['CDOTypeId']='8462';d['InstanceId']=f'{state["counter"]+2000:016x}'
@@ -95,6 +95,7 @@ def test_lot_counted_collection_uses_lot_task_and_member_identity(env):
     assert ready['request_preview']['path']=='/api/CollectLotSamplingData'
     assert body['samplingLot']=={'name':'L','instanceId':LOT} and body['lotSampleDataItem']=={'instanceId':ROW}
     assert body['serviceDetails'][0]['totalSamplesCollected']==3 and ready['before']['task']['CompletedSamples']==2
+    assert body['samplesTested']==3 and body['sampleType']==1
     assert body['moveContainerOnCompletion'] is False and body['isExternal'] is False and body['isWebhook'] is False
     assert ready['server_context']['quality_verdict'] is None
     assert execute(ready)['state']=='unknown'

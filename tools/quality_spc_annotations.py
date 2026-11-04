@@ -41,7 +41,9 @@ async def schema_check(required=None):
     clauses = ["(TABLE_NAME='"+table+"' AND COLUMN_NAME IN ("+','.join("'"+c+"'" for c in columns.split(','))+'))'
                for table, columns in required.items()]
     rows = await q.sql_rows('SELECT TOP 201 TABLE_NAME,COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS '
-                            "WHERE TABLE_SCHEMA='dbo' AND ("+' OR '.join(clauses)+') ORDER BY TABLE_NAME,COLUMN_NAME', 201)
+                            # Resolve the same unqualified table used by the
+                            # subsequent reads; Camstar may use its own schema.
+                            "WHERE TABLE_SCHEMA=OBJECT_SCHEMA_NAME(OBJECT_ID(TABLE_NAME)) AND ("+' OR '.join(clauses)+') ORDER BY TABLE_NAME,COLUMN_NAME', 201)
     expected = {(table, col) for table, columns in required.items() for col in columns.split(',')}
     actual = [(r.get('TABLE_NAME'), r.get('COLUMN_NAME')) for r in rows]
     if len(actual) != len(set(actual)) or set(actual) != expected:

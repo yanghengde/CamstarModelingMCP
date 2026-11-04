@@ -1,6 +1,6 @@
 # 受限整批返工
 
-2026-10-28新增 `prepare_sampling_lot_rework`，该阶段质量分组由47增至48个工具；后续[数量损失阶段](quality-quantity-loss.md)增至50。正式执行复用 `execute_quality_transaction`，只提交一次 `ExecuteSamplingLot`、结果固定2；逐成员 `Rework` 请求全部为 `execute=false` 输入探测。本阶段未对真实批执行返工，不能标记为现场验收完成。[后续阶段](quality-advanced-roadmap.md)
+2026-10-28 新增 `prepare_sampling_lot_rework`。正式执行复用 `execute_quality_transaction`，只提交一次结果为 2 的 `ExecuteSamplingLot`。逐成员 `Rework` 请求用于非执行预览。2026-11-04 已核对隔离批 LR 的返工路线、数量、任务清理和最终父子历史，以及 LF 冻结成员失败后的状态和历史。[隔离验收记录](c4-isolated-acceptance.md)
 
 ## 参数与执行流程
 

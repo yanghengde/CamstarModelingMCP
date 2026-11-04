@@ -67,7 +67,7 @@ async def get_quality_api_inventory()->str:
             {'domain':'不良/返工/冻结','discovered':['ContainerDefect','Rework','Hold','Release'],
              'tools':['container_defect','rework','hold_container','release_container'],'limitations':'已有直接封装，不能假定具备新NCR/CAPA事务journal。需确认、现场写入验收待完成，不盲重试。'},
             {'domain':'报废','checked_date':'2026-11-04','discovered':['PartScrap','ScrapReasons','ChangeQty','LossReasons','ExecuteSamplingLot'],'tools':['prepare_container_quantity_loss','get_sampling_lot_scrap_readiness','prepare_sampling_lot_scrap'],
-             'limitations':'基础Container支持单/双单位部分损失和单单位全量损失。抽样批有明确LossReason持久ID、完整成员及原生默认值的结果3计划，统一单次ExecuteSamplingLot；不循环提交成员ChangeQty。Batch子类型/层级/载具及批双单位仍受限，实际原子性、扣量、关闭及最终历史待现场验收。'},
+             'limitations':'基础Container支持单/双单位部分损失和单单位全量损失。抽样批有明确LossReason持久ID、完整成员及原生默认值的结果3计划，统一单次ExecuteSamplingLot。已隔离验证双单位部分损失、单单位全量关闭、两成员整批报废及对应历史。Batch子类型、层级、载具及批双单位仍受限，独立报废失败注入未覆盖。'},
         ]})
 
 
