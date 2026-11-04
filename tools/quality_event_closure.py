@@ -11,12 +11,14 @@ FIELDS=('Status','Category','Organization','Owner','Role','ProcessModel','IsAppr
 
 
 @mcp.tool
-async def get_quality_event_closure_context(event_name:str,organization_name:str,event_instance_id:str|None=None)->str:
+async def get_quality_event_closure_context(event_name:str,organization_name:str,event_instance_id:str|None=None,include_checklist_details:bool=False)->str:
     """只读基础Event关闭前置诊断，需明确事件/组织，可绑定原ID。汇总状态、提交/分流、CAR、流程/检查表、审批、签名及最多20条关联NCR。
     查询原生Close处置候选，不准备计划、不关闭事件或关联NCR、不绕过流程/审批/签名。complete仅表示本次读取完整；ready_for_execution恒false。
     CAR要求不等于缺失CAR，存在流程不等于未完成；批次处置、CAR关联、流程完成及动态权限仍须原生校验，不据空清单宣称可关闭。
+    include_checklist_details=true可读取原检查表、最多20项条目及200条实际响应，诊断必填响应和评论缺口，并核对UpdateEventChecklist嵌套执行字段是否公开。默认false保持原读取依赖。检查表已保存标志、必填内容匹配及接口字段公开均不授权执行。
     """
     try:
+        if type(include_checklist_details) is not bool:raise ValueError('include_checklist_details须为布尔值。')
         q.text(event_name,'事件名称');q.text(organization_name,'组织名称')
         if event_instance_id is not None:iid(event_instance_id)
         await schema_check(SCHEMA)
@@ -57,10 +59,15 @@ async def get_quality_event_closure_context(event_name:str,organization_name:str
                                          'organization':t.ref(org)})
         close=[r for r in options if r['Name']=='Close']
         if len(close)!=1:block('close_option','未返回唯一Close处置候选，不猜测原码。')
+        checklist_context = None
+        if include_checklist_details:
+            from tools.quality_event_checklist import context
+            checklist_context = await context(before)
         if await t.event_record(event_name,before['EventId'])!=before or await t.asset('organization',name=organization_name,key=before['OrganizationId'],signature_txn_type=-1)!=org:
             raise ValueError('诊断期间事件或组织策略变化。')
         return q.encode({'complete':True,'ready_for_execution':False,'original_event_id':before['EventId'],
             'event':before,'organization':org,'blockers':blockers,'linked_ncrs':links,
+            'checklist_context':checklist_context,
             'inquiry_context':{k:copy.deepcopy(detail[k]) for k in FIELDS},'resolution_options':options,
             'unverified_checks':['CAR/CAPA有效关联','流程最终完成及检查表响应','全部关联批次处置','当前账号原生关闭权限','关闭审批/签名动态校验','部署关闭副作用及NCR联动'],
             'note':'无静态阻塞不代表可关闭；没有保存计划或业务提交，不自动关闭关联NCR。'})

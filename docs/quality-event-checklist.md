@@ -1,0 +1,28 @@
+# 事件检查表诊断与保存接入工作单
+
+2026-11-04。本轮在已有 `get_quality_event_closure_context` 增加可选 `include_checklist_details=true`，质量工具数量保持79。默认调用沿用原依赖。
+
+## 已交付的诊断
+
+以原Event.ChecklistId读取原检查表，并核对检查表ParentId归属原事件。完整读取最多20项条目及200条实际响应，核对类型、持久ID、父子归属及版本，读取前后比较快照，并在外层复读原事件。超限、缺字段、重复记录、替代父级和读取期间变化会返回读取不完整。
+
+按标准规则分别报告必填条目缺少实际响应，以及CommentsRequired条目缺少评论。原生无ResponseSet时也能存在ResponseItemId为空的实际响应，该记录仍按原生规则计数。评论规则为NoComments=1、CommentsAllowed=2、CommentsRequired=3。报告另列检查表/条目冻结状态和已保存标志。
+
+必填条件满足反映当前持久内容，关闭权限、流程完成及原生最终校验仍由原流程承接。诊断始终返回execution_ready=false。
+
+## 原生保存流程与当前阻塞
+
+标准UpdateEventChecklist（8762）继承UpdateEventDetails，其ExecuteChecklist字段为可读写、初始化时创建的子服务。Load通过UpdateEvent_GetChecklistEntries读取条目和当前响应。ModifyDetails执行UpdateEvent_ExecuteChecklist，将原事件设置为TrackableObject/HistoryId、原Role设置为AssigneeRole，并由明确评论或选中响应决定首次ChecklistSaved标志，再执行子服务。Submit控制必填项最终校验。UpdateEventChecklist_AccumulateHistory将明细历史关联回包装事务。
+
+本轮两次只读获取现场Swagger成功，UpdateEventChecklist根properties均缺少executeChecklist。标准模型中的字段权限与实际REST公开契约存在差异。独立ExecuteChecklist公开服务包含TrackableObject、ServiceDetails和Submit，但该入口尚未证明执行包装服务的父事件已保存标志及历史归集逻辑。
+
+本轮完成读取和契约诊断，检查表保存执行尚未实现，受现场接口公开契约阻塞。原生证据和实际Swagger归档存于本地 `docs/quality-fixtures/event-checklist-*.json`。
+
+## 服务端接入工作单
+
+1. 核对实际部署UpdateEventChecklist元数据与REST生成规则，使正式契约公开ExecuteChecklist子服务及其ServiceDetails/UserResponses。记录部署版本和实际字段形状，继续执行原生签名与权限检查。
+2. 验证固定Load能够回显原Checklist、条目、响应选中状态、原评论及当前员工。明确嵌套$select/$expand和引用形状，完整保持已有响应。
+3. 在明确测试对象上验证保存与提交两个动作，核对父Event.ChecklistSaved、必填响应、必填评论、实际完成员工/角色/时间及包装/子事务历史。
+4. 接入现有确认计划、单次执行、unknown占用与原ID历史证据。验证版本变化、超时、部分失败和重复点击后再开放写入。
+
+工作单的部署和真实业务验证均待开展。开发侧诊断可立即用于明确已有测试事件的关闭前核对。
