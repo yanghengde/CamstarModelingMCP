@@ -57,11 +57,14 @@ def test_inventory_effects_and_missing_plan_are_explicit():
 
 def test_inspection_automatic_loss_is_not_hidden_with_runtime_metadata():
     technical = json.dumps({'request': {'container': {'name': 'SN1'}}, 'server_context': {
-        'native_effects': {'allow_automatic_quantity_loss': True, 'unit': {'name': 'PCS'},
+        'counted_groups_this_submission': 3, 'samples_this_submission': 6, 'rejects_this_submission': 3,
+        'native_effects': {'mode': 'counted_reject_count_loss', 'allow_automatic_quantity_loss': True, 'unit': {'name': 'PCS'},
                            'automatic_quantity_loss': {'quantity': '3', 'projected_remaining_quantity': '7',
                                                        'native_child_defaults': {'technical_flag': True}}}}})
     text = business_preview([call('execute_quality_transaction')], technical)
     assert '允许检验自动扣量：是' in text and '数量：3' in text and '预计剩余数量：7' in text
+    assert '本次计数组数：3' in text and '扣量依据：本次计数拒收合计' in text
+    assert '本次检验样本数：6' in text and '本次不合格数：3' in text
     assert 'PCS' in text and 'technical_flag' not in text
 
 

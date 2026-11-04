@@ -61,12 +61,6 @@ def test_invalid_increment_or_zero_remaining_rejected(env, count):
     env['client'].request.assert_not_awaited()
 
 
-def test_grouped_counted_input_is_rejected(env):
-    assert 'error' in prepare(samples_collected=None, rejects=None,
-        counted_groups=[dict(samples_collected=3, rejects=0)])
-    env['client'].request.assert_not_awaited()
-
-
 def test_native_echo_must_keep_current_increment(env):
     env['parent_hook'] = lambda data: data.update(SamplesTested='2')
     assert 'error' in prepare()
@@ -165,7 +159,7 @@ def test_reject_count_loss_deducts_only_current_rejects(reject_count_env):
     assert all(call.kwargs['params']['execute'] == 'false' for call in env['children'].await_args_list)
 
 
-@pytest.mark.parametrize('case', ['zero_rejects', 'missing_consent', 'exceeds_available', 'zero_balance', 'grouped'])
+@pytest.mark.parametrize('case', ['zero_rejects', 'missing_consent', 'exceeds_available', 'zero_balance'])
 def test_reject_count_loss_rejects_unsupported_inputs(reject_count_env, case):
     env = reject_count_env
     args = dict(rejects=2, reject_reason_name='Reject')
@@ -178,9 +172,6 @@ def test_reject_count_loss_rejects_unsupported_inputs(reject_count_env, case):
     elif case == 'zero_balance':
         env['row']['Qty'] = '2'
         args['samples_collected'] = 2
-    else:
-        args.update(samples_collected=None, rejects=None, reject_reason_name=None,
-                    counted_groups=[dict(samples_collected=3, rejects=2, reject_reason_name='Reject')])
     assert 'error' in prepare(**args)
     env['children'].assert_not_awaited()
     env['client'].request.assert_not_awaited()
@@ -202,3 +193,89 @@ def test_reject_count_loss_transport_rejects_tampered_failure_detail(reject_coun
     saved['body']['serviceDetails'][0]['samplingDataPointDetails'][0]['dataValue'] = '1'
     with pytest.raises(ValueError):
         effects.validate_transport(saved)
+
+
+def grouped_input(env):
+    env['definition']['reject_reasons'].append(dict(name='Scratch', instanceId='00000000000007ff'))
+    return dict(samples_collected=None, rejects=None, counted_groups=[
+        dict(samples_collected=2, rejects=1, reject_reason_name='Reject'),
+        dict(samples_collected=3, rejects=2, reject_reason_name='Scratch'),
+        dict(samples_collected=1, rejects=0),
+    ])
+
+
+@pytest.mark.parametrize(('fixture','mode','deduction'), [
+    ('env', 'counted_sample_size_loss', 6),
+    ('reject_count_env', 'counted_reject_count_loss', 3),
+])
+def test_grouped_loss_preserves_all_details_and_submits_one_parent(request, fixture, mode, deduction):
+    env = request.getfixturevalue(fixture)
+    arguments = grouped_input(env)
+    ready = prepare(**arguments)
+    assert ready.get('state') == 'ready', ready
+    context = ready['server_context']
+    assert context['counted_groups_this_submission'] == 3
+    assert context['samples_this_submission'] == 6 and context['rejects_this_submission'] == 3
+    assert not context['sample_partition_verified']
+    assert context['native_effects']['mode'] == mode
+    loss = context['native_effects']['automatic_quantity_loss']
+    assert loss['quantity'] == str(deduction)
+    assert loss['projected_remaining_quantity'] == str(10-deduction)
+    assert env['children'].await_args.kwargs['body']['serviceDetails'][0]['qty'] == deduction
+
+    body = ready['request_preview']['body']
+    assert body['samplesTested'] == 6 and 'failedSamples' not in body
+    assert [row['totalSamplesCollected'] for row in body['serviceDetails']] == [2, 3, 1]
+    assert [row['rejects'] for row in body['serviceDetails']] == [1, 2, 0]
+    assert [row['samplingDataPointDetails'][0]['rejectReason']['name'] for row in body['serviceDetails'][:2]] == ['Reject', 'Scratch']
+    assert 'samplingDataPointDetails' not in body['serviceDetails'][2]
+
+    assert execute(ready)['state'] == 'unknown'
+    assert execute(prepare(**arguments))['submitted'] is False
+    env['client'].request.assert_awaited_once()
+    assert env['client'].request.await_args.args[1].endswith('/CollectSamplingData')
+    assert env['client'].request.await_args.kwargs['json'] == body
+    assert all(call.kwargs['params']['execute'] == 'false' for call in env['children'].await_args_list)
+    proof = result(plans.inspect_quality_transaction(ready['plan_id'], ready['plan_digest']))
+    assert proof['expected_counted_submission'] == {'group_count': 3, 'samples': 6, 'rejects': 3}
+    assert not proof['verified_success'] and not proof['native_child_history_verified']
+
+
+@pytest.mark.parametrize('case', ['duplicate_reason', 'mixed_input', 'exceeds_task', 'exceeds_stock', 'zero_rejects'])
+def test_invalid_grouped_loss_never_reaches_child_preview(reject_count_env, case):
+    env = reject_count_env
+    arguments = grouped_input(env)
+    if case == 'duplicate_reason':
+        arguments['counted_groups'][1]['reject_reason_name'] = 'Reject'
+    elif case == 'mixed_input':
+        arguments['samples_collected'] = 6
+    elif case == 'exceeds_task':
+        env['task']['CompletedSamples'] = 5
+    elif case == 'exceeds_stock':
+        env['row']['Qty'] = '5'
+    else:
+        arguments['counted_groups'] = [dict(samples_collected=6, rejects=0)]
+    assert 'error' in prepare(**arguments)
+    env['children'].assert_not_awaited()
+    env['client'].request.assert_not_awaited()
+
+
+def test_grouped_loss_rejects_missing_echo_detail(reject_count_env):
+    env = reject_count_env
+    arguments = grouped_input(env)
+    env['parent_hook'] = lambda data: data['ServiceDetails'].pop()
+    assert 'error' in prepare(**arguments)
+    env['client'].request.assert_not_awaited()
+
+
+def test_grouped_loss_rejects_changed_reason_group_and_tampered_counts(reject_count_env):
+    env = reject_count_env
+    ready = prepare(**grouped_input(env))
+    assert ready.get('state') == 'ready', ready
+    saved = snap(ready)
+    saved['body']['serviceDetails'][1]['samplingDataPointDetails'][0]['dataValue'] = '1'
+    with pytest.raises(ValueError):
+        effects.validate_transport(saved)
+    env['definition']['reject_reasons'].pop()
+    assert execute(ready)['submitted'] is False
+    env['client'].request.assert_not_awaited()

@@ -2,6 +2,8 @@
 
 2026-10-26扩展已有`prepare_container_inspection`和`prepare_lot_inspection`，不增加独立提交工具；quality分组仍为41个工具。新增`counted_groups`用于明确分组计数，并修正单组/多组拒收原因载荷和子明细查询。
 
+C5 后续增加了单容器分组计数的自动扣量。用户明确允许后，可按本次样本合计或本次拒收合计扣量，具体取决于 SampleTest 的唯一扣量配置。详见[单容器自动扣量](quality-inspection-effects.md#c5-分组计数按合计自动扣量)。
+
 ## 输入协议
 
 ```json

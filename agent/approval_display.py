@@ -39,6 +39,7 @@ LABELS = {
     'business_effects': '预计业务影响', 'current_quantity': '当前数量',
     'projected_remaining_quantity': '预计剩余数量', 'projected_close': '预计关闭容器',
     'samples_this_submission': '本次检验样本数', 'rejects_this_submission': '本次不合格数',
+    'counted_groups_this_submission': '本次计数组数', 'deduction_basis': '扣量依据',
     'automatic_move': '自动过站', 'unit': '单位', 'quantity': '数量',
     'allow_full_inspection': '允许按现有规则进行全检',
     'allow_automatic_quantity_loss': '允许检验自动扣量',
@@ -50,6 +51,11 @@ LABELS = {
     'source_available_before': '来源可用数量', 'projected_source_quantity': '预计来源剩余数量',
     'projected_net_required': '预计剩余需求', 'recordAllQty': '处理全部数量',
     'adjustThruput': '调整已加工数量统计', 'disassociateWhenClosed': '关闭时解除装箱关系',
+}
+INSPECTION_LOSS_BASIS = {
+    'counted_sample_size_loss': '本次计数样本合计',
+    'measured_sample_size_loss': '本次测量样本数',
+    'counted_reject_count_loss': '本次计数拒收合计',
 }
 VALUES = {
     'create': '创建', 'update': '修改', 'delete': '删除', 'ready': '待执行',
@@ -149,7 +155,7 @@ def business_effects(context):
     if not isinstance(context, dict):
         return {}
     allowed = {'current_quantity', 'loss_quantity', 'projected_remaining_quantity', 'projected_close',
-               'unit', 'samples_this_submission', 'rejects_this_submission', 'automatic_move',
+               'unit', 'samples_this_submission', 'rejects_this_submission', 'counted_groups_this_submission', 'automatic_move',
                'allow_full_inspection', 'allow_automatic_quantity_loss', 'quantity', 'reason',
                'stored_inspect_all', 'failure_rule_enabled', 'stored_required_samples', 'current_whole_quantity'}
     result = {k: v for k, v in context.items() if k in allowed}
@@ -159,6 +165,9 @@ def business_effects(context):
             if key == 'native_effects':
                 result.update(selected)
             else:
+                mode = context.get('mode')
+                if key == 'automatic_quantity_loss' and isinstance(mode, str) and mode in INSPECTION_LOSS_BASIS:
+                    selected['deduction_basis'] = INSPECTION_LOSS_BASIS[mode]
                 result[key] = selected
     return result
 

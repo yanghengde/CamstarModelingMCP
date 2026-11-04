@@ -60,7 +60,7 @@ async def get_quality_api_inventory()->str:
                  'get_sampling_reference_definition','prepare_sampling_reference_definition','preview_sampling_table_lookup',
                  'prepare_sampling_lot_update','get_sampling_lot_maintenance_history','check_sampling_plan_configuration',
                  'get_current_sampling_status','prepare_current_sampling_status_update','prepare_sampling_lot_rework','prepare_sampling_lot_scrap'],
-             'limitations':'单容器计数/测量提交计划、检验定义及AQL/检验水平维护、配置查表预览、产品关联、抽样批创建及只读详情。Modeling仅静态校验；零计数且无有效采样历史批的数量/频率调整、批采样记录及MES已通过批的OK执行计划已封装；另有同Workflow明确默认路径的受限批返工计划；批报废已有显式LossReason ID的原生结果3计划，实际效果待验收；单容器可显式允许MES已有全检规则或自动扣量，二者互斥。测量与单组计数支持按本次样本数扣量，单组计数也支持按本次拒收数扣量。分组扣量、逐原因报废、事件及批高级组合仍受限，单容器移站false；真实写入验收待补。'},
+             'limitations':'单容器计数/测量提交计划、检验定义及AQL/检验水平维护、配置查表预览、产品关联、抽样批创建及只读详情。Modeling仅静态校验；零计数且无有效采样历史批的数量/频率调整、批采样记录及MES已通过批的OK执行计划已封装；另有同Workflow明确默认路径的受限批返工计划；批报废已有显式LossReason ID的原生结果3计划，实际效果待验收；单容器可显式允许MES已有全检规则或自动扣量，二者互斥。测量和计数可按本次样本数扣量，计数也支持按本次拒收合计扣量。计数支持单组或明确互不重叠的分组。逐原因报废、事件及批高级组合仍受限，单容器移站false；真实写入验收待补。'},
             {'domain':'SPC','discovered':['SPCControls','SPCChartDefs','RecordSPCViolation','AddSPCAnnotation','InlineSPCTxn'],
              'tools':['list_quality_references','get_quality_reference_details','analyze_spc_series','get_spc_annotation_context','prepare_spc_annotation','get_spc_violation_context','prepare_spc_violation'],
              'limitations':'配置查询、本地i_mr/xbar_r和WECO计算，非现场引擎结果；原始历史点受限注释。新增明确报告结果的单点越限违例登记，要求来源、原值、报告控制限、完整规则归属及无通知/自动处置配置；不认证报告或编译规则/外部引擎，不自动把本地判异写成原生违例，真实写入待验收。自动引擎判定、区内运行/派生值、排除/恢复、冻结/资源状态及自动放行未开放。'},

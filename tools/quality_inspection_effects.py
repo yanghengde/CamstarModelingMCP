@@ -35,15 +35,13 @@ def definition_policy(definition, args):
         i.reject_effectful_definition(definition)
         return 'full_inspection' if full else None
     if type(test.get('SampleType')) is not int or test['SampleType'] not in (1, 2):
-        raise ValueError('自动扣量仅支持单组计数或数值测量检验。')
-    if test['SampleType'] == 1 and args.get('counted_groups') is not None:
-        raise ValueError('计数自动扣量仅支持单组本次samples_collected。')
+        raise ValueError('自动扣量仅支持计数或数值测量检验。')
     sample_size = i.present(test.get(SAMPLE_SIZE_REASON))
     reject_count = i.present(test.get(REJECT_COUNT_REASON))
     if sample_size == reject_count:
         raise ValueError('检验测试必须且只能配置一种扣量原因。')
     if reject_count and test['SampleType'] != 1:
-        raise ValueError('按本次拒收数扣量仅支持单组计数检验。')
+        raise ValueError('按本次拒收数扣量仅支持计数检验。')
     if test.get('ScrapCountedRejectsByReason') is not False: raise ValueError('按原因报废拒收的配置为真或未知，首版不支持。')
     for field in ('DefaultFailureMode', 'Classification', 'SubClassification'):
         if i.present(test.get(field)): raise ValueError('首版不处理检验自动质量事件：'+field)
@@ -209,14 +207,13 @@ def validate_transport(snap):
         if mode != definition_policy(snap['definition'], arguments):
             raise ValueError('原生检验副作用模式不符。')
         if counted_loss:
-            count = i.int32(arguments.get('samples_collected'), '本次计数样本数', 1)
-            lines, _, _, rejects = i.counted_details(snap['definition'], arguments)
+            lines, _, count, rejects = i.counted_details(snap['definition'], arguments)
             deduction = rejects if mode == 'counted_reject_count_loss' else count
-            if (not quantity or full or arguments.get('counted_groups') is not None or arguments.get('samples') is not None
+            if (not quantity or full or arguments.get('samples') is not None
                     or type(body['samplesTested']) is not int or body['samplesTested'] != count
                     or body['serviceDetails'] != lines or deduction <= 0
                     or effects['context']['automatic_quantity_loss']['quantity'] != str(deduction)):
-                raise ValueError('计数扣量样本增量、根SamplesTested或单组明细不一致。')
+                raise ValueError('计数扣量增量、根SamplesTested或完整计数明细不一致。')
 
 
 async def inspect_snapshot(snap):
@@ -226,9 +223,16 @@ async def inspect_snapshot(snap):
     rows = await q.sql_rows(f"SELECT {i.TASK_COLUMNS} FROM ContainerSampleData WHERE ContainerSampleDataId='{tid}' AND ContainerId='{cid}'",1)
     i.check_tasks(rows,cid)
     if len(rows)>1 or rows and rows[0]['ContainerSampleDataId']!=tid: raise ValueError('原生检验原任务身份不符。')
-    return {'original_container_id': cid, 'current_quantity_record': await loss.record(cid),
+    evidence = {'original_container_id': cid, 'current_quantity_record': await loss.record(cid),
             'original_task_id': tid, 'current_original_task': rows[0] if rows else None,
             'expected_native_effects': snap['inspection_effects']['context'],
             'verified_success': False, 'state_changed': False, 'retry_allowed': False,
             'native_child_history_verified': False, 'full_inspection_conversion_verified': False,
             'note': '父检验记录、当前数量或任务标志不能证明本次转换/内部扣量已完成；需最终父子事务及原任务证据人工review，不补发扣量，不自动解锁。'}
+    if snap['arguments'].get('counted_groups') is not None:
+        evidence['expected_counted_submission'] = {
+            'group_count': snap['preview']['counted_groups_this_submission'],
+            'samples': snap['preview']['samples_this_submission'],
+            'rejects': snap['preview']['rejects_this_submission'],
+        }
+    return evidence
