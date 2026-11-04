@@ -73,3 +73,16 @@
 原生批事务仍会清理ContainerSampleData并标记批完成及返工结果，实际提交保持一次ExecuteSamplingLot。unknown保留原批/成员占用并等待最终审计。路线解析及最终数量/历史效果仍待现场验收。
 
 本轮相关回归315项通过，其中新增多路径专项17项，离线HTTPX真实传输尝试0。现场只读Swagger成功确认ExecuteSamplingLot没有path覆盖入口。标准Step_GetReworkPathToUse与ExecuteSamplingLot_ExecuteRework已只读复核，证据保存在本地c4-rework-native-*.json及c4-execution-live-contract.json，测试报告为c4-rework-paths-junit.xml/c4-rework-paths-network.json。整批报废的原因类型兼容及内部全量扣量/原子性仍待核实。
+
+
+## C4第三闭环：成员采样任务清理基线与返工后证据
+
+准备批返工时固定所有原成员的ContainerSampleData任务，最多200条。保存每条原任务的持久ID、容器/测试/计划ID、采样/拒收计数及变更版本。准备前后复读，执行重建计划时继续核验，新增任务、已有结果或版本变化会使旧计划失效。预览给出将受清理影响的原任务数量，完整基线保存在不可变计划内。
+
+inspect按原成员ID读取当前任务，分别报告原任务缺失、原任务仍在、原任务内容变化和新增任务。旧任务集合为空时，清理结果保持未证明。旧快照没有清理基线时返回baseline_available=false，原任务数为未知；升级前待执行计划需要重新准备以绑定新基线，已尝试计划继续按原快照读取证据。
+
+另核对原成员当前Workflow/Step/Spec、InRework标志及数量，逐成员比较预期返工目标。记录存在但路线查询暂不可读时，保留原记录并明确标记路线不可用。原成员记录、任务及可读路线均复读，变化时拒绝不一致证据。任务消失和当前去向相符作为审计材料，最终事务因果关联继续由人工核实。
+
+标准ExecuteSamplingLotHistory与HistoryMainline列目录已只读探索。成员ReworkHistory没有独立同名物理表，本轮未假设父子历史键，自动成功归因仍未实现。整批报废原因类型兼容、内部全量扣量/关闭与原子性继续列为C4未完成项。
+
+本轮相关回归330项通过，其中新增专项15项，离线HTTPX真实传输尝试0。本轮没有MES业务写入、部署或重启，真实数量、采样任务清理和最终事务历史仍待现场验收。本地结果为c4-rework-evidence-junit.xml和c4-rework-evidence-network.json。

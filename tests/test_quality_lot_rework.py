@@ -39,7 +39,7 @@ def env(lot_env, monkeypatch):
     models = dict(Workflows=[workflow], Specs=[spec, target_spec], Operations=[operation], ReworkReasons=[reason], ReworkReasonGroups=[group])
     state.update(models=models, workflow=workflow, source=source, target=target, spec=spec, target_spec=target_spec,
                  operation=operation, reason=reason, group=group, tokens={n:1 for n in (WF,SPEC,TARGET,OP,GROUP,REASON)},
-                 model_hook=None, child_hook=None, batch_hook=None, originals=state['members'])
+                 model_hook=None, child_hook=None, batch_hook=None, originals=state['members'], member_tasks=[])
     async def identity(name, instance_id=None):
         found = [row for row in state['originals'] if row['ContainerName']==name and (instance_id is None or row['ContainerId']==instance_id)]
         if len(found)!=1: raise ValueError('identity mismatch')
@@ -52,6 +52,9 @@ def env(lot_env, monkeypatch):
         return dict(name=name,instanceId=row['ContainerId']),status
     monkeypatch.setattr(r.q, 'container_identity', AsyncMock(side_effect=identity))
     async def sql(query, maximum):
+        if 'INFORMATION_SCHEMA.COLUMNS' in query and "TABLE_NAME='ContainerSampleData'" in query:
+            return [dict(TABLE_NAME='ContainerSampleData',COLUMN_NAME=field) for field in i.TASK_COLUMNS.split(',')]
+        if 'FROM ContainerSampleData WHERE ContainerId IN (' in query:return copy.deepcopy(state['member_tasks'])
         if 'FROM WorkflowStep WHERE' in query:return copy.deepcopy(state['step_rows'])
         if 'FROM Path p INNER JOIN' in query:return copy.deepcopy(state['path_rows'])
         for entity,(table,column,_) in r.ASSETS.items():

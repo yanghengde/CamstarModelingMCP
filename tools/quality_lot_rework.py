@@ -304,12 +304,14 @@ def validate_transport(snap):
 
 
 async def build_rework(args, marker):
+    from tools.quality_lot_rework_evidence import sampling_tasks
     comment = i.inspection_comment(args.get('comments', ''))
     expected_path_name = args.get('expected_path_name')
     if expected_path_name is not None:
         expected_path_name = q.text(expected_path_name, '预期默认返工路径名称')
     view = await e.lot_view(args['lot_name'], args.get('lot_instance_id')); issues = blockers(view)
     if issues: raise ValueError('不能准备批返工：'+'；'.join(issues[:12]))
+    member_tasks = await sampling_tasks(view['members'])
     dep = Dependencies(); root = await dep.asset('ReworkReasons', {'Name': q.text(args['rework_reason_name'])})
     reason = {'name': root['Name'], 'instanceId': root['InstanceID']}
     routes = [await route(member, reason, dep, expected_path_name) for member in view['members']]
@@ -324,21 +326,25 @@ async def build_rework(args, marker):
         if ref != old['container'] or state != old['container_sql'] or current_status != old['status']:
             raise ValueError('准备返工期间成员运行状态或当前步骤发生变化。')
     await dep.stable()
+    if await sampling_tasks(view['members']) != member_tasks:
+        raise ValueError('准备期间成员采样任务或已有结果变化，停止返工计划。')
     reads = {'modeling:SamplingPlans:id:'+lot['SamplingPlanId']} | {'modeling:SampleTests:id:'+t['SampleTestId'] for t in view['tasks']}
     for (entity, _), state in dep.states.items(): reads.update(d.resources(entity, state))
     preview.update(member_routes=routes, dynamic_validation_verified=False, signature_verified=False,
+                   original_member_task_count=len(member_tasks), member_task_cleanup_baseline_available=True,
                    quantity_effects_verified=False, native_followup_effects_verified=False, quality_verdict=None,
                    deployed_logic_overrides_verified=False,
                    note='单次原生整批返工；逐成员Rework仅非执行探测，不循环提交。标准csi快照逻辑会删除成员ContainerSampleData并标记批完成/返工结果；未核实部署覆盖，实际路由、数量、历史与后续影响仍待验收。')
     return {'kind': 'lot_rework', 'action': 'rework', 'service': 'ExecuteSamplingLot', 'name': lot['MfgLotName'],
             'target_id': lot['MfgLotId'], 'scope_key': 'sampling-lot:'+lot['MfgLotName'].casefold(),
-            'reason': reason, 'before': view, 'dependencies': list(dep.states.values()),
+            'reason': reason, 'before': view, 'member_sampling_tasks': member_tasks, 'dependencies': list(dep.states.values()),
             'body': body, 'preview': preview, 'marker': marker, 'arguments': args, 'environment': p.environment(),
             'resource_reads': sorted(reads), 'resource_writes': [e.runtime_claim('lot', lot['MfgLotId'])]+
                 [e.runtime_claim('container', m['ContainerId']) for m in view['members']]}
 
 
 async def inspect_snapshot(snap):
+    from tools.quality_lot_rework_evidence import sampling_tasks, cleanup, routes
     ids = [m['ContainerId'] for m in snap['before']['members']]
     if not 1 <= len(ids) <= 20 or any(not q.valid_id(key) for key in ids) or len(set(ids)) != len(ids):
         raise ValueError('原返工成员ID集合无效。')
@@ -346,7 +352,13 @@ async def inspect_snapshot(snap):
     rows = await q.sql_rows(f'SELECT {e.MEMBER_COLUMNS} FROM Container WHERE ContainerId IN ({clause}) ORDER BY ContainerId', 21)
     if any(r.get('ContainerId') not in ids for r in rows) or len({r['ContainerId'] for r in rows}) != len(rows):
         raise ValueError('原成员当前状态身份不一致。')
+    tasks = await sampling_tasks(snap['before']['members'])
+    route_evidence = await routes(snap, rows)
+    again = await q.sql_rows(f'SELECT {e.MEMBER_COLUMNS} FROM Container WHERE ContainerId IN ({clause}) ORDER BY ContainerId', 21)
+    if again != rows or await sampling_tasks(snap['before']['members']) != tasks or await routes(snap, again) != route_evidence:
+        raise ValueError('核实期间原成员状态或采样任务变化。')
     return {'current_lot': await e.lot_view('', snap['target_id']), 'original_members_current_records': rows,
+            'sampling_task_cleanup': cleanup(snap.get('member_sampling_tasks'), tasks), 'member_route_evidence': route_evidence,
             'missing_original_member_ids': sorted(set(ids)-{r['ContainerId'] for r in rows}),
             'verified_success': False, 'state_changed': False, 'retry_allowed': False, 'history_correlation_verified': False,
             'note': '原批结果或成员当前同值不证明本次返工成功，不跟随新成员替换原成员，不自动解锁或重试。'}
@@ -355,7 +367,7 @@ async def inspect_snapshot(snap):
 @mcp.tool
 async def prepare_sampling_lot_rework(lot_name: str, rework_reason_name: str,
         lot_instance_id: str | None = None, comments: str = '', expected_path_name: str | None = None) -> str:
-    """准备单次ExecuteSamplingLot结果2整批返工。完整1..20个Active无冻结、无层级/非零第二数量且未在返工的成员，MES未通过且有拒收超任务阈值证据。无动态选择器时，原生使用首条ReworkPath。单路径可沿用默认；多路径须明确expected_path_name，所有成员的原生首条路径名称必须匹配，且预览须完整回显路径、目标和返回步骤。此参数核对默认路径，不覆盖整批服务的路径选择。目标Spec允许返工、原因属于各成员当前Operation完整原因组。固定步骤/路径持久ID、完整有序配置及依赖复读，状态或路径顺序变化使旧计划失效。确认后仅一次整批ExecuteSamplingLot，成员Rework仅非执行探测；unknown不重试。原生会清理成员ContainerSampleData并标记批完成/返工结果，实际路由/数量/签名/历史待验收。"""
+    """准备单次ExecuteSamplingLot结果2整批返工。完整1..20个Active无冻结、无层级/非零第二数量且未在返工的成员，MES未通过且有拒收超任务阈值证据。无动态选择器时，原生使用首条ReworkPath。单路径可沿用默认；多路径须明确expected_path_name，所有成员的原生首条路径名称必须匹配，且预览须完整回显路径、目标和返回步骤。此参数核对默认路径，不覆盖整批服务的路径选择。目标Spec允许返工、原因属于各成员当前Operation完整原因组。固定步骤/路径持久ID、完整有序配置及依赖复读，状态或路径顺序变化使旧计划失效。确认后仅一次整批ExecuteSamplingLot，成员Rework仅非执行探测；unknown不重试。准备绑定最多200条原成员ContainerSampleData任务及已有结果，变化使计划失效。inspect核对原任务缺失/保留/新增、成员当前返工步骤和数量；旧计划缺少清理基线时明确未知。原生会清理成员任务并标记批完成/返工结果，实际路由/数量/签名/历史待验收。"""
     arguments = dict(lot_name=lot_name, rework_reason_name=rework_reason_name,
                      lot_instance_id=lot_instance_id, comments=comments)
     if expected_path_name is not None:

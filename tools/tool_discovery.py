@@ -129,7 +129,7 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
         'get_sampling_lot_readiness': '完整有界成员/任务及MES完成、通过标志；前置满足不是权限、签名或业务批准。',
         'prepare_container_quantity_loss': '单个基础Container原生LossDetails部分损失/明确全量报废准备，当前主单位增量；明确归零关闭和生产数量调整选项，原因属当前Operation的LossReasons组。强制4030/-1回显，无抽样批成员/Batch/层级/载具/第二单位；确认单次执行，unknown不重复扣量。',
         'get_sampling_lot_scrap_readiness': '抽样批报废只读阻塞检查，完整成员/任务重读；ScrapReason未实现注释和与LossReason类型冲突未解，执行就绪固定false，不生成结果3计划或循环扣量。',
-        'prepare_sampling_lot_rework': '结果2原生整批返工计划，明确批和原因，完整1..20无冻结非层级成员，仅同Workflow且无选择器；多路径须明确expected_path_name核对所有成员的首条原生默认路径并完整回显路径/目标/返回步骤。逐成员Rework只做非执行输入回显；缺失路由不当已验证，正式只提交一次ExecuteSamplingLot；原生会清理ContainerSampleData并标记批完成，实际数量和后续影响待验收。无Spec覆盖，unknown只读原成员证据，不自动成功或解锁。',
+        'prepare_sampling_lot_rework': '结果2原生整批返工计划，明确批和原因，完整1..20无冻结非层级成员，仅同Workflow且无选择器；多路径须明确expected_path_name核对所有成员的首条原生默认路径并完整回显路径/目标/返回步骤。逐成员Rework只做非执行输入回显；缺失路由不当已验证，正式只提交一次ExecuteSamplingLot；计划固定原成员采样任务基线，原生会清理ContainerSampleData并标记批完成；inspect区分旧任务消失/保留/变化和新增任务，核对原成员当前去向与数量，实际最终历史待验收。无Spec覆盖，unknown只读原成员证据，不自动成功或解锁。',
         'prepare_sampling_lot_completion': '仅执行MES已确认完成且通过的OK结果，固定码1，核对完整成员集合。不是通用放行；返工2须独立prepare_sampling_lot_rework，报废3未开放，具体后续影响待现场验收。',
         'get_sampling_lot_history': '按历史SamplingLotId只读采样汇总及来源，不证明本次提交或整批完成的最终因果链。',
         'prepare_data_collection_definition': '支持普通/分组定义与参数的增量维护、升版与删除计划；表达式原样保存。实际建模写入尚待集中现场验收。',
