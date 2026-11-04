@@ -191,7 +191,7 @@ async def child_preview(container, reason):
     return data
 
 
-async def route(member, reason, dep):
+async def route(member, reason, dep, expected_path_name=None):
     ref, container, status = await i.container_snapshot(member['ContainerName'], member['ContainerId'])
     if container['SamplingLotId'] != member['SamplingLotId'] or container['ProductId'] != member['ProductId']:
         raise ValueError('成员容器归属在读取时变化。')
@@ -202,9 +202,13 @@ async def route(member, reason, dep):
     workflow = await dep.asset('Workflows', status.get('Workflow')); wid = workflow['InstanceID']; steps = workflow['Steps']
     source = owned_step(steps, status.get('Step'), wid)
     paths = source.get('ReworkPaths'); selectors = source.get('ReworkPathSelectors')
-    if not isinstance(paths, list) or len(paths) != 1 or selectors != []:
-        raise ValueError('第一阶段仅支持恰好一条ReworkPath且无动态选择器，不从多条中自动选首条。')
+    if not isinstance(paths, list) or not paths or selectors != []:
+        raise ValueError('批返工须有完整返工路径且无动态选择器。')
+    if len(paths) > 1 and expected_path_name is None:
+        raise ValueError('当前有多条返工路径，须明确expected_path_name核对原生首条默认路径。')
     path = paths[0]; default_id = q.identifier(path)
+    if expected_path_name is not None and path.get('Name') != expected_path_name:
+        raise ValueError('预期返工路径与原生首条默认路径不符；整批服务不能覆盖路径选择。')
     if path.get('ToWorkflow') and q.identifier(path['ToWorkflow']) != wid:
         raise ValueError('第一阶段不处理跨Workflow目标。')
     source_spec = await dep.asset('Specs', source.get('Spec'))
@@ -234,9 +238,11 @@ async def route(member, reason, dep):
                       'ReEntryWorkflow': workflow['Name'], 'ReEntryStep': entry['Name'],
                       'EndReworkStep': (path.get('EndReworkStep') or {}).get('Name'), 'EndReworkWorkflow': workflow['Name']}
     for field, key in expected.items():
+        if len(paths) > 1 and field in ('Path', 'ToWorkflow', 'ToStep', 'ReEntryWorkflow', 'ReEntryStep') and not data.get(field):
+            raise ValueError('多路径返工须完整回显默认路径、目标及返回步骤。')
         if data.get(field) and (key is None or q.identifier(data[field]) != key or data[field].get('Name') != expected_names[field]):
             raise ValueError('非执行返工返回的路径字段与已核对配置矛盾：'+field)
-    return {'container': ref, 'container_sql': container, 'status': e.status_snapshot(status) | {'InRework': False},
+    result = {'container': ref, 'container_sql': container, 'status': e.status_snapshot(status) | {'InRework': False},
             'workflow': i.revision_ref(workflow), 'path': {'name': path['Name'], 'instanceId': default_id},
             'source_step': {'name': source['Name'], 'instanceId': q.identifier(source)},
             'to_step': {'name': target['Name'], 'instanceId': q.identifier(target)},
@@ -246,6 +252,11 @@ async def route(member, reason, dep):
             'signature_requirement': data.get('ESigRequirement'),
             'end_rework': path.get('EndReworkStep'), 'runtime_route_resolution_verified': False,
             'route_basis': 'csi Step_GetReworkPathToUse: no selectors and exactly one configured ReworkPath; deployment overrides unverified'}
+    if len(paths) > 1:
+        result.update(configured_path_order=[{'name': item['Name'], 'instanceId': q.identifier(item)} for item in paths],
+                      expected_path_name=expected_path_name,
+                      route_basis='csi Step_GetReworkPathToUse: no selectors; explicitly expected first configured path; deployment overrides unverified')
+    return result
 
 
 async def batch_preview(body, names):
@@ -280,6 +291,12 @@ def validate_transport(snap):
     if body['samplingLot'] != {'name': snap['name'], 'instanceId': snap['target_id']}:
         raise ValueError('批返工目标与原计划不符。')
     if body['reworkReason'] != snap['reason']: raise ValueError('批返工原因与原配置不符。')
+    expected_name = snap.get('arguments', {}).get('expected_path_name')
+    if expected_name is not None:
+        q.text(expected_name, '预期默认返工路径名称')
+        routes = snap['preview']['member_routes']
+        if len(routes) != len(snap['before']['members']) or any(route['path']['name'] != expected_name for route in routes):
+            raise ValueError('批返工成员预期默认路径不一致。')
     comment = body.get('comments')
     marker = snap.get('marker')
     if not isinstance(comment, str) or not isinstance(marker, str) or not (comment == marker or comment.startswith(marker+' ')):
@@ -288,11 +305,14 @@ def validate_transport(snap):
 
 async def build_rework(args, marker):
     comment = i.inspection_comment(args.get('comments', ''))
+    expected_path_name = args.get('expected_path_name')
+    if expected_path_name is not None:
+        expected_path_name = q.text(expected_path_name, '预期默认返工路径名称')
     view = await e.lot_view(args['lot_name'], args.get('lot_instance_id')); issues = blockers(view)
     if issues: raise ValueError('不能准备批返工：'+'；'.join(issues[:12]))
     dep = Dependencies(); root = await dep.asset('ReworkReasons', {'Name': q.text(args['rework_reason_name'])})
     reason = {'name': root['Name'], 'instanceId': root['InstanceID']}
-    routes = [await route(member, reason, dep) for member in view['members']]
+    routes = [await route(member, reason, dep, expected_path_name) for member in view['members']]
     lot = view['lot']
     body = {'samplingLot': {'name': lot['MfgLotName'], 'instanceId': lot['MfgLotId']}, 'samplingLotResult': 2,
             'reworkReason': reason, 'comments': marker+(' '+comment if comment else '')}
@@ -334,7 +354,10 @@ async def inspect_snapshot(snap):
 
 @mcp.tool
 async def prepare_sampling_lot_rework(lot_name: str, rework_reason_name: str,
-        lot_instance_id: str | None = None, comments: str = '') -> str:
-    """准备单次ExecuteSamplingLot结果2批返工，不写MES。第一阶段完整1..20个Active无冻结、无层级/非零第二数量且未在返工的成员；MES未通过且有拒收超任务阈值证据。仅当前同Workflow恰好一条ReworkPath、无动态返工选择器，目标Spec允许返工，原因属于当前Operation完整原因组。分层读取及SQL核对持久步骤/路径；逐成员Rework只做非执行输入回显，已返回路由不得矛盾，缺失不当已验证。标准csi单路径默认规则及清除ContainerSampleData/批完成结果影响已归档，部署覆盖、实际路由/数量/签名/后续影响待验收。无Spec覆盖参数。统一确认后单次整批执行，unknown不重试；inspect只读原批及原成员证据。"""
-    return await p.prepare('lot_rework', dict(lot_name=lot_name, rework_reason_name=rework_reason_name,
-                                           lot_instance_id=lot_instance_id, comments=comments))
+        lot_instance_id: str | None = None, comments: str = '', expected_path_name: str | None = None) -> str:
+    """准备单次ExecuteSamplingLot结果2整批返工。完整1..20个Active无冻结、无层级/非零第二数量且未在返工的成员，MES未通过且有拒收超任务阈值证据。无动态选择器时，原生使用首条ReworkPath。单路径可沿用默认；多路径须明确expected_path_name，所有成员的原生首条路径名称必须匹配，且预览须完整回显路径、目标和返回步骤。此参数核对默认路径，不覆盖整批服务的路径选择。目标Spec允许返工、原因属于各成员当前Operation完整原因组。固定步骤/路径持久ID、完整有序配置及依赖复读，状态或路径顺序变化使旧计划失效。确认后仅一次整批ExecuteSamplingLot，成员Rework仅非执行探测；unknown不重试。原生会清理成员ContainerSampleData并标记批完成/返工结果，实际路由/数量/签名/历史待验收。"""
+    arguments = dict(lot_name=lot_name, rework_reason_name=rework_reason_name,
+                     lot_instance_id=lot_instance_id, comments=comments)
+    if expected_path_name is not None:
+        arguments['expected_path_name'] = expected_path_name
+    return await p.prepare('lot_rework', arguments)

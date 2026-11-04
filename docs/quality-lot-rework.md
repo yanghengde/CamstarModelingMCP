@@ -1,4 +1,4 @@
-# 第一阶段：受限整批返工
+# 受限整批返工
 
 2026-10-28新增 `prepare_sampling_lot_rework`，该阶段质量分组由47增至48个工具；后续[数量损失阶段](quality-quantity-loss.md)增至50。正式执行复用 `execute_quality_transaction`，只提交一次 `ExecuteSamplingLot`、结果固定2；逐成员 `Rework` 请求全部为 `execute=false` 输入探测。本阶段未对真实批执行返工，不能标记为现场验收完成。[后续阶段](quality-advanced-roadmap.md)
 
@@ -10,6 +10,7 @@
 | rework_reason_name | 用户明确选择的已配置返工原因，必须属于每个成员当前Operation的完整ReworkReasons组 |
 | lot_instance_id | 可选；同名歧义时固定16位十六进制ID |
 | comments | 可选；最多180个UTF-16单元，另附事务关联标记 |
+| expected_path_name | 多路径时必填，明确核对所有成员的首条原生默认路径名称；单路径时可选 |
 
 不接收成员子集、目标Spec/步骤覆盖、数量覆盖、报废原因或任意结果码。原因候选可先用 `list_quality_references(kind="rework_reason")`，不自动选第一条。
 
@@ -24,7 +25,7 @@
 
 - 原批Active、尚无处置结果，MES SamplingPassed明确false，完成标志必须明确；有实际任务Rejects超过AllowedRejects的证据，继承/派生计数一致。允许失败证据在全部样本完成之前出现，不据此伪造整批质量结论。
 - 全量1..20成员，同产品版本，均Active、无冻结、正数量、无父子层级、无非零第二数量，且明确不在返工中。原生分支会过滤非Active/零数量成员，本工具提前拒绝这些批，避免静默遗漏。
-- 当前Workflow内必须恰好一条ReworkPath，且没有动态返工选择器。不从多条中选首条；不开放跨Workflow、非Spec步骤、额外ReturnToStep配置。
+- 当前Workflow内有完整返工路径且没有动态返工选择器。多路径时必须明确expected_path_name核对原生首条路径，子服务预览完整回显路径、目标和返回步骤。跨Workflow、非Spec步骤、额外ReturnToStep配置仍受限。
 - 当前Spec与步骤及当前Operation一致；源/目标Workflow与Spec固定版本均Active，目标Spec明确AllowReworkTo=true。原因必须同时适用于所有成员。
 - 单Workflow最多200步骤、400条持久路径；单步骤最多50返工路径/选择器，原因组最多100项、配置依赖最多100个。超过上限或分页不完整则拒绝，不用部分集合准备整批操作。
 - 不处理转全检、自动扣量、批报废或复杂审批签名。原生数量处理沿用服务默认；即使非执行回显MoveAllQty=false，也不覆盖Qty或承诺全量移动/扣减。
@@ -40,7 +41,7 @@
 | ExecuteSamplingLot_StartModifyingEntity | 逐Active且Qty>0成员，结果2及原因非空时执行原生返工；最后设置批SamplingCompleted=true及结果2 |
 | ExecuteSamplingLot_ExecuteRework | 创建Rework子服务、映射字段、设置成员Container、执行，然后清理成员ContainerSampleData |
 | ExecuteSamplingLotToRework | 仅映射Employee、Factory、ReworkReason、TxnDate、TxnDateGMT、User；不转发Spec、目标步骤、Qty、MoveAllQty或根Comments，因此不提供实际不会生效的目标工序参数，不假设根关联评论出现在每条成员历史 |
-| Step_GetReworkPathToUse | 先评估ReworkPathSelectors，无选择器命中则返回ReworkPaths首项；描述说明单路径默认。工具更保守地只接受恰好一条且无选择器。不存在假定的SpecStep.DefaultReworkPath字段，不用普通DefaultPath代替 |
+| Step_GetReworkPathToUse | 先评估ReworkPathSelectors，无选择器命中则返回ReworkPaths首项；描述说明单路径默认。工具接受单路径默认；多路径须明确核对首项并完整回显路由，均要求无选择器。不存在假定的SpecStep.DefaultReworkPath字段，不用普通DefaultPath代替 |
 | Rework_ValidateReworkReason | 校验成员当前Operation.ReworkReasons.ResolvedEntries，不是Spec上的自造原因组 |
 | Rework_ValidatePath | 要求ReworkPath，不能把普通移动路径当返工路径 |
 
@@ -61,3 +62,14 @@
 新增96项模拟测试；全量2183项、2项子测试通过，质量相关977项，父pytest离线HTTPX真实网络尝试0。测试覆盖MCP参数封闭、准备/确认/单次执行、完整成员、原因组、单路径与目标许可、分层字段缺失与临时ID、配置变化、严格请求字段、unknown防重及原成员检查。最新全量结果见[测试输出](quality-fixtures/lot-rework-test-output.txt)、[JUnit](quality-fixtures/lot-rework-junit.xml)、[离线网络记录](quality-fixtures/lot-rework-network.json)、[阶段摘要](quality-fixtures/lot-rework-summary.json)。
 
 现场正目标的完整准备、实际返工与数量/历史/后续影响、部署自定义覆盖及真实LLM多轮选工具仍待验收。本次没有MES业务写入、清理事务库、部署或重启服务；本地新进程注册不代表运行服务已加载新增工具。
+
+
+## C4第二闭环：明确多路径默认返工
+
+2026-11-04。已有原生整批返工工具增加可选expected_path_name。所有成员当前步骤的首条返工路径名称都必须等于该值，支持多个已配置返工路径且无动态选择器的流程。参数用于核对默认路径，整批请求仍只包含原批、结果2、返工原因和评论。
+
+每个成员保留完整有序路径清单和持久ID，非执行子服务必须回显Path、ToWorkflow、ToStep、ReEntryWorkflow、ReEntryStep，且与配置一致。完整依赖及成员在准备后复读，执行前重建摘要。首项或其它路径配置变化、成员变化、回显缺失或矛盾都会拒绝。单路径旧调用保持兼容。
+
+原生批事务仍会清理ContainerSampleData并标记批完成及返工结果，实际提交保持一次ExecuteSamplingLot。unknown保留原批/成员占用并等待最终审计。路线解析及最终数量/历史效果仍待现场验收。
+
+本轮相关回归315项通过，其中新增多路径专项17项，离线HTTPX真实传输尝试0。现场只读Swagger成功确认ExecuteSamplingLot没有path覆盖入口。标准Step_GetReworkPathToUse与ExecuteSamplingLot_ExecuteRework已只读复核，证据保存在本地c4-rework-native-*.json及c4-execution-live-contract.json，测试报告为c4-rework-paths-junit.xml/c4-rework-paths-network.json。整批报废的原因类型兼容及内部全量扣量/原子性仍待核实。
