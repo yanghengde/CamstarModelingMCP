@@ -1,4 +1,4 @@
-"""Opt-in native single-container full inspection or sample-size loss.
+"""Opt-in native single-container full inspection or quantity loss.
 
 The parent CollectSamplingData is the only business submission. Child ChangeQty
 calls here are execute=false probes; failure conversion never patches task data.
@@ -13,6 +13,13 @@ from config import CAMSTAR_SHOPFLOOR_BASE_URL
 
 EXTRA_ASSETS = {'SampleTests': ('SampleTest', 'SampleTestId', True),
                 'SampleDataPoints': ('SampleDataPoint', 'SampleDataPointId', True)}
+SAMPLE_SIZE_REASON = 'DecreaseBySampleSizeReason'
+REJECT_COUNT_REASON = 'DecreaseByRejectCountReason'
+LOSS_MODES = {
+    'counted_sample_size_loss': (SAMPLE_SIZE_REASON, 'explicit current counted SamplesTested'),
+    'measured_sample_size_loss': (SAMPLE_SIZE_REASON, 'current measured ServiceDetails count'),
+    'counted_reject_count_loss': (REJECT_COUNT_REASON, 'current counted reject detail accumulated as native FailedSamples'),
+}
 
 
 def options(args):
@@ -26,17 +33,25 @@ def definition_policy(definition, args):
     full, quantity = options(args); test = definition['test']
     if not quantity:
         i.reject_effectful_definition(definition)
-        return
-    if full or test.get('SampleType') not in (1, 2): raise ValueError('自动扣量仅支持计数或数值测量检验按本次样本数扣量。')
+        return 'full_inspection' if full else None
+    if type(test.get('SampleType')) is not int or test['SampleType'] not in (1, 2):
+        raise ValueError('自动扣量仅支持单组计数或数值测量检验。')
     if test['SampleType'] == 1 and args.get('counted_groups') is not None:
-        raise ValueError('计数自动扣量仅支持单组本次samples_collected，分组累计扣量待单独验收。')
-    if not i.present(test.get('DecreaseBySampleSizeReason')) or i.present(test.get('DecreaseByRejectCountReason')):
-        raise ValueError('必须只配置DecreaseBySampleSizeReason；按拒收数扣量或两种原因并存尚未开放。')
+        raise ValueError('计数自动扣量仅支持单组本次samples_collected。')
+    sample_size = i.present(test.get(SAMPLE_SIZE_REASON))
+    reject_count = i.present(test.get(REJECT_COUNT_REASON))
+    if sample_size == reject_count:
+        raise ValueError('检验测试必须且只能配置一种扣量原因。')
+    if reject_count and test['SampleType'] != 1:
+        raise ValueError('按本次拒收数扣量仅支持单组计数检验。')
     if test.get('ScrapCountedRejectsByReason') is not False: raise ValueError('按原因报废拒收的配置为真或未知，首版不支持。')
     for field in ('DefaultFailureMode', 'Classification', 'SubClassification'):
         if i.present(test.get(field)): raise ValueError('首版不处理检验自动质量事件：'+field)
     if test.get('DefaultPEDescription'): raise ValueError('首版不处理检验自动生产事件说明。')
     if type(test.get('Status')) is not int or test['Status'] != 1: raise ValueError('检验测试不是Active。')
+    if reject_count:
+        return 'counted_reject_count_loss'
+    return 'counted_sample_size_loss' if test['SampleType'] == 1 else 'measured_sample_size_loss'
 
 
 def task_policy(task, container, args):
@@ -107,7 +122,7 @@ async def child_defaults(ref, reason, count, step_id):
             'counts_against_production': True, 'runtime_child_execution_verified': False}
 
 
-async def prepare_effects(definition, basic, status, task, args, count):
+async def prepare_effects(definition, basic, status, task, args, mode, count, rejects):
     full, quantity = options(args)
     if not (full or quantity): return None
     if basic.get('SamplingPassed') is not False: raise ValueError('原生全检/扣量要求MES明确尚未通过，未知或已通过状态不提交。')
@@ -121,8 +136,7 @@ async def prepare_effects(definition, basic, status, task, args, count):
     spec = await dep.asset('Specs', status.get('Spec'))
     if spec['InstanceID'] != row['SpecId']: raise ValueError('原生副作用工序与持久当前状态不符。')
     unit = await dep.asset('UOMs', {'InstanceId': row['UOMId']})
-    quantity_mode = 'counted_sample_size_loss' if definition['test']['SampleType'] == 1 else 'measured_sample_size_loss'
-    context = {'mode': 'full_inspection' if full else quantity_mode,
+    context = {'mode': mode,
                'allow_full_inspection': full, 'allow_automatic_quantity_loss': quantity,
                'runtime_effects_verified': False, 'deployed_logic_overrides_verified': False,
                'quality_verdict': None, 'separate_quantity_submission': False,
@@ -135,17 +149,22 @@ async def prepare_effects(definition, basic, status, task, args, count):
     else:
         operation = await dep.asset('Operations', spec.get('Operation'))
         if operation['InstanceID'] != q.identifier(status.get('Operation')): raise ValueError('扣量Operation与检验当前状态不同。')
-        reason = await dep.asset('LossReasons', definition['test']['DecreaseBySampleSizeReason'])
+        reason_field, basis = LOSS_MODES[mode]
+        reason = await dep.asset('LossReasons', definition['test'][reason_field])
         group = await dep.asset('LossReasonGroups', operation.get('LossReasons'))
         if sum(q.identifier(v) == reason['InstanceID'] and v.get('Name') == reason['Name'] for v in group['ResolvedEntries']) != 1:
-            raise ValueError('测试中配置的按样本数损失原因不属于当前Operation完整LossReasons组。')
-        if i.numeric(str(row['Qty']), '原数量') <= count: raise ValueError('首版不允许检验自动扣量到零或负数。')
+            raise ValueError('测试中配置的损失原因不属于当前Operation完整LossReasons组。')
+        deduction = rejects if mode == 'counted_reject_count_loss' else count
+        balance = i.numeric(str(row['Qty']), '原数量')
+        if deduction <= 0: raise ValueError('按拒收数扣量要求本次有明确的正数拒收。')
+        if mode == 'counted_reject_count_loss' and count > balance:
+            raise ValueError('本次计数样本数不能超过容器当前数量。')
+        if balance <= deduction: raise ValueError('首版不允许检验自动扣量到零或负数。')
         # Arithmetic validation only; these local options never become a request.
-        amount, remaining, _ = loss.quantity_options({'record_all_quantity': False, 'loss_quantity': str(count),
+        amount, remaining, _ = loss.quantity_options({'record_all_quantity': False, 'loss_quantity': str(deduction),
             'close_when_zero': False, 'adjust_throughput': False}, row)
         reason_ref = {'name': reason['Name'], 'instanceId': reason['InstanceID']}
-        defaults = await child_defaults(ref, reason_ref, count, row['WorkflowStepId'])
-        basis = 'explicit current counted SamplesTested' if quantity_mode == 'counted_sample_size_loss' else 'current measured ServiceDetails count'
+        defaults = await child_defaults(ref, reason_ref, deduction, row['WorkflowStepId'])
         context['automatic_quantity_loss'] = {'basis': basis, 'quantity': str(amount),
             'projected_remaining_quantity': str(remaining), 'reason': reason_ref, 'native_child_defaults': defaults,
             'projection_is_execution_result': False,
@@ -172,7 +191,9 @@ async def final_recheck(effects):
 
 def validate_transport(snap):
     body = snap['body']
-    counted_loss = (snap.get('inspection_effects') or {}).get('context', {}).get('mode') == 'counted_sample_size_loss'
+    effects = snap.get('inspection_effects')
+    mode = effects['context']['mode'] if effects else None
+    counted_loss = mode in ('counted_sample_size_loss', 'counted_reject_count_loss')
     expected_fields = {'container', 'sampleTest', 'serviceDetails', 'moveContainerOnCompletion', 'comments'}
     if counted_loss:
         expected_fields.add('samplesTested')
@@ -180,22 +201,21 @@ def validate_transport(snap):
             or set(body) != expected_fields
             or body['moveContainerOnCompletion'] is not False):
         raise ValueError('单容器检验仅固定CollectSamplingData、移站false和原检验字段，不接受扣量/全检/签名覆盖。')
-    effects = snap.get('inspection_effects')
     if effects:
-        full, quantity = options(snap['arguments'])
+        arguments = snap['arguments']
+        full, quantity = options(arguments)
         if (effects['context']['allow_full_inspection'], effects['context']['allow_automatic_quantity_loss']) != (full, quantity):
             raise ValueError('原生检验副作用选项与原计划不符。')
-        expected_mode = 'counted_sample_size_loss' if counted_loss else 'measured_sample_size_loss'
-        if effects['context']['mode'] != ('full_inspection' if full else expected_mode):
+        if mode != definition_policy(snap['definition'], arguments):
             raise ValueError('原生检验副作用模式不符。')
         if counted_loss:
-            arguments = snap['arguments']
             count = i.int32(arguments.get('samples_collected'), '本次计数样本数', 1)
-            lines = body['serviceDetails']
+            lines, _, _, rejects = i.counted_details(snap['definition'], arguments)
+            deduction = rejects if mode == 'counted_reject_count_loss' else count
             if (not quantity or full or arguments.get('counted_groups') is not None or arguments.get('samples') is not None
                     or type(body['samplesTested']) is not int or body['samplesTested'] != count
-                    or len(lines) != 1 or lines[0].get('totalSamplesCollected') != count
-                    or effects['context']['automatic_quantity_loss']['quantity'] != str(count)):
+                    or body['serviceDetails'] != lines or deduction <= 0
+                    or effects['context']['automatic_quantity_loss']['quantity'] != str(deduction)):
                 raise ValueError('计数扣量样本增量、根SamplesTested或单组明细不一致。')
 
 

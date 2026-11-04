@@ -225,8 +225,8 @@
       ],
       "status": "partial",
       "priority": "P1",
-      "current": "单容器可显式允许已有全检规则或测量按样本数自动扣量，二者互斥。",
-      "missing": "抽样批全检转换、计数/拒收自动扣量、扣至零及事件组合仍未开放；不以Swagger字段存在作为启用依据。",
+      "current": "单容器可显式允许已有全检规则或自动扣量。测量及单组计数可按本次样本数扣量，单组计数可按本次拒收数扣量。",
+      "missing": "新扣量分支的实际效果和父子历史待隔离验收。分组扣量、逐拒收原因报废、抽样批自动处置、扣至零和事件组合仍受限。",
       "contracts": [
         "Shopfloor/CollectSamplingData",
         "Shopfloor/CollectLotSamplingData",

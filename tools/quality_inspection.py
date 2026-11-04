@@ -294,7 +294,7 @@ async def build_inspection(args,marker):
     task=rows[0]
     if task['CompletedSamples']>=task['TotalSamplesRequired']:raise ValueError('当前任务已满足要求样本数，不再追加。')
     effects.task_policy(task,before,args)
-    effects.definition_policy(definition,args)
+    mode=effects.definition_policy(definition,args)
     details,checks,count,rejects=collection_details(definition,args,effects_validated=quantity);dtype=test['SampleType']
     if count>100 or count>task['TotalSamplesRequired']-task['CompletedSamples']:raise ValueError('本次采样超过100或MES要求剩余数，不自动截断。')
     comment=inspection_comment(args.get('comments',''))
@@ -304,7 +304,7 @@ async def build_inspection(args,marker):
     if counted_loss:
         body['samplesTested'] = count
     if len(json.dumps(body,ensure_ascii=False))>22000:raise ValueError('检验请求超过安全预览长度，请缩小样本批次。')
-    native_effects=await effects.prepare_effects(definition,before,status,task,args,count)
+    native_effects=await effects.prepare_effects(definition,before,status,task,args,mode,count,rejects)
     preview=(await inspection_preview(body,expected_task_id=task['ContainerSampleDataId'])
              if native_effects else await inspection_preview(body))
     # The loaded service's numeric totals must agree with the persisted task.
@@ -377,7 +377,7 @@ async def prepare_container_inspection(container_name:str,sample_test_name:str,s
         samples:Annotated[list[InspectionSample]|None,Field(max_length=50)]=None,comments:str='',
         counted_groups:Annotated[list[CountedInspectionGroup]|None,Field(min_length=1,max_length=20)]=None,
         allow_full_inspection:bool=False,allow_automatic_quantity_loss:bool=False)->str:
-    """准备单容器CollectSamplingData，固定版本及当前任务，计数/显式不重叠counted_groups或测量samples逐样本完整点值。默认拒绝全检和自动扣量；allow_full_inspection=true允许MES已有全检/失败转全检规则，要求数和标志不由客户端修改；allow_automatic_quantity_loss=true支持测量或单组计数、单独配置DecreaseBySampleSizeReason，按本次样本数由MES内部扣量，不另发ChangeQty，不能扣至零。两选项互斥；高级模式仅基础Container、单位明确、无冻结/层级/载具/第二单位/抽样批，核对原任务ID及配置重读。计数扣量明确samples_collected并同步根SamplesTested，counted_groups尚未接入；按拒收数/原因报废、自动事件及批抽样仍不支持，移站false。实际转换、扣量、签名和父子历史待验收；确认单次提交，unknown不补发扣量。"""
+    """准备单容器CollectSamplingData，固定版本及当前任务，计数/显式不重叠counted_groups或测量samples逐样本完整点值。默认拒绝全检和自动扣量；allow_full_inspection=true允许MES已有全检/失败转全检规则，要求数和标志不由客户端修改；allow_automatic_quantity_loss=true仅允许一种扣量配置：DecreaseBySampleSizeReason按本次测量或单组计数样本数扣量，DecreaseByRejectCountReason仅单组计数按本次正数拒收数扣量。MES内部扣量，不另发ChangeQty，不能扣至零。两选项互斥；高级模式仅基础Container、单位明确、无冻结/层级/载具/第二单位/抽样批，核对原任务ID及配置重读。计数扣量明确samples_collected并同步根SamplesTested，counted_groups尚未接入；逐拒收原因报废、自动事件及批抽样仍不支持，移站false。实际转换、扣量、签名和父子历史待验收；确认单次提交，unknown不补发扣量。"""
     from tools import quality_plans as plans
     try:
         normalized=None if samples is None else [InspectionSample.model_validate(s).model_dump() for s in samples]

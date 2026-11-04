@@ -135,3 +135,70 @@ def test_inspection_evidence_retains_counted_loss_expectation(env):
     proof = result(plans.inspect_quality_transaction(ready['plan_id'], ready['plan_digest']))
     assert proof['expected_native_effects']['mode'] == 'counted_sample_size_loss'
     assert not proof['verified_success'] and not proof['native_child_history_verified']
+
+
+@pytest.fixture
+def reject_count_env(env):
+    test = env['definition']['test']
+    test['DecreaseByRejectCountReason'] = test['DecreaseBySampleSizeReason']
+    test['DecreaseBySampleSizeReason'] = None
+    env['task']['Rejects'] = 1
+    return env
+
+
+def test_reject_count_loss_deducts_only_current_rejects(reject_count_env):
+    env = reject_count_env
+    ready = prepare(rejects=2, reject_reason_name='Reject')
+    assert ready.get('state') == 'ready', ready
+    body = ready['request_preview']['body']
+    assert body['samplesTested'] == 3
+    assert body['serviceDetails'][0]['samplingDataPointDetails'][0]['dataValue'] == '2'
+    assert 'failedSamples' not in body
+    context = ready['server_context']['native_effects']
+    assert context['mode'] == 'counted_reject_count_loss'
+    assert context['automatic_quantity_loss']['quantity'] == '2'
+    assert context['automatic_quantity_loss']['projected_remaining_quantity'] == '8'
+    assert env['children'].await_args.kwargs['body']['serviceDetails'][0]['qty'] == 2
+    assert execute(ready)['state'] == 'unknown'
+    env['client'].request.assert_awaited_once()
+    assert env['client'].request.await_args.args[1].endswith('/CollectSamplingData')
+    assert all(call.kwargs['params']['execute'] == 'false' for call in env['children'].await_args_list)
+
+
+@pytest.mark.parametrize('case', ['zero_rejects', 'missing_consent', 'exceeds_available', 'zero_balance', 'grouped'])
+def test_reject_count_loss_rejects_unsupported_inputs(reject_count_env, case):
+    env = reject_count_env
+    args = dict(rejects=2, reject_reason_name='Reject')
+    if case == 'zero_rejects':
+        args.update(rejects=0, reject_reason_name=None)
+    elif case == 'missing_consent':
+        args['allow_automatic_quantity_loss'] = False
+    elif case == 'exceeds_available':
+        env['row']['Qty'] = '2.5'
+    elif case == 'zero_balance':
+        env['row']['Qty'] = '2'
+        args['samples_collected'] = 2
+    else:
+        args.update(samples_collected=None, rejects=None, reject_reason_name=None,
+                    counted_groups=[dict(samples_collected=3, rejects=2, reject_reason_name='Reject')])
+    assert 'error' in prepare(**args)
+    env['children'].assert_not_awaited()
+    env['client'].request.assert_not_awaited()
+
+
+def test_changed_reject_count_reason_invalidates_plan(reject_count_env):
+    env = reject_count_env
+    ready = prepare(rejects=2, reject_reason_name='Reject')
+    assert ready.get('state') == 'ready', ready
+    env['definition']['test']['DecreaseByRejectCountReason'] = None
+    assert execute(ready)['submitted'] is False
+    env['client'].request.assert_not_awaited()
+
+
+def test_reject_count_loss_transport_rejects_tampered_failure_detail(reject_count_env):
+    ready = prepare(rejects=2, reject_reason_name='Reject')
+    assert ready.get('state') == 'ready', ready
+    saved = snap(ready)
+    saved['body']['serviceDetails'][0]['samplingDataPointDetails'][0]['dataValue'] = '1'
+    with pytest.raises(ValueError):
+        effects.validate_transport(saved)
