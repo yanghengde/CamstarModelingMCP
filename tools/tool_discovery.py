@@ -127,7 +127,7 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
         'get_sampling_lot_details': 'SamplingLot存储于MfgLot，校验类型8587；成员和样本各自分页，不是整批质量判定。',
         'prepare_lot_inspection': 'CollectLotSamplingData，来源成员须已进站且属于该批，使用整批任务剩余数；本次增量，固定任务/版本，随机采样不要求SamplingRequired=true。移站/LIMS false，真实事务待验收。',
         'get_sampling_lot_readiness': '完整有界成员/任务及MES完成、通过标志；前置满足不是权限、签名或业务批准。',
-        'prepare_container_quantity_loss': '单个基础Container原生LossDetails部分损失/明确全量报废准备，当前主单位增量；明确归零关闭和生产数量调整选项，原因属当前Operation的LossReasons组。强制4030/-1回显，无抽样批成员/Batch/层级/载具/第二单位；确认单次执行，unknown不重复扣量。',
+        'prepare_container_quantity_loss': '单个基础Container原生LossDetails部分损失/明确全量报废准备，当前主单位增量；明确归零关闭和生产数量调整选项，原因属当前Operation的LossReasons组。强制4030/-1回显，无抽样批成员/Batch/层级/载具。默认拒绝双单位；明确secondary_loss_quantity可准备双单位部分损失，两组原单位/余额固定且各自损失小于余额，不转换单位、不混用全量模式；确认单次执行，unknown不重复扣量。',
         'get_sampling_lot_scrap_readiness': '抽样批报废只读阻塞检查，完整成员/任务重读；ScrapReason未实现注释和与LossReason类型冲突未解，执行就绪固定false，不生成结果3计划或循环扣量。',
         'prepare_sampling_lot_rework': '结果2原生整批返工计划，明确批和原因，完整1..20无冻结非层级成员，仅同Workflow且无选择器；多路径须明确expected_path_name核对所有成员的首条原生默认路径并完整回显路径/目标/返回步骤。逐成员Rework只做非执行输入回显；缺失路由不当已验证，正式只提交一次ExecuteSamplingLot；计划固定原成员采样任务基线，原生会清理ContainerSampleData并标记批完成；inspect区分旧任务消失/保留/变化和新增任务，核对原成员当前去向与数量，实际最终历史待验收。无Spec覆盖，unknown只读原成员证据，不自动成功或解锁。',
         'prepare_sampling_lot_completion': '仅执行MES已确认完成且通过的OK结果，固定码1，核对完整成员集合。不是通用放行；返工2须独立prepare_sampling_lot_rework，报废3未开放，具体后续影响待现场验收。',

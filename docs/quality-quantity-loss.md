@@ -45,7 +45,7 @@
 
 全量模式改用 `record_all_quantity=true` 并省略 `loss_quantity`。实际报文不设置qty或qty2，由原生RecordAllQty处理；预览另展示当前量、拟损失量、当前主单位和预计余额。预计余额、预计关闭均为本地投影，不是执行结果。当前量与损失量受限于1e12及数值传输精度，不舍入或接受会被忽略的微小扣量。
 
-限制：Active、冻结数明确为0、未在返工，无父子容器、载具、第二单位或非零第二数量，主单位和产品ID明确，且不属于SamplingLot。未知冻结数不能当0，未知单位不能当“件”。当前Spec固定版本Active，Query工序/步骤与持久CurrentStatus一致。
+限制：Active、冻结数明确为0、未在返工，无父子容器或载具；默认要求无第二单位/非零第二数量，双单位明确部分损失见文末扩展，主单位和产品ID明确，且不属于SamplingLot。未知冻结数不能当0，未知单位不能当“件”。当前Spec固定版本Active，Query工序/步骤与持久CurrentStatus一致。
 
 工具固定不生成层级rollup、不解关联、不仅写汇总；不提供任意服务、数量类型、正负方向、电子签名、采样任务或自定义报废标志覆盖。计入生产的语义使用原生LossDetails回显并明确展示。部分数量损失和全量损失不能自动证明工厂完整报废审批已完成，也不等于自动检验扣量。
 
@@ -90,3 +90,16 @@
 现场已验证明确LossDetails在真实容器上的非执行回显。已查目标缺少可确认的冻结数、主单位，已查Operation的LossReasons配置为空，因此未将其当成完整可执行正目标，没有创建业务准备计划或修改配置。[目标与配置只读结果](quality-fixtures/quantity-loss-live-readcheck.json)、[持久状态列](quality-fixtures/quantity-loss-currentstatus-columns.json)、[原生校验与执行逻辑](quality-fixtures/quantity-loss-native-logic.json)
 
 本轮没有MES业务写入、删除事务记录、部署或重启服务。新进程本地注册不代表运行服务已重新加载。真实数量损失/关闭、生产数量影响、自定义报废流程、签名、最终历史仍待验收；多成员抽样批报废、检验自动扣量、转全检、SPC和复杂审批仍未完成。
+
+
+## C4双单位部分数量损失
+
+复用prepare_container_quantity_loss，增加可选secondary_loss_quantity。主数量和第二数量分别由用户明确，保持各自现有单位，以一次ChangeQty的同一LossDetails.qty/qty2提交。该范围适用于基础Container，SamplingLot成员和Batch子类型继续按原校验处理。
+
+双单位模式要求两个原余额均为正，两个增量各自为正且严格小于对应余额，第二单位持久ID有效。主/第二数量均执行既有数值范围和无损传输检查；全量模式与明确第二增量不能混用。省略第二增量保持原流程及原限制。
+
+准备固定两种单位配置及其版本、原余额、原因和工序，完整回显核对原生LossDetails类型4030、方向-1及Qty/Qty2。变化使旧计划失效。预览分别显示两组损失、预计余额与单位，unit_conversion_performed=false。确认后仅一次ChangeQty，unknown保持占用。
+
+inspect增加两组原单位是否一致和当前余额是否匹配投影。余额相符作为人工核实材料，最终事务因果链仍未自动认证。真实双数量变更、生产数量与历史影响仍待现场验收。
+
+本轮相关回归250项通过，新增双单位专项24项，离线HTTPX真实传输尝试0。原生LossDetails.Qty2字段用途已通过官方Designer组件只读核对，当前实现仍依赖实际目标的非执行回显。整批报废原因类型兼容和原子性继续作为C4剩余阻塞项。

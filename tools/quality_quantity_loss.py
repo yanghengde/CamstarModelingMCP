@@ -78,7 +78,7 @@ async def record(cid):
     return row
 
 
-async def snapshot(name, cid=None):
+async def snapshot(name, cid=None, *, allow_secondary_quantity=False):
     ref, status = await q.container_identity(name, cid)
     row = await record(ref['instanceId'])
     if row is None or row['ContainerName'] != ref['name']: raise ValueError('数量处置容器名称/ID不一致。')
@@ -88,7 +88,12 @@ async def snapshot(name, cid=None):
     if row['SamplingLotId']: raise ValueError('抽样批成员不能通过单容器损失工具替代整批报废。')
     if row['ParentContainerId'] or row['ChildCount'] != 0 or row['CarrierId']:
         raise ValueError('第一阶段不处理父子容器或已绑定载具的数量处置。')
-    if row['UOM2Id'] or row['Qty2'] not in (None, '') and i.numeric(str(row['Qty2']), '第二数量') != 0:
+    if allow_secondary_quantity:
+        if not q.valid_id(row['UOM2Id']) or row['Qty2'] in (None, '') or i.numeric(str(row['Qty2']), '第二数量') <= 0:
+            raise ValueError('明确第二数量损失要求有效第二单位及正数第二余额。')
+        if status.get('UOM2') and q.identifier(status['UOM2']) != row['UOM2Id']:
+            raise ValueError('第二单位与持久记录不符。')
+    elif row['UOM2Id'] or row['Qty2'] not in (None, '') and i.numeric(str(row['Qty2']), '第二数量') != 0:
         raise ValueError('第一阶段不处理第二单位/非零第二数量。')
     if not q.valid_id(row['UOMId']) or not q.valid_id(row['ProductId']): raise ValueError('主单位或产品身份未确认。')
     if i.numeric(str(row['Qty']), '当前数量') <= 0: raise ValueError('当前数量必须为正。')
@@ -136,14 +141,18 @@ async def preview(body, current):
     if not p.wire_matches(root, data): raise ValueError('数量损失根字段/目标回显不符。')
     rows = data.get('ServiceDetails')
     if not isinstance(rows, list) or len(rows) != 1: raise ValueError('数量损失必须完整回显唯一明细。')
-    line = rows[0]; expected = {k: v for k, v in body['serviceDetails'][0].items() if k not in ('@odata.type', 'qty')}
+    line = rows[0]; expected = {k: v for k, v in body['serviceDetails'][0].items() if k not in ('@odata.type', 'qty', 'qty2')}
     if (not p.wire_matches(expected, line) or str(line.get('CDOTypeId')) != '4030'
             or str(line.get('QtyMultiplier')) != '-1' or i.wire_bool(line.get('CountsAgainstProduction'), '计入生产标志') is not True
             or not p.wire_matches({'container': body['container']}, line)):
         raise ValueError('必须回显LossDetails类型4030、损失方向-1、原因/目标和计入生产标志，普通类型4010不能代替。')
     if 'qty' in body['serviceDetails'][0] and i.numeric(str(line.get('Qty')), '回显数量') != i.numeric(str(body['serviceDetails'][0]['qty']), '请求数量'):
         raise ValueError('本次损失量回显不符。')
-    if line.get('Qty2') not in (None, '') and i.numeric(str(line['Qty2']), '回显第二数量') != 0:
+    requested_secondary = body['serviceDetails'][0].get('qty2')
+    if requested_secondary is not None:
+        if i.numeric(str(line.get('Qty2')), '第二数量回显') != i.numeric(str(requested_secondary), '请求第二数量'):
+            raise ValueError('明确第二损失量未完整回显。')
+    elif line.get('Qty2') not in (None, '') and i.numeric(str(line['Qty2']), '回显第二数量') != 0:
         raise ValueError('数量损失出现非预期第二数量。')
     if line.get('IsDeleted') is not None and i.wire_bool(line['IsDeleted'], '明细删除标志') is not False:
         raise ValueError('数量损失明细被删除。')
@@ -158,8 +167,15 @@ async def preview(body, current):
 
 async def build_loss(args, marker):
     comment = i.inspection_comment(args.get('comments', ''))
-    ref, row, status = await snapshot(args['container_name'], args.get('container_instance_id'))
+    secondary_requested = args.get('secondary_loss_quantity') is not None
+    ref, row, status = await snapshot(args['container_name'], args.get('container_instance_id'),
+                                     allow_secondary_quantity=secondary_requested)
     amount, after, number = quantity_options(args, row)
+    secondary = None
+    if secondary_requested:
+        if args['record_all_quantity']:
+            raise ValueError('双单位入口仅支持分别明确的部分损失，不能与RecordAllQty全量模式混用。')
+        secondary = quantity_options(dict(args, loss_quantity=args['secondary_loss_quantity']), {'Qty': row['Qty2']})
     dep = Dependencies(); spec = await dep.asset('Specs', status.get('Spec'))
     operation = await dep.asset('Operations', spec.get('Operation'))
     if operation['InstanceID'] != q.identifier(status.get('Operation')): raise ValueError('当前Operation与Spec配置不符。')
@@ -168,19 +184,27 @@ async def build_loss(args, marker):
     if sum(q.identifier(v) == reason['InstanceID'] and v.get('Name') == reason['Name'] for v in group['ResolvedEntries']) != 1:
         raise ValueError('明确LossReason不属于当前Operation完整LossReasons组，不能使用ScrapReason或按同名替换。')
     unit = await dep.asset('UOMs', {'InstanceId': row['UOMId']})
+    secondary_unit = await dep.asset('UOMs', {'InstanceId': row['UOM2Id']}) if secondary_requested else None
     reason_ref = {'name': reason['Name'], 'instanceId': reason['InstanceID']}
     detail = {'@odata.type': '#shopfloor.LossDetails', 'changeQtyType': 2, 'recordAllQty': args['record_all_quantity'],
               'adjustThruput': args['adjust_throughput'], 'reasonCode': reason_ref}
     if not args['record_all_quantity']: detail['qty'] = number
+    if secondary_requested:
+        detail['qty2'] = secondary[2]
     body = {'container': ref, 'closeWhenZero': args['close_when_zero'], 'disassociateWhenClosed': False,
             'generateRollups': False, 'recordAllQtySummaryOnly': False, 'serviceDetails': [detail],
             'comments': marker+(' '+comment if comment else '')}
     context = await preview(body, row)
-    if await snapshot(ref['name'], ref['instanceId']) != (ref, row, status): raise ValueError('准备期间容器、数量、单位或当前步骤发生变化。')
+    if await snapshot(ref['name'], ref['instanceId'], allow_secondary_quantity=secondary_requested) != (ref, row, status): raise ValueError('准备期间容器、数量、单位或当前步骤发生变化。')
     await dep.stable()
     context.update(loss_quantity=str(amount), current_quantity=str(row['Qty']), projected_remaining_quantity=str(after),
                    projected_close=after == 0 and args['close_when_zero'], unit={'name': unit['Name'], 'instanceId': unit['InstanceID']},
                    projection_is_execution_result=False, quality_verdict=None)
+    if secondary_requested:
+        context.update(secondary_loss_quantity=str(secondary[0]), current_secondary_quantity=str(row['Qty2']),
+                       projected_remaining_secondary_quantity=str(secondary[1]),
+                       secondary_unit={'name': secondary_unit['Name'], 'instanceId': secondary_unit['InstanceID']},
+                       unit_conversion_performed=False)
     reads = set()
     for (entity, _), state in dep.states.items(): reads.update(d.resources(entity, state))
     return {'kind': 'quantity_loss', 'action': 'loss', 'service': 'ChangeQty', 'name': ref['name'], 'target_id': ref['instanceId'],
@@ -205,6 +229,9 @@ def validate_transport(snap):
     if not isinstance(rows, list) or len(rows) != 1 or not isinstance(rows[0], dict): raise ValueError('数量损失仅接受一条LossDetails。')
     line = rows[0]; all_qty = args['record_all_quantity']
     keys = {'@odata.type', 'changeQtyType', 'recordAllQty', 'adjustThruput', 'reasonCode'} | (set() if all_qty else {'qty'})
+    secondary_requested = args.get('secondary_loss_quantity') is not None
+    if secondary_requested:
+        keys.add('qty2')
     if (set(line) != keys or line['@odata.type'] != '#shopfloor.LossDetails' or type(line['changeQtyType']) is not int
             or line['changeQtyType'] != 2 or type(line['recordAllQty']) is not bool or line['recordAllQty'] != all_qty
             or type(line['adjustThruput']) is not bool or line['adjustThruput'] != args['adjust_throughput']
@@ -212,26 +239,51 @@ def validate_transport(snap):
         raise ValueError('数量损失类型、数量模式、生产数量选项或原因不符。')
     if not all_qty and (type(line['qty']) not in (int, float) or i.numeric(str(line['qty']), '传输数量') != i.numeric(snap['expected_loss_quantity'], '原损失量')):
         raise ValueError('损失量与原计划不符。')
+    if secondary_requested:
+        if all_qty or type(line['qty2']) not in (int, float):
+            raise ValueError('第二数量损失仅允许明确的部分损失数值。')
+        amount2, _, _ = quantity_options(dict(args, loss_quantity=args['secondary_loss_quantity']),
+                                         {'Qty': snap['before']['container']['Qty2']})
+        if i.numeric(str(line['qty2']), '传输第二数量') != amount2:
+            raise ValueError('第二损失量与原计划不符。')
     marker = snap.get('marker'); comment = body['comments']
     if not isinstance(marker, str) or not isinstance(comment, str) or not (comment == marker or comment.startswith(marker+' ')):
         raise ValueError('数量损失缺少原关联标记。')
 
 
 async def inspect_snapshot(snap):
-    return {'original_container_id': snap['target_id'], 'current_record': await record(snap['target_id']),
+    current = await record(snap['target_id'])
+    result = {'original_container_id': snap['target_id'], 'current_record': current,
             'expected_loss_quantity': snap['expected_loss_quantity'], 'verified_success': False, 'state_changed': False,
             'retry_allowed': False, 'history_correlation_verified': False,
             'note': '只读原容器ID；当前数量或Closed状态不证明本次损失已提交，不自动解锁，不将未知请求重新扣量。最终历史因果链待核实。'}
+    if snap['arguments'].get('secondary_loss_quantity') is not None:
+        before = snap['before']['container']
+        preview = snap['preview']
+        units_match = bool(current and current['UOMId'] == before['UOMId'] and current['UOM2Id'] == before['UOM2Id'])
+        result['dual_quantity_evidence'] = dict(
+            expected_secondary_loss_quantity=preview['secondary_loss_quantity'],
+            planned_remaining_quantity=preview['projected_remaining_quantity'],
+            planned_remaining_secondary_quantity=preview['projected_remaining_secondary_quantity'],
+            original_units_currently_match=units_match,
+            current_balances_match_projection=units_match
+                and i.numeric(str(current['Qty']), '当前主数量') == i.numeric(preview['projected_remaining_quantity'], '主数量投影')
+                and i.numeric(str(current['Qty2']), '当前第二数量') == i.numeric(preview['projected_remaining_secondary_quantity'], '第二数量投影'),
+            causal_chain_verified=False)
+    return result
 
 
 @mcp.tool
 async def prepare_container_quantity_loss(container_name: str, loss_reason_name: str, close_when_zero: bool,
         adjust_throughput: bool, loss_quantity: str | None = None, record_all_quantity: bool = False,
-        container_instance_id: str | None = None, comments: str = '') -> str:
-    """只准备单个基础Container的ChangeQty/LossDetails数量损失或全量报废计划，不写MES。loss_quantity为当前主单位的明确正数增量；全量须record_all_quantity=true且省略loss_quantity，不混用。必须明确close_when_zero（归零是否关闭）和adjust_throughput（是否调整已处理生产数量），不替用户选择。仅Active无冻结、未返工、无父子/载具、无第二单位/非零第二数量、主单位明确且不属于SamplingLot；拒绝Batch子类型和抽样批成员，不循环扣量模拟整批报废。原因是当前Operation完整LossReasons组中的LossReason，不能用ScrapReason替代。强制OData LossDetails子类型并核对4030/-1/计入生产回显；重读数量/工序/单位/配置，统一确认单次执行；unknown不重试，inspect仅证据，最终效果/历史/签名待验收。"""
-    return await p.prepare('quantity_loss', dict(container_name=container_name, loss_reason_name=loss_reason_name,
+        container_instance_id: str | None = None, comments: str = '', secondary_loss_quantity: str | None = None) -> str:
+    """只准备单个基础Container的ChangeQty/LossDetails数量损失或全量报废计划，不写MES。loss_quantity为当前主单位的明确正数增量；全量须record_all_quantity=true且省略loss_quantity，不混用。必须明确close_when_zero（归零是否关闭）和adjust_throughput（是否调整已处理生产数量），不替用户选择。仅Active无冻结、未返工、无父子/载具、主单位明确且不属于SamplingLot。默认拒绝第二单位/非零第二数量；明确secondary_loss_quantity可准备双单位部分损失，主/第二增量分别明确且小于各自余额，第二单位与余额须已确认，不转换单位、不混用全量模式。适用对象为基础Container；拒绝Batch子类型和抽样批成员，不循环扣量模拟整批报废。原因是当前Operation完整LossReasons组中的LossReason，不能用ScrapReason替代。强制OData LossDetails子类型并核对4030/-1/计入生产回显；重读数量/工序/单位/配置，统一确认单次执行；unknown不重试，inspect仅证据，最终效果/历史/签名待验收。"""
+    arguments = dict(container_name=container_name, loss_reason_name=loss_reason_name,
         close_when_zero=close_when_zero, adjust_throughput=adjust_throughput, loss_quantity=loss_quantity,
-        record_all_quantity=record_all_quantity, container_instance_id=container_instance_id, comments=comments))
+        record_all_quantity=record_all_quantity, container_instance_id=container_instance_id, comments=comments)
+    if secondary_loss_quantity is not None:
+        arguments['secondary_loss_quantity'] = secondary_loss_quantity
+    return await p.prepare('quantity_loss', arguments)
 
 
 @mcp.tool
