@@ -53,6 +53,26 @@ async def source(args,expected_data_id=None):
     return before
 
 
+async def selected_comment_type(args):
+    name = args.get('comment_type_name')
+    key = args.get('comment_type_instance_id')
+    if name is None:
+        if key is not None:
+            raise ValueError('选择日志类别时须明确名称，持久ID只能用于核对该名称。')
+        return None
+    q.text(name, '日志类别名称')
+    await schema_check({'CommentType': 'CommentTypeId,CDOTypeId,ChangeCount'})
+    selected = await e.t.asset('comment_type', name=name, key=key)
+    rows = await q.sql_rows(
+        "SELECT CommentTypeId,CDOTypeId,ChangeCount FROM CommentType WHERE CommentTypeId='"
+        + selected['InstanceID'] + "'", 1)
+    if (len(rows) != 1 or iid(rows[0].get('CommentTypeId')) != selected['InstanceID']
+            or u.i.wire_int(rows[0].get('CDOTypeId'), '日志类别类型') != 8414
+            or u.i.wire_int(rows[0].get('ChangeCount'), '日志类别版本') != selected['ChangeCount']):
+        raise ValueError('日志类别持久身份、类型或版本不符。')
+    return selected
+
+
 async def contract():
     raw=await request('GET','/swagger/'+SERVICE+'/swagger.json',base_url=CAMSTAR_SHOPFLOOR_BASE_URL,response_formatter=u.raw_json)
     doc=json.loads(raw);schemas=doc['components']['schemas'];root=schemas[SERVICE]['properties'];detail=schemas['EventLogDetail']['properties']
@@ -113,13 +133,14 @@ async def load(before,marker,bound):
     return dict(logs=loaded_logs(data,before),employee_id=actor)
 
 
-def body_for(before,original,args,marker):
+def body_for(before,original,args,marker,comment_type=None):
     u.text_value(args['log_text'],'新增处理日志',4000,True)
     u.text_value(args['comments'],'日志追加说明',200,True)
     body=e.root_body(before,marker,args['comments'])
     # Entire original list is preserved. New item has no EventLog reference;
     # native current user and system date expressions supply its provenance.
-    body['eventLogDetails']=copy.deepcopy(original)+[dict(comments=args['log_text'],commentType=None)]
+    body['eventLogDetails']=copy.deepcopy(original)+[dict(
+        comments=args['log_text'], commentType=e.t.ref(comment_type) if comment_type else None)]
     return body
 
 
@@ -130,22 +151,32 @@ async def build(args,marker,execution_binding=None):
             before=await source(args);schema=await contract();bound=auth.capture_headers(SERVICE)
             if len(before['logs'])>=100:raise ValueError('追加后超出100条完整核对范围。')
             original=await load(before,marker,bound)
+            comment_type = await selected_comment_type(args)
             proof=await auth.membership(original['employee_id'],before['organization'],before['role'])
             if await source(args)!=before or await load(before,marker,bound)!=original or await auth.membership(original['employee_id'],before['organization'],before['role'])!=proof:
                 raise ValueError('日志/原事件/当前授权在准备期间变化。')
+            if await selected_comment_type(args) != comment_type:
+                raise ValueError('读取期间日志类别变化。')
             reads=set()
             for key in ('organization','owner','role','priority'):reads.update(resources(before[key]['entity'],before[key]))
             reads.update(e.c.read_resources(before['classification_configuration']))
+            if comment_type:
+                reads.update(resources(comment_type['entity'], comment_type))
             if execution_binding is not None:execution_binding.update(headers=bound,actor_id=original['employee_id'])
             row=before['event'];data_id=before['data']['EventDataId']
-            return dict(kind='event_log_append',action='append_log',service=SERVICE,name=row['EventName'],target_id=row['EventId'],
+            snapshot = dict(kind='event_log_append',action='append_log',service=SERVICE,name=row['EventName'],target_id=row['EventId'],
                 scope_key='quality-event:id:'+row['EventId'],before=before,original_logs=original['logs'],actor_authorization=proof,
-                body=body_for(before,original['logs'],args,marker),arguments=args,marker=marker,environment=p.environment(),
+                body=body_for(before,original['logs'],args,marker,comment_type),arguments=args,marker=marker,environment=p.environment(),
                 resource_reads=sorted(reads),resource_writes=['runtime:quality-event:id:'+row['EventId'],'runtime:event-data:id:'+data_id],
                 preview=dict(native_contract=schema,employee_id=original['employee_id'],static_preview_only=True,ordinary_preview_requested=False,
                     existing_log_count=len(original['logs']),append_count=1,author_and_time='native_current_user_and_system_time',comment_type=None,
                     verified_success=False,existing_history_details_may_be_reposted=True,
                     note='完整保留旧日志内容/作者/时间/引用，追加一条无类别日志；不提供改删/补录日期/代签。原生逐条Execute可能为旧项再记本次历史，最终效果待验收。'))
+            if comment_type:
+                snapshot['comment_type'] = comment_type
+                snapshot['preview']['comment_type'] = comment_type
+                snapshot['preview']['note'] = '完整保留旧日志，追加一条明确类别日志。类别名称/持久ID/版本和当前授权复读后单次执行，最终原生历史待验收。'
+            return snapshot
     except (ValueError,TypeError,KeyError,AttributeError,OverflowError):
         raise ValueError('日志原值、完整清单、服务契约或当前责任人授权未核实；未提交，不回显远端异常正文。') from None
 
@@ -163,7 +194,19 @@ def validate_transport(snap):
     original=snap['original_logs']
     frame={'EventLogDetails':[{'CDOTypeId':8371,**{('EventLog' if k=='eventLog' else k[0].upper()+k[1:]):
         ({'Name':v.get('name'),'InstanceId':v['instanceId']} if isinstance(v,dict) else v) for k,v in item.items()}} for item in original]}
-    if loaded_logs(frame,snap['before'])!=original or snap['body']!=body_for(snap['before'],original,snap['arguments'],snap['marker']):raise ValueError('日志原值或追加载荷不符。')
+    selected = snap.get('comment_type')
+    requested_name = snap['arguments'].get('comment_type_name')
+    if selected:
+        if (selected.get('entity') != 'CommentTypes' or selected.get('Name') != requested_name
+                or selected.get('IsFrozen') is not False or type(selected.get('ChangeCount')) is not int
+                or selected['ChangeCount'] < 0 or not q.valid_id(selected.get('InstanceID'))):
+            raise ValueError('日志类别快照不符。')
+        requested_id = snap['arguments'].get('comment_type_instance_id')
+        if requested_id is not None and iid(requested_id) != selected['InstanceID']:
+            raise ValueError('日志类别ID不符。')
+    elif requested_name is not None or snap['arguments'].get('comment_type_instance_id') is not None:
+        raise ValueError('缺少已核实日志类别。')
+    if loaded_logs(frame,snap['before'])!=original or snap['body']!=body_for(snap['before'],original,snap['arguments'],snap['marker'],selected):raise ValueError('日志原值或追加载荷不符。')
 
 
 def preservation(before,after):
@@ -202,26 +245,41 @@ async def inspect(snap):
             rows=await records(data_id)
             check=await u.event_record(instance_id=snap['target_id'])
             if current!=check or rows!=await records(data_id):raise ValueError('日志读取期间变化。')
+            evidence = preservation(snap['before']['logs'], rows)
+            selected_id = (snap.get('comment_type') or {}).get('InstanceID')
+            matching_new_ids = [row['EventLogId'] for row in evidence['new_rows']
+                if row['Comments'] == snap['arguments']['log_text']
+                and row['CommentTypeId'] in ((None, '') if selected_id is None else (selected_id,))
+                and row['EmployeeId'] == snap['preview']['employee_id']]
             return dict(complete=True,original_event_id=snap['target_id'],original_event_data_id=data_id,
                 history_candidates=await history_candidates(snap),
-                preservation=preservation(snap['before']['logs'],rows),verified_success=False,retry_allowed=False,
+                preservation=evidence, matching_new_log_ids=matching_new_ids,verified_success=False,retry_allowed=False,
                 note='当前日志及旧值保护证据；新增同文记录不证明本次事务成功，须核对最终事务历史后人工review，unknown保持占用。')
     except (ValueError,TypeError,KeyError,AttributeError,OverflowError):raise ValueError('日志原ID或完整证据不可用；不自动重试或确认成功。') from None
 
 
 @mcp.tool
-async def get_quality_event_log_context(event_name:str,organization_name:str,event_instance_id:str|None=None)->str:
-    """只读已提交Active基础Event的完整处理日志及固定Load契约。最多100条，原作者/时间缺失或SQL与Load不符即拒绝。不调用普通预校验，不授权写入。"""
+async def get_quality_event_log_context(event_name:str,organization_name:str,event_instance_id:str|None=None,
+                                      comment_type_name:str|None=None,comment_type_instance_id:str|None=None)->str:
+    """只读已提交Active基础Event的完整处理日志及固定Load契约。可明确comment_type_name核对既有日志类别，comment_type_instance_id仅核对同一名称。最多100条，原作者/时间缺失或SQL与Load不符即拒绝。不调用普通预校验，不授权写入。"""
     try:
         with verified_channel():
             args=dict(event_name=event_name,organization_name=organization_name,event_instance_id=event_instance_id)
             before=await source(args);schema=await contract();original=await load(before,'MCP-QUAL:'+'0'*32,auth.capture_headers(SERVICE))
+            selection_args = dict(comment_type_name=comment_type_name, comment_type_instance_id=comment_type_instance_id)
+            selected = await selected_comment_type(selection_args)
             if await source(args)!=before:raise ValueError('读取期间变化。')
-            return q.encode(dict(complete=True,before=before,original_logs=original['logs'],native_contract=schema,ready_for_execution=False))
+            if await selected_comment_type(selection_args) != selected:raise ValueError('读取期间日志类别变化。')
+            return q.encode(dict(complete=True,before=before,original_logs=original['logs'],native_contract=schema,
+                                 selected_comment_type=selected,ready_for_execution=False))
     except (ValueError,TypeError,KeyError,AttributeError,OverflowError):return q.encode(dict(complete=False,ready_for_execution=False,error='原日志清单、受限条件或Load契约未核实；没有业务写入。'))
 
 
 @mcp.tool
-async def prepare_quality_event_log_append(event_name:str,organization_name:str,log_text:str,comments:str,event_instance_id:str|None=None)->str:
-    """准备追加一条处理日志（最多4000 UTF-16字符），完整保留旧日志。仅已提交Active Category1、已有标准EventData、原责任人/角色授权且无复杂关联/签名。新日志无类别，作者与时间由原生当前用户/系统生成；不改删旧项、不代签或补录日期。固定Load+静态计划，禁止普通execute=false假预览。确认后统一execute_quality_transaction单次提交；unknown不重试，inspect保留原日志证据，最终事务人工review。"""
-    return await p.prepare('event_log_append',dict(event_name=event_name,organization_name=organization_name,event_instance_id=event_instance_id,log_text=log_text,comments=comments))
+async def prepare_quality_event_log_append(event_name:str,organization_name:str,log_text:str,comments:str,event_instance_id:str|None=None,
+                                          comment_type_name:str|None=None,comment_type_instance_id:str|None=None)->str:
+    """准备追加一条处理日志（最多4000 UTF-16字符），完整保留旧日志。仅已提交Active Category1、已有标准EventData、原责任人/角色授权且无复杂关联/签名。可用comment_type_name明确选择既有未冻结标准CommentType，持久ID仅核对该名称；省略名称追加无类别记录。作者与时间由原生当前用户/系统生成。类别及原日志在执行前复读，变化使旧计划失效。固定Load+静态计划，确认后统一execute_quality_transaction单次提交；unknown不重试，inspect核对新记录内容/类别/作者及旧值和历史候选，最终事务人工review。"""
+    args = dict(event_name=event_name,organization_name=organization_name,event_instance_id=event_instance_id,log_text=log_text,comments=comments)
+    if comment_type_name is not None or comment_type_instance_id is not None:
+        args.update(comment_type_name=comment_type_name,comment_type_instance_id=comment_type_instance_id)
+    return await p.prepare('event_log_append',args)
