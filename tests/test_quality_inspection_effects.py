@@ -51,7 +51,7 @@ def env(loss_env,monkeypatch):
     async def parent(method,path,**kw):
         assert path=='/api/CollectSamplingData' and kw['params']['execute']=='false'
         data=echo(kw['body']);task=state['task']
-        data.update(RequiredSamples=str(task['TotalSamplesRequired']),SamplesTested=str(task['CompletedSamples']),
+        data.update(RequiredSamples=str(task['TotalSamplesRequired']),SamplesTested=str(kw['body'].get('samplesTested',task['CompletedSamples'])),
             AllowedRejects=str(task['AllowedRejects']),SampleType=str(state['definition']['test']['SampleType']),
             SamplingStatus='In Process',ContainerSampleDataItem={'InstanceId':TASK})
         for line in data['ServiceDetails']:

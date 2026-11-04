@@ -1,4 +1,4 @@
-"""Opt-in native single-container full inspection or measured sample-size loss.
+"""Opt-in native single-container full inspection or sample-size loss.
 
 The parent CollectSamplingData is the only business submission. Child ChangeQty
 calls here are execute=false probes; failure conversion never patches task data.
@@ -27,7 +27,9 @@ def definition_policy(definition, args):
     if not quantity:
         i.reject_effectful_definition(definition)
         return
-    if full or test.get('SampleType') != 2: raise ValueError('自动扣量首版仅数值测量检验按本次样本数扣量，不支持计数检验。')
+    if full or test.get('SampleType') not in (1, 2): raise ValueError('自动扣量仅支持计数或数值测量检验按本次样本数扣量。')
+    if test['SampleType'] == 1 and args.get('counted_groups') is not None:
+        raise ValueError('计数自动扣量仅支持单组本次samples_collected，分组累计扣量待单独验收。')
     if not i.present(test.get('DecreaseBySampleSizeReason')) or i.present(test.get('DecreaseByRejectCountReason')):
         raise ValueError('必须只配置DecreaseBySampleSizeReason；按拒收数扣量或两种原因并存尚未开放。')
     if test.get('ScrapCountedRejectsByReason') is not False: raise ValueError('按原因报废拒收的配置为真或未知，首版不支持。')
@@ -119,7 +121,8 @@ async def prepare_effects(definition, basic, status, task, args, count):
     spec = await dep.asset('Specs', status.get('Spec'))
     if spec['InstanceID'] != row['SpecId']: raise ValueError('原生副作用工序与持久当前状态不符。')
     unit = await dep.asset('UOMs', {'InstanceId': row['UOMId']})
-    context = {'mode': 'full_inspection' if full else 'measured_sample_size_loss',
+    quantity_mode = 'counted_sample_size_loss' if definition['test']['SampleType'] == 1 else 'measured_sample_size_loss'
+    context = {'mode': 'full_inspection' if full else quantity_mode,
                'allow_full_inspection': full, 'allow_automatic_quantity_loss': quantity,
                'runtime_effects_verified': False, 'deployed_logic_overrides_verified': False,
                'quality_verdict': None, 'separate_quantity_submission': False,
@@ -142,7 +145,8 @@ async def prepare_effects(definition, basic, status, task, args, count):
             'close_when_zero': False, 'adjust_throughput': False}, row)
         reason_ref = {'name': reason['Name'], 'instanceId': reason['InstanceID']}
         defaults = await child_defaults(ref, reason_ref, count, row['WorkflowStepId'])
-        context['automatic_quantity_loss'] = {'basis': 'current measured ServiceDetails count', 'quantity': str(amount),
+        basis = 'explicit current counted SamplesTested' if quantity_mode == 'counted_sample_size_loss' else 'current measured ServiceDetails count'
+        context['automatic_quantity_loss'] = {'basis': basis, 'quantity': str(amount),
             'projected_remaining_quantity': str(remaining), 'reason': reason_ref, 'native_child_defaults': defaults,
             'projection_is_execution_result': False,
             'note': '只提交一次CollectSamplingData，MES内部创建LossDetails；本工具不再提交ChangeQty。标准CLF内部把子服务ProcessESignatures设false，本工具不覆盖父事务签名；部署及签名链未验证。'}
@@ -168,8 +172,12 @@ async def final_recheck(effects):
 
 def validate_transport(snap):
     body = snap['body']
+    counted_loss = (snap.get('inspection_effects') or {}).get('context', {}).get('mode') == 'counted_sample_size_loss'
+    expected_fields = {'container', 'sampleTest', 'serviceDetails', 'moveContainerOnCompletion', 'comments'}
+    if counted_loss:
+        expected_fields.add('samplesTested')
     if (snap.get('kind') != 'inspection' or snap.get('action') != 'collect'
-            or set(body) != {'container', 'sampleTest', 'serviceDetails', 'moveContainerOnCompletion', 'comments'}
+            or set(body) != expected_fields
             or body['moveContainerOnCompletion'] is not False):
         raise ValueError('单容器检验仅固定CollectSamplingData、移站false和原检验字段，不接受扣量/全检/签名覆盖。')
     effects = snap.get('inspection_effects')
@@ -177,8 +185,18 @@ def validate_transport(snap):
         full, quantity = options(snap['arguments'])
         if (effects['context']['allow_full_inspection'], effects['context']['allow_automatic_quantity_loss']) != (full, quantity):
             raise ValueError('原生检验副作用选项与原计划不符。')
-        if effects['context']['mode'] != ('full_inspection' if full else 'measured_sample_size_loss'):
+        expected_mode = 'counted_sample_size_loss' if counted_loss else 'measured_sample_size_loss'
+        if effects['context']['mode'] != ('full_inspection' if full else expected_mode):
             raise ValueError('原生检验副作用模式不符。')
+        if counted_loss:
+            arguments = snap['arguments']
+            count = i.int32(arguments.get('samples_collected'), '本次计数样本数', 1)
+            lines = body['serviceDetails']
+            if (not quantity or full or arguments.get('counted_groups') is not None or arguments.get('samples') is not None
+                    or type(body['samplesTested']) is not int or body['samplesTested'] != count
+                    or len(lines) != 1 or lines[0].get('totalSamplesCollected') != count
+                    or effects['context']['automatic_quantity_loss']['quantity'] != str(count)):
+                raise ValueError('计数扣量样本增量、根SamplesTested或单组明细不一致。')
 
 
 async def inspect_snapshot(snap):

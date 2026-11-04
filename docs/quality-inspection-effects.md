@@ -1,11 +1,11 @@
-# 第三阶段：单容器原生全检与测量按样本数自动扣量
+# 单容器原生全检与按样本数自动扣量
 
 2026-10-28，扩展现有 `prepare_container_inspection`，质量工具数量仍为50。新增两个默认false的显式选项；它们互斥，不新增独立扣量执行入口。本阶段是受限首版，真实转换、内部扣量、签名及最终父子历史尚未验收。[高级功能计划](quality-advanced-roadmap.md)
 
 | 参数 | 已开放范围 |
 |---|---|
 | allow_full_inspection=true | 按MES当前任务中已有的全检/失败转全检规则提交检验，支持满足当前全量要求的失败任务续检。不直接修改要求数或标志，不是任意强制转全检 |
-| allow_automatic_quantity_loss=true | 仅数值测量SampleType=2，单独配置DecreaseBySampleSizeReason；由父检验事务内部按**本次ServiceDetails样本行数**扣量，不再提交一次ChangeQty |
+| allow_automatic_quantity_loss=true | 数值测量SampleType=2按本次样本行数，或单组计数SampleType=1按明确samples_collected；均只配置DecreaseBySampleSizeReason，由父检验事务内部扣量 |
 
 默认行为继续拒绝全检、自动扣量和自动事件配置。只有用户明确允许对应原生处理时，代理才传true，不能为了绕过前置错误而自行打开。两个选项不能同时为true；若配置同时涉及全检和扣量，本首版拒绝。
 
@@ -36,7 +36,7 @@
 
 标准 `CollectSampling_ChangeQty` 对测量检验使用 `GetListCount(ServiceDetails)` 作为损失量。因此3个样本、每样本2个点时，按3个主单位准备损失投影，不按6个点扣量。失败点数或拒收数不用于本模式的扣量计算；客户端不换算单位，预览展示MES当前主单位。
 
-以下仍拒绝：计数检验自动扣量、按拒收数扣量、按不同拒收原因报废、两种扣量原因并存、扣至零或负数，以及全检与扣量组合。原生不同分支使用SamplesTested、FailedSamples或首行原因子明细，不能统一假定为本次样本增量。
+以下仍拒绝：分组计数检验自动扣量、按拒收数扣量、按不同拒收原因报废、两种扣量原因并存、扣至零或负数，以及全检与扣量组合。原生不同分支使用SamplesTested、FailedSamples或首行原因子明细，不能统一假定为本次样本增量。
 
 父检验实际执行只提交一次CollectSamplingData。逐点数据及移站false保持原接口格式；**不会另发ChangeQty来补扣量**。预览中的ChangeQty调用全部是execute=false，仅核对子服务的类型、原因、目标、数量和默认值。
 
@@ -83,3 +83,14 @@
 新增60项测试（原生检验59项、旧历史兼容1项）。质量相关1133项全部通过。全量2339项中2338项通过，1项非质量模块子进程等待超时；该项未改代码或时限单独复跑通过。2项子测试通过，两轮父pytest离线HTTPX真实网络尝试均为0。完整运行和复跑证据分别保留，不将其写成一次全绿。代码测试覆盖显式开关及互斥、默认保持拒绝、当前全量要求与失败续检、数值测量样本计数、原生子类型及默认值、余额保护、原因适用性、原任务ID、配置/数量变化、单次父检验提交、unknown不补扣量及MCP参数封闭。结果见[测试输出](quality-fixtures/inspection-effects-test-output.txt)、[JUnit](quality-fixtures/inspection-effects-junit.xml)、[网络记录](quality-fixtures/inspection-effects-network.json)、[阶段摘要](quality-fixtures/inspection-effects-summary.json)、[超时用例复跑](quality-fixtures/inspection-effects-retest-output.txt)。
 
 本次未执行MES业务写入、修改业务配置、删除事务记录或重启服务。真实全检转换/续检、自动扣量及生产数量影响、父子历史、签名和实际LLM多轮选工具仍待验收；多成员抽样批报废、批高级检验、其他扣量分支、SPC及复杂审批仍未完成。
+
+
+## 计数按本次样本数扣量（2026-11-04）
+
+本轮复用allow_automatic_quantity_loss选项，接入单组计数样本扣量。明确samples_collected和rejects，存在拒收时仍须明确已配置的拒收原因。只配置DecreaseBySampleSizeReason，主单位、基础容器、原任务/配置复读、原生子服务默认值、正数剩余量及互斥规则沿用现有实现。
+
+标准CollectSampling_ChangeQty在SampleType=1时采用根SamplesTested作为损失量。本轮将明确的本次samples_collected同步到根samplesTested，并要求父预览完整回显该增量和原持久任务ID。原任务CompletedSamples仍独立通过SQL前后复读。样本数3、拒收数1时，投影损失量为3。counted_groups保持受限，单组使用根级计数参数。
+
+计数载荷沿用既有样本明细和拒收原因子明细，实际执行仍为一次CollectSamplingData。unknown保留占用，inspect返回计数扣量模式和原容器/原任务证据，最终父子历史及实际数量影响仍需人工审计。
+
+本轮相关回归354项通过，新增计数扣量专项18项，离线HTTPX真实传输尝试0。现场只读Swagger成功确认samplesTested为可写int32字段。真实计数预览、实际内部扣量、生产数量及最终父子历史尚未验收。原生依据和本轮结果见本地 `counted-loss-native-*.json`、`counted-loss-live-contract.json`、`counted-loss-junit.xml`、`counted-loss-network.json`。

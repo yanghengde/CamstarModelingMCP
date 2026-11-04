@@ -104,7 +104,7 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
         'prepare_capa': '固定类别5，submit=false草稿；提交不是批准或关闭，不代填电子签名。',
         'prepare_capa_closure': '仅CAPA的Close处置关闭计划，必须明确组织、质量解决代码及说明；不覆盖审批或签名，现场真实关闭验收待补。',
         'get_quality_closure_options': '实时处置原码候选；AttachToCAPA/CreateCAPA未开放，候选不代表目标许可。',
-        'prepare_container_inspection': '单容器计数/测量检验计划，默认拒绝全检/扣量；显式allow_full_inspection只允许已有MES规则，allow_automatic_quantity_loss只允许测量按本次样本数由MES内部扣量，不另发ChangeQty。两者互斥，不扣至零、不支持计数/拒收扣量/事件/批抽样；高级模式核对原任务ID、主单位及配置，unknown需父子最终证据人工核实。',
+        'prepare_container_inspection': '单容器计数/测量检验计划，默认拒绝全检/扣量；显式allow_full_inspection只允许已有MES规则，allow_automatic_quantity_loss允许测量或单组计数按本次样本数由MES内部扣量，计数须明确samples_collected并同步根SamplesTested和预览回显，不另发ChangeQty。两者互斥，不扣至零、不支持分组计数/拒收扣量/事件/批抽样；高级模式核对原任务ID、主单位及配置，unknown需父子最终证据人工核实。',
         'get_inspection_test_definition': '固定版本SampleTest和数值点/单位/限值/原因/副作用配置，不混同普通数据采集。',
         'get_container_inspection_history': '历史累计数和MES状态，只作证据，不把累计量当本次增量，不自动解除unknown。',
         'prepare_quality_ncr_closure': 'NCRCloseQuality受限收尾计划：原NCR仍Open、原关联Event已Closed并有关闭时间/关闭人，明确NCR解决代码；不处理事件审批或关闭，不替代普通NCRClose。统一确认单次执行，unknown需最终证据。',
