@@ -259,6 +259,9 @@ async def build(kind,args,marker,execution_binding=None):
     if kind=='event_draft_update':
         from tools.quality_event_drafts import build
         return await build(args,marker,execution_binding=execution_binding)
+    if kind=='event_log_append':
+        from tools.quality_event_logs import build
+        return await build(args,marker,execution_binding=execution_binding)
     if kind=='event_data_update':
         from tools.quality_event_data import build
         return await build(args,marker,execution_binding=execution_binding)
@@ -414,6 +417,9 @@ def transport(snapshot):
             raise ValueError('事件文字更新计划必须使用UpdateEvent。')
         if snapshot.get('kind')=='event_submit' and snapshot.get('service')!='UpdateEvent':raise ValueError('事件正式提交计划必须使用UpdateEvent。')
         if snapshot.get('kind')=='event_draft_update' and snapshot.get('service')!='UpdateEvent':raise ValueError('草稿保存计划必须使用UpdateEvent。')
+        if snapshot.get('kind')=='event_log_append' or snapshot.get('service')=='UpdateEventLogs':
+            from tools.quality_event_logs import validate_transport
+            validate_transport(snapshot)
         if snapshot.get('kind')=='event_data_update' and snapshot.get('service')!='UpdateEventData':raise ValueError('事件扩展资料计划必须使用UpdateEventData。')
         if snapshot.get('service')=='UpdateEventData':
             from tools.quality_event_data import validate_transport
@@ -437,7 +443,7 @@ def transport(snapshot):
         if snapshot.get('kind')=='quantity_loss' and snapshot.get('service')!='ChangeQty':
             raise ValueError('数量损失计划必须使用ChangeQty。')
         if snapshot.get('service') not in ('NCRCreate','NCRUpdate','NCRClose','NCRCloseQuality','NCREscalate','CreateCAPA','UpdateCAPA','CloseQualityObject',
-                'CollectSamplingData','CreateSamplingLot','CollectLotSamplingData','ExecuteSamplingLot','UpdateSamplingLot','CurrentSamplingStatusUpdate','ChangeQty','AddSPCAnnotation','RecordSPCViolation','TriageQualityObject','UpdateEvent','OpenQualityObject','ChangeOwner','CreateEvent','RouteApprovalSheet','CancelApprovalSheet','SignApproval','AssignApprovalSheet','DelegateTask','UpdateEventData'):
+                'CollectSamplingData','CreateSamplingLot','CollectLotSamplingData','ExecuteSamplingLot','UpdateSamplingLot','CurrentSamplingStatusUpdate','ChangeQty','AddSPCAnnotation','RecordSPCViolation','TriageQualityObject','UpdateEvent','OpenQualityObject','ChangeOwner','CreateEvent','RouteApprovalSheet','CancelApprovalSheet','SignApproval','AssignApprovalSheet','DelegateTask','UpdateEventData','UpdateEventLogs'):
             raise ValueError('质量服务不在执行白名单。')
         if snapshot.get('service')=='UpdateEvent':
             if snapshot.get('kind')=='event_submit':
@@ -591,7 +597,7 @@ async def execute_quality_transaction(plan_id:str,plan_digest:str)->str:
             except Exception:
                 return encode({'submitted':None,'state':'unknown','verified_success':False,'retry_allowed':False,
                     'error':'事件正式提交过程异常，无法确认提交阶段；请查询原计划与最终事务，不得自动重试。'})
-        if snapshot['kind'] in ('quality_approval_delegation','event_draft_update','event_data_update') or snapshot['kind']=='quality_approval_decision' and snapshot['preview'].get('signature_actor_policy')=='delegated':
+        if snapshot['kind'] in ('quality_approval_delegation','event_draft_update','event_data_update','event_log_append') or snapshot['kind']=='quality_approval_decision' and snapshot['preview'].get('signature_actor_policy')=='delegated':
             from core.signature_channel import verified_channel
             if not snapshot.get('quality_signature'):
                 try:
@@ -628,7 +634,7 @@ async def _execute_quality_transaction(plan_id,plan_digest,credential=None,signa
             snap=checked(row,plan_digest)
             if row[2]!='ready' or time.time()-row[3]>3600:raise ValueError('质量计划已使用或过期。')
             marker=snap.get('marker') or snap['body'].get('comments')
-            role_approval=(snap['kind'] in ('quality_approval_delegation','event_draft_update','event_data_update') or snap['kind']=='quality_approval_decision' and snap['preview'].get('signature_actor_policy') in ('role','delegated'))
+            role_approval=(snap['kind'] in ('quality_approval_delegation','event_draft_update','event_data_update','event_log_append') or snap['kind']=='quality_approval_decision' and snap['preview'].get('signature_actor_policy') in ('role','delegated'))
             signed_approval=bool(snap.get('quality_signature'))
             protected_approval=role_approval or signed_approval
             if signed_approval!=(credential is not None):raise ValueError('质量签名输入与计划要求不符，未提交。')
@@ -701,6 +707,9 @@ async def inspect_quality_transaction(plan_id:str,plan_digest:str)->str:
             if row[2] not in ('unknown','in_flight'):raise ValueError('仅检查已尝试/未知质量计划。')
             if snap['kind']=='event_submit':
                 from tools.quality_event_submission import inspect
+                return encode(await inspect(snap))
+            if snap['kind']=='event_log_append':
+                from tools.quality_event_logs import inspect
                 return encode(await inspect(snap))
             if snap['kind']=='event_data_update':
                 from tools.quality_event_data import inspect

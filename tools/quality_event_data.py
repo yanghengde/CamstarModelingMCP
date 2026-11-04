@@ -74,7 +74,7 @@ def changes(args):
     return values
 
 
-async def disallowed(event_id):
+async def disallowed(event_id,service_type=SERVICE_TYPE):
     rows=await q.sql_rows('SELECT TOP 101 EventId,FieldId,Sequence,DisallowedTxns '+
         f"FROM EventDisallowedTxns WHERE EventId='{iid(event_id)}' ORDER BY Sequence",101)
     if len(rows)>100:raise ValueError('事件禁用事务清单超过100条，不使用部分清单。')
@@ -85,11 +85,11 @@ async def disallowed(event_id):
         if item['EventId']!=event_id or item['FieldId']!=25978 or item['Sequence']<0 or item['DisallowedTxns']<1:raise ValueError('禁用事务清单归属/字段或数值不符。')
         clean.append(item)
     if len({r['Sequence'] for r in clean})!=len(clean) or len({r['DisallowedTxns'] for r in clean})!=len(clean):raise ValueError('禁用事务清单重复，不清理配置后执行。')
-    if SERVICE_TYPE in [r['DisallowedTxns'] for r in clean]:raise ValueError('原事件明确禁止UpdateEventData，不移除禁用配置。')
+    if service_type in [r['DisallowedTxns'] for r in clean]:raise ValueError('原事件明确禁止目标维护事务，不移除禁用配置。')
     return sorted(clean,key=lambda r:r['Sequence'])
 
 
-async def source(args,expected_data_id=None):
+async def source(args,expected_data_id=None,*,log_append=False):
     q.text(args['event_name']);q.text(args['organization_name']);await schema_check(SCHEMA)
     row=await u.event_record(args['event_name'],args.get('event_instance_id'))
     if expected_data_id is not None and (not row or row['EventDataId']!=iid(expected_data_id)):
@@ -114,9 +114,11 @@ async def source(args,expected_data_id=None):
     if data['ChangeCount']<0 or any(data[k] not in (None,'') for k in COMPLEX_REFS) or data['NonconformanceNumber'] not in (None,''):
         raise DataScopeError('事件数据含客户/自定义数据/NCR评论或编号，受限入口不覆盖。')
     for table,cols in BLOCK_LISTS.items():
+        if log_append and table=='EventLog':continue
         pk,fk=cols.split(',')
         if await q.sql_rows(f"SELECT TOP 1 {pk} FROM {table} WHERE {fk}='{data_id}'",1):raise ValueError('事件数据含批次、失败、日志、动作或设备明细，不以空清单覆盖。')
-    org=await t.asset('organization',name=args['organization_name'],key=row['OrganizationId'],signature_txn_type=SERVICE_TYPE)
+    service_type=8761 if log_append else SERVICE_TYPE
+    org=await t.asset('organization',name=args['organization_name'],key=row['OrganizationId'],signature_txn_type=service_type)
     refs={k:await t.asset(k,key=iid(row[col])) for k,col in [('owner','OwnerId'),('role','RoleId'),('priority','PriorityLevelId')]}
     classes=await q.sql_rows('SELECT TOP 1 EventId,ChangeCount,ClassificationId,SubClassificationId '+f"FROM Event WHERE EventId='{row['EventId']}'",1)
     if len(classes)!=1 or iid(classes[0].get('EventId'))!=row['EventId'] or u.i.wire_int(classes[0].get('ChangeCount'),'原分类版本')!=row['ChangeCount']:
@@ -124,7 +126,7 @@ async def source(args,expected_data_id=None):
     ids={k:None if classes[0].get(k) in (None,'') else iid(classes[0][k]) for k in c.KINDS}
     if not set(c.KINDS)<=classes[0].keys():raise ValueError('原分类保持值字段缺失。')
     return dict(event=row,data=data,organization=org,**refs,classifications=ids,classification_configuration=await c.configuration(org,ids),
-        disallowed=await disallowed(row['EventId']),linked_ncrs=[])
+        disallowed=await disallowed(row['EventId'],service_type),linked_ncrs=[])
 
 
 async def contract():
@@ -161,7 +163,7 @@ def root_body(before,marker,comments=''):
     return dict(qualityObject=dict(name=before['event']['EventName'],instanceId=before['event']['EventId']),organization=t.ref(before['organization']),comments=marker+(' '+comments if comments else ''))
 
 
-def verify_context(data,before,body):
+def verify_context(data,before,body,*,check_regulatory=True):
     if not p.wire_matches(body,data):raise ValueError('原事件/组织/标记未完整回显。')
     mask=u.i.wire_int(data.get('AvailableActions'),'Edit动作')
     if mask<0 or mask&2!=2 or u.i.wire_bool(data.get('IgnoreProcessModel'),'流程标志') is not False:raise ValueError('原生Edit权限或流程保持值不符。')
@@ -169,7 +171,7 @@ def verify_context(data,before,body):
         if key not in data or data[key] is not None:raise ValueError('签名或数据采集要求非空/未知，不覆盖。')
     for key in ('AdditionalESigReqs','ESigDetails'):
         if key not in data or data[key] not in (None,[]):raise ValueError('签名明细非空或未知。')
-    if data.get('RegulatoryReportDetails')!=[]:raise ValueError('法规报告非空或未知。')
+    if check_regulatory and data.get('RegulatoryReportDetails')!=[]:raise ValueError('法规报告非空或未知。')
     actor=iid(q.identifier(data.get('Employee')))
     if actor!=before['owner']['InstanceID']:raise ValueError('当前员工不等于原责任人，不允许身份覆盖。')
     actual=data.get('QualityObjectDetail');row=before['event']

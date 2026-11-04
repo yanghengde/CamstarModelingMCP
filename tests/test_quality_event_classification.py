@@ -217,4 +217,4 @@ def test_capabilities_and_inventory_disclose_native_write_dependency_without_new
     capability=result(get_capabilities(tool_name='get_quality_event_update_context'))
     assert 'classify_pending_draft' in json.dumps(capability) and '分类修改尚无已核实原生写入' in json.dumps(capability,ensure_ascii=False)
     assert '标准UpdateEvent这两字段只读' in json.dumps(result(c.q.get_quality_api_inventory()),ensure_ascii=False)
-    assert len([x for x in TOOL_POLICIES.values() if x.group=='quality'])==77
+    assert len([x for x in TOOL_POLICIES.values() if x.group=='quality'])==79
