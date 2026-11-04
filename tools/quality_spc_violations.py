@@ -206,8 +206,8 @@ def wire_matches(expected, actual, field=''):
 
 async def preview(body):
     params={'execute':'false','$select':'Comments,ServiceDetails,ESigRequirement,AdditionalESigReqs',
-            '$expand':'ServiceDetails($select=CDOTypeId,SPCChartDef,SPCChartDefName,EMailMessage,Recipients,Message,FileName,FileDirectory;'
-                      '$expand=Violations($select=CDOTypeId,DataPoint,DataPointName,Container,ChartVariable,CollectedDataValue,DerivedChartDataValue,'
+            '$expand':'ServiceDetails($select=SPCChartDef,SPCChartDefName,EMailMessage,Recipients,Message,FileName,FileDirectory;'
+                      '$expand=Violations($select=DataPoint,DataPointName,Container,ChartVariable,CollectedDataValue,DerivedChartDataValue,'
                       'FailureAction,RuleViolated,ViolationName,HoldReason,Resource,ResourceStatusCode,CL,LCL,UCL))'}
     raw=await request('POST','/api/RecordSPCViolation',base_url=CAMSTAR_SHOPFLOOR_BASE_URL,body=body,params=params,response_formatter=raw_json)
     try: outer=json.loads(raw)
@@ -223,8 +223,12 @@ async def preview(body):
     for field in ('HoldReason','Resource','ResourceStatusCode'):
         if field not in child or child[field] is not None:
             raise ValueError('SPC违例预览派生了冻结/资源动作或默认未知，不能提交。')
-    if i.wire_int(detail.get('CDOTypeId'),'违例图明细类型')!=8400 or i.wire_int(child.get('CDOTypeId'),'违例点明细类型')!=8401:
-        raise ValueError('SPC违例嵌套明细不是原生8400/8401类型。')
+    # The live EDM declares the two nested collection types, but does not
+    # expose CDOTypeId on either type. Reject conflicting optional type echoes.
+    for item, type_name, cdo_id in ((detail,'RecordSPCViolationDetail',8400), (child,'SPCViolationDetail',8401)):
+        if (item.get('@odata.type') not in (None, '#shopfloor.'+type_name)
+                or ('CDOTypeId' in item and i.wire_int(item['CDOTypeId'], '违例明细类型') != cdo_id)):
+            raise ValueError('SPC违例明细类型与原生契约不符。')
     if ('ESigRequirement' not in data or data['ESigRequirement'] is not None or 'AdditionalESigReqs' not in data
             or data['AdditionalESigReqs'] not in (None,[])):
         raise ValueError('SPC违例签名要求非空或未知，受限登记不覆盖电子签名。')
@@ -271,7 +275,22 @@ async def inspect_snapshot(snap):
     args=dict(snap['arguments']);args.update(data_point_history_id=snap['target_id'],
         container_instance_id=snap['before']['source']['ContainerId'],spc_chart_instance_id=snap['before']['configuration']['chart']['InstanceID'])
     current=await context(args,original=snap['before']['source'],original_rules=snap['before']['rules'])
+    detail = snap['body']['serviceDetails'][0]
+    violation = detail['violations'][0]
+    expected = {'DataPointId': snap['target_id'], 'ContainerId': violation['container']['instanceId'],
+                'SPCChartDefId': detail['spcChartDef']['instanceId'], 'SPCChartDefName': detail['spcChartDefName']}
+    expected.update({field[0].upper()+field[1:]: violation[field] for field in
+                    ('chartVariable','collectedDataValue','derivedChartDataValue','failureAction','ruleViolated','violationName')})
+
+    def matches(row):
+        return (all(row[field] == value for field,value in expected.items())
+                and all(wire_matches(violation[field], row[FIELD_CASE[field]], field) for field in ('cl','lcl','ucl'))
+                and all(row[field] in ('',None) for field in ('HoldReasonId','ResourceId','ResourceStatusCodeId','CustomSPCDataId')))
+
+    candidate = a.history_candidates(snap['before']['violation_history'], current['violation_history'],
+        'SPCChartViolationsHistDtlsId', snap['body']['comments'], matches)
     return {'original_point_id':snap['target_id'],'current_context':current,'verified_success':False,'state_changed':False,
+            'history_correlation':candidate,
             'retry_allowed':False,'request_correlation_verified':False,
             'note':'仅原点/原图的当前违例证据；相同文本/数值/HTTP200不证明本次提交成功，不解锁或重试，最终证据人工review。'}
 

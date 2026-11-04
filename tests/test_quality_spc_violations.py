@@ -264,6 +264,31 @@ def test_inspect_never_follows_replacement_rule(env):
     assert result(p.get_quality_transaction_plan(ready['plan_id']))['state']=='unknown'
 
 
+def test_live_edm_accepts_typed_navigation_without_unpublished_cdo_id(env):
+    def live_echo(data):
+        detail = data['ServiceDetails'][0]
+        detail.pop('CDOTypeId')
+        detail['Violations'][0].pop('CDOTypeId')
+    env['violation_hook'] = live_echo
+    ready = prepare()
+    assert ready.get('state') == 'ready', ready
+    assert 'CDOTypeId' not in ready['server_context']['params']['$expand']
+
+
+@pytest.mark.parametrize('matches', [True, False])
+def test_inspect_matches_exact_marker_and_lossless_limits(env, matches):
+    ready = prepare()
+    assert execute(ready)['state'] == 'unknown'
+    comment = ready['request_preview']['body']['comments']
+    env['violation_history'] = [history() | {'Comments': comment, 'UCL': '10.000' if matches else '9'}]
+    out = result(p.inspect_quality_transaction(ready['plan_id'], ready['plan_digest']))
+    evidence = out['history_correlation']
+    assert evidence['exact_comment_match_count'] == 1
+    assert evidence['state'] == ('candidate_observed' if matches else 'ambiguous_or_mismatched')
+    assert not out['request_correlation_verified'] and not out['verified_success']
+    assert result(p.get_quality_transaction_plan(ready['plan_id']))['state'] == 'unknown'
+
+
 @pytest.mark.parametrize('mode',['timeout','cancel','http400'])
 def test_failed_or_cancelled_attempts_stay_unknown_without_replay(env,mode):
     ready=prepare()

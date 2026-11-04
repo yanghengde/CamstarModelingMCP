@@ -306,6 +306,18 @@ def test_inspect_pins_original_chart_even_when_caller_supplied_only_name(env,mon
     assert calls==[CHART]
 
 
+def test_exact_new_annotation_is_only_a_history_candidate(env):
+    ready = prepare()
+    assert execute(ready)['state'] == 'unknown'
+    body = ready['request_preview']['body']
+    env['histories'] = [history() | {'Comments': body['comments'], 'Annotation': body['annotation']}]
+    proof = result(p.inspect_quality_transaction(ready['plan_id'], ready['plan_digest']))
+    assert proof['history_correlation']['state'] == 'candidate_observed'
+    assert proof['history_correlation']['candidates'][0]['AddSPCAnnotationHistoryId'] == HIST
+    assert not proof['request_correlation_verified'] and not proof['state_changed']
+    env['client'].request.assert_awaited_once()
+
+
 def test_inspect_does_not_follow_changed_parent_definition(env,monkeypatch):
     ready=prepare();execute(ready)
     env['source']['DataCollectionDefId']=HM;env['source']['ParentDefinitionId']=HM

@@ -58,7 +58,7 @@
 | CAPA | CreateCAPA、UpdateCAPA、CloseQualityObject | 固定类别5的创建/更新和Close处置关闭计划；草稿、提交与关闭申请分别处理，仍由MES校验审批/签名 |
 | 质量对象/事件 | QualityObjectInquiry、QualityObjectHistoryInquiry、OpenQualityObject、CloseQualityObject、TriageQualityObject | 有界列表、对象详情与历史；通用开启/关闭/分派仍待验证 |
 | 检验/抽样 | SamplingPlans、SampleTests、SampleDataPoints、InspectionLevels；CollectSamplingData、CollectLotSamplingData、CreateSamplingLot、ExecuteSamplingLot、UpdateSamplingLot | 定义维护、产品关联、单容器及批计数/测量计划、建批、批历史及MES已完成通过批的OK执行计划；新增单路径受限整批返工计划；单容器显式原生全检规则及测量按样本数自动扣量已扩展；整批报废及其它高级组合未开放 |
-| SPC | SPCControls、SPCChartDefs、RecordSPCViolation、InlineSPCTxn等 | 控制/控制图定义查询，以及本地i_mr/xbar_r计算、显式WECO四规则；非MES引擎结果；另有[原始历史点受限注释计划](quality-spc-annotations.md)，实际写入待验收，另有[明确报告的单点越限违例登记](quality-spc-violations.md)，非引擎认证结果，实际写入待验收；自动判定/放行未开放 |
+| SPC | SPCControls、SPCChartDefs、RecordSPCViolation、InlineSPCTxn 等 | [MES 原始历史判异与前置检查](quality-spc-history.md)，本地 i_mr/xbar_r 和 WECO 四规则。提供[受限注释](quality-spc-annotations.md)与[明确报告的越限登记](quality-spc-violations.md)。原生判异与自动处置待现场配置和契约。 |
 | 不良/返工/冻结 | ContainerDefect、Rework、Hold、Release | 保留已有工具名，归入quality并确认后执行；不是新版NCR/CAPA journal流程 |
 | 报废 | PartScrap、ScrapReasons | 已新增基础Container的受限LossDetails数量损失准备与只读抽样批报废阻塞检查；PartScrap不能代替Container报废，未开放多成员抽样批报废 |
 
@@ -103,6 +103,8 @@
 | get_spc_annotation_context | 原始直接数值采集历史点、父历史/事务链、固定定义/SPC组及所有图的有界有效注释历史 |
 | prepare_spc_annotation | 原生AddSPCAnnotation受限计划，Exclude=false，有效排除/签名未知则拒绝，确认单次执行；[范围说明](quality-spc-annotations.md) |
 | analyze_spc_series | [SPC本地计算/判异](quality-spc-analysis.md)，独立基线或有版本固定控制配置，保留原ID/输入摘要，不读写MES、不放行 |
+| analyze_spc_history | [MES 原始历史判异](quality-spc-history.md)，核对持久 ID、时间区间与排除状态，输出本地信号及原始历史摘要 |
+| get_spc_native_readiness | [现场前置检查](quality-spc-history.md)，分别展示图、图类型、规则、查询与原始历史是否存在 |
 | list_quality_references | 固定白名单的失败/原因/解决代码、组织分类、优先级、处置、抽检/自动冻结/SPC配置，limit≤100 |
 | get_quality_reference_details | 配置详情；抽检计划/测试必须固定版本、ID或显式ROR；展开受控明细 |
 | list_nonconformance_reports | 有界NCR列表，支持经身份核对的容器、原始状态筛选；多取一行判断后页 |

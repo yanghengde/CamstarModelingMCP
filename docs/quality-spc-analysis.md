@@ -1,5 +1,7 @@
 # SPC本地计算与判异首版
 
+C6 已增加直接读取 MES 原始历史的分析入口和原生部署前置查询。详见[MES 历史 SPC 判异](quality-spc-history.md)。
+
 2026-10-29。新增 `analyze_spc_series`，该阶段quality分组为51个工具；后续新增[原始历史点受限注释](quality-spc-annotations.md)，SPC扩展阶段55个工具；当前68个工具，另有[事件文字资料维护](quality-event-update.md)，新增[基础Event首次分流](quality-event-triage.md)。另有[明确报告的单点SPC违例登记](quality-spc-violations.md)。已接入MCP、Agent分发、能力目录、分组加载和自然语言路由。
 
 这是高级功能第四阶段的计算部分：结果来自调用方明确提供的数据及配置，不是Camstar现场SPC引擎的返回值。本地分析工具不执行违例/注释写入、自动冻结、资源状态变更、通知或质量放行；独立的受限注释计划见上述后续文档。代码交付和离线测试不代表MES业务验收。

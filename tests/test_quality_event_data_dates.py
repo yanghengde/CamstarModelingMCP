@@ -287,7 +287,7 @@ def test_mcp_and_agent_direct_json_support_dates_without_new_tools_or_identity_f
             reply=await client.call_tool('prepare_quality_event_data_update',dict(event_name='E',organization_name='Org',changes=dict(date_received='2026-11-01T12:00:00+08:00'),comments='Reviewed MCP date'))
             ready=json.loads(reply.content[0].text);assert ready.get('state')=='ready',ready
             assert tools['get_quality_event_data_context'].input_schema['properties']['include_date_storage']['default'] is False
-    asyncio.run(check());assert len([p for p in TOOL_POLICIES.values() if p.group=='quality'])==80 and not env['data_posts']
+    asyncio.run(check());assert len([p for p in TOOL_POLICIES.values() if p.group=='quality'])==82 and not env['data_posts']
 
 
 @pytest.mark.parametrize('turns,writes',[

@@ -248,8 +248,8 @@
       ],
       "status": "partial",
       "priority": "P1",
-      "current": "已有SPC配置查询、本地计算、受限注释和明确报告的单点越限登记。",
-      "missing": "不认证现场引擎；区内运行、派生值、批量判定、排除/恢复及自动冻结/放行未开放。",
+      "current": "已有SPC配置查询、部署前置诊断、原始历史窗口核对和本地计算。受限注释及明确报告的单点越限登记支持提交后历史候选。",
+      "missing": "现场图、规则、查询及采集历史为空。外部引擎、控制限、编译规则及自动处置缺少可验证契约和非空验收，更多图型与派生值待开发。",
       "contracts": [
         "Shopfloor/InlineSPCTxn",
         "Shopfloor/SPCTxn",
@@ -260,10 +260,11 @@
       ],
       "code": [
         "tools/quality_spc.py",
+        "tools/quality_spc_history.py",
         "tools/quality_spc_violations.py",
         "tools/quality_spc_annotations.py"
       ],
-      "next_step": "先核实原始历史、引擎规则与通知/处置配置。"
+      "next_step": "在隔离配置及非空数据上核对实际控制限、编译规则、引擎结果与通知或处置副作用。"
     },
     {
       "id": "G13",

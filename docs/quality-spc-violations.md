@@ -1,5 +1,7 @@
 # SPC明确报告结果登记：受限首版
 
+C6 按现场 EDM 修正了违例预览查询，并增加精确标记与请求内容匹配的历史候选。匹配候选用于人工审计。详见[C6 现场与写入证据](quality-spc-history.md#现场与写入证据)。
+
 2026-10-29。新增 `get_spc_violation_context`、`prepare_spc_violation`，该阶段quality分组55个工具；后续新增[基础Event首次分流](quality-event-triage.md)，当前68个工具。在原始历史点注释之外，提供原生 `RecordSPCViolation` 的单点结果登记计划。
 
 **这是登记调用方明确报告的结果，不是工具计算或认证现场SPC引擎。** 报告的控制限、绘图值及来源真实性未被自动核实；本地WECO信号不能被模型自动填成现场引擎结论。准备工具只保存本地计划；实际提交复用系统确认后的 `execute_quality_transaction` 单次执行。现场元数据读取未成功，本轮没有MES业务写入或服务重启，真实非空数据、预览、提交和历史效果待验收。

@@ -244,12 +244,38 @@ def validate_transport(snap):
         raise ValueError('SPC注释文本无效。')
 
 
+def history_candidates(before, current, identity_field, comments, matches):
+    """Keep evidence advisory even when the exact marker and payload agree."""
+    baseline_ids = {row[identity_field] for row in before}
+    marked = [row for row in current if row['Comments'] == comments]
+    candidates = []
+    for row in marked:
+        if row[identity_field] not in baseline_ids and matches(row):
+            candidates.append({identity_field: row[identity_field], 'HistoryMainlineId': row['HistoryMainlineId'],
+                               'TxnId': row['TxnId'], 'TxnDateGMT': row['TxnDateGMT']})
+    if not marked:
+        state = 'not_observed'
+    elif len(marked) == len(candidates) == 1:
+        state = 'candidate_observed'
+    else:
+        state = 'ambiguous_or_mismatched'
+    return {'state': state, 'exact_comment_match_count': len(marked), 'candidates': candidates}
+
+
 async def inspect_snapshot(snap):
     args = dict(snap['arguments'])
     args.update(data_point_history_id=snap['target_id'],container_instance_id=snap['before']['source']['ContainerId'],
                 spc_chart_instance_id=snap['before']['configuration']['chart']['InstanceID'])
     current = await context(args, original=snap['before']['source'])
+    source, body = snap['before']['source'], snap['body']
+    candidate = history_candidates(snap['before']['annotation_history'], current['annotation_history'],
+        'AddSPCAnnotationHistoryId', body['comments'],
+        lambda row: row['DataPointId'] == source['DataPointHistoryDetailId']
+        and row['DataCollectionDefId'] == source['DataCollectionDefId']
+        and row['SPCChartDefId'] == body['spcChartDef']['instanceId']
+        and row['Annotation'] == body['annotation'] and row['Exclude'] is False)
     return {'original_point_id':snap['target_id'],'current_context':current,'original_context_unchanged':current==snap['before'],
+            'history_correlation':candidate,
             'verified_success':False,'state_changed':False,'retry_allowed':False,'request_correlation_verified':False,
             'note':'当前注释/相同文本/HTTP200不证明来自本次提交；不跟随替代点、不解锁、不重试。需最终事务证据人工review。'}
 
