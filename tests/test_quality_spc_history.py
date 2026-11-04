@@ -56,6 +56,8 @@ def env(monkeypatch):
                     for table, fields in history.SCHEMA.items() for field in fields.split(',')]
         if 'SELECT TOP 1 DataPointHistoryDetailId FROM DataPointHistoryDetail' in query:
             return [{'DataPointHistoryDetailId': POINTS[0]}] if state['points'] else []
+        if query == 'SELECT TOP 1 SPCConnectionId FROM A_SPCConnection':
+            return []
         if 'FROM AddSPCAnnotationHistory' in query:
             return copy.deepcopy(state['annotations'])
         if 'WHERE d.DataPointHistoryDetailId IN (' in query:
@@ -155,7 +157,7 @@ def test_readiness_keeps_empty_and_unknown_separate(env):
     out = json.loads(asyncio.run(history.get_spc_native_readiness()))
     assert out['checks']['SPCChartDefs']['state'] == 'present'
     assert out['checks']['DataPointHistoryDetail']['state'] == 'present'
-    assert set(out['empty']) == {'SPCChartTypes', 'SPCQueries'}
+    assert set(out['empty']) == {'SPCChartTypes', 'SPCQueries', 'SPCConnection'}
     assert out['unavailable'] == ['SPCRules'] and not out['complete']
     assert not out['ready_for_native_execution'] and not out['native_engine_result_verified']
 

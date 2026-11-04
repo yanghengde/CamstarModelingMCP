@@ -7,6 +7,7 @@ from typing import Annotated
 from pydantic import Field, StrictStr
 
 from tools import mcp, quality as q, quality_spc as spc, quality_spc_annotations as annotations
+from tools.quality_spc_config import chart_readiness
 from tools import quality_inspection as inspection
 from tools.collection_submission import digest
 from tools.process_context import ReadContext
@@ -240,25 +241,40 @@ async def model_presence(entity):
         return {'state': 'unavailable'}
 
 
+async def persisted_presence(table, identity):
+    try:
+        rows = await q.sql_rows(f'SELECT TOP 1 {identity} FROM {table}', 1)
+        if rows:
+            annotations.iid(rows[0][identity])
+        return {'state': 'present' if rows else 'empty'}
+    except (ValueError, TypeError, KeyError, AttributeError):
+        return {'state': 'unavailable'}
+
+
 @mcp.tool
-async def get_spc_native_readiness() -> str:
-    """只读检查当前部署可见SPC图、图类型、规则、查询和持久采集点是否存在。
+async def get_spc_native_readiness(spc_chart_name: str | None = None, spc_chart_instance_id: str | None = None) -> str:
+    """只读检查当前部署可见SPC图、图类型、规则、查询、连接和持久采集点是否存在。
 
     未知与空表分开。无需连接外部SPC引擎，不读取连接凭据，不执行SPCTxn或InlineSPCTxn。
+    提供明确图名称或持久ID时，另核对该图的图类型、查询、规则、连接、参数清单及副作用配置。
     图配置存在也不构成控制限、编译规则、引擎结果或自动处置授权。
     """
     entities = ('SPCChartDefs', 'SPCChartTypes', 'SPCRules', 'SPCQueries')
     models = dict(zip(entities, await asyncio.gather(*(model_presence(entity) for entity in entities))))
-    try:
-        rows = await q.sql_rows('SELECT TOP 1 DataPointHistoryDetailId FROM DataPointHistoryDetail', 1)
-        if rows:
-            annotations.iid(rows[0]['DataPointHistoryDetailId'])
-        sources = {'state': 'present' if rows else 'empty'}
-    except (ValueError, TypeError, KeyError, AttributeError):
-        sources = {'state': 'unavailable'}
-    checks = models | {'DataPointHistoryDetail': sources}
-    return q.encode({'checks': checks, 'complete': all(item['state'] != 'unavailable' for item in checks.values()),
+    checks = models | {
+        'DataPointHistoryDetail': await persisted_presence('DataPointHistoryDetail', 'DataPointHistoryDetailId'),
+        'SPCConnection': await persisted_presence('A_SPCConnection', 'SPCConnectionId'),
+    }
+    result = {'checks': checks, 'complete': all(item['state'] != 'unavailable' for item in checks.values()),
         'empty': [key for key,item in checks.items() if item['state'] == 'empty'],
         'unavailable': [key for key,item in checks.items() if item['state'] == 'unavailable'],
         'compiled_rules_verified': False, 'native_control_limits_verified': False,
-        'native_engine_result_verified': False, 'ready_for_native_execution': False, 'release_authorized': False})
+        'native_engine_result_verified': False, 'ready_for_native_execution': False, 'release_authorized': False}
+    if spc_chart_name is not None or spc_chart_instance_id is not None:
+        try:
+            result['chart_configuration'] = await chart_readiness(spc_chart_name, spc_chart_instance_id)
+        except (ValueError, TypeError, KeyError, AttributeError):
+            result['chart_configuration'] = {'state': 'unavailable', 'complete': False,
+                                              'blockers': ['chart_identity_or_configuration_unverified']}
+        result['complete'] &= result['chart_configuration']['complete']
+    return q.encode(result)
