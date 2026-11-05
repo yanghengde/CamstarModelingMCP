@@ -8,13 +8,13 @@
 | --- | --- | --- |
 | `get_inspection_result_history` | `summary_history_id` | 展开一个检验汇总历史的候选样本/检验点关联，返回原值、限值、通过/拒收、历史身份和冲销状态 |
 | `find_quality_execution_candidates` | `plan_id`, `plan_digest` | 查找已尝试、仍为 unknown/in_flight 的检验、批采样或整批 OK 执行候选；可用 offset/limit 分页 |
-| `reconcile_quality_execution` | `plan_id`, `plan_digest`, `candidate_txn_id` | 核对明确候选事务、原请求与完整有界历史；返回字段匹配、差异或未完成情况，供人工审查 |
+| `reconcile_quality_execution` | `plan_id`, `plan_digest` | 核对原请求与有界历史。带系统标记的检验可自动定位，旧计划须传 `candidate_txn_id`。 |
 
 ## 调用顺序
 
 已有容器名称时，先 `get_container_inspection_history(container_name=...)`；已有抽样批时，先 `get_sampling_lot_history(lot_name=...)`。从返回行取得 `CollectSamplingDataHistoryId`，作为 `summary_history_id` 调用明细工具。不能把 `TxnId`、`HistoryId` 或 `HistoryMainlineId` 当作汇总历史 ID。
 
-执行结果未知时，从原计划取得 `plan_id` 和 `plan_digest`，先查候选，再用候选实际返回的 `TxnId` 调用核对工具。多个候选不能默选为成功；候选分页没有唯一性含义。同一事务含多个符合条件的汇总也会返回 `ambiguous`，不会拼成一次请求。
+执行结果未知时，用原 `plan_id` 和 `plan_digest` 调用核对工具。也可先查候选，再明确传入候选的 `TxnId`。候选分页没有唯一性含义，同一事务内多个符合条件的汇总返回 `ambiguous`。
 
 ```json
 {"tool":"find_quality_execution_candidates","arguments":{"plan_id":"原计划ID","plan_digest":"原计划摘要","offset":0,"limit":20}}
@@ -30,17 +30,17 @@
 
 现场 EDM 明确 `HistoryId` 为参与同一事务的容器共享标识，不能当作逐层父键。历史子实体虽然出现在 Query EDM，但探测的集合 GET 返回 405、按 ID GET 返回 404，不能据此生成可用读取工具。
 
-当前改用部署表结构对应的固定 SQL：样本的 `HistoryDetailsId` 候选关联汇总主键，点的 `HistoryDetailsId` 候选关联样本主键；每层同时约束 `TxnId` 和共享 `HistoryId`。字段、表名和排序固定，输入仅接受严格 ID 或转义后的原评论。现场 5 条新查询均已返回 HTTP 200，但没有非空检验历史可验收这组父键映射，所以始终返回 `ownership_linkage_verified=false`，分组只作候选证据。
+样本的 `HistoryDetailsId` 关联汇总主键，点的 `HistoryDetailsId` 关联样本主键。每层同时约束 `TxnId` 和共享 `HistoryId`。字段、表名和排序固定，输入仅接受严格 ID 或转义后的原评论。C4 的非空批计数历史已验证这组父键，通用明细工具保留候选标志，其他检验类型仍需现场复核。
 
 最多展开 50 个样本、100 个点。查询额外读取一条检测超界，重复、跨父级或跨事务记录、超界和读取期间变化都失败；没有样本明细时返回 incomplete，不能把空记录说成完整。结果超过统一输出上限也返回错误。重复读取不等于数据库事务快照，不能排除并发更改后恢复的情况。
 
 测量检验比较测试/点 ID、数据类型、字面数值、上下限、通过/拒收及拒收数。数字使用 Decimal 比较，不求值表达式。历史缺少已核实的样本序号，按无序样本多重集合核对，保留重复样本的数量，不能按历史 ID 排序伪造“第几个样本”。
 
-计数历史没有已核实的本次采样增量字段；累计数不能当作增量，`EnteredQty` 与拒收原因归属仍待核实。因此可比较字段一致时也只返回 `partial_match`。整批执行历史尚没有已核实的目标抽样批键，不能把通用 `BatchId` 或历史名称当成该批的最终因果证据。
+计数批采样用历史 `SamplesTested` 核对原请求根级总数，并比较抽样计划、要求数、每组拒收数量和该组点明细的拒收原因。旧请求缺根级数量时仍可核对拒收字段。逐组采样数量、具体任务累计效果及单容器计数的历史语义仍待独立取证，因此批计数匹配返回 `partial_match`。
 
 主历史冲销状态使用 EDM 明确映射：1 Active，2 Deleted（原事务已被冲销），3 Reversal（补偿事务）。只有 Active 且事务类型符合原服务才可报告可比较字段匹配。`payload_match` 仅表示已比较的测量字段相同，仍有父键、样本顺序、原请求选项和最终事务效果等未核实项。
 
-所有结果固定 `verified_success=false`、`request_correlation_verified=false`、`state_changed=false`、`retry_allowed=false`。不保存成功结论，不改 journal 或占用，不重放原请求；人工最终证据仍通过原有 `review_quality_transaction` 确认流程处理。
+检验核对可用 `request_correlation_verified=true` 表示可见历史与原尝试已关联。结果保留 `verified_success=false`、`state_changed=false` 和 `retry_allowed=false`，最终效果通过 `review_quality_transaction` 人工审计。
 
 ## 多轮问法验收
 
@@ -51,7 +51,7 @@
 | “两份相同样本是否都记上了” | 核对完整样本多重集合 | 一个相同样本不能代替两个，历史重复行不能合并后算匹配 |
 | “已冲销的这条算成功吗” | 查冲销状态后核对 | Deleted/Reversal 不得报告 payload_match |
 | “累计采样 500，说明这次采了 5 吗” | 核对计数记录及未核实项 | 不用累计数证明本次增量，最多 partial_match |
-| “整批历史有同名记录，可以自动解锁吗” | 候选查找 → 核对整批历史 | 目标批关联未核实，最多 partial_match；保持占用 |
+| “整批 OK 历史有同名记录，可以解锁吗” | 核对原标记和持久批 ID | 父批结果匹配时仍保留待审占用，需核实成员最终效果 |
 
 ## 证据
 
@@ -61,4 +61,4 @@
 - `quality-fixtures/quality-history-read-validation.json`：现场 5 条固定查询的只读结果。
 - `quality-fixtures/quality-history-summary.json`：本轮回归、网络隔离及尚未验收事项。
 
-后续新增[受限批返工入口](quality-lot-rework.md)，但本历史候选/核对工具仍不支持lot_rework，不能用OK历史核对替代。ExecuteSamplingLot的ScrapReason标注当前版本未实现，批报废仍未开放。未执行 MES 业务写入。
+整批返工、报废、OK 和单容器损失的历史核对见[C7 质量事务归因与审计](quality-disposition-history.md)。

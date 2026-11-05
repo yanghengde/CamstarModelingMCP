@@ -40,9 +40,8 @@ def reference(value):
 
 
 async def sampling_details(header):
-    # Parent-column mapping follows the deployed inherited HistoryDetails schema.
-    # Empty-site reads verify query shape only; this mapping is explicitly
-    # provisional until accepted against a nonempty inspection transaction.
+    # C4 batch count histories confirm the inherited parent columns.
+    # Other inspection paths still need nonempty onsite evidence.
     summary_id = iid(header['SummaryId'], '汇总历史ID')
     join = (' FROM CollectSamplingHistoryDetails d INNER JOIN CollectSamplingDataHistory s '
             'ON d.HistoryDetailsId=s.CollectSamplingDataHistoryId AND d.TxnId=s.TxnId AND d.HistoryId=s.HistoryId ')
@@ -76,7 +75,7 @@ def header_sql(kind):
     else:
         table = 'CollectSamplingDataHistory'
         fields = ('s.CollectSamplingDataHistoryId AS SummaryId,s.SamplingLotId,s.SampleTestId,'
-                  's.TotalSamplesCompleted,s.TotalRejects,s.TotalPassedSamples')
+                  's.SamplingPlanId,s.RequiredSamples,s.SamplesTested,s.TotalSamplesCompleted,s.TotalRejects,s.TotalPassedSamples')
     return ('SELECT '+fields+',s.HistoryId,s.HistoryMainlineId,s.TxnId,h.HistoryId AS HeaderHistoryId,'
             'h.ContainerId,h.ContainerName,h.Comments,h.TxnType,h.TxnTypeName,h.TxnServiceName,'
             'h.TxnServiceSequence,h.ReversalStatus FROM '+table+' s INNER JOIN HistoryMainline h '
@@ -194,12 +193,27 @@ def nullable_number(value):
     return None if value in (None, '') else i.numeric(value, '历史限值')
 
 
+def counted_points(points, *, historical=False):
+    if historical:
+        values = ((point['SampleDataPointId'] or None, ref_id(point['RejectReason']),
+                   i.numeric(point['DataValue'], '历史拒收明细数量'), i.wire_bool(point['Passed'], '历史拒收明细通过标志'))
+                  for point in points)
+    else:
+        values = ((None, ref_id(point['rejectReason']),
+                   i.numeric(point['dataValue'], '原拒收明细数量'), i.wire_bool(point['passed'], '原拒收明细通过标志'))
+                  for point in points)
+    return frozenset(Counter(values).items())
+
+
 def compare_sampling(snap, evidence):
-    expected = snap['body']['serviceDetails']; observed = evidence['samples']
-    unverified = ['历史父键映射尚未通过非空现场验收，当前分组为候选关联',
-                  'MES最终事务因果链及后续业务影响尚未通过非空现场验收', '历史没有已核实的样本顺序字段',
+    body = snap['body']
+    expected = body['serviceDetails']; observed = evidence['samples']
+    unverified = ['MES最终事务因果链及后续业务影响尚未通过非空现场验收', '历史没有已核实的样本顺序字段',
                   '历史未完整记录原请求的移站及外部集成选项，不能证明这些选项的最终执行效果']
     dtype = snap['definition']['test']['SampleType']
+    counted_lot = dtype == 1 and snap['kind'] == 'lot_inspection'
+    if not counted_lot:
+        unverified.append('该检验类型的历史父键映射尚待非空现场验收')
     def basic(test_id, rejected, rejects):
         return (test_id, i.wire_bool(rejected, '拒收标志'), i.wire_int(rejects, '拒收数'))
     actual = []
@@ -214,6 +228,8 @@ def compare_sampling(snap, evidence):
                 points.append((pid, definition['DataType'], i.numeric(point['dataValue'], '原点值'), point['passed'],
                                nullable_number(definition.get('LowerLimit')), nullable_number(definition.get('UpperLimit'))))
             base += (tuple(sorted(points)),)
+        elif counted_lot:
+            base += (counted_points(detail.get('samplingDataPointDetails', ())),)
         wanted.append(base)
     for row in observed:
         sample = row['sample_history']
@@ -230,17 +246,41 @@ def compare_sampling(snap, evidence):
                                i.numeric(point.get('DataValue'), '历史点值'), i.wire_bool(point.get('Passed'), '点通过标志'),
                                nullable_number(point.get('LowerLimit')), nullable_number(point.get('UpperLimit'))))
             base += (tuple(sorted(points)),)
+        elif counted_lot:
+            # Counted reasons are point children with no SampleDataPoint reference.
+            base += (counted_points(row['points'], historical=True),)
         actual.append(base)
-    if dtype == 1:
+    count = sum(row['totalSamplesCollected'] for row in expected)
+    checks = {}
+    if counted_lot:
+        # Compare only the explicitly recorded root input. The cumulative fields
+        # in the same row cannot substitute for it or partition it by reason.
+        if 'samplesTested' in body:
+            header = evidence['header']
+            checks['recorded_samples_tested_match'] = (
+                i.wire_int(header['SamplesTested'], '历史本次采样数') == body['samplesTested'] == count)
+            task = snap['before']['task']
+            checks['recorded_sampling_context_matches'] = (
+                header['SamplingPlanId'] == task['SamplingPlanId'] == snap['before']['lot']['SamplingPlanId']
+                and i.wire_int(header['RequiredSamples'], '历史要求样本数') == task['TotalSamplesRequired'])
+        else:
+            unverified.append('旧批采样计划缺少原根级采样数，无法核对历史SamplesTested')
+        unverified += ['拒收点明细不保存各组本次采样数量，无法从根级总数分摊到各组',
+                       '历史未保存批任务ID，无法从计划及测试引用核实特定任务的累计效果']
+    elif dtype == 1:
         unverified += ['计数历史明细没有已核实的本次采样数量字段，累计数不等于本次增量',
                        '计数拒收原因和EnteredQty的归属语义尚未现场核实']
     else:
         unverified += ['测量样本个数按候选明细行数核对，本次总采样增量字段未独立核实']
-    matches = Counter(wanted) == Counter(actual)
+    groups_match = Counter(wanted) == Counter(actual)
+    if counted_lot:
+        checks['counted_groups_and_reject_reasons_match'] = groups_match
+    matches = groups_match and all(checks.values())
     return {'comparison': ('payload_match' if dtype == 2 else 'partial_match') if matches else 'mismatch',
+            **({'counted_history_checks': checks} if counted_lot else {}),
             'compared_fields_match': matches, 'expected_samples': len(expected), 'historical_samples': len(observed),
             'detail_row_semantics':'individual measured samples' if dtype==2 else 'counted service groups, not individual sample units',
-            'requested_sample_units':sum(r['totalSamplesCollected'] for r in expected),
+            'requested_sample_units':count,
             'requested_rejects':sum(r['rejects'] for r in expected),
             'sample_comparison': 'unordered multiset; duplicate sample multiplicities retained',
             'unverified_checks': unverified}
@@ -248,7 +288,7 @@ def compare_sampling(snap, evidence):
 
 @mcp.tool
 async def get_inspection_result_history(summary_history_id: str) -> str:
-    """只读逐样本/逐点检验历史。先从get_container_inspection_history或get_sampling_lot_history取CollectSamplingDataHistoryId。按部署表结构候选父键和事务边界展开，最多50样本/100点；不以共享HistoryId作父键；父键映射仍待非空现场验收，不按ID排序伪造样本序号。含历史原值、限值、拒收、事务及冲销状态；缺失/超界失败。非空现场验收待补，不作最终成功或放行判断。"""
+    """只读逐样本/逐点检验历史。用CollectSamplingDataHistoryId按父键和事务边界展开，最多50样本/100点。C4批计数已核对父键，其他检验类型仍待现场验收。含历史原值、限值、拒收、事务及冲销状态；缺失/超界失败。历史ID不表示样本顺序，结果供审计取证。"""
     try:
         return q.encode({**await trace(summary_history_id), **FLAGS})
     except (ValueError, TypeError, KeyError, AttributeError) as error:
@@ -274,7 +314,7 @@ async def find_quality_execution_candidates(plan_id: str, plan_digest: str, offs
 
 @mcp.tool
 async def reconcile_quality_execution(plan_id: str, plan_digest: str, candidate_txn_id: str | None = None) -> str:
-    """只读核对已尝试的质量计划。单容器损失、整批处置、批维护及带系统标记的普通检验可自动定位。整批OK只核对父批结果，检验和批维护只核对可见字段。旧检验仍须明确候选ID。其他事务给出人工取证入口。只有独立确认的本地审计可结束占用。"""
+    """只读核对已尝试的质量计划。损失、整批处置、批维护及带系统标记的普通检验可自动定位。整批OK只核对父批结果，批计数核对历史本次总采样数和逐组拒收原因。旧检验仍须明确候选ID。其他事务给出人工取证入口。只有独立确认的本地审计可结束占用。"""
     try:
         if candidate_txn_id is not None:
             iid(candidate_txn_id, '候选事务ID')

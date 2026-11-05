@@ -79,7 +79,7 @@ ServiceDetails(
 
 分组只声明输入计数，`counted_group_accumulation_verified=false`、`counted_reason_history_verified=false`。尚未现场验证多组执行如何累计到MES任务和原因历史；不宣称质量通过、签名完成或允许放行。
 
-历史核对新增`requested_sample_units`与`requested_rejects`展示请求合计；`detail_row_semantics`说明计数历史行是服务分组，不是逐件样本。旧字段`expected_samples/historical_samples`对计数仍表示明细行数，不能当作件数。计数历史缺少已核实的本次采样增量及原因归属证明，因此即使可比较字段一致也最多partial_match，不改状态、不解锁。
+历史核对用 `requested_sample_units` 和 `requested_rejects` 展示请求合计，`expected_samples` 和 `historical_samples` 对计数表示分组行数。批计数可核对根级本次样本数和逐组拒收原因。各组样本量及批任务累计效果仍需独立取证，批计数结果保留 `partial_match` 和待审状态。详见[C7 历史核对](quality-history.md)。
 
 ## 多轮问法
 

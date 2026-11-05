@@ -324,6 +324,64 @@ def test_counted_matches_are_only_partial_without_delta_and_reason_proof(env):
     assert any('本次采样' in s for s in out['unverified_checks'])
 
 
+@pytest.mark.parametrize('case', ['match', 'wrong_reason', 'missing_point', 'duplicate_point', 'wrong_reject_count',
+                                  'wrong_samples_tested', 'missing_samples_tested', 'wrong_plan', 'wrong_required',
+                                  'legacy', 'unexpected_measured_point'])
+def test_counted_lot_matches_persisted_reason_children_and_root_count_only(env, case):
+    plan, reason1, reason2 = map(key, (30, 31, 32))
+    snap = env['snap']
+    snap.update(kind='lot_inspection', service='CollectLotSamplingData',
+                before={'lot': {'SamplingPlanId': plan}, 'task': {'SamplingPlanId': plan, 'TotalSamplesRequired': 20}})
+    snap['definition']['test']['SampleType'] = 1
+    details = []
+    for sample_id, point_id, count, rejects, reason in [(S1,P1,3,1,reason1), (S2,P2,4,2,reason2)]:
+        details.append({'sampleTest': wire(TEST), 'totalSamplesCollected': count, 'rejected': True, 'rejects': rejects,
+                        'samplingDataPointDetails': [{'dataValue': str(rejects), 'passed': False, 'rejectReason': wire(reason)}]})
+        env['objects'][sample_id].update(Rejected='true', Rejects=str(rejects))
+        env['objects'][point_id].update(SampleDataPoint=ref(''), RejectReasonId=reason, DataValue=str(rejects),
+                                        Passed='false', EnteredQty='')
+    snap['body'].update(samplingLot=wire(LOT), samplesTested=7, serviceDetails=details)
+    env['header'].update(SamplingLotId=LOT, TxnType='8589', SamplingPlanId=plan, RequiredSamples='20',
+                         SamplesTested='7', TotalSamplesCompleted='180', TotalRejects='45')
+    if case == 'wrong_reason':
+        env['objects'][P2]['RejectReasonId'] = reason1
+    elif case == 'missing_point':
+        env['objects'][S2]['CollectSamplingTestDtlHistory'] = []
+    elif case == 'duplicate_point':
+        extra = key(40)
+        env['objects'][extra] = env['objects'][P2] | {'InstanceID': extra}
+        env['objects'][S2]['CollectSamplingTestDtlHistory'].append(ref(extra))
+    elif case == 'wrong_reject_count':
+        env['objects'][P2]['DataValue'] = '1'
+    elif case == 'wrong_samples_tested':
+        env['header'].update(SamplesTested='8', TotalSamplesCompleted='7')
+    elif case == 'missing_samples_tested':
+        env['header'].pop('SamplesTested')
+    elif case == 'wrong_plan':
+        env['header']['SamplingPlanId'] = key(999)
+    elif case == 'wrong_required':
+        env['header']['RequiredSamples'] = '21'
+    elif case == 'legacy':
+        snap['body'].pop('samplesTested')
+    elif case == 'unexpected_measured_point':
+        env['objects'][P2]['SampleDataPoint'] = ref(POINT)
+    save(env)
+    before = journal()
+    out = reconcile(env)
+    assert not out['verified_success'] and not out['completion_causal_chain_verified']
+    assert journal() == before
+    if case == 'missing_samples_tested':
+        assert out['comparison'] == 'incomplete', out
+    elif case in ('match', 'legacy'):
+        assert out['comparison'] == 'partial_match', out
+        assert out['counted_history_checks']['counted_groups_and_reject_reasons_match']
+        assert out['counted_history_checks'].get('recorded_samples_tested_match') is (True if case == 'match' else None)
+        assert any('分摊' in check for check in out['unverified_checks'])
+    else:
+        assert out['comparison'] == 'mismatch', out
+        assert not all(out['counted_history_checks'].values())
+
+
 @pytest.mark.parametrize('case', ['match', 'wrong_parent', 'duplicate_marker', 'outside_attempt'])
 def test_marked_sampling_binds_root_without_claiming_final_effects(env, case):
     marker = 'MCP-QUAL:'+'f'*32
