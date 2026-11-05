@@ -1,4 +1,4 @@
-"""Correlate approved loss and batch scrap requests with persisted native history."""
+"""Correlate approved loss, batch scrap and batch rework with persisted native history."""
 import math
 import re
 from datetime import datetime, timezone
@@ -7,15 +7,20 @@ from decimal import Decimal
 from tools import quality as q, quality_inspection as i
 
 
-SERVICE_TYPES = {'quantity_loss': ('ChangeQty', 4000), 'lot_scrap': ('ExecuteSamplingLot', 8980)}
+SERVICE_TYPES = {'quantity_loss': ('ChangeQty', 4000), 'lot_scrap': ('ExecuteSamplingLot', 8980),
+                 'lot_rework': ('ExecuteSamplingLot', 8980)}
+LOT_RESULTS = {'lot_scrap': (3, 'ScrapReasonId', 'ReworkReasonId'),
+               'lot_rework': (2, 'ReworkReasonId', 'ScrapReasonId')}
 MAINLINE = ('HistoryMainlineId,HistoryId,TxnId,TxnDateGMT,TxnType,TxnTypeName,IntegrationTxnId,ReversalStatus,Comments,'
-            'ContainerId,ContainerName,ContainerChangeCount,ProductId,OperationId,SpecId,WorkflowStepId,Qty,Qty2,ToQty,ToQty2')
+            'ContainerId,ContainerName,ContainerChangeCount,ProductId,OperationId,SpecId,WorkflowStepId,Qty,Qty2,ToQty,ToQty2,InRework')
 SUMMARY = 'QtyHistoryId,HistoryMainlineId,HistoryId,TxnId,IntegrationTxnId,CDOTypeId,Qty,Qty2,CloseWhenZero,ThruputSummary'
 DETAIL = ('QtyHistoryDetailsId,QtyHistoryId,HistoryId,TxnId,IntegrationTxnId,CDOTypeId,ContainerId,ProductId,OperationId,'
           'ChargeToStepId,ReasonCodeId,ChangeQtyType,QtyMultiplier,Qty,Qty2,UOMId,UOM2Id,AdjustThruput,CountsAgainstProduction,'
           'RecordAllQty,CloseWhenZero,ThisContainerClosed,ThisContainerDisassociated,IsRollup')
 LOT = ('ExecuteSamplingLotHistoryId,HistoryMainlineId,HistoryId,TxnId,IntegrationTxnId,CDOTypeId,'
        'SamplingLotResult,SamplingCompleted,ScrapReasonId,ReworkReasonId')
+MOVE = ('MoveHistoryId,HistoryMainlineId,HistoryId,TxnId,CDOTypeId,ProductId,PathId,StepId,ToStepId,ToSpecId,'
+        'ReEntryStepId,EndReworkStepId,ReworkReasonId,Qty,Qty2,CloseFlag,isFailed')
 CLOCK_TOLERANCE_SECONDS = 5
 
 
@@ -57,13 +62,15 @@ async def roots(snap, offset=0, limit=20):
     return rows[:limit], len(rows) > limit
 
 
-async def transaction(txn_id, scrap):
+async def transaction(txn_id, kind):
     where = ' WHERE TxnId='+q.literal(identifier(txn_id))
     queries = {'mainlines': ('HistoryMainline', MAINLINE, 'HistoryMainlineId'),
                'summaries': ('QtyHistory', SUMMARY, 'QtyHistoryId'),
                'details': ('QtyHistoryDetails', DETAIL, 'QtyHistoryDetailsId')}
-    if scrap:
+    if kind in LOT_RESULTS:
         queries['lot'] = ('ExecuteSamplingLotHistory', LOT, 'ExecuteSamplingLotHistoryId')
+    if kind == 'lot_rework':
+        queries['moves'] = ('MoveHistory', MOVE, 'MoveHistoryId')
     evidence = {}
     for label, (table, fields, key) in queries.items():
         rows = await q.sql_rows('SELECT TOP 22 '+fields+' FROM '+table+where+' ORDER BY '+key, 22)
@@ -149,11 +156,64 @@ def loss_matches(member, mainline, summary, detail, root, reason):
     )
 
 
+def rework_matches(record, route, mainline, move, root_id, reason):
+    status = route['status']
+    source = identifier(route['source_step']['instanceId'])
+    end = route['end_rework']
+    end_id = identifier(q.identifier(end)) if end else None
+    qty = quantity(record['Qty'])
+    return (
+        mainline['ContainerId'] == mainline['HistoryId'] == move['HistoryId'] == route['container']['instanceId']
+        and mainline['ContainerName'] == record['ContainerName'] == route['container']['name']
+        and mainline['HistoryMainlineId'] == move['HistoryMainlineId']
+        and mainline['IntegrationTxnId'] == root_id
+        and mainline['ProductId'] == move['ProductId'] == identifier(record['ProductId'])
+        and mainline['SpecId'] == identifier(q.identifier(status['Spec']))
+        and mainline['OperationId'] == identifier(q.identifier(status['Operation']))
+        and mainline['WorkflowStepId'] == move['StepId'] == source == q.identifier(status['Step'])
+        and i.wire_int(mainline['ContainerChangeCount'], '返工前容器版本') == i.wire_int(record['ChangeCount'], '原容器版本')
+        and i.wire_int(mainline['TxnType'], '返工事务类型') == 6660 and mainline['TxnTypeName'] == 'Rework'
+        and i.wire_int(mainline['ReversalStatus'], '返工历史冲销状态') == 1
+        and i.wire_int(move['CDOTypeId'], '移动历史类型') == 6700
+        and flags_match(mainline, InRework=True) and flags_match(move, CloseFlag=False, isFailed=False)
+        and move['PathId'] == identifier(route['path']['instanceId'])
+        and move['ToStepId'] == identifier(route['to_step']['instanceId'])
+        and move['ToSpecId'] == identifier(route['target_spec']['instanceId'])
+        and move['ReEntryStepId'] == identifier(route['reentry_step']['instanceId'])
+        and (move['EndReworkStepId'] or None) == end_id
+        and move['ReworkReasonId'] == reason
+        and qty > 0 and quantity(mainline['Qty']) == quantity(mainline['ToQty']) == quantity(move['Qty']) == qty
+        and all(quantity(value, nullable_zero=True) == 0
+                for value in (record.get('Qty2'), mainline['Qty2'], mainline['ToQty2'], move['Qty2']))
+    )
+
+
+def compare_rework(snap, evidence, mainlines, root_id, reason):
+    records = snap['before']['members']
+    routes = snap['preview']['member_routes']
+    members_by_id = {identifier(record['ContainerId']): record for record in records}
+    routes_by_id = {identifier(route['container']['instanceId']): route for route in routes}
+    if not (1 <= len(records) == len(members_by_id) == len(routes) == len(routes_by_id) <= 20
+            and members_by_id.keys() == routes_by_id.keys()):
+        raise ValueError('原返工计划成员或路径不完整。')
+    moves = {row['HistoryMainlineId']: row for row in evidence['moves']}
+    exact = (len(mainlines) == len(evidence['moves']) == len(moves) == len(members_by_id)
+             and {row['ContainerId'] for row in mainlines} == set(members_by_id)
+             and {row['HistoryMainlineId'] for row in mainlines} == set(moves))
+    return {
+        'exact_members_and_move_counts': exact,
+        'no_quantity_adjustment_history': not (evidence['summaries'] or evidence['details']),
+        'member_rework_history': exact and all(
+            rework_matches(members_by_id[row['ContainerId']], routes_by_id[row['ContainerId']], row,
+                           moves[row['HistoryMainlineId']], root_id, reason)
+            for row in mainlines
+        ),
+    }
+
+
 def compare(snap, attempt, root, evidence):
     kind = snap['kind']
-    scrap = kind == 'lot_scrap'
     service, service_type = SERVICE_TYPES[kind]
-    plan_members = members(snap)
     root_id = root['HistoryMainlineId']
     reason = identifier(snap['reason']['instanceId'])
     checks = {
@@ -163,16 +223,21 @@ def compare(snap, attempt, root, evidence):
                                   and i.wire_int(root['ReversalStatus'],'父历史冲销状态') == 1
                                   and root['IntegrationTxnId'] == root_id),
     }
-    if scrap:
+    mainlines = evidence['mainlines']
+    if kind in LOT_RESULTS:
+        result, reason_field, unused_reason_field = LOT_RESULTS[kind]
         batch = evidence['lot']
         checks['lot_identity_and_result'] = (root['ContainerId'] in ('',None) and len(batch) == 1
             and batch[0]['HistoryMainlineId'] == batch[0]['IntegrationTxnId'] == root_id
-            and batch[0]['HistoryId'] == snap['target_id'] and batch[0]['ScrapReasonId'] == reason
-            and batch[0]['ReworkReasonId'] in ('',None)
+            and batch[0]['HistoryId'] == snap['target_id'] and batch[0][reason_field] == reason
+            and batch[0][unused_reason_field] in ('',None)
             and i.wire_int(batch[0]['CDOTypeId'],'批历史类型') == 8989
-            and i.wire_int(batch[0]['SamplingLotResult'],'抽样批处置结果') == 3
+            and i.wire_int(batch[0]['SamplingLotResult'],'抽样批处置结果') == result
             and i.wire_bool(batch[0]['SamplingCompleted'],'抽样批完成'))
-    mainlines = [row for row in evidence['mainlines'] if not scrap or row['HistoryMainlineId'] != root_id]
+        mainlines = [row for row in mainlines if row['HistoryMainlineId'] != root_id]
+    if kind == 'lot_rework':
+        return checks | compare_rework(snap, evidence, mainlines, root_id, reason)
+    plan_members = members(snap)
     checks['exact_members_and_detail_counts'] = (
         len(mainlines) == len(evidence['summaries']) == len(evidence['details']) == len(plan_members)
         and {row['ContainerId'] for row in mainlines} == set(plan_members)
@@ -198,14 +263,14 @@ async def verify(snap, attempt, candidate_txn_id=None):
     if candidate_txn_id is not None and root['TxnId'] != candidate_txn_id:
         return {'comparison': 'candidate_mismatch', 'complete': False, 'candidates': first,
                 'request_correlation_verified': False}
-    scrap = snap['kind'] == 'lot_scrap'
-    evidence = await transaction(root['TxnId'], scrap)
+    kind = snap['kind']
+    evidence = await transaction(root['TxnId'], kind)
     checks = compare(snap, attempt, root, evidence)
-    if await roots(snap, limit=1) != (first,False) or await transaction(root['TxnId'],scrap) != evidence:
+    if await roots(snap, limit=1) != (first,False) or await transaction(root['TxnId'],kind) != evidence:
         raise ValueError('核对期间原标记或原生处置事务历史发生变化。')
     matched = all(checks.values())
     return {'comparison': 'native_history_match' if matched else 'mismatch', 'complete': True,
             'candidate_txn_id': root['TxnId'], 'checks': checks, 'evidence': evidence,
             'request_correlation_verified': matched, 'recorded_business_effects_verified': matched,
             'unverified_checks': ['当前容器状态可能已被后续事务改变，须从原ID单独核查。']
-                + (['采样任务清理不在损失历史字段内，须从原成员和任务基线单独核查。'] if scrap else [])}
+                + (['采样任务清理须从原成员和任务基线单独核查。'] if kind in LOT_RESULTS else [])}

@@ -250,7 +250,7 @@ async def get_inspection_result_history(summary_history_id: str) -> str:
 
 @mcp.tool
 async def find_quality_execution_candidates(plan_id: str, plan_digest: str, offset: StrictInt = 0, limit: StrictInt = 20) -> str:
-    """只读查有尝试记录的unknown/in_flight检验、批采样、整批OK、批维护、单容器损失及整批报废候选历史。校验摘要及环境，精确匹配完整评论。采样还约束容器/测试/批ID，数量处置核对主历史候选。分页不能证明候选唯一，不写journal、不解锁、不重试。"""
+    """只读查有尝试记录的unknown/in_flight检验、批采样、整批OK、批维护、单容器损失、整批报废及返工候选历史。校验摘要及环境，精确匹配完整评论。采样还约束容器/测试/批ID，损失、报废及返工使用主历史候选。分页不能证明候选唯一，不写journal、不解锁、不重试。"""
     try:
         with attempt_lock(p.PLAN_DB, plan_id):
             snap, state, attempt = attempted_plan(plan_id, plan_digest)
@@ -259,14 +259,15 @@ async def find_quality_execution_candidates(plan_id: str, plan_digest: str, offs
             return q.encode({'plan_id': plan_id, 'state': state, 'attempt': attempt, 'rows': rows,
                              'page_complete': True, 'complete': False, 'has_more': more,
                              'next_offset': offset+limit if more else None,
-                             'target_linkage_available': snap['kind'] not in ('lot_completion','lot_scrap'), **FLAGS})
+                             'target_linkage_available': snap['kind'] not in ('lot_completion', *disposition.LOT_RESULTS),
+                             **FLAGS})
     except (ValueError, TypeError, KeyError, AttributeError, AttemptBusy) as error:
         return q.encode({'complete': False, **FLAGS, 'error': str(error)})
 
 
 @mcp.tool
 async def reconcile_quality_execution(plan_id: str, plan_digest: str, candidate_txn_id: str | None = None) -> str:
-    """只读核对已尝试的质量计划。单容器损失和整批报废可省略候选ID，按唯一完整事务标记自动定位，核对尝试时间、父子事务、成员、余额、原因、单位和选项。检验、批采样、整批OK与批维护仍须明确候选ID，仅返回对应历史比较。核实历史归属后仍保留unknown占用，人工审核才变更计划状态。"""
+    """只读核对已尝试的质量计划。单容器损失、整批报废和整批返工可省略候选ID，按唯一完整事务标记定位，核对尝试时间、父子事务、成员、数量及原因。返工另核对原生移动路径、目标和返回步骤。检验、批采样、整批OK与批维护仍须明确候选ID。核实历史归属后仍保留unknown占用，人工审核才变更计划状态。"""
     try:
         if candidate_txn_id is not None:
             iid(candidate_txn_id, '候选事务ID')

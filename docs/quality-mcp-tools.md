@@ -87,7 +87,7 @@
 | preview_sampling_table_lookup | 批量区间→代码→AQL行的只读配置查表，保留数量及阈值，不代表MES最终要求或质量判定 |
 | get_inspection_result_history | 逐样本/逐点历史候选关联，最多50样本100点；父键映射仍待非空现场验收 |
 | find_quality_execution_candidates | 原计划摘要、环境和实际尝试记录约束下，查精确评论与历史目标对应的候选事务 |
-| reconcile_quality_execution | [数量损失和整批报废历史归因](quality-disposition-history.md)，可自动定位唯一候选。检验、批采样、整批OK和批维护仍须明确候选。只读保留原计划占用。 |
+| reconcile_quality_execution | [数量损失、整批报废及返工历史归因](quality-disposition-history.md)，可自动定位唯一候选。检验、批采样、整批OK和批维护仍须明确候选。只读保留原计划占用。 |
 | prepare_quality_event_creation | [实际创建计划](quality-event-lifecycle.md)，仅原生自动编号、Pending未提交；准备无创建预览，确认单次执行 |
 | prepare_quality_event_open | [Closed事件原生开启计划](quality-event-lifecycle.md)，保持旧关闭信息，不手工改状态 |
 | prepare_quality_event_reassignment | [明确责任人/角色重新分派](quality-event-lifecycle.md)，显式通知选项、原生组合校验 |

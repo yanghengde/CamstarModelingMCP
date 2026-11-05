@@ -52,7 +52,7 @@ def env(monkeypatch, tmp_path):
               'CloseWhenZero': 'true', 'ThisContainerClosed': 'false', 'ThisContainerDisassociated': 'false',
               'IsRollup': 'false'}
     state = {'snapshot': snap, 'roots': [root], 'mainlines': [root], 'summaries': [summary], 'details': [detail],
-             'lot': [], 'queries': []}
+             'lot': [], 'moves': [], 'queries': []}
 
     async def sql(query, maximum):
         state['queries'].append(query)
@@ -62,7 +62,8 @@ def env(monkeypatch, tmp_path):
             return copy.deepcopy(state['roots'][:maximum])
         assert "WHERE TxnId=N'"+TXN+"'" in query
         table = {'FROM HistoryMainline ': 'mainlines', 'FROM QtyHistory ': 'summaries',
-                 'FROM QtyHistoryDetails ': 'details', 'FROM ExecuteSamplingLotHistory ': 'lot'}
+                 'FROM QtyHistoryDetails ': 'details', 'FROM ExecuteSamplingLotHistory ': 'lot',
+                 'FROM MoveHistory ': 'moves'}
         for token, label in table.items():
             if token in query:
                 rows = copy.deepcopy(state[label])
@@ -190,3 +191,85 @@ def test_batch_scrap_requires_parent_lot_and_exact_members(env, case):
     result = reconcile(install(env))
     assert result['request_correlation_verified'] is (case == 'match')
     assert result['comparison'] == ('native_history_match' if case == 'match' else 'mismatch')
+
+
+@pytest.fixture
+def rework(env):
+    lot = key(30)
+    snap = env['snapshot']
+    template = env['roots'][0]
+    root = template | {'ContainerId': '', 'HistoryId': '', 'TxnTypeName': 'ExecuteSamplingLot', 'TxnType': '8980'}
+    env.update(roots=[root], mainlines=[root], summaries=[], details=[])
+    env['lot'] = [{'ExecuteSamplingLotHistoryId': key(31), 'HistoryMainlineId': ROOT, 'HistoryId': lot, 'TxnId': TXN,
+                   'IntegrationTxnId': ROOT, 'CDOTypeId': '8989', 'SamplingLotResult': '2', 'SamplingCompleted': 'true',
+                   'ScrapReasonId': '', 'ReworkReasonId': REASON}]
+    members, routes = [], []
+    for n, qty, end in [(40, '1', STEP), (50, '3.5', '')]:
+        cid, mid, move_id, path, target, target_spec, entry = map(key,range(n,n+7))
+        name = f'C{n}'
+        members.append({'ContainerId': cid, 'ContainerName': name, 'ProductId': PRODUCT,
+                        'Qty': qty, 'Qty2': '', 'ChangeCount': '1'})
+        routes.append({'container': {'name': name, 'instanceId': cid},
+                       'status': {'Operation': {'InstanceId': OPERATION}, 'Spec': {'InstanceId': SPEC},
+                                  'Step': {'InstanceId': STEP}},
+                       'source_step': {'instanceId': STEP}, 'path': {'instanceId': path},
+                       'to_step': {'instanceId': target}, 'target_spec': {'instanceId': target_spec},
+                       'reentry_step': {'instanceId': entry}, 'end_rework': {'InstanceId': end} if end else None})
+        env['mainlines'].append(template | {'HistoryMainlineId': mid, 'ContainerId': cid, 'HistoryId': cid,
+            'ContainerName': name, 'TxnType': '6660', 'TxnTypeName': 'Rework', 'InRework': 'true', 'Comments': '',
+            'Qty': qty, 'Qty2': '', 'ToQty': qty, 'ToQty2': ''})
+        env['moves'].append({'MoveHistoryId': move_id, 'HistoryMainlineId': mid, 'HistoryId': cid, 'TxnId': TXN,
+            'CDOTypeId': '6700', 'ProductId': PRODUCT, 'PathId': path, 'StepId': STEP, 'ToStepId': target,
+            'ToSpecId': target_spec, 'ReEntryStepId': entry, 'EndReworkStepId': end, 'ReworkReasonId': REASON,
+            'Qty': qty, 'Qty2': '', 'CloseFlag': 'false', 'isFailed': 'false'})
+    snap.update(kind='lot_rework', action='rework', service='ExecuteSamplingLot', name='L', target_id=lot,
+                before={'members': members}, preview={'member_routes': routes},
+                body={'samplingLot': {'name': 'L', 'instanceId': lot}, 'samplingLotResult': 2,
+                      'reworkReason': snap['reason'], 'comments': root['Comments']})
+    return env
+
+
+def test_batch_rework_attributes_routes_and_preserves_manual_review(rework):
+    digest = install(rework)
+    candidates = json.loads(asyncio.run(history.find_quality_execution_candidates('plan',digest)))
+    assert [row['TxnId'] for row in candidates['rows']] == [TXN]
+    assert not candidates['target_linkage_available']
+    result = reconcile(digest)
+    assert result['comparison'] == 'native_history_match', result
+    assert result['request_correlation_verified'] and result['recorded_business_effects_verified']
+    assert not result['verified_success'] and not result['completion_causal_chain_verified']
+    assert not result['retry_allowed'] and not result['state_changed']
+    with plans.db_connect() as db:
+        assert db.execute('SELECT state,outcome FROM plans').fetchone() == ('unknown',None)
+        assert not db.execute('SELECT 1 FROM reviews').fetchall()
+
+
+@pytest.mark.parametrize(('table','index','field','bad'), [
+    ('lot',0,'HistoryId',key(999)), ('lot',0,'SamplingLotResult','3'), ('lot',0,'ReworkReasonId',key(999)),
+    ('mainlines',1,'ReversalStatus','2'), ('mainlines',1,'InRework','false'), ('mainlines',1,'ToQty','0'),
+    ('mainlines',1,'ContainerChangeCount','2'), ('mainlines',1,'IntegrationTxnId',key(999)),
+    ('moves',0,'HistoryMainlineId',key(51)), ('moves',0,'HistoryId',key(50)), ('moves',0,'PathId',key(999)),
+    ('moves',0,'ToStepId',key(999)), ('moves',0,'ToSpecId',key(999)), ('moves',0,'ReEntryStepId',key(999)),
+    ('moves',1,'EndReworkStepId',STEP), ('moves',0,'ReworkReasonId',key(999)), ('moves',0,'Qty2','1'),
+    ('moves',0,'CloseFlag','true'), ('moves',0,'isFailed','true'),
+])
+def test_batch_rework_rejects_conflicting_native_history(rework, table, index, field, bad):
+    rework[table][index][field] = bad
+    result = reconcile(install(rework))
+    assert result['comparison'] == 'mismatch', result
+    assert not result['request_correlation_verified'] and not result['recorded_business_effects_verified']
+
+
+@pytest.mark.parametrize('case', ['missing_member', 'missing_move', 'extra_move', 'quantity_adjustment', 'changed_move'])
+def test_batch_rework_rejects_incomplete_or_unstable_transactions(rework, case):
+    if case == 'missing_member':
+        rework['mainlines'].pop()
+    elif case == 'missing_move':
+        rework['moves'].pop()
+    elif case == 'extra_move':
+        rework['moves'].append(rework['moves'][0] | {'MoveHistoryId': key(999)})
+    elif case == 'quantity_adjustment':
+        rework['summaries'].append({'QtyHistoryId': SUMMARY, 'TxnId': TXN})
+    else:
+        rework['changed'] = 'moves'
+    assert not reconcile(install(rework))['request_correlation_verified']

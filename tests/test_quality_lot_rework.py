@@ -262,7 +262,7 @@ def test_transport_keeps_rework_isolated_from_ok_scrap_and_overrides(env,mode):
     with pytest.raises(ValueError):p.transport(snap)
 
 
-def test_unknown_single_attempt_inspects_original_members_and_never_unlocks(env):
+def test_unknown_single_attempt_inspects_original_members_and_never_unlocks(env,monkeypatch):
     ready=prepare();second=prepare();assert execute(ready)['state']=='unknown'
     assert 'error' in execute(ready) and 'error' in execute(second)
     env['members']=[dict(env['originals'][0],ContainerId=key(999),ContainerName='Replacement')]
@@ -271,7 +271,12 @@ def test_unknown_single_attempt_inspects_original_members_and_never_unlocks(env)
     assert {row['ContainerId'] for row in out['original_members_current_records']}=={CID,CID2}
     assert out['current_lot']['members'][0]['ContainerName']=='Replacement' and not out['verified_success']
     assert not out['state_changed'] and not out['retry_allowed']
-    assert 'error' in result(h.find_quality_execution_candidates(ready['plan_id'],ready['plan_digest']))
+    async def empty_history(query, maximum):
+        assert 'FROM HistoryMainline WHERE Comments=' in query
+        return []
+    monkeypatch.setattr(h.q,'sql_rows',empty_history)
+    candidates=result(h.find_quality_execution_candidates(ready['plan_id'],ready['plan_digest']))
+    assert candidates['rows']==[] and not candidates['target_linkage_available']
     for kind in ('lot_completion','lot_maintenance','lot_inspection','inspection'):
         other={'kind':kind,'environment':p.environment(),'scope_key':'other','resource_writes':['runtime:container:id:'+CID]}
         if kind=='inspection':
