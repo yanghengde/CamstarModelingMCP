@@ -1,5 +1,7 @@
 # 质量功能阶段交付
 
+当前发布候选、环境检查和验收顺序见[C8 发布前基线](c8-release-acceptance.md)。
+
 2026-10-30当前范围见[完成审批及修订重提](quality-approval-cycle.md)与[统一交付清单](quality-completion-plan.md)：已增加模板挂接并路由、旧/新周期历史及Event/CAPA修订重提。以下带旧日期的阶段记录保留其当时边界和测试数量，不作为当前限制或验收结论。
 
 日期：2026-10-28。此文保留高级功能开发前的47工具收尾快照；后续新增[批返工第一阶段](quality-lot-rework.md)，后续截至2026-10-29工具数现为68，并新增[SPC本地计算与判异](quality-spc-analysis.md)、[原始历史点受限注释](quality-spc-annotations.md)及[明确报告的单点SPC违例登记](quality-spc-violations.md)，另有[数量损失准备与批报废前置检查](quality-quantity-loss.md)，新增[基础Event首次分流](quality-event-triage.md)和[事件文字资料维护](quality-event-update.md)，后续任务见[高级功能计划](quality-advanced-roadmap.md)。**本轮代码交付收尾已完成；不表示全部质量功能开发或MES业务验收完成。**

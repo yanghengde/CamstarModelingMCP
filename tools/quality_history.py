@@ -223,7 +223,7 @@ def compare_sampling(snap, evidence):
     unverified = ['MES最终事务因果链及后续业务影响尚未通过非空现场验收', '历史没有已核实的样本顺序字段',
                   '历史未完整记录原请求的移站及外部集成选项，不能证明这些选项的最终执行效果']
     dtype = snap['definition']['test']['SampleType']
-    lot_sampling = snap['kind'] == 'lot_inspection'
+    lot_sampling = snap.get('kind') == 'lot_inspection'
     counted_lot = dtype == 1 and lot_sampling
     if not counted_lot:
         unverified.append('该检验类型的历史父键映射尚待非空现场验收')
