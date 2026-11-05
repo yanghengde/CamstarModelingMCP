@@ -59,6 +59,7 @@ INSPECTION_LOSS_BASIS = {
     'counted_sample_size_loss': '本次计数样本合计',
     'measured_sample_size_loss': '本次测量样本数',
     'counted_reject_count_loss': '本次计数拒收合计',
+    'counted_reason_loss': '本次检验组拒收原因及拒收数量',
 }
 VALUES = {
     'create': '创建', 'update': '修改', 'delete': '删除', 'ready': '待执行',

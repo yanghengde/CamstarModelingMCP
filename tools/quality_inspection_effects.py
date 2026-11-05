@@ -19,7 +19,9 @@ LOSS_MODES = {
     'counted_sample_size_loss': (SAMPLE_SIZE_REASON, 'explicit current counted SamplesTested'),
     'measured_sample_size_loss': (SAMPLE_SIZE_REASON, 'current measured ServiceDetails count'),
     'counted_reject_count_loss': (REJECT_COUNT_REASON, 'current counted reject detail accumulated as native FailedSamples'),
+    'counted_reason_loss': (None, 'first counted service detail reject reason and quantity'),
 }
+REJECT_LOSS_MODES = ('counted_reject_count_loss', 'counted_reason_loss')
 
 
 def options(args):
@@ -40,15 +42,19 @@ def definition_policy(definition, args):
         raise ValueError('自动扣量仅支持计数或数值测量检验。')
     sample_size = i.present(test.get(SAMPLE_SIZE_REASON))
     reject_count = i.present(test.get(REJECT_COUNT_REASON))
-    if sample_size == reject_count:
+    scrap_reasons = test.get('ScrapCountedRejectsByReason')
+    if type(scrap_reasons) is not bool:
+        raise ValueError('按拒收原因报废的配置未知。')
+    if sum((sample_size, reject_count, scrap_reasons)) != 1:
         raise ValueError('检验测试必须且只能配置一种扣量原因。')
-    if reject_count and test['SampleType'] != 1:
-        raise ValueError('按本次拒收数扣量仅支持计数检验。')
-    if test.get('ScrapCountedRejectsByReason') is not False: raise ValueError('按原因报废拒收的配置为真或未知，首版不支持。')
+    if (reject_count or scrap_reasons) and test['SampleType'] != 1:
+        raise ValueError('按本次拒收数或拒收原因扣量仅支持计数检验。')
     for field in ('DefaultFailureMode', 'Classification', 'SubClassification'):
         if i.present(test.get(field)): raise ValueError('首版不处理检验自动质量事件：'+field)
     if test.get('DefaultPEDescription'): raise ValueError('首版不处理检验自动生产事件说明。')
     if type(test.get('Status')) is not int or test['Status'] != 1: raise ValueError('检验测试不是Active。')
+    if scrap_reasons:
+        return 'counted_reason_loss'
     if reject_count:
         return 'counted_reject_count_loss'
     return 'counted_sample_size_loss' if test['SampleType'] == 1 else 'measured_sample_size_loss'
@@ -150,14 +156,26 @@ async def prepare_effects(definition, basic, status, task, args, mode, count, re
         operation = await dep.asset('Operations', spec.get('Operation'))
         if operation['InstanceID'] != q.identifier(status.get('Operation')): raise ValueError('扣量Operation与检验当前状态不同。')
         reason_field, basis = LOSS_MODES[mode]
-        reason = await dep.asset('LossReasons', definition['test'][reason_field])
+        if mode == 'counted_reason_loss':
+            lines, _, _, native_rejects = i.counted_details(definition, args)
+            if len(lines) != 1 or native_rejects <= 0 or native_rejects != rejects:
+                raise ValueError('原生按原因报废只读取首条检验明细，当前须提交一个正数拒收组。')
+            reason_ref = lines[0]['samplingDataPointDetails'][0]['rejectReason']
+            reason = await dep.asset('LossReasons', {'Name': reason_ref['name'], 'InstanceId': reason_ref['instanceId']})
+            reject_group = await dep.asset('LossReasonGroups', definition['test']['AQLRejectReasons'])
+            expected_reasons = sorted((item['name'], item['instanceId']) for item in definition['reject_reasons'])
+            actual_reasons = sorted((item['Name'], q.identifier(item)) for item in reject_group['ResolvedEntries'])
+            if expected_reasons != actual_reasons:
+                raise ValueError('检验拒收原因组在读取期间发生变化。')
+        else:
+            reason = await dep.asset('LossReasons', definition['test'][reason_field])
         group = await dep.asset('LossReasonGroups', operation.get('LossReasons'))
         if sum(q.identifier(v) == reason['InstanceID'] and v.get('Name') == reason['Name'] for v in group['ResolvedEntries']) != 1:
             raise ValueError('测试中配置的损失原因不属于当前Operation完整LossReasons组。')
-        deduction = rejects if mode == 'counted_reject_count_loss' else count
+        deduction = rejects if mode in REJECT_LOSS_MODES else count
         balance = i.numeric(str(row['Qty']), '原数量')
         if deduction <= 0: raise ValueError('按拒收数扣量要求本次有明确的正数拒收。')
-        if mode == 'counted_reject_count_loss' and count > balance:
+        if mode in REJECT_LOSS_MODES and count > balance:
             raise ValueError('本次计数样本数不能超过容器当前数量。')
         zero = balance == deduction
         if deduction > balance:
@@ -211,7 +229,7 @@ def validate_transport(snap):
     body = snap['body']
     effects = snap.get('inspection_effects')
     mode = effects['context']['mode'] if effects else None
-    counted_loss = mode in ('counted_sample_size_loss', 'counted_reject_count_loss')
+    counted_loss = mode in ('counted_sample_size_loss', *REJECT_LOSS_MODES)
     expected_fields = {'container', 'sampleTest', 'serviceDetails', 'moveContainerOnCompletion', 'comments'}
     if counted_loss:
         expected_fields.add('samplesTested')
@@ -249,12 +267,15 @@ def validate_transport(snap):
                     raise ValueError('全检与扣量组合的剩余数量或条件要求数不符。')
         if counted_loss:
             lines, _, count, rejects = i.counted_details(snap['definition'], arguments)
-            deduction = rejects if mode == 'counted_reject_count_loss' else count
+            deduction = rejects if mode in REJECT_LOSS_MODES else count
             if (not quantity or arguments.get('samples') is not None
                     or type(body['samplesTested']) is not int or body['samplesTested'] != count
                     or body['serviceDetails'] != lines or deduction <= 0
                     or effects['context']['automatic_quantity_loss']['quantity'] != str(deduction)):
                 raise ValueError('计数扣量增量、根SamplesTested或完整计数明细不一致。')
+            if mode == 'counted_reason_loss' and (len(lines) != 1
+                    or projected['reason'] != lines[0]['samplingDataPointDetails'][0]['rejectReason']):
+                raise ValueError('按原因报废须绑定唯一检验组的原拒收原因。')
 
 
 async def inspect_snapshot(snap):
