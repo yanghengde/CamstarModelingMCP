@@ -38,6 +38,45 @@ class CountedInspectionGroup(BaseModel):
     reject_reason_name:str|None=Field(default=None,min_length=1,max_length=128)
 
 
+class CountedRejectReason(BaseModel):
+    model_config=ConfigDict(extra='forbid',strict=True)
+    reject_reason_name:str=Field(min_length=1,max_length=128)
+    rejects:StrictInt=Field(ge=1,le=100,description='本原因对应的拒收件数；各原因计数须互不重叠。')
+
+
+def counted_reason_ref(definition, name):
+    matches=[row for row in definition['reject_reasons'] if row['name']==reads.text(name,'拒收原因')]
+    if len(matches)!=1 or not reads.valid_id(matches[0].get('instanceId')):
+        raise ValueError('拒收原因不属于完整配置组或身份不唯一。')
+    return matches[0]
+
+
+def counted_reason_details(definition, args):
+    if (args.get('allow_automatic_quantity_loss') is not True
+            or definition['test'].get('ScrapCountedRejectsByReason') is not True):
+        raise ValueError('多原因输入仅用于明确允许原生按原因报废的计数检验。')
+    if any(args.get(key) is not None for key in ('counted_groups','rejects','reject_reason_name')):
+        raise ValueError('多原因输入使用同一组samples_collected，不混用分组或根拒收数/原因。')
+    count=int32(args.get('samples_collected'),'本组采样数',1)
+    raw=args['counted_reject_reasons']
+    if not isinstance(raw,list) or not 1<=len(raw)<=20 or count>100:
+        raise ValueError('同组计数检验最多100个样本、20个拒收原因。')
+    points=[];seen=set();total_rejects=0
+    for value in raw:
+        item=CountedRejectReason.model_validate(value)
+        ref=counted_reason_ref(definition,item.reject_reason_name)
+        if ref['instanceId'] in seen:
+            raise ValueError('同组拒收原因不能重复。')
+        seen.add(ref['instanceId'])
+        total_rejects+=item.rejects
+        points.append({'dataValue':str(item.rejects),'passed':False,'rejectReason':ref})
+    if total_rejects>count:
+        raise ValueError('各原因须对应互不重叠的拒收件，拒收合计不能超过本组样本数。')
+    detail={'sampleTest':revision_ref(definition['test']),'totalSamplesCollected':count,
+            'rejects':total_rejects,'rejected':True,'samplingDataPointDetails':points}
+    return [detail],[],count,total_rejects
+
+
 def inspection_comment(value):
     if not isinstance(value,str) or '\x00' in value or len(value.encode('utf-16-le'))>360:
         raise ValueError('检验备注最多180个UTF-16单元且不能包含NUL；事务标记另占长度。')
@@ -45,6 +84,8 @@ def inspection_comment(value):
 
 
 def counted_details(definition,args):
+    if args.get('counted_reject_reasons') is not None:
+        return counted_reason_details(definition,args)
     groups=args.get('counted_groups')
     if groups is None:
         raw=[{key:args.get(key) for key in ('samples_collected','rejects','reject_reason_name')}]
@@ -61,10 +102,7 @@ def counted_details(definition,args):
         detail={'sampleTest':test_ref,'totalSamplesCollected':count,'rejects':rejects,'rejected':rejects>0}
         if rejects:
             if not reason:raise ValueError('拒收组必须明确一个已配置的拒收原因。')
-            matches=[r for r in definition['reject_reasons'] if r['name']==reads.text(reason,'拒收原因')]
-            if len(matches)!=1 or not reads.valid_id(matches[0].get('instanceId')):
-                raise ValueError('拒收原因不属于完整配置组或身份不唯一。')
-            ref=matches[0]
+            ref=counted_reason_ref(definition,reason)
             # CountedRejectReason is an alias of the first point child's reason.
             # A shortcut-only input did not expose a child in the live nonexecuting echo.
             detail['samplingDataPointDetails']=[{'dataValue':str(rejects),'passed':False,'rejectReason':ref}]
@@ -81,6 +119,9 @@ def counted_details(definition,args):
 
 
 def counted_group_context(args):
+    if args.get('counted_reject_reasons') is not None:
+        return {'counted_reject_reason_count':len(args['counted_reject_reasons']),
+                'sample_partition_verified':False,'counted_reason_history_verified':False}
     if args.get('counted_groups') is None:return {}
     return {'counted_groups_this_submission':len(args['counted_groups']),'sample_partition_verified':False,
             'counted_group_accumulation_verified':False,'counted_reason_history_verified':False,
@@ -271,7 +312,7 @@ def collection_details(definition,args,*,effects_validated=False):
     if dtype==1:
         if args.get('samples') is not None:raise ValueError('计数检验不接受测量样本。')
         return counted_details(definition,args)
-    if any(args.get(k) is not None for k in ('samples_collected','rejects','reject_reason_name','counted_groups')):
+    if any(args.get(k) is not None for k in ('samples_collected','rejects','reject_reason_name','counted_groups','counted_reject_reasons')):
         raise ValueError('测量检验从完整样本计算本次个数，不接受计数覆盖值。')
     details,checks=measured_details(definition,args.get('samples'))
     return details,checks,len(details),sum(d['rejects'] for d in details)
@@ -376,17 +417,21 @@ async def prepare_container_inspection(container_name:str,sample_test_name:str,s
         container_instance_id:str|None=None,samples_collected:StrictInt|None=None,rejects:StrictInt|None=None,reject_reason_name:str|None=None,
         samples:Annotated[list[InspectionSample]|None,Field(max_length=50)]=None,comments:str='',
         counted_groups:Annotated[list[CountedInspectionGroup]|None,Field(min_length=1,max_length=20)]=None,
-        allow_full_inspection:bool=False,allow_automatic_quantity_loss:bool=False,allow_zero_quantity_loss:bool=False)->str:
-    """准备单容器CollectSamplingData，固定版本及当前任务，计数/显式不重叠counted_groups或测量samples逐样本完整点值。默认拒绝全检和自动扣量；allow_full_inspection=true允许MES已有全检/失败转全检规则，要求数和标志不由客户端修改；allow_automatic_quantity_loss=true仅允许一种扣量配置：DecreaseBySampleSizeReason按本次测量或计数样本合计扣量，DecreaseByRejectCountReason按本次计数正数拒收合计扣量；仅配置ScrapCountedRejectsByReason时，单个计数检验组按其明确拒收原因和数量扣量。MES内部扣量，不另发ChangeQty；allow_zero_quantity_loss=true可允许扣至零，须原生默认CloseWhenZero为true并显示关闭投影。全检与扣量可同时明确允许，组合须保留正整数余额；高级模式仅基础Container、单位明确、无冻结/层级/载具/第二单位/抽样批，核对原任务ID及配置重读。计数扣量使用单组samples_collected或明确互不重叠的counted_groups，核对根SamplesTested与本次样本合计及完整分组回显；按原因报废暂限一个正数拒收组，多组、自动事件及批抽样仍不支持，移站false。实际转换、扣量、签名和父子历史待验收；确认单次提交，unknown不补发扣量。"""
+        allow_full_inspection:bool=False,allow_automatic_quantity_loss:bool=False,allow_zero_quantity_loss:bool=False,
+        counted_reject_reasons:Annotated[list[CountedRejectReason]|None,Field(min_length=1,max_length=20,
+            description='同一计数样本组的互不重叠拒收原因及件数。明确samples_collected，省略rejects/reject_reason_name/counted_groups，仅用于原生按原因报废。')]=None)->str:
+    """准备单容器CollectSamplingData，固定版本及当前任务，计数/显式不重叠counted_groups或测量samples逐样本完整点值。默认拒绝全检和自动扣量；allow_full_inspection=true允许MES已有全检/失败转全检规则，要求数和标志不由客户端修改；allow_automatic_quantity_loss=true仅允许一种扣量配置：DecreaseBySampleSizeReason按本次测量或计数样本合计扣量，DecreaseByRejectCountReason按本次计数正数拒收合计扣量；仅配置ScrapCountedRejectsByReason时，单个计数检验组按其明确拒收原因和数量扣量，可用counted_reject_reasons提供最多20个互不重叠原因计数。MES内部扣量，不另发ChangeQty；allow_zero_quantity_loss=true可允许扣至零，须原生默认CloseWhenZero为true并显示关闭投影。全检与扣量可同时明确允许，组合须保留正整数余额；高级模式仅基础Container、单位明确、无冻结/层级/载具/第二单位/抽样批，核对原任务ID及配置重读。计数扣量使用单组samples_collected或明确互不重叠的counted_groups，核对根SamplesTested与本次样本合计及完整分组回显；按原因报废支持同组多原因，输入samples_collected和counted_reject_reasons，省略根rejects/reject_reason_name且不混用counted_groups；多组、自动事件及批抽样仍不支持，移站false。实际转换、扣量、签名和父子历史待验收；确认单次提交，unknown不补发扣量。"""
     from tools import quality_plans as plans
     try:
         normalized=None if samples is None else [InspectionSample.model_validate(s).model_dump() for s in samples]
         groups=None if counted_groups is None else [CountedInspectionGroup.model_validate(g).model_dump() for g in counted_groups]
+        reason_args={} if counted_reject_reasons is None else {
+            'counted_reject_reasons':[CountedRejectReason.model_validate(row).model_dump() for row in counted_reject_reasons]}
         return await plans.prepare('inspection',dict(container_name=container_name,sample_test_name=sample_test_name,
             sample_test_revision=sample_test_revision,container_instance_id=container_instance_id,samples_collected=samples_collected,
             rejects=rejects,reject_reason_name=reject_reason_name,samples=normalized,comments=comments,counted_groups=groups,
             allow_full_inspection=allow_full_inspection,allow_automatic_quantity_loss=allow_automatic_quantity_loss,
-            allow_zero_quantity_loss=allow_zero_quantity_loss))
+            allow_zero_quantity_loss=allow_zero_quantity_loss,**reason_args))
     except (ValueError,TypeError,KeyError,AttributeError) as error:return encode({'submitted':False,'error':str(error)})
 
 

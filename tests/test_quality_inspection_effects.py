@@ -43,8 +43,9 @@ def env(loss_env,monkeypatch):
         line=kw['body']['serviceDetails'][0]
         assert set(line)=={'@odata.type','changeQtyType','qty','reasonCode'}
         data=echo(kw['body']);data.update({k:'true' for k in ('CloseWhenZero','DisassociateWhenClosed','GenerateRollups','RecordAllQtySummaryOnly')})
-        data['ServiceDetails'][0].update(Container=copy.deepcopy(data['Container']),CDOTypeId='4030',QtyMultiplier='-1',
-            CountsAgainstProduction='true',RecordAllQty='false',AdjustThruput='true',ChargeToStep=ref('Inspect',STEP))
+        for detail in data['ServiceDetails']:
+            detail.update(Container=copy.deepcopy(data['Container']),CDOTypeId='4030',QtyMultiplier='-1',
+                CountsAgainstProduction='true',RecordAllQty='false',AdjustThruput='true',ChargeToStep=ref('Inspect',STEP))
         if state['child_hook']:state['child_hook'](data)
         return json.dumps({'data':data})
     children=AsyncMock(side_effect=child);monkeypatch.setattr(fx,'request',children)

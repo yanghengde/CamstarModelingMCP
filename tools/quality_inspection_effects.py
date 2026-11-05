@@ -94,11 +94,12 @@ async def pin_definition(dep, definition):
         if actual != point: raise ValueError('数值检验点与被固定的限值/类型不同。')
 
 
-async def child_defaults(ref, reason, count, step_id):
+async def child_defaults(ref, reason, count, step_id, loss_entries=None):
     # Do not send caller-selected CloseWhenZero/AdjustThruput/RecordAllQty here:
     # CollectSampling_ChangeQty creates this child and uses its native defaults.
+    entries = loss_entries or [{'reason':reason,'quantity':count}]
     body = {'container': ref, 'serviceDetails': [{'@odata.type': '#shopfloor.LossDetails',
-            'changeQtyType': 2, 'qty': count, 'reasonCode': reason}]}
+            'changeQtyType': 2, 'qty': entry['quantity'], 'reasonCode': entry['reason']} for entry in entries]}
     fields = ('CloseWhenZero', 'DisassociateWhenClosed', 'GenerateRollups', 'RecordAllQtySummaryOnly')
     raw = await request('POST', '/api/ChangeQty', base_url=CAMSTAR_SHOPFLOOR_BASE_URL, body=body,
                         params={'execute': 'false', '$select': 'Container,ServiceDetails,'+','.join(fields), '$expand': 'ServiceDetails'},
@@ -111,19 +112,23 @@ async def child_defaults(ref, reason, count, step_id):
             or q._has_next_link(data) or not p.wire_matches({'container': ref}, data)):
         raise ValueError('扣量子服务回显错误、目标不符或分页。')
     rows = data.get('ServiceDetails')
-    if not isinstance(rows, list) or len(rows) != 1: raise ValueError('扣量子服务须回显唯一LossDetails。')
-    row = rows[0]
-    if (str(row.get('CDOTypeId')) != '4030' or str(row.get('QtyMultiplier')) != '-1'
-            or str(row.get('ChangeQtyType')) != '2' or not p.wire_matches({'reasonCode': reason, 'container': ref}, row)
-            or i.wire_bool(row.get('RecordAllQty'), '原生全量损失默认') is not False
-            or i.wire_bool(row.get('CountsAgainstProduction'), '原生计入生产') is not True
-            or i.numeric(str(row.get('Qty')), '原生扣量') != count):
-        raise ValueError('原生扣量子类型、原因、目标、默认数量模式或方向不符。')
-    if row.get('Qty2') not in (None, '') and i.numeric(str(row['Qty2']), '原生第二数量') != 0:
-        raise ValueError('原生扣量出现非预期第二数量。')
-    if row.get('ChargeToStep') and q.identifier(row['ChargeToStep']) != step_id: raise ValueError('原生扣量计入步骤不符。')
+    if not isinstance(rows, list) or len(rows) != len(entries): raise ValueError('扣量子服务须完整回显各原因LossDetails。')
+    throughput = []
+    for row, entry in zip(rows, entries):
+        if (str(row.get('CDOTypeId')) != '4030' or str(row.get('QtyMultiplier')) != '-1'
+                or str(row.get('ChangeQtyType')) != '2' or not p.wire_matches({'reasonCode': entry['reason'], 'container': ref}, row)
+                or i.wire_bool(row.get('RecordAllQty'), '原生全量损失默认') is not False
+                or i.wire_bool(row.get('CountsAgainstProduction'), '原生计入生产') is not True
+                or i.numeric(str(row.get('Qty')), '原生扣量') != entry['quantity']):
+            raise ValueError('原生扣量子类型、原因、目标、默认数量模式或方向不符。')
+        if row.get('Qty2') not in (None, '') and i.numeric(str(row['Qty2']), '原生第二数量') != 0:
+            raise ValueError('原生扣量出现非预期第二数量。')
+        if row.get('ChargeToStep') and q.identifier(row['ChargeToStep']) != step_id: raise ValueError('原生扣量计入步骤不符。')
+        throughput.append(i.wire_bool(row.get('AdjustThruput'), '原生生产数量默认'))
+    if len(set(throughput)) != 1:
+        raise ValueError('各原因原生生产数量选项不一致。')
     return {'root': {k: i.wire_bool(data.get(k), k) for k in fields},
-            'adjust_throughput': i.wire_bool(row.get('AdjustThruput'), '原生生产数量默认'),
+            'adjust_throughput': throughput[0],
             'record_all_quantity': False, 'detail_type': 4030, 'quantity_multiplier': -1,
             'counts_against_production': True, 'runtime_child_execution_verified': False}
 
@@ -156,12 +161,17 @@ async def prepare_effects(definition, basic, status, task, args, mode, count, re
         operation = await dep.asset('Operations', spec.get('Operation'))
         if operation['InstanceID'] != q.identifier(status.get('Operation')): raise ValueError('扣量Operation与检验当前状态不同。')
         reason_field, basis = LOSS_MODES[mode]
+        loss_entries = None
         if mode == 'counted_reason_loss':
             lines, _, _, native_rejects = i.counted_details(definition, args)
             if len(lines) != 1 or native_rejects <= 0 or native_rejects != rejects:
                 raise ValueError('原生按原因报废只读取首条检验明细，当前须提交一个正数拒收组。')
-            reason_ref = lines[0]['samplingDataPointDetails'][0]['rejectReason']
-            reason = await dep.asset('LossReasons', {'Name': reason_ref['name'], 'InstanceId': reason_ref['instanceId']})
+            loss_entries = []
+            for point in lines[0]['samplingDataPointDetails']:
+                reason_ref = point['rejectReason']
+                reason = await dep.asset('LossReasons', {'Name': reason_ref['name'], 'InstanceId': reason_ref['instanceId']})
+                loss_entries.append({'reason':{'name':reason['Name'],'instanceId':reason['InstanceID']},
+                                     'quantity':i.int32(int(point['dataValue']),'按原因拒收数',1)})
             reject_group = await dep.asset('LossReasonGroups', definition['test']['AQLRejectReasons'])
             expected_reasons = sorted((item['name'], item['instanceId']) for item in definition['reject_reasons'])
             actual_reasons = sorted((item['Name'], q.identifier(item)) for item in reject_group['ResolvedEntries'])
@@ -170,9 +180,13 @@ async def prepare_effects(definition, basic, status, task, args, mode, count, re
         else:
             reason = await dep.asset('LossReasons', definition['test'][reason_field])
         group = await dep.asset('LossReasonGroups', operation.get('LossReasons'))
-        if sum(q.identifier(v) == reason['InstanceID'] and v.get('Name') == reason['Name'] for v in group['ResolvedEntries']) != 1:
-            raise ValueError('测试中配置的损失原因不属于当前Operation完整LossReasons组。')
         deduction = rejects if mode in REJECT_LOSS_MODES else count
+        if loss_entries is None:
+            loss_entries = [{'reason':{'name':reason['Name'],'instanceId':reason['InstanceID']},'quantity':deduction}]
+        for entry in loss_entries:
+            if sum(q.identifier(v) == entry['reason']['instanceId'] and v.get('Name') == entry['reason']['name']
+                   for v in group['ResolvedEntries']) != 1:
+                raise ValueError('损失原因不属于当前Operation完整LossReasons组。')
         balance = i.numeric(str(row['Qty']), '原数量')
         if deduction <= 0: raise ValueError('按拒收数扣量要求本次有明确的正数拒收。')
         if mode in REJECT_LOSS_MODES and count > balance:
@@ -187,8 +201,8 @@ async def prepare_effects(definition, basic, status, task, args, mode, count, re
         # Arithmetic validation only; these local options never become a request.
         amount, remaining, _ = loss.quantity_options({'record_all_quantity': zero, 'loss_quantity': None if zero else str(deduction),
             'close_when_zero': False, 'adjust_throughput': False}, row)
-        reason_ref = {'name': reason['Name'], 'instanceId': reason['InstanceID']}
-        defaults = await child_defaults(ref, reason_ref, deduction, row['WorkflowStepId'])
+        reason_ref = loss_entries[0]['reason'] if len(loss_entries) == 1 else None
+        defaults = await child_defaults(ref, reason_ref, deduction, row['WorkflowStepId'], loss_entries)
         if zero and not defaults['root']['CloseWhenZero']:
             raise ValueError('检验归零仅支持原生CloseWhenZero明确为true的关闭行为。')
         context['automatic_quantity_loss'] = {'basis': basis, 'quantity': str(amount),
@@ -196,6 +210,8 @@ async def prepare_effects(definition, basic, status, task, args, mode, count, re
             'allow_zero_quantity_loss': args.get('allow_zero_quantity_loss', False), 'projected_close': zero,
             'projection_is_execution_result': False,
             'note': '只提交一次CollectSamplingData，MES内部创建LossDetails；本工具不再提交ChangeQty。标准CLF内部把子服务ProcessESignatures设false，本工具不覆盖父事务签名；部署及签名链未验证。'}
+        if len(loss_entries) > 1:
+            context['automatic_quantity_loss']['reason_breakdown'] = loss_entries
         if full:
             if remaining != remaining.to_integral_value():
                 raise ValueError('全检与扣量组合的剩余数量须为正整数。')
@@ -273,9 +289,15 @@ def validate_transport(snap):
                     or body['serviceDetails'] != lines or deduction <= 0
                     or effects['context']['automatic_quantity_loss']['quantity'] != str(deduction)):
                 raise ValueError('计数扣量增量、根SamplesTested或完整计数明细不一致。')
-            if mode == 'counted_reason_loss' and (len(lines) != 1
-                    or projected['reason'] != lines[0]['samplingDataPointDetails'][0]['rejectReason']):
-                raise ValueError('按原因报废须绑定唯一检验组的原拒收原因。')
+            if mode == 'counted_reason_loss':
+                if len(lines) != 1:
+                    raise ValueError('按原因报废须绑定唯一检验组。')
+                entries = [{'reason':point['rejectReason'],'quantity':int(point['dataValue'])}
+                           for point in lines[0]['samplingDataPointDetails']]
+                expected_reason = entries[0]['reason'] if len(entries) == 1 else None
+                if (projected['reason'] != expected_reason
+                        or len(entries) > 1 and projected.get('reason_breakdown') != entries):
+                    raise ValueError('按原因报废的完整原因及数量分配不符。')
 
 
 async def inspect_snapshot(snap):

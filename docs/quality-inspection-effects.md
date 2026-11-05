@@ -1,5 +1,11 @@
 # 单容器原生全检与自动扣量
 
+同一样本组现在可以明确多个互不重叠的拒收原因。使用 `samples_collected` 指定本组样本总数，`counted_reject_reasons` 中逐项给出 `reject_reason_name` 和正整数 `rejects`。省略根级 `rejects`、`reject_reason_name` 和 `counted_groups`。各原因对应不同拒收件，合计不得超过样本总数，最多20个原因、100个样本。
+
+例如本组检验4件，其中1件原因为 A、2件原因为 B，父检验提交一条样本组明细和两个原因子项。原生扣量子预览同时回显两条 LossDetails，分别核对原原因及1、2件扣量，预计总损失3件。每个原因均绑定检验原因组、工序损失原因组及 LossReason 持久ID。任意明细缺失、数量冲突或配置变化均拒绝原计划。确认页面逐原因显示件数，正式仍执行一次父检验。
+
+本轮核心扩展全项目 4637 项测试及 2 项子测试通过。最终预览元数据和原因数展示补充后，187 项定向回归通过。两次离线 HTTPX 网络尝试均为 0。各原因互不重叠由用户明确，预览保留 `sample_partition_verified=false`。实际多原因扣量和最终历史仍需现场样本验收。记录位于本地 `docs/quality-fixtures/quality-multiple-reasons-full-junit.xml` 和 `quality-multiple-reasons-final-junit.xml`。
+
 本次接入单组按拒收原因报废。测试须仅配置 `ScrapCountedRejectsByReason=true`，本次样本数、正数拒收数和原因明确，用户允许原生自动扣量。拒收原因同时通过检验 `AQLRejectReasons` 完整原因组、当前工序损失原因组和 LossReason 持久身份核对。准备、父预览后复查及执行前重建均固定原因组版本。正式只提交一次父检验事务。
 
 标准原生扣量分支遍历 `ServiceDetails[0].SamplingDataPointDetails`。当前计数输入每组对应一条检验明细，因此该模式要求一个正数拒收组，避免多组被部分扣量。其他计数扣量模式保留已有分组支持。按原因报废可组合已有全检规则，独立归零仍须明确归零许可及原生关闭默认。现场正向效果仍待具备配置的隔离样本验收。

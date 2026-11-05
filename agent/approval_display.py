@@ -40,11 +40,13 @@ LABELS = {
     'projected_remaining_quantity': '预计剩余数量', 'projected_close': '预计关闭容器',
     'samples_this_submission': '本次检验样本数', 'rejects_this_submission': '本次不合格数',
     'counted_groups_this_submission': '本次计数组数', 'deduction_basis': '扣量依据',
+    'counted_reject_reason_count': '本组拒收原因数',
     'automatic_move': '自动过站', 'unit': '单位', 'quantity': '数量',
     'allow_full_inspection': '允许按现有规则进行全检',
     'allow_automatic_quantity_loss': '允许检验自动扣量',
     'allow_zero_quantity_loss': '允许检验扣量归零并按原生规则关闭',
     'automatic_quantity_loss': '检验自动扣量', 'full_inspection': '全检规则',
+    'reason_breakdown': '按拒收原因扣量明细',
     'stored_inspect_all': '当前任务要求全检', 'failure_rule_enabled': '不合格后要求全检',
     'stored_required_samples': '当前任务要求样本数', 'current_whole_quantity': '容器总数量',
     'projected_quantity_after_loss': '预计扣量后容器数量',
@@ -159,10 +161,11 @@ def business_effects(context):
     if not isinstance(context, dict):
         return {}
     allowed = {'current_quantity', 'loss_quantity', 'projected_remaining_quantity', 'projected_close',
-               'unit', 'samples_this_submission', 'rejects_this_submission', 'counted_groups_this_submission', 'automatic_move',
+               'unit', 'samples_this_submission', 'rejects_this_submission', 'counted_groups_this_submission',
+               'counted_reject_reason_count', 'automatic_move',
                'allow_full_inspection', 'allow_automatic_quantity_loss', 'allow_zero_quantity_loss', 'quantity', 'reason',
                'stored_inspect_all', 'failure_rule_enabled', 'stored_required_samples', 'current_whole_quantity'}
-    allowed.update({'projected_quantity_after_loss', 'conditional_required_samples_after_failure'})
+    allowed.update({'projected_quantity_after_loss', 'conditional_required_samples_after_failure', 'reason_breakdown'})
     result = {k: v for k, v in context.items() if k in allowed}
     for key in ('native_effects', 'automatic_quantity_loss', 'full_inspection'):
         selected = business_effects(context.get(key))
