@@ -167,6 +167,21 @@ def test_reference_details_keep_root_and_detect_partial_expand(monkeypatch):
     assert not result(q.get_quality_reference_details('sampling_plan','P','1'))['complete']
 
 
+def test_spc_maintenance_service_is_not_queried_as_persistent_reference(monkeypatch):
+    class Context:
+        def __init__(self,*args,**kwargs):pass
+        async def get(self,*args,**kwargs):raise AssertionError('Maintenance service must not be queried')
+        async def resolve(self,*args,**kwargs):raise AssertionError('Maintenance service must not be resolved')
+    monkeypatch.setattr(q,'ReadContext',Context)
+    for out in (result(q.list_quality_references('spc_control')),
+                result(q.get_quality_reference_details('spc_control',instance_id=RID))):
+        assert out['source']=='SPCControls' and out['supported'] is False
+        assert out['complete'] is False and out['next_tool']=='get_spc_native_readiness'
+        assert 'error' in out and 'rows' not in out and 'data' not in out
+    with pytest.raises(ValueError,match='SPCControls'):
+        result(q.resolve_reference('spc_control','control'))
+
+
 def test_context_sampling_parent_and_no_quality_verdict(monkeypatch):
     monkeypatch.setattr(q,'container_identity',AsyncMock(return_value=({'name':'C','instanceId':CID},{})))
     row={'ContainerId':CID,'ContainerName':'C','CurrentHoldCount':0,'SamplingPassed':False}

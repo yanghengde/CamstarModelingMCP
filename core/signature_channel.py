@@ -4,7 +4,7 @@ import os
 import ssl
 from urllib.parse import urlsplit
 import httpx
-from config import CAMSTAR_BASE_URL,CAMSTAR_QUERY_BASE_URL,CAMSTAR_SHOPFLOOR_BASE_URL,CAMSTAR_TIMEOUT
+from config import CAMSTAR_BASE_URL,CAMSTAR_QUERY_BASE_URL,CAMSTAR_SHOPFLOOR_BASE_URL,CAMSTAR_TIMEOUT,CAMSTAR_TRUST_ENV
 from core import http_client
 
 _client=None
@@ -24,7 +24,7 @@ def get_client():
     global _client
     if _client is None or _client.is_closed:
         context=tls_context()
-        try:_client=httpx.AsyncClient(verify=context,timeout=CAMSTAR_TIMEOUT,follow_redirects=False)
+        try:_client=httpx.AsyncClient(verify=context,timeout=CAMSTAR_TIMEOUT,follow_redirects=False,trust_env=CAMSTAR_TRUST_ENV)
         except Exception:raise ValueError('电子签名安全通道初始化失败，不进行不安全回退。') from None
     return _client
 

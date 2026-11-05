@@ -58,6 +58,8 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
               'reference': '基础资料与原因码', 'query': '查询服务', 'excel': '表格导入', 'system': '系统与能力发现'}
     disabled = DISABLED_MODELING_PATCH_TOOLS
     caveats = {
+        'list_quality_references': '有界列出质量参考配置。spc_control对应维护服务，返回受限说明和get_spc_native_readiness入口；SPC图使用spc_chart。',
+        'get_quality_reference_details': '读取明确质量配置；spc_control维护服务不支持按名称或ID读取持久控制配置，请核对明确SPC图的原生依赖。',
         'get_container_level_schema': '覆盖当前归档契约的全部字段；指定field_name返回精确嵌套/引用schema。只读字段和路径目标选择器不能写。契约声明可写不等于该字段已完成现场持久化验收。',
         'create_container_level': '完整层级创建：常用具名字段及body_json全可写契约。先查同名，不覆盖或补默认配置；POST一次后查唯一ID并回读。未执行真实业务创建验收，不创建容器。',
         'update_container_level': '完整层级更新：名称、AllowMove、唯一性、编号规则、父子层级、属性、WIP/UI配置及契约内其他可写字段，复杂结构先查get_container_level_schema。省略保持、JSON null显式清除；冻结/未知拒绝，已符合目标不写；单次PUT后按请求字段回读。扩展列表/控制字段仅提交并返回证据，field_checks=null不当已验证；未知结果不重试。全局配置，不自动执行或恢复过站；实际保存/复杂明细仍待现场验收。',

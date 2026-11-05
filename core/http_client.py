@@ -16,6 +16,7 @@ from config import (
     CAMSTAR_QUERY_BASE_URL,
     CAMSTAR_SHOPFLOOR_BASE_URL,
     CAMSTAR_TIMEOUT,
+    CAMSTAR_TRUST_ENV,
     CAMSTAR_USERNAME,
     MAX_RESPONSE_LENGTH,
 )
@@ -57,7 +58,7 @@ def get_client() -> httpx.AsyncClient:
     bound=_request_client.get()
     if bound is not None:return bound
     if _client is None or _client.is_closed:
-        _client = httpx.AsyncClient(timeout=CAMSTAR_TIMEOUT, verify=False)
+        _client = httpx.AsyncClient(timeout=CAMSTAR_TIMEOUT, verify=False, trust_env=CAMSTAR_TRUST_ENV)
     return _client
 
 

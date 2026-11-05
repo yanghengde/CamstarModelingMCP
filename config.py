@@ -43,6 +43,7 @@ CAMSTAR_QUERY_BASE_URL = os.getenv(
 CAMSTAR_USERNAME = os.getenv("CAMSTAR_USERNAME", "CamstarAdmin")
 CAMSTAR_PASSWORD = os.getenv("CAMSTAR_PASSWORD", "Cam1star")
 CAMSTAR_TIMEOUT = int(os.getenv("CAMSTAR_TIMEOUT", "30"))
+CAMSTAR_TRUST_ENV = os.getenv("CAMSTAR_TRUST_ENV", "True").lower() in ("true", "1", "yes")
 
 # Maximum response characters before we trim to key fields only
 MAX_RESPONSE_LENGTH = int(os.getenv("MAX_RESPONSE_LENGTH", "4000"))

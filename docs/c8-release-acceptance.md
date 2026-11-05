@@ -2,6 +2,14 @@
 
 2026-11-05，Asia/Shanghai。C8 已完成发布候选的本机隔离启动和首轮 MES 只读检查。正式运行实例部署与业务验收分别记录。
 
+用户已确认正式目标为本机 8030，沿用现有配置。已备份配置、会话、源码包与 7 份数据库，并从备份在独立目录完成恢复启动和完整性检查。真实模型已在本机完成批采样历史、逐点追问、审计边界和 SPC 查询对话。验收客户端曾遇到读取超时，完整多轮验收仍在进行。正式入口随后以原应用启动，`/config` 返回 200，使用 LangGraph 引擎。
+
+本轮真实对话发现 SPCControls 通用列表按 Name 查询会被服务端拒绝。已依据实际维护服务契约修正参考数据入口，返回明确限制及 SPC 图依赖查询入口。C8 整体验收仍在进行。备份、恢复和真实对话记录分别位于本地 `docs/quality-fixtures/c8-release-backup.json`、`docs/quality-fixtures/c8-restore-rehearsal.json` 和 `docs/quality-fixtures/c8-live-dialogues.json`。
+
+用户更新连接地址后，新环境的 Swagger 目录、Modeling 读取和 Query 固定 SQL 均已复核成功。现场系统代理导致应用请求超时，已新增 `CAMSTAR_TRUST_ENV` 配置，默认沿用系统设置；当前 `.env` 明确设为 `False` 以直连内网。普通通道与签名通道均遵循该配置，签名证书验证保持启用。本机服务已重载。
+
+新目录包含 586 个 Modeling 分组和 249 个 Shopfloor 分组。UpdateEventChecklist 仍未公开 executeChecklist 字段，NCRUpdate 仍未公开 ESigPasswordCapture 具体类型。接口目录和字段证据位于本地 `docs/quality-fixtures/quality-new-environment-catalog.json`；业务连接复核位于 `docs/quality-fixtures/quality-env-recheck.json`。这两项原生接入依赖仍需继续处理。
+
 ## 候选范围
 
 候选代码基于 `bf2d713`，包含本轮检验历史兼容修复。隔离实例使用独立会话、检查点和事务库，绑定本机回环地址并使用临时 MCP 鉴权。Web 首页返回 200，未带令牌的 MCP 初始化返回 401。鉴权后的初始化、工具列表和质量能力目录均通过。

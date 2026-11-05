@@ -31,6 +31,11 @@ REFERENCES={
  'rework_reason':('ReworkReasons',False,''),
  'delegation_reason':('DelegationReasonCodes',False,''),
 }
+SPC_CONTROL_GUIDANCE = (
+    'SPCControls为维护服务，当前部署未提供可按名称列举的持久控制配置。'
+    '请使用get_spc_native_readiness核对明确SPC图的原生依赖，'
+    '或使用spc_chart读取图定义；控制限及引擎结果仍须独立核实。'
+)
 NCR_COLUMNS='NonconformanceReportId,NonconformanceReportName,ContainerId,NCRStatus,ChangeCount,NCRComment,NCRFailureTypeId,NCRCauseCodeId,NCRResolutionCodeId,CreationDateGMT,CloseDateGMT,EscalatedEventId'
 CAPA_COLUMNS='CAPAId,CAPAName,Category,Status,ChangeCount,IsFrozen,IsSubmitted,OrganizationId,BriefDescription,Description,ClassificationId,SubClassificationId,PriorityLevelId,SystemicIssue,OccurrenceDateGMT,CloseDateGMT,CloseDescription,QualityResolutionCodeId,ProcessModelId'
 
@@ -180,6 +185,7 @@ async def container_identity(container_name,instance_id=None):
 
 
 async def resolve_reference(kind,name):
+    if kind == 'spc_control':raise ValueError(SPC_CONTROL_GUIDANCE)
     entity,revisioned,_=REFERENCES[kind]
     if revisioned:raise ValueError('版本引用须明确版本/ID，不采用名称默认ROR。')
     row=await ReadContext(3).resolve(entity,{'Name':text(name)},revisioned=False)
@@ -192,6 +198,9 @@ async def list_quality_references(kind:ReferenceKind,name_contains:str='',offset
     """只读质量原因/失败/解决代码、组织分类、处置、抽检计划/测试、自动冻结和SPC配置。固定实体白名单；多取1条判后页。列出原因不证明适用于当前事务；不自动挑选原因，不计算质量结论。"""
     try:
         paging(offset,limit);entity,revisioned,_=REFERENCES[kind]
+        if kind == 'spc_control':
+            return encode({'source':entity,'complete':False,'supported':False,'error':SPC_CONTROL_GUIDANCE,
+                           'next_tool':'get_spc_native_readiness'})
         params={'$top':limit+1,'$skip':offset,'$orderby':'Name,Revision' if revisioned else 'Name',
                 '$select':'InstanceID,Name,Description,IsFrozen'+(',Revision,IsRevOfRcd' if revisioned else '')}
         if name_contains:params['$filter']="contains(Name,'"+text(name_contains).replace("'","''")+"')"
@@ -207,6 +216,9 @@ async def get_quality_reference_details(kind:ReferenceKind,name:str='',revision:
     """只读质量配置详情。抽检计划/测试需明确版本、ID或显式ROR；展开SamplingPlanDetails/SampleDataPoints。自动冻结展开容器/批列表。SPC为配置读取，不提供控制图计算或自动放行。"""
     try:
         entity,revisioned,expand=REFERENCES[kind];ctx=ReadContext(4)
+        if kind == 'spc_control':
+            return encode({'source':entity,'complete':False,'supported':False,'error':SPC_CONTROL_GUIDANCE,
+                           'next_tool':'get_spc_native_readiness'})
         if instance_id is not None and not valid_id(instance_id):raise ValueError('配置ID无效。')
         if revisioned:ref=bom_ref(name,revision,instance_id,use_ror)
         else:
