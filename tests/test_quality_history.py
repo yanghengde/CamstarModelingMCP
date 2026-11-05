@@ -40,7 +40,7 @@ def env(monkeypatch, tmp_path):
                         'SampleTest': ref(TEST), 'Rejects': '0', 'Rejected': 'false', 'CollectSamplingTestDtlHistory': [ref(pid)]}
         objects[pid] = {'InstanceID': pid, 'Parent': ref(sid), 'HistoryId': ref(GROUP), 'SampleDataPoint': ref(POINT),
                         'DataType': '2', 'DataValue': value, 'Passed': 'true', 'LowerLimit': '0', 'UpperLimit': '3',
-                        'EnteredQty': '', 'RejectReason': None}
+                        'EnteredQty': '', 'RejectReasonId': ''}
     snap = {'kind': 'inspection', 'action': 'collect', 'target_id': CONTAINER, 'name': 'C',
             'body': {'comments': COMMENT, 'container': wire(CONTAINER), 'sampleTest': wire(TEST), 'serviceDetails': details},
             'service': 'CollectSamplingData', 'environment': p.environment(),
@@ -155,6 +155,24 @@ def test_duplicate_sample_multiplicity_preserved(env):
     assert reconcile(env)['comparison'] == 'payload_match'
 
 
+def test_measurement_rejects_cross_sample_point_exchange_with_same_overall_values(env):
+    second_point, first_row, second_row = map(key, (50, 51, 52))
+    snap = env['snap']
+    snap['definition']['points'].append(snap['definition']['points'][0] | {'InstanceID': second_point})
+    for index, sample_id, row_id in [(0, S1, first_row), (1, S2, second_row)]:
+        value = str(index + 1)
+        snap['body']['serviceDetails'][index]['samplingDataPointDetails'].append(
+            {'sampleDataPoint': wire(second_point), 'dataValue': value, 'passed': True})
+        env['objects'][row_id] = env['objects'][P1] | {
+            'InstanceID': row_id, 'Parent': ref(sample_id), 'SampleDataPoint': ref(second_point), 'DataValue': value}
+        env['objects'][sample_id]['CollectSamplingTestDtlHistory'].append(ref(row_id))
+    save(env)
+    assert reconcile(env)['comparison'] == 'payload_match'
+    env['objects'][first_row]['DataValue'] = '2'
+    env['objects'][second_row]['DataValue'] = '1'
+    assert reconcile(env)['comparison'] == 'mismatch'
+
+
 @pytest.mark.parametrize('node,field,value', [
     (P1, 'DataValue', '2'), (P1, 'DataType', '1'), (P1, 'Passed', 'false'),
     (P1, 'LowerLimit', '-1'), (P1, 'UpperLimit', ''), (P1, 'SampleDataPoint', ref(LOT)),
@@ -172,6 +190,65 @@ def test_extra_or_duplicate_point_is_not_silently_discarded(env):
     assert 'error' in reconcile(env)
     env['objects'][extra]['SampleDataPoint'] = ref(LOT)
     assert reconcile(env)['comparison'] == 'mismatch'
+
+
+@pytest.mark.parametrize('case', ['missing_request_point', 'duplicate_request_point', 'duplicate_definition_point',
+                                  'wrong_sample_units', 'requested_reason', 'historical_reason', 'invalid_reason'])
+def test_measurement_requires_full_original_sample_and_reports_native_reason_separately(env, case):
+    detail = env['snap']['body']['serviceDetails'][0]
+    if case == 'missing_request_point':
+        detail['samplingDataPointDetails'] = []
+        env['objects'][S1]['CollectSamplingTestDtlHistory'] = []
+    elif case == 'duplicate_request_point':
+        detail['samplingDataPointDetails'] *= 2
+    elif case == 'duplicate_definition_point':
+        env['snap']['definition']['points'] *= 2
+    elif case == 'wrong_sample_units':
+        detail['totalSamplesCollected'] = 2
+    elif case == 'requested_reason':
+        detail['samplingDataPointDetails'][0]['rejectReason'] = wire(LOT)
+    else:
+        detail.update(rejects=1, rejected=True)
+        detail['samplingDataPointDetails'][0].update(dataValue='4', passed=False)
+        env['objects'][S1].update(Rejects='1', Rejected='true')
+        env['objects'][P1].update(DataValue='4', Passed='false',
+                                 RejectReasonId=LOT if case == 'historical_reason' else 'malformed')
+    save(env)
+    before = journal()
+    out = reconcile(env)
+    if case == 'historical_reason':
+        assert out['comparison'] == 'payload_match' and out['historical_points_with_reject_reason'] == 1
+        assert out['evidence']['samples'][0]['points'][0]['RejectReason'] == ref(LOT)
+        assert out['evidence']['samples'][1]['points'][0]['RejectReason'] is None
+    else:
+        assert out['comparison'] == 'incomplete', out
+    assert not out['verified_success'] and not out['completion_causal_chain_verified']
+    assert journal() == before
+
+
+@pytest.mark.parametrize('case', ['match', 'wrong_samples_tested', 'wrong_plan', 'wrong_required', 'legacy'])
+def test_measured_lot_checks_recorded_root_fields_without_claiming_accumulation(env, case):
+    plan = key(88)
+    env['snap'].update(kind='lot_inspection', service='CollectLotSamplingData',
+                       before={'lot': {'SamplingPlanId': plan}, 'task': {'SamplingPlanId': plan, 'TotalSamplesRequired': 10}})
+    env['snap']['body'].update(samplingLot=wire(LOT), samplesTested=2)
+    env['header'].update(SamplingLotId=LOT, TxnType='8589', SamplingPlanId=plan, RequiredSamples='10',
+                         SamplesTested='2', TotalSamplesCompleted='80')
+    if case == 'wrong_samples_tested':
+        env['header'].update(SamplesTested='1', TotalSamplesCompleted='2')
+    elif case == 'wrong_plan':
+        env['header']['SamplingPlanId'] = key(89)
+    elif case == 'wrong_required':
+        env['header']['RequiredSamples'] = '11'
+    elif case == 'legacy':
+        env['snap']['body'].pop('samplesTested')
+    save(env)
+    out = reconcile(env)
+    assert out['comparison'] == ('payload_match' if case in ('match', 'legacy') else 'mismatch'), out
+    assert out['measured_history_checks']['measured_samples_and_points_match']
+    assert out['measured_history_checks'].get('recorded_samples_tested_match') is (
+        None if case == 'legacy' else case != 'wrong_samples_tested')
+    assert not out['verified_success'] and not out['state_changed']
 
 
 @pytest.mark.parametrize('field,value', [('DataValue', 'NaN'), ('DataValue', '1+1'), ('DataType', True), ('Passed', ''), ('LowerLimit', 'min(x)')])

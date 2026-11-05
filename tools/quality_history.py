@@ -205,25 +205,48 @@ def counted_points(points, *, historical=False):
     return frozenset(Counter(values).items())
 
 
+def lot_sampling_input_checks(snap, header, count):
+    task = snap['before']['task']
+    requested_count = i.int32(snap['body']['samplesTested'], '原请求根级采样数', 1)
+    return {
+        'recorded_samples_tested_match': (
+            i.wire_int(header['SamplesTested'], '历史采样数') == requested_count == count),
+        'recorded_sampling_context_matches': (
+            iid(header['SamplingPlanId'], '历史抽样计划ID') == task['SamplingPlanId'] == snap['before']['lot']['SamplingPlanId']
+            and i.wire_int(header['RequiredSamples'], '历史要求样本数') == task['TotalSamplesRequired']),
+    }
+
+
 def compare_sampling(snap, evidence):
     body = snap['body']
     expected = body['serviceDetails']; observed = evidence['samples']
     unverified = ['MES最终事务因果链及后续业务影响尚未通过非空现场验收', '历史没有已核实的样本顺序字段',
                   '历史未完整记录原请求的移站及外部集成选项，不能证明这些选项的最终执行效果']
     dtype = snap['definition']['test']['SampleType']
-    counted_lot = dtype == 1 and snap['kind'] == 'lot_inspection'
+    lot_sampling = snap['kind'] == 'lot_inspection'
+    counted_lot = dtype == 1 and lot_sampling
     if not counted_lot:
         unverified.append('该检验类型的历史父键映射尚待非空现场验收')
     def basic(test_id, rejected, rejects):
         return (test_id, i.wire_bool(rejected, '拒收标志'), i.wire_int(rejects, '拒收数'))
     actual = []
     wanted = []
-    point_defs = {ref_id(r): r for r in snap['definition']['points']}
+    point_defs = {ref_id(row): row for row in snap['definition']['points']}
+    if dtype == 2 and (not point_defs or len(point_defs) != len(snap['definition']['points'])):
+        raise ValueError('原测量计划的检验点定义为空或重复。')
+    reason_point_count = 0
     for detail in expected:
         base = basic(ref_id(detail['sampleTest']), detail['rejected'], detail['rejects'])
         if dtype == 2:
             points = []
-            for point in detail['samplingDataPointDetails']:
+            requested_points = detail['samplingDataPointDetails']
+            ids = {ref_id(point['sampleDataPoint']) for point in requested_points}
+            units = i.int32(detail['totalSamplesCollected'], '原测量样本数量', 1)
+            if units != 1 or len(ids) != len(requested_points) or ids != point_defs.keys():
+                raise ValueError('原测量计划每个样本须恰有全部固定检验点，且样本数量为1。')
+            for point in requested_points:
+                if point.get('rejectReason') is not None:
+                    raise ValueError('当前测量计划不提交点级拒收原因。')
                 pid = ref_id(point['sampleDataPoint']); definition = point_defs[pid]
                 points.append((pid, definition['DataType'], i.numeric(point['dataValue'], '原点值'), point['passed'],
                                nullable_number(definition.get('LowerLimit')), nullable_number(definition.get('UpperLimit'))))
@@ -242,9 +265,12 @@ def compare_sampling(snap, evidence):
                 if pid in ids:
                     raise ValueError('同一样本重复检验点，不能作完整匹配。')
                 ids.add(pid)
+                if point['RejectReasonId'] not in ('', None):
+                    iid(point['RejectReasonId'], '历史测量点拒收原因ID')
+                    reason_point_count += 1
                 points.append((pid, i.wire_int(point.get('DataType'), '点数据类型'),
                                i.numeric(point.get('DataValue'), '历史点值'), i.wire_bool(point.get('Passed'), '点通过标志'),
-                               nullable_number(point.get('LowerLimit')), nullable_number(point.get('UpperLimit'))))
+                               nullable_number(point['LowerLimit']), nullable_number(point['UpperLimit'])))
             base += (tuple(sorted(points)),)
         elif counted_lot:
             # Counted reasons are point children with no SampleDataPoint reference.
@@ -252,32 +278,31 @@ def compare_sampling(snap, evidence):
         actual.append(base)
     count = sum(row['totalSamplesCollected'] for row in expected)
     checks = {}
-    if counted_lot:
-        # Compare only the explicitly recorded root input. The cumulative fields
-        # in the same row cannot substitute for it or partition it by reason.
+    if lot_sampling:
+        # The root input is compared independently of the cumulative columns.
         if 'samplesTested' in body:
-            header = evidence['header']
-            checks['recorded_samples_tested_match'] = (
-                i.wire_int(header['SamplesTested'], '历史本次采样数') == body['samplesTested'] == count)
-            task = snap['before']['task']
-            checks['recorded_sampling_context_matches'] = (
-                header['SamplingPlanId'] == task['SamplingPlanId'] == snap['before']['lot']['SamplingPlanId']
-                and i.wire_int(header['RequiredSamples'], '历史要求样本数') == task['TotalSamplesRequired'])
+            checks.update(lot_sampling_input_checks(snap, evidence['header'], count))
         else:
             unverified.append('旧批采样计划缺少原根级采样数，无法核对历史SamplesTested')
-        unverified += ['拒收点明细不保存各组本次采样数量，无法从根级总数分摊到各组',
-                       '历史未保存批任务ID，无法从计划及测试引用核实特定任务的累计效果']
+        unverified.append('历史未保存批任务ID，无法从计划及测试引用核实特定任务的累计效果')
+    if counted_lot:
+        unverified.append('拒收点明细不保存各组本次采样数量，无法从根级总数分摊到各组')
     elif dtype == 1:
         unverified += ['计数历史明细没有已核实的本次采样数量字段，累计数不等于本次增量',
                        '计数拒收原因和EnteredQty的归属语义尚未现场核实']
     else:
-        unverified += ['测量样本个数按候选明细行数核对，本次总采样增量字段未独立核实']
+        unverified += ['测量样本个数按历史明细行核对，本次总采样量的独立历史语义仍待非空现场验收',
+                       '测量请求不提交拒收原因，历史点上的原因仅供审计']
     groups_match = Counter(wanted) == Counter(actual)
     if counted_lot:
         checks['counted_groups_and_reject_reasons_match'] = groups_match
+    elif dtype == 2:
+        checks['measured_samples_and_points_match'] = groups_match
     matches = groups_match and all(checks.values())
     return {'comparison': ('payload_match' if dtype == 2 else 'partial_match') if matches else 'mismatch',
             **({'counted_history_checks': checks} if counted_lot else {}),
+            **({'measured_history_checks': checks, 'historical_points_with_reject_reason': reason_point_count}
+               if dtype == 2 else {}),
             'compared_fields_match': matches, 'expected_samples': len(expected), 'historical_samples': len(observed),
             'detail_row_semantics':'individual measured samples' if dtype==2 else 'counted service groups, not individual sample units',
             'requested_sample_units':count,
