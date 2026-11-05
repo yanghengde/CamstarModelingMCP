@@ -106,6 +106,92 @@ def test_exact_zero_balance_is_rejected_even_with_remaining_task_samples(env):
     env['client'].request.assert_not_awaited()
 
 
+@pytest.mark.parametrize('reject_basis', [False, True])
+def test_explicit_zero_loss_uses_native_close_and_one_parent(env, reject_basis):
+    env['row']['Qty'] = '3'
+    if reject_basis:
+        env['definition']['test'].update(DecreaseBySampleSizeReason=None, DecreaseByRejectCountReason={'Name':'SCRAP','InstanceId':REASON})
+    ready = prepare(samples_collected=3, rejects=3 if reject_basis else 0,
+                    reject_reason_name='Reject' if reject_basis else None, allow_zero_quantity_loss=True)
+    assert ready.get('state') == 'ready', ready
+    projection = ready['server_context']['native_effects']['automatic_quantity_loss']
+    assert projection['projected_close'] and projection['allow_zero_quantity_loss']
+    assert projection['projected_remaining_quantity'] == '0'
+    assert projection['native_child_defaults']['record_all_quantity'] is False
+    assert 'allow_zero_quantity_loss' not in ready['request_preview']['body']
+    assert execute(ready)['state'] == 'unknown'
+    env['client'].request.assert_awaited_once()
+    assert env['client'].request.await_args.args[1].endswith('/api/CollectSamplingData')
+    assert all(call.kwargs['params']['execute'] == 'false' for call in env['children'].await_args_list)
+
+
+@pytest.mark.parametrize('case', ['no_quantity_permission', 'no_native_close', 'overdraw', 'stale_close', 'tampered'])
+def test_zero_loss_requires_explicit_permission_stable_close_and_available_quantity(env, case):
+    env['row']['Qty'] = '3'
+    args = dict(allow_zero_quantity_loss=True)
+    if case == 'no_quantity_permission':
+        args['allow_automatic_quantity_loss'] = False
+    elif case == 'no_native_close':
+        env['child_hook'] = lambda data: data.update(CloseWhenZero='false')
+    elif case == 'overdraw':
+        args['samples_collected'] = 4
+    ready = prepare(**args)
+    if case == 'stale_close':
+        assert ready['state'] == 'ready'
+        env['child_hook'] = lambda data: data.update(CloseWhenZero='false')
+        assert 'error' in execute(ready)
+    elif case == 'tampered':
+        assert ready['state'] == 'ready'
+        saved = snap(ready)
+        saved['inspection_effects']['context']['automatic_quantity_loss']['projected_close'] = False
+        with pytest.raises(ValueError):
+            effects.validate_transport(saved)
+    else:
+        assert 'error' in ready
+    env['client'].request.assert_not_awaited()
+
+
+def test_zero_permission_does_not_project_closure_for_partial_loss(env):
+    ready = prepare(allow_zero_quantity_loss=True)
+    assert ready['state'] == 'ready'
+    assert ready['server_context']['native_effects']['automatic_quantity_loss']['projected_close'] is False
+    saved = snap(ready)
+    saved['inspection_effects']['context']['automatic_quantity_loss']['projected_close'] = True
+    with pytest.raises(ValueError):
+        effects.validate_transport(saved)
+
+
+def test_zero_loss_option_roundtrips_through_mcp_schema(env):
+    env['row']['Qty'] = '3'
+    async def flow():
+        async with Client(mcp) as client:
+            response = await client.call_tool('prepare_container_inspection', dict(
+                container_name='C', sample_test_name='Visual', sample_test_revision='A',
+                samples_collected=3, rejects=0, allow_automatic_quantity_loss=True, allow_zero_quantity_loss=True))
+            ready = json.loads(response.content[0].text)
+            assert ready['state'] == 'ready', ready
+            assert ready['server_context']['native_effects']['automatic_quantity_loss']['projected_close']
+    asyncio.run(flow())
+    env['client'].request.assert_not_awaited()
+
+
+@pytest.mark.parametrize('reject_basis',[False,True])
+def test_counted_combination_deducts_from_configured_basis_and_exposes_both_effects(env,reject_basis):
+    env['task']['InspectAllQtyOnFailure']=True
+    if reject_basis:
+        env['definition']['test'].update(DecreaseBySampleSizeReason=None,DecreaseByRejectCountReason={'Name':'SCRAP','InstanceId':REASON})
+    ready=prepare(samples_collected=3,rejects=1,reject_reason_name='Reject',allow_full_inspection=True)
+    assert ready.get('state')=='ready',ready
+    context=ready['server_context']['native_effects']
+    expected='9' if reject_basis else '7'
+    assert context['automatic_quantity_loss']['projected_remaining_quantity']==expected
+    assert context['full_inspection']['projected_quantity_after_loss']==expected
+    assert context['full_inspection']['conditional_required_samples_after_failure']==int(expected)
+    assert ready['request_preview']['body']['samplesTested']==3
+    assert execute(ready)['state']=='unknown'
+    env['client'].request.assert_awaited_once()
+
+
 def test_remaining_task_boundary_and_positive_container_balance(env):
     ready = prepare(samples_collected=8)
     assert ready.get('state') == 'ready', ready

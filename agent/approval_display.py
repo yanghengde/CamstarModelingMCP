@@ -43,9 +43,12 @@ LABELS = {
     'automatic_move': '自动过站', 'unit': '单位', 'quantity': '数量',
     'allow_full_inspection': '允许按现有规则进行全检',
     'allow_automatic_quantity_loss': '允许检验自动扣量',
+    'allow_zero_quantity_loss': '允许检验扣量归零并按原生规则关闭',
     'automatic_quantity_loss': '检验自动扣量', 'full_inspection': '全检规则',
     'stored_inspect_all': '当前任务要求全检', 'failure_rule_enabled': '不合格后要求全检',
     'stored_required_samples': '当前任务要求样本数', 'current_whole_quantity': '容器总数量',
+    'projected_quantity_after_loss': '预计扣量后容器数量',
+    'conditional_required_samples_after_failure': 'MES判失败时的条件样本要求',
     'required': '需求数量', 'source': '来源', 'target': '目标',
     'net_required_before': '投料前剩余需求', 'quantity_this_request': '本次投料数量',
     'source_available_before': '来源可用数量', 'projected_source_quantity': '预计来源剩余数量',
@@ -156,8 +159,9 @@ def business_effects(context):
         return {}
     allowed = {'current_quantity', 'loss_quantity', 'projected_remaining_quantity', 'projected_close',
                'unit', 'samples_this_submission', 'rejects_this_submission', 'counted_groups_this_submission', 'automatic_move',
-               'allow_full_inspection', 'allow_automatic_quantity_loss', 'quantity', 'reason',
+               'allow_full_inspection', 'allow_automatic_quantity_loss', 'allow_zero_quantity_loss', 'quantity', 'reason',
                'stored_inspect_all', 'failure_rule_enabled', 'stored_required_samples', 'current_whole_quantity'}
+    allowed.update({'projected_quantity_after_loss', 'conditional_required_samples_after_failure'})
     result = {k: v for k, v in context.items() if k in allowed}
     for key in ('native_effects', 'automatic_quantity_loss', 'full_inspection'):
         selected = business_effects(context.get(key))

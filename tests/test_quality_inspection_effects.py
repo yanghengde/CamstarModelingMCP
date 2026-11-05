@@ -95,6 +95,61 @@ def test_measured_native_sample_size_loss_is_one_parent_write(env):
     assert env['children'].await_count==2
 
 
+def test_measured_exact_zero_requires_opt_in_and_keeps_sample_count(env):
+    env['row']['Qty']='3'
+    ready=prepare(allow_zero_quantity_loss=True)
+    assert ready.get('state')=='ready',ready
+    projection=ready['server_context']['native_effects']['automatic_quantity_loss']
+    assert projection['projected_remaining_quantity']=='0' and projection['projected_close']
+    assert len(ready['request_preview']['body']['serviceDetails'])==3
+    assert execute(ready)['state']=='unknown'
+    env['client'].request.assert_awaited_once()
+
+
+@pytest.mark.parametrize('inspect_all', [False, True])
+def test_combined_full_inspection_and_loss_follow_native_quantity_order(env, inspect_all):
+    env['task'].update(InspectAllContQty=inspect_all, InspectAllQtyOnFailure=True)
+    ready=prepare(allow_full_inspection=True)
+    assert ready.get('state')=='ready',ready
+    context=ready['server_context']['native_effects']
+    assert context['mode']=='measured_sample_size_loss'
+    assert context['automatic_quantity_loss']['quantity']=='3'
+    full=context['full_inspection']
+    assert full['stored_required_samples']==10
+    assert full['projected_quantity_after_loss']=='7'
+    assert full['conditional_required_samples_after_failure']==(10 if inspect_all else 7)
+    assert full['native_processing_order']==['inspection_counters','quantity_loss','failure_full_inspection_rule']
+    assert not full['conversion_verified'] and not full['task_flags_overridden']
+    assert execute(ready)['state']=='unknown'
+    env['client'].request.assert_awaited_once()
+    assert 'error' in execute(ready)
+
+
+@pytest.mark.parametrize('change', ['rule', 'quantity', 'projected_requirement'])
+def test_combined_effects_reject_stale_or_tampered_plan(env, change):
+    env['task'].update(InspectAllQtyOnFailure=True)
+    ready=prepare(allow_full_inspection=True)
+    assert ready.get('state')=='ready',ready
+    if change=='projected_requirement':
+        saved=snap(ready)
+        saved['inspection_effects']['context']['full_inspection']['conditional_required_samples_after_failure']=10
+        with pytest.raises(ValueError):
+            p.transport(saved)
+    else:
+        if change=='rule':env['task']['InspectAllQtyOnFailure']=False
+        else:env['row']['Qty']='9'
+        assert 'error' in execute(ready)
+    env['client'].request.assert_not_awaited()
+
+
+def test_combined_full_inspection_cannot_close_container_with_zero_requirement(env):
+    env['task'].update(InspectAllQtyOnFailure=True)
+    env['row']['Qty']='3'
+    ready=prepare(allow_full_inspection=True,allow_zero_quantity_loss=True)
+    assert 'error' in ready
+    env['client'].request.assert_not_awaited()
+
+
 def test_existing_full_inspection_continues_without_patching_flags(env):
     ready=full(env);assert ready.get('state')=='ready',ready
     context=ready['server_context']['native_effects']['full_inspection']

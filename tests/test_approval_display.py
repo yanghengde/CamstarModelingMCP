@@ -68,6 +68,31 @@ def test_inspection_automatic_loss_is_not_hidden_with_runtime_metadata():
     assert 'PCS' in text and 'technical_flag' not in text
 
 
+def test_combined_inspection_displays_loss_and_conditional_whole_quantity():
+    technical = json.dumps({'server_context': {'native_effects': {
+        'mode': 'measured_sample_size_loss', 'allow_full_inspection': True,
+        'allow_automatic_quantity_loss': True,
+        'automatic_quantity_loss': {'quantity': '3', 'projected_remaining_quantity': '7', 'projected_close': False},
+        'full_inspection': {'stored_required_samples': 5, 'projected_quantity_after_loss': '7',
+                            'conditional_required_samples_after_failure': 7,
+                            'native_processing_order': ['inspection_counters', 'quantity_loss', 'failure_full_inspection_rule']}}}})
+    text = business_preview([call('execute_quality_transaction')], technical)
+    assert '允许按现有规则进行全检：是' in text and '允许检验自动扣量：是' in text
+    assert '当前任务要求样本数：5' in text and '预计扣量后容器数量：7' in text
+    assert 'MES判失败时的条件样本要求：7' in text
+    assert 'inspection_counters' not in text
+
+
+def test_zero_loss_confirmation_exposes_closure_and_permission():
+    technical = json.dumps({'server_context': {'native_effects': {
+        'mode': 'counted_sample_size_loss',
+        'automatic_quantity_loss': {'quantity': '3', 'projected_remaining_quantity': '0',
+                                    'allow_zero_quantity_loss': True, 'projected_close': True}}}})
+    text = business_preview([call('execute_quality_transaction')], technical)
+    assert '预计剩余数量：0' in text and '预计关闭容器：是' in text
+    assert '允许检验扣量归零并按原生规则关闭：是' in text
+
+
 def test_route_rebuild_keeps_deletions_and_order():
     text = business_preview([call('execute_workflow_import_plan')],
                             '1. execute_workflow_import_plan: {"plan_id":"hidden"}\n路线WF/A：删除原步骤 2 个，新建步骤 3 个。\n删除：旧工序1、旧工序2')

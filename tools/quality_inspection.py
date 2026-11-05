@@ -376,8 +376,8 @@ async def prepare_container_inspection(container_name:str,sample_test_name:str,s
         container_instance_id:str|None=None,samples_collected:StrictInt|None=None,rejects:StrictInt|None=None,reject_reason_name:str|None=None,
         samples:Annotated[list[InspectionSample]|None,Field(max_length=50)]=None,comments:str='',
         counted_groups:Annotated[list[CountedInspectionGroup]|None,Field(min_length=1,max_length=20)]=None,
-        allow_full_inspection:bool=False,allow_automatic_quantity_loss:bool=False)->str:
-    """准备单容器CollectSamplingData，固定版本及当前任务，计数/显式不重叠counted_groups或测量samples逐样本完整点值。默认拒绝全检和自动扣量；allow_full_inspection=true允许MES已有全检/失败转全检规则，要求数和标志不由客户端修改；allow_automatic_quantity_loss=true仅允许一种扣量配置：DecreaseBySampleSizeReason按本次测量或计数样本合计扣量，DecreaseByRejectCountReason按本次计数正数拒收合计扣量。MES内部扣量，不另发ChangeQty，不能扣至零。两选项互斥；高级模式仅基础Container、单位明确、无冻结/层级/载具/第二单位/抽样批，核对原任务ID及配置重读。计数扣量使用单组samples_collected或明确互不重叠的counted_groups，核对根SamplesTested与本次样本合计及完整分组回显；逐拒收原因报废、自动事件及批抽样仍不支持，移站false。实际转换、扣量、签名和父子历史待验收；确认单次提交，unknown不补发扣量。"""
+        allow_full_inspection:bool=False,allow_automatic_quantity_loss:bool=False,allow_zero_quantity_loss:bool=False)->str:
+    """准备单容器CollectSamplingData，固定版本及当前任务，计数/显式不重叠counted_groups或测量samples逐样本完整点值。默认拒绝全检和自动扣量；allow_full_inspection=true允许MES已有全检/失败转全检规则，要求数和标志不由客户端修改；allow_automatic_quantity_loss=true仅允许一种扣量配置：DecreaseBySampleSizeReason按本次测量或计数样本合计扣量，DecreaseByRejectCountReason按本次计数正数拒收合计扣量。MES内部扣量，不另发ChangeQty；allow_zero_quantity_loss=true可允许扣至零，须原生默认CloseWhenZero为true并显示关闭投影。全检与扣量可同时明确允许，组合须保留正整数余额；高级模式仅基础Container、单位明确、无冻结/层级/载具/第二单位/抽样批，核对原任务ID及配置重读。计数扣量使用单组samples_collected或明确互不重叠的counted_groups，核对根SamplesTested与本次样本合计及完整分组回显；逐拒收原因报废、自动事件及批抽样仍不支持，移站false。实际转换、扣量、签名和父子历史待验收；确认单次提交，unknown不补发扣量。"""
     from tools import quality_plans as plans
     try:
         normalized=None if samples is None else [InspectionSample.model_validate(s).model_dump() for s in samples]
@@ -385,7 +385,8 @@ async def prepare_container_inspection(container_name:str,sample_test_name:str,s
         return await plans.prepare('inspection',dict(container_name=container_name,sample_test_name=sample_test_name,
             sample_test_revision=sample_test_revision,container_instance_id=container_instance_id,samples_collected=samples_collected,
             rejects=rejects,reject_reason_name=reject_reason_name,samples=normalized,comments=comments,counted_groups=groups,
-            allow_full_inspection=allow_full_inspection,allow_automatic_quantity_loss=allow_automatic_quantity_loss))
+            allow_full_inspection=allow_full_inspection,allow_automatic_quantity_loss=allow_automatic_quantity_loss,
+            allow_zero_quantity_loss=allow_zero_quantity_loss))
     except (ValueError,TypeError,KeyError,AttributeError) as error:return encode({'submitted':False,'error':str(error)})
 
 

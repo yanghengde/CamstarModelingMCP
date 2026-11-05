@@ -1,13 +1,21 @@
 # 单容器原生全检与自动扣量
 
-2026-10-28，扩展现有 `prepare_container_inspection`，质量工具数量仍为50。新增两个默认false的显式选项；它们互斥，不新增独立扣量执行入口。本阶段是受限首版，真实转换、内部扣量、签名及最终父子历史尚未验收。[高级功能计划](quality-advanced-roadmap.md)
+2026-11-05 增加全检与自动扣量组合。用户明确允许两项且原任务已有全检规则时，可在同一个父检验计划中提交。扣量依据沿用测试配置，组合要求剩余数量为正整数。
+
+原生逻辑先更新检验计数，再扣量，随后按 MES 失败状态处理失败转全检规则。因此，若原任务为失败转全检且尚未处于全检模式，条件要求数使用扣量后的数量。已处于全检模式的任务保持原要求数。预览同时展示原要求、预计剩余量及条件要求数，原任务字段仍由 MES 处理。配置或数量变化拒绝原计划，提交结果未知时仍检查原任务及父子历史。归零与组合分支现场效果待验收。
+
+本次 504 项相关测试通过，全项目 4607 项测试及 2 项子测试通过，真实 HTTPX 网络尝试为 0。确认页面最终调整后另跑 11 项展示测试通过，覆盖两个组合效果和归零关闭许可。现场只读查询确认当前没有配置自动扣量的测试或全检任务。回归和现场记录位于本地 `docs/quality-fixtures/quality-effects-full-junit.xml`、`quality-effects-full-network.json` 与 `quality-effects-live-target-check.json`。
+
+2026-11-05 扩展自动扣量归零。原生自动扣量已获明确许可时，可另选 `allow_zero_quantity_loss=true`。拟扣量须恰好等于当前余额，原生子服务必须明确返回 `CloseWhenZero=true`，预览展示 `projected_close=true`。正式请求保留检验输入，归零开关留在本地计划。归零后的实际关闭和任务状态通过原对象检查及最终历史审计核实。355 项相关离线测试通过，真实 HTTPX 网络尝试为 0；现场归零尚未验收。
+
+2026-10-28，扩展现有 `prepare_container_inspection`，质量工具数量仍为50。新增两个默认false的显式选项。后续组合支持见本文最新记录。本阶段是受限首版，真实转换、内部扣量、签名及最终父子历史尚未验收。[高级功能计划](quality-advanced-roadmap.md)
 
 | 参数 | 已开放范围 |
 |---|---|
 | allow_full_inspection=true | 按MES当前任务中已有的全检/失败转全检规则提交检验，支持满足当前全量要求的失败任务续检。不直接修改要求数或标志，不是任意强制转全检 |
 | allow_automatic_quantity_loss=true | 只配置 DecreaseBySampleSizeReason 时，按本次数值测量样本行数或计数样本合计扣量。只配置 DecreaseByRejectCountReason 时，按本次计数检验的正数拒收合计扣量。计数支持单组或明确分组。两种模式均由父检验事务内部触发。 |
 
-默认行为继续拒绝全检、自动扣量和自动事件配置。只有用户明确允许对应原生处理时，代理才传true，不能为了绕过前置错误而自行打开。两个选项不能同时为true；若配置同时涉及全检和扣量，本首版拒绝。
+默认行为继续拒绝全检、自动扣量和自动事件配置。只有用户明确允许对应原生处理时，代理才传true，不能为了绕过前置错误而自行打开。两个选项可同时明确为true，按原生顺序提交组合效果；组合要求扣量后保留正整数余额。
 
 ## 原生全检规则
 
@@ -36,11 +44,11 @@
 
 标准 `CollectSampling_ChangeQty` 对测量检验使用 `GetListCount(ServiceDetails)` 作为损失量。因此3个样本、每样本2个点时，按3个主单位准备损失投影，不按6个点扣量。失败点数或拒收数不用于本模式的扣量计算；客户端不换算单位，预览展示MES当前主单位。
 
-测量按拒收数扣量、逐拒收原因报废、两种扣量原因并存、扣至零或负数，以及全检与扣量组合仍受限。原生分支分别读取 SamplesTested、FailedSamples 或首行原因子明细。
+测量按拒收数扣量、逐拒收原因报废、两种扣量原因并存、扣至负数仍拒绝。扣至零需独立归零许可，全检与扣量组合须保留正整数余额。原生分支分别读取 SamplesTested、FailedSamples 或首行原因子明细。
 
 父检验实际执行只提交一次CollectSamplingData。逐点数据及移站false保持原接口格式；**不会另发ChangeQty来补扣量**。预览中的ChangeQty调用全部是execute=false，仅核对子服务的类型、原因、目标、数量和默认值。
 
-子服务必须回显LossDetails类型4030、方向-1、CountsAgainstProduction=true、RecordAllQty=false，并与本次样本数及原步骤一致。原生CloseWhenZero、AdjustThruput、GenerateRollups、DisassociateWhenClosed和RecordAllQtySummaryOnly默认值会展示、绑定进计划；不会把单独数量损失工具的关闭/生产数量选项偷偷传给检验子事务。首版拟扣量严格小于当前数量，避免归零处理。
+子服务必须回显LossDetails类型4030、方向-1、CountsAgainstProduction=true、RecordAllQty=false，并与本次样本数及原步骤一致。原生CloseWhenZero、AdjustThruput、GenerateRollups、DisassociateWhenClosed和RecordAllQtySummaryOnly默认值会展示、绑定进计划；不会把单独数量损失工具的关闭/生产数量选项偷偷传给检验子事务。默认保持正数余额。明确allow_zero_quantity_loss=true后，可准备恰好扣至零的计划，须原生CloseWhenZero=true，并展示关闭投影。
 
 标准CLF内部设置子ChangeQty.ProcessESignatures=false；这是被核对的原生内部行为，客户端不设置父检验的签名字段。不能据此称为签名链已验收，也不能用系统确认代替MES电子签名。
 

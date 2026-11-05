@@ -25,7 +25,9 @@ LOSS_MODES = {
 def options(args):
     values = tuple(args.get(k, False) for k in ('allow_full_inspection', 'allow_automatic_quantity_loss'))
     if any(type(v) is not bool for v in values): raise ValueError('原生全检/自动扣量选项须为明确布尔值。')
-    if all(values): raise ValueError('首版不组合全检转换与自动扣量，不能同时启用。')
+    zero = args.get('allow_zero_quantity_loss', False)
+    if type(zero) is not bool or zero and not values[1]:
+        raise ValueError('允许扣量归零须明确布尔值并同时允许原生自动扣量。')
     return values
 
 
@@ -60,7 +62,7 @@ def task_policy(task, container, args):
         if a or b: raise ValueError('全检任务须明确allow_full_inspection=true，不能隐式提交。')
         if task['Rejects'] > task['AllowedRejects']: raise ValueError('现有拒收超阈值，当前未允许全检续检。')
         return
-    if quantity or not (a or b): raise ValueError('当前任务没有原生全检规则；此选项不能强制修改检验任务。')
+    if not (a or b): raise ValueError('当前任务没有原生全检规则；此选项不能强制修改检验任务。')
     qty = i.numeric(str(container['Qty']), '全检当前数量')
     if qty != qty.to_integral_value() or not 1 <= qty <= 2147483647: raise ValueError('全检首版要求明确的正整数当前数量。')
     if a and task['TotalSamplesRequired'] != int(qty): raise ValueError('已配置全检，但MES任务要求数不等于当前数量，不本地重算。')
@@ -144,7 +146,7 @@ async def prepare_effects(definition, basic, status, task, args, mode, count, re
             'failure_rule_enabled': task['InspectAllQtyOnFailure'], 'stored_required_samples': task['TotalSamplesRequired'],
             'current_whole_quantity': str(row['Qty']), 'task_flags_overridden': False, 'conversion_verified': False,
             'note': '标准逻辑在MES判Fail且失败全检规则启用时改任务要求为Container.Qty；该CLF没有实际设置InspectAllContQty=true。不补写标志、不本地修改要求数，不将预览当转换成功。'}
-    else:
+    if quantity:
         operation = await dep.asset('Operations', spec.get('Operation'))
         if operation['InstanceID'] != q.identifier(status.get('Operation')): raise ValueError('扣量Operation与检验当前状态不同。')
         reason_field, basis = LOSS_MODES[mode]
@@ -157,16 +159,34 @@ async def prepare_effects(definition, basic, status, task, args, mode, count, re
         if deduction <= 0: raise ValueError('按拒收数扣量要求本次有明确的正数拒收。')
         if mode == 'counted_reject_count_loss' and count > balance:
             raise ValueError('本次计数样本数不能超过容器当前数量。')
-        if balance <= deduction: raise ValueError('首版不允许检验自动扣量到零或负数。')
+        zero = balance == deduction
+        if deduction > balance:
+            raise ValueError('检验自动扣量不能超过当前数量。')
+        if zero and not args.get('allow_zero_quantity_loss', False):
+            raise ValueError('检验扣量归零须明确allow_zero_quantity_loss=true。')
+        if full and zero:
+            raise ValueError('全检与扣量组合须保留正数检验数量。')
         # Arithmetic validation only; these local options never become a request.
-        amount, remaining, _ = loss.quantity_options({'record_all_quantity': False, 'loss_quantity': str(deduction),
+        amount, remaining, _ = loss.quantity_options({'record_all_quantity': zero, 'loss_quantity': None if zero else str(deduction),
             'close_when_zero': False, 'adjust_throughput': False}, row)
         reason_ref = {'name': reason['Name'], 'instanceId': reason['InstanceID']}
         defaults = await child_defaults(ref, reason_ref, deduction, row['WorkflowStepId'])
+        if zero and not defaults['root']['CloseWhenZero']:
+            raise ValueError('检验归零仅支持原生CloseWhenZero明确为true的关闭行为。')
         context['automatic_quantity_loss'] = {'basis': basis, 'quantity': str(amount),
             'projected_remaining_quantity': str(remaining), 'reason': reason_ref, 'native_child_defaults': defaults,
+            'allow_zero_quantity_loss': args.get('allow_zero_quantity_loss', False), 'projected_close': zero,
             'projection_is_execution_result': False,
             'note': '只提交一次CollectSamplingData，MES内部创建LossDetails；本工具不再提交ChangeQty。标准CLF内部把子服务ProcessESignatures设false，本工具不覆盖父事务签名；部署及签名链未验证。'}
+        if full:
+            if remaining != remaining.to_integral_value():
+                raise ValueError('全检与扣量组合的剩余数量须为正整数。')
+            context['full_inspection'].update(
+                projected_quantity_after_loss=str(remaining),
+                conditional_required_samples_after_failure=(
+                    int(remaining) if task['InspectAllQtyOnFailure'] and not task['InspectAllContQty']
+                    else task['TotalSamplesRequired']),
+                native_processing_order=['inspection_counters', 'quantity_loss', 'failure_full_inspection_rule'])
     reads = set()
     for (entity, _), state in dep.states.items(): reads.update(d.resources(entity, state))
     return {'context': context, 'container': row, 'container_status': current,
@@ -206,10 +226,31 @@ def validate_transport(snap):
             raise ValueError('原生检验副作用选项与原计划不符。')
         if mode != definition_policy(snap['definition'], arguments):
             raise ValueError('原生检验副作用模式不符。')
+        task_policy(snap['before']['task'], snap['before']['container'], arguments)
+        if quantity:
+            projected = effects['context']['automatic_quantity_loss']
+            remaining = i.numeric(projected['projected_remaining_quantity'], '预计剩余量')
+            zero = remaining == 0
+            if (projected.get('allow_zero_quantity_loss', False) != arguments.get('allow_zero_quantity_loss', False)
+                    or remaining < 0
+                    or 'projected_close' in projected and projected['projected_close'] is not zero
+                    or zero and (not arguments.get('allow_zero_quantity_loss', False)
+                                 or projected.get('projected_close') is not True
+                                 or projected['native_child_defaults']['root']['CloseWhenZero'] is not True)):
+                raise ValueError('检验归零许可、关闭投影或原生默认不符。')
+            if full:
+                full_context = effects['context']['full_inspection']
+                task = snap['before']['task']
+                conditional = (int(remaining) if task['InspectAllQtyOnFailure'] and not task['InspectAllContQty']
+                               else task['TotalSamplesRequired'])
+                if (remaining <= 0 or remaining != remaining.to_integral_value()
+                        or full_context['projected_quantity_after_loss'] != str(remaining)
+                        or full_context['conditional_required_samples_after_failure'] != conditional):
+                    raise ValueError('全检与扣量组合的剩余数量或条件要求数不符。')
         if counted_loss:
             lines, _, count, rejects = i.counted_details(snap['definition'], arguments)
             deduction = rejects if mode == 'counted_reject_count_loss' else count
-            if (not quantity or full or arguments.get('samples') is not None
+            if (not quantity or arguments.get('samples') is not None
                     or type(body['samplesTested']) is not int or body['samplesTested'] != count
                     or body['serviceDetails'] != lines or deduction <= 0
                     or effects['context']['automatic_quantity_loss']['quantity'] != str(deduction)):
