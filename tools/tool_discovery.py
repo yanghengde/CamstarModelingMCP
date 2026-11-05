@@ -169,6 +169,10 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
         'execute_mfgorder_task_result': '受限单次确认提交；状态映射与现场执行待验收，结果unknown保留整个工单占用，不自动重试/解锁。',
     }
     result = {'source': 'live MCP registry + explicit tool policies',
+              'presentation': {'title': '当前能力说明',
+                               'inventory_basis': '本次读取的工具注册表与显式策略；不是现场健康检查或事务验收。',
+                               'gap_date_scope': 'capability_gaps.checked_at仅为人工缺口盘点日期，不是当前能力目录的核查日期。',
+                               'coverage': '概览覆盖全部非空业务分组，按实际工具及限制归纳；重点呈现近期质量、审批签名、SPC、采集、投料及开工准备入口。'},
               'limitations': ['工具已注册不代表现场事务验收通过；权限、配置和状态由产品校验。',
                               '独立工单下发及整单报工尚未形成已验证闭环；基础单容器数量损失/全量报废已有受限计划，复杂场景及现场写入验收待补。',
                               '确认方式取决于当前对话设置和执行层策略，不能笼统声称所有写入都需逐项确认；缺失选择/参数或用户明确要求先确认时仍等待用户。',
