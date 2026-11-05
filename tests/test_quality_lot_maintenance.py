@@ -272,6 +272,18 @@ def test_candidate_marker_uses_stored_summary_comment_and_never_unlocks(env):
     assert journal() == before
 
 
+@pytest.mark.parametrize('count,expected', [(0, 'no_records'), (1, 'partial_match'), (2, 'ambiguous')])
+def test_maintenance_automatically_locates_only_a_unique_candidate(env, count, expected):
+    ready = prepare(new_quantity='30')
+    execute(ready)
+    env['history'] = [header(ready['request_preview']['body']) | {'SummaryId': key(300+n)} for n in range(count)]
+    before = journal()
+    out = result(h.reconcile_quality_execution(ready['plan_id'], ready['plan_digest']))
+    assert out['comparison'] == expected, out
+    assert not out['request_correlation_verified'] and not out['state_changed']
+    assert journal() == before
+
+
 @pytest.mark.parametrize('field,value', [('Qty', '31'), ('SampleRate', '4'), ('ReversalStatus', '2'),
     ('ReversalStatus', '3'), ('TxnType', '8980')])
 def test_maintenance_history_mismatch_deleted_or_reversal_is_not_a_match(env, field, value):

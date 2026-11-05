@@ -7,9 +7,11 @@ from decimal import Decimal
 from tools import quality as q, quality_inspection as i
 
 
-SERVICE_TYPES = {'quantity_loss': ('ChangeQty', 4000), 'lot_scrap': ('ExecuteSamplingLot', 8980),
+SERVICE_TYPES = {'quantity_loss': ('ChangeQty', 4000), 'lot_completion': ('ExecuteSamplingLot', 8980),
+                 'lot_scrap': ('ExecuteSamplingLot', 8980),
                  'lot_rework': ('ExecuteSamplingLot', 8980)}
-LOT_RESULTS = {'lot_scrap': (3, 'ScrapReasonId', 'ReworkReasonId'),
+LOT_RESULTS = {'lot_completion': (1, None, None),
+               'lot_scrap': (3, 'ScrapReasonId', 'ReworkReasonId'),
                'lot_rework': (2, 'ReworkReasonId', 'ScrapReasonId')}
 MAINLINE = ('HistoryMainlineId,HistoryId,TxnId,TxnDateGMT,TxnType,TxnTypeName,IntegrationTxnId,ReversalStatus,Comments,'
             'ContainerId,ContainerName,ContainerChangeCount,ProductId,OperationId,SpecId,WorkflowStepId,Qty,Qty2,ToQty,ToQty2,InRework')
@@ -64,18 +66,20 @@ async def roots(snap, offset=0, limit=20):
 
 async def transaction(txn_id, kind):
     where = ' WHERE TxnId='+q.literal(identifier(txn_id))
-    queries = {'mainlines': ('HistoryMainline', MAINLINE, 'HistoryMainlineId'),
-               'summaries': ('QtyHistory', SUMMARY, 'QtyHistoryId'),
-               'details': ('QtyHistoryDetails', DETAIL, 'QtyHistoryDetailsId')}
+    queries = {'mainlines': ('HistoryMainline', MAINLINE, 'HistoryMainlineId')}
+    maximum = 52 if kind == 'lot_completion' else 22
+    if kind != 'lot_completion':
+        queries['summaries'] = ('QtyHistory', SUMMARY, 'QtyHistoryId')
+        queries['details'] = ('QtyHistoryDetails', DETAIL, 'QtyHistoryDetailsId')
     if kind in LOT_RESULTS:
         queries['lot'] = ('ExecuteSamplingLotHistory', LOT, 'ExecuteSamplingLotHistoryId')
     if kind == 'lot_rework':
         queries['moves'] = ('MoveHistory', MOVE, 'MoveHistoryId')
     evidence = {}
     for label, (table, fields, key) in queries.items():
-        rows = await q.sql_rows('SELECT TOP 22 '+fields+' FROM '+table+where+' ORDER BY '+key, 22)
+        rows = await q.sql_rows(f'SELECT TOP {maximum} '+fields+' FROM '+table+where+' ORDER BY '+key, maximum)
         ids = [identifier(row[key]) for row in rows]
-        if len(ids) >= 22 or len(ids) != len(set(ids)) or any(row['TxnId'] != txn_id for row in rows):
+        if len(ids) >= maximum or len(ids) != len(set(ids)) or any(row['TxnId'] != txn_id for row in rows):
             raise ValueError('处置事务历史超界、重复或事务组不符。')
         evidence[label] = rows
     return evidence
@@ -215,7 +219,6 @@ def compare(snap, attempt, root, evidence):
     kind = snap['kind']
     service, service_type = SERVICE_TYPES[kind]
     root_id = root['HistoryMainlineId']
-    reason = identifier(snap['reason']['instanceId'])
     checks = {
         'root_in_transaction': root in evidence['mainlines'],
         'attempt_time_window': attempt_time_matches(attempt,root),
@@ -229,12 +232,21 @@ def compare(snap, attempt, root, evidence):
         batch = evidence['lot']
         checks['lot_identity_and_result'] = (root['ContainerId'] in ('',None) and len(batch) == 1
             and batch[0]['HistoryMainlineId'] == batch[0]['IntegrationTxnId'] == root_id
-            and batch[0]['HistoryId'] == snap['target_id'] and batch[0][reason_field] == reason
-            and batch[0][unused_reason_field] in ('',None)
+            and batch[0]['HistoryId'] == snap['target_id']
             and i.wire_int(batch[0]['CDOTypeId'],'批历史类型') == 8989
             and i.wire_int(batch[0]['SamplingLotResult'],'抽样批处置结果') == result
             and i.wire_bool(batch[0]['SamplingCompleted'],'抽样批完成'))
+        if kind == 'lot_completion':
+            checks['fixed_request_target'] = (snap['body']['samplingLot']['instanceId'] == snap['target_id'])
+            checks['no_disposition_reason'] = len(batch) == 1 and all(
+                batch[0][field] in ('', None) for field in ('ScrapReasonId', 'ReworkReasonId'))
+            return checks
+        reason = identifier(snap['reason']['instanceId'])
+        checks['lot_identity_and_result'] = (checks['lot_identity_and_result']
+            and batch[0][reason_field] == reason and batch[0][unused_reason_field] in ('',None))
         mainlines = [row for row in mainlines if row['HistoryMainlineId'] != root_id]
+    else:
+        reason = identifier(snap['reason']['instanceId'])
     if kind == 'lot_rework':
         return checks | compare_rework(snap, evidence, mainlines, root_id, reason)
     plan_members = members(snap)
@@ -269,6 +281,11 @@ async def verify(snap, attempt, candidate_txn_id=None):
     if await roots(snap, limit=1) != (first,False) or await transaction(root['TxnId'],kind) != evidence:
         raise ValueError('核对期间原标记或原生处置事务历史发生变化。')
     matched = all(checks.values())
+    if kind == 'lot_completion':
+        return {'comparison': 'native_request_match' if matched else 'mismatch', 'complete': True,
+                'candidate_txn_id': root['TxnId'], 'checks': checks, 'evidence': evidence,
+                'request_correlation_verified': matched, 'recorded_business_effects_verified': False,
+                'unverified_checks': ['整批OK子事务和成员最终影响仍需非空现场验收。']}
     return {'comparison': 'native_history_match' if matched else 'mismatch', 'complete': True,
             'candidate_txn_id': root['TxnId'], 'checks': checks, 'evidence': evidence,
             'request_correlation_verified': matched, 'recorded_business_effects_verified': matched,

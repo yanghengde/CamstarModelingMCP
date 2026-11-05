@@ -2,6 +2,7 @@ import asyncio
 import copy
 import json
 import time
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock
 
 import pytest
@@ -46,6 +47,8 @@ def env(monkeypatch, tmp_path):
             'definition': {'test': {'SampleType': 2}, 'points': [{'InstanceID': POINT, 'DataType': 2, 'LowerLimit': '0', 'UpperLimit': '3'}]}}
     state = {'header': header, 'objects': objects, 'snap': snap, 'candidate_rows': None}
     async def sql(query, maximum):
+        if 'FROM HistoryMainline WHERE Comments=' in query:
+            return copy.deepcopy(state['roots'][:maximum])
         if query.startswith('SELECT TOP 51'):
             rows = []
             for sr in state['objects'][ROOT]['HistoryDetails']:
@@ -256,9 +259,14 @@ def test_busy_execution_cannot_be_inspected_or_changed(env):
     env['sql'].assert_not_awaited()
 
 
-def test_unsupported_plan_kind_never_reaches_mes(env):
-    env['snap']['kind'] = 'capa'; save(env)
-    assert 'error' in reconcile(env)
+def test_manual_plan_kind_returns_the_evidence_route_without_mes_reads(env):
+    env['snap'].update(kind='inspection_definition', api='modeling', action='create', entity='SampleTests',
+                       method='POST', path='/api/SampleTests')
+    save(env)
+    out = reconcile(env, txn=None)
+    assert out['comparison'] == 'manual_review_required'
+    assert out['evidence_tool'] == 'inspect_quality_transaction' and out['review_tool'] == 'review_quality_transaction'
+    assert not out['complete'] and not out['state_changed']
     env['sql'].assert_not_awaited()
 
 
@@ -316,18 +324,31 @@ def test_counted_matches_are_only_partial_without_delta_and_reason_proof(env):
     assert any('本次采样' in s for s in out['unverified_checks'])
 
 
-def test_completion_cannot_use_name_or_batch_column_as_lot_proof(env):
-    env['snap'].update(kind='lot_completion', action='ok', service='ExecuteSamplingLot')
-    env['snap']['body'] = {'samplingLot': wire(LOT), 'samplingCompleted': True, 'samplingLotResult': 1, 'comments': COMMENT}
-    env['header'].update(TxnType='8980', SamplingCompleted='true', SamplingLotResult='1', BatchId=LOT,
-                         ExecuteSamplingLotHistoryName='lot-matches-name'); save(env)
-    before = journal(); out = reconcile(env)
-    assert out['comparison'] == 'partial_match' and any('关联键' in x for x in out['unverified_checks'])
+@pytest.mark.parametrize('case', ['match', 'wrong_parent', 'duplicate_marker', 'outside_attempt'])
+def test_marked_sampling_binds_root_without_claiming_final_effects(env, case):
+    marker = 'MCP-QUAL:'+'f'*32
+    stamp = time.time()
+    env['snap'].update(marker=marker, target_id=GROUP)
+    env['snap']['body']['comments'] = marker
+    env['header'].update(Comments=marker, ContainerId=GROUP)
+    env['snap']['body']['container'] = wire(GROUP)
+    env['roots'] = [{'TxnId': TXN, 'HistoryMainlineId': MAIN, 'HistoryId': GROUP, 'Comments': marker,
+                     'IntegrationTxnId': MAIN, 'TxnType': '8452', 'TxnTypeName': 'CollectSamplingData',
+                     'ReversalStatus': '1', 'TxnDateGMT': datetime.fromtimestamp(stamp, timezone.utc).isoformat()}]
+    save(env)
+    with p.db_connect() as db:
+        db.execute('UPDATE attempts SET attempt_id=?,started=?,finished=?',('a'*32,stamp-2,stamp+1))
+    if case == 'wrong_parent':
+        env['roots'][0]['IntegrationTxnId'] = ROOT
+    elif case == 'duplicate_marker':
+        env['roots'].append(env['roots'][0] | {'HistoryMainlineId': key(999)})
+    elif case == 'outside_attempt':
+        env['roots'][0]['TxnDateGMT'] = datetime.fromtimestamp(stamp-60, timezone.utc).isoformat()
+    before = journal()
+    out = reconcile(env, txn=None)
+    assert out['request_correlation_verified'] is (case == 'match'), out
+    assert not out['completion_causal_chain_verified'] and not out['verified_success']
     assert journal() == before
-    env['get'].assert_not_awaited()
-    query = env['sql'].await_args.args[0]
-    assert 'BatchId' not in query and 'ExecuteSamplingLotHistoryName' not in query
-    assert not result(h.find_quality_execution_candidates('plan', env['digest']))['target_linkage_available']
 
 
 def test_header_changes_during_detail_read_fail_closed(env):

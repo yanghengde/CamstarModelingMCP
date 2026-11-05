@@ -828,13 +828,17 @@ async def inspect_quality_transaction(plan_id:str,plan_digest:str)->str:
 
 
 @mcp.tool
-async def review_quality_transaction(plan_id:str,plan_digest:str,action:Literal['recover','resolve'],evidence_reference:str,
+async def review_quality_transaction(plan_id:str,plan_digest:str,action:Literal['recover','resolve','resolve_history'],evidence_reference:str,
         review_note:str,conclusion:Literal['committed','not_committed','unknown']='unknown')->str:
-    """须确认的本地质量事务审计。recover须有尝试记录且原进程锁已释放，仅in_flight转unknown并保留占用；resolve须人工最终事务/审计证据，unknown保存人工结论。当前状态相同或空历史不够。保留原响应/审计，不调用MES、不开原计划重试。"""
+    """须确认的本地质量事务审计。recover把已停的in_flight转为unknown。resolve登记人工最终证据。resolve_history仅用于单容器损失、整批报废和返工，conclusion填committed，evidence_reference填已核对原生TxnId；复查历史和原对象当前效果后登记本地结论。证据不足时保留占用，原计划不可重放。"""
     try:
-        if action not in ('recover','resolve') or conclusion not in ('committed','not_committed','unknown'):raise ValueError('审计动作/结论无效。')
+        if action not in ('recover','resolve','resolve_history') or conclusion not in ('committed','not_committed','unknown'):raise ValueError('审计动作/结论无效。')
         if action=='recover' and conclusion!='unknown':raise ValueError('进程恢复不作服务端结论。')
         if not isinstance(evidence_reference,str) or not 1<=len(evidence_reference.strip())<=2000 or not isinstance(review_note,str) or not 10<=len(review_note.strip())<=4000:raise ValueError('须有证据引用及至少10字符核对说明。')
+        if action=='resolve_history':
+            if conclusion!='committed' or not reads.valid_id(evidence_reference):
+                raise ValueError('历史结案须指定committed及16位原生事务ID。')
+            return encode(await resolve_verified_history(plan_id,plan_digest,evidence_reference,review_note))
         with attempt_lock(PLAN_DB,plan_id),db_connect() as db:
             db.execute('BEGIN IMMEDIATE');row=db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone();checked(row,plan_digest)
             if row[2]!=('in_flight' if action=='recover' else 'unknown') or not db.execute('SELECT 1 FROM attempts WHERE plan_id=?',(plan_id,)).fetchone():raise ValueError('当前状态/提交尝试记录不允许该审计。')
@@ -846,3 +850,28 @@ async def review_quality_transaction(plan_id:str,plan_digest:str,action:Literal[
             db.execute('UPDATE plans SET state=?,outcome=? WHERE id=?',(state,json.dumps(result,ensure_ascii=False),plan_id))
         return encode({'state_changed':True,'mes_write_performed':False,**result})
     except (ValueError,TypeError,KeyError,AttributeError,AttemptBusy) as error:return encode({'state_changed':False,'error':str(error)})
+
+
+async def resolve_verified_history(plan_id, plan_digest, txn_id, review_note):
+    from tools.quality_history import attempted_plan
+    from tools.quality_transaction_audit import verified_evidence
+    with attempt_lock(PLAN_DB,plan_id):
+        snap, state, attempt = attempted_plan(plan_id,plan_digest,allow_manual=True)
+        if state != 'unknown':
+            raise ValueError('须先恢复原执行日志至unknown，才能依据历史结案。')
+        evidence = await verified_evidence(snap,attempt,txn_id)
+        with db_connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            row = db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone()
+            checked(row,plan_digest)
+            original_attempt = db.execute('SELECT attempt_id,started,finished FROM attempts WHERE plan_id=?',(plan_id,)).fetchone()
+            if row[2] != 'unknown' or original_attempt != (attempt['attempt_id'],attempt['started'],attempt['finished']):
+                raise ValueError('审计期间原计划状态或提交尝试发生变化。')
+            audit = {'action':'resolve_history','conclusion':'committed','plan_digest':plan_digest,
+                     'evidence_reference':txn_id,'review_note':review_note,'previous_state':row[2],
+                     'previous_outcome':json.loads(row[4]) if row[4] else None,'created':time.time(),**evidence}
+            result = {'state':'history_committed','verified_success':True,'retry_allowed':False,
+                      'original_plan_reusable':False,'history_attestation':audit}
+            db.execute('INSERT INTO reviews VALUES (?,?,?)',(uuid.uuid4().hex,plan_id,json.dumps(audit,ensure_ascii=False)))
+            db.execute('UPDATE plans SET state=?,outcome=? WHERE id=?',(result['state'],json.dumps(result,ensure_ascii=False),plan_id))
+    return {'state_changed':True,'mes_write_performed':False,**result}

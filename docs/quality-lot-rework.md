@@ -19,7 +19,7 @@
 3. 展示完整成员、原数量、预计目标/返回步骤、原因和原生清理影响。预计路线来自静态配置，不等于运行时已解析。
 4. 用户审阅后，由统一执行工具的确认流程确认同一 `plan_id/plan_digest`；执行前完整重建摘要，配置、成员或状态变化均阻止提交。
 5. 单次正式提交后结果先为 `unknown`，保留原批、原成员和配置占用。`inspect_quality_transaction`读取原批和原成员当前记录，不跟随替换成员，不把当前返工结果或HTTP200当成功。
-6. `reconcile_quality_execution` 按原标记核对父批结果及逐成员移动历史，`find_quality_execution_candidates` 可列出候选。结合当前原成员、任务清理和MES审计证据人工核实后，通过 `review_quality_transaction` 保存结论。详见[处置历史归因](quality-disposition-history.md)。
+6. `reconcile_quality_execution` 按原标记核对父批结果及逐成员移动历史，`find_quality_execution_candidates` 可列出候选。历史匹配后可经确认用 `review_quality_transaction` 的 `resolve_history` 复读原成员当前路线、数量和任务清理后结案。证据不足时使用人工审计。详见[处置历史归因](quality-disposition-history.md)。
 
 ## 第一阶段限制
 

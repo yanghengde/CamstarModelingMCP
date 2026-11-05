@@ -87,7 +87,7 @@
 | preview_sampling_table_lookup | 批量区间→代码→AQL行的只读配置查表，保留数量及阈值，不代表MES最终要求或质量判定 |
 | get_inspection_result_history | 逐样本/逐点历史候选关联，最多50样本100点；父键映射仍待非空现场验收 |
 | find_quality_execution_candidates | 原计划摘要、环境和实际尝试记录约束下，查精确评论与历史目标对应的候选事务 |
-| reconcile_quality_execution | [数量损失、整批报废及返工历史归因](quality-disposition-history.md)，可自动定位唯一候选。检验、批采样、整批OK和批维护仍须明确候选。只读保留原计划占用。 |
+| reconcile_quality_execution | [统一历史核对](quality-disposition-history.md)，可自动定位损失、整批处置、批维护及带系统标记的普通检验。分开报告请求关联和已记录效果，其他计划返回人工取证入口。 |
 | prepare_quality_event_creation | [实际创建计划](quality-event-lifecycle.md)，仅原生自动编号、Pending未提交；准备无创建预览，确认单次执行 |
 | prepare_quality_event_open | [Closed事件原生开启计划](quality-event-lifecycle.md)，保持旧关闭信息，不手工改状态 |
 | prepare_quality_event_reassignment | [明确责任人/角色重新分派](quality-event-lifecycle.md)，显式通知选项、原生组合校验 |
@@ -133,7 +133,7 @@
 | get_quality_transaction_plan | 不可变计划、请求、原始执行响应、过期和审计状态 |
 | execute_quality_transaction | 确认、重建、比较摘要及关联占用、原子领取，按白名单单次执行Shopfloor或Modeling请求 |
 | inspect_quality_transaction | 当前记录和有限历史作人工证据，不认定本次成功，不解除占用 |
-| review_quality_transaction | 有提交记录的本机中断恢复或人工最终证据审计；不写MES，不重放原计划 |
+| review_quality_transaction | 经确认登记本地审计。支持中断恢复、人工最终证据，以及对损失、整批报废和返工的历史及当前效果复核结案。 |
 | container_defect / rework | 已有不良登记和返工直接封装；需确认，现场写入验收待补 |
 | hold_container / release_container | 已有Container冻结/解冻，不是工单释放；需确认，现场写入验收待补 |
 

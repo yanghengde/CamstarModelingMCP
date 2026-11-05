@@ -13,8 +13,8 @@ from core.transfer_attempt_lock import attempt_lock, AttemptBusy
 
 FLAGS = {'verified_success': False, 'state_changed': False, 'retry_allowed': False,
          'completion_causal_chain_verified': False, 'request_correlation_verified': False}
-SERVICE_TYPES = {'inspection': 8452, 'lot_inspection': 8589, 'lot_completion': 8980, 'lot_maintenance': 8592}
-SERVICES = {'inspection': 'CollectSamplingData', 'lot_inspection': 'CollectLotSamplingData', 'lot_completion': 'ExecuteSamplingLot', 'lot_maintenance': 'UpdateSamplingLot'}
+SERVICE_TYPES = {'inspection': 8452, 'lot_inspection': 8589, 'lot_maintenance': 8592}
+SERVICES = {'inspection': 'CollectSamplingData', 'lot_inspection': 'CollectLotSamplingData', 'lot_maintenance': 'UpdateSamplingLot'}
 
 
 def iid(value, label):
@@ -73,9 +73,6 @@ def header_sql(kind):
     if kind == 'lot_maintenance':
         table = 'UpdateSamplingLotHistory'
         fields = 's.UpdateSamplingLotHistoryId AS SummaryId,s.SamplingLotId,s.Qty,s.SampleRate,s.Comments AS StoredComments'
-    elif kind == 'lot_completion':
-        table = 'ExecuteSamplingLotHistory'
-        fields = 's.ExecuteSamplingLotHistoryId AS SummaryId,s.SamplingCompleted,s.SamplingLotResult'
     else:
         table = 'CollectSamplingDataHistory'
         fields = ('s.CollectSamplingDataHistoryId AS SummaryId,s.SamplingLotId,s.SampleTestId,'
@@ -114,21 +111,31 @@ async def trace(summary_id):
             'ownership_linkage_verified': False, 'sample_order_verified': False, 'nonempty_onsite_acceptance_verified': False}
 
 
-def attempted_plan(plan_id, fingerprint):
+def history_mode(snap):
+    if snap.get('inspection_effects'):
+        return 'manual'
+    kind = snap.get('kind')
+    if kind in disposition.SERVICE_TYPES:
+        return 'native'
+    return 'candidate' if kind in SERVICES else 'manual'
+
+
+def attempted_plan(plan_id, fingerprint, *, allow_manual=False):
     with p.db_connect() as db:
         row = db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?', (plan_id,)).fetchone()
         attempt = db.execute('SELECT attempt_id,started,finished FROM attempts WHERE plan_id=?', (plan_id,)).fetchone()
     snap = p.checked(row, fingerprint)
     if row[2] not in ('unknown', 'in_flight') or not attempt:
         raise ValueError('只核对有实际尝试记录的unknown/in_flight计划。')
-    kind = snap.get('kind')
+    if history_mode(snap) == 'manual':
+        if allow_manual:
+            p.transport(snap)
+            return snap, row[2], {'attempt_id': attempt[0], 'started': attempt[1], 'finished': attempt[2]}
+        raise ValueError('当前计划须用inspect_quality_transaction取证，再用review_quality_transaction人工审核。')
+    kind = snap['kind']
     service = SERVICES.get(kind) or disposition.SERVICE_TYPES.get(kind,(None,None))[0]
-    if service is None:
-        raise ValueError('当前计划类型没有受支持的历史核对入口。')
     if snap.get('service') != service:
         raise ValueError('原计划种类与实际服务不一致。')
-    if snap.get('inspection_effects'):
-        raise ValueError('原生全检/自动扣量尚未核实原任务及父子事务历史，不能用普通检验payload匹配代替；请inspect后以最终证据人工review。')
     if snap['kind'] == 'inspection':
         # Older evidence snapshots may omit the move option. Keep that unknown
         # on this read-only path; never synthesize false or relax write transport.
@@ -151,7 +158,7 @@ async def candidates(snap, offset=0, limit=20, txn_id=None):
     where = [('s.Comments' if kind == 'lot_maintenance' else 'h.Comments')+'='+q.literal(body['comments'])]
     if kind == 'lot_maintenance':
         where.append("s.SamplingLotId='"+iid(body['samplingLot']['instanceId'], '原批ID')+"'")
-    elif kind != 'lot_completion':
+    else:
         where += ["h.ContainerId='"+iid(body['container']['instanceId'], '原容器ID')+"'",
                   "s.SampleTestId='"+iid(body['sampleTest']['instanceId'], '原测试ID')+"'"]
         if kind == 'lot_inspection':
@@ -160,7 +167,7 @@ async def candidates(snap, offset=0, limit=20, txn_id=None):
             where.append("(s.SamplingLotId IS NULL OR s.SamplingLotId='')")
     if txn_id is not None:
         where.append("s.TxnId='"+iid(txn_id, '候选事务ID')+"'")
-    key = {'lot_completion': 'ExecuteSamplingLotHistoryId', 'lot_maintenance': 'UpdateSamplingLotHistoryId'}.get(kind, 'CollectSamplingDataHistoryId')
+    key = 'UpdateSamplingLotHistoryId' if kind == 'lot_maintenance' else 'CollectSamplingDataHistoryId'
     rows = await q.sql_rows(header_sql(kind)+'WHERE '+' AND '.join(where)+
                             f' ORDER BY s.{key} OFFSET {offset} ROWS FETCH NEXT {limit+1} ROWS ONLY', limit+1)
     validate_headers(rows)
@@ -170,7 +177,7 @@ async def candidates(snap, offset=0, limit=20, txn_id=None):
             raise ValueError('候选事务或完整评论不符。')
         if kind == 'lot_maintenance' and row.get('SamplingLotId') != body['samplingLot']['instanceId']:
             raise ValueError('候选维护历史目标批不符。')
-        if kind not in ('lot_completion', 'lot_maintenance') and (
+        if kind != 'lot_maintenance' and (
                 row.get('ContainerId') != body['container']['instanceId']
                 or row.get('SampleTestId') != body['sampleTest']['instanceId']
                 or (row.get('SamplingLotId') or None) != (body.get('samplingLot') or {}).get('instanceId')):
@@ -250,7 +257,7 @@ async def get_inspection_result_history(summary_history_id: str) -> str:
 
 @mcp.tool
 async def find_quality_execution_candidates(plan_id: str, plan_digest: str, offset: StrictInt = 0, limit: StrictInt = 20) -> str:
-    """只读查有尝试记录的unknown/in_flight检验、批采样、整批OK、批维护、单容器损失、整批报废及返工候选历史。校验摘要及环境，精确匹配完整评论。采样还约束容器/测试/批ID，损失、报废及返工使用主历史候选。分页不能证明候选唯一，不写journal、不解锁、不重试。"""
+    """只读查有尝试记录的unknown/in_flight检验、批采样、整批OK、批维护、单容器损失、整批报废及返工候选历史。校验摘要及环境，精确匹配完整评论。采样还约束容器/测试/批ID，单容器损失和整批处置使用主历史候选。分页不能证明候选唯一，不改本地审计状态。"""
     try:
         with attempt_lock(p.PLAN_DB, plan_id):
             snap, state, attempt = attempted_plan(plan_id, plan_digest)
@@ -259,7 +266,7 @@ async def find_quality_execution_candidates(plan_id: str, plan_digest: str, offs
             return q.encode({'plan_id': plan_id, 'state': state, 'attempt': attempt, 'rows': rows,
                              'page_complete': True, 'complete': False, 'has_more': more,
                              'next_offset': offset+limit if more else None,
-                             'target_linkage_available': snap['kind'] not in ('lot_completion', *disposition.LOT_RESULTS),
+                             'target_linkage_available': snap['kind'] not in disposition.LOT_RESULTS,
                              **FLAGS})
     except (ValueError, TypeError, KeyError, AttributeError, AttemptBusy) as error:
         return q.encode({'complete': False, **FLAGS, 'error': str(error)})
@@ -267,15 +274,40 @@ async def find_quality_execution_candidates(plan_id: str, plan_digest: str, offs
 
 @mcp.tool
 async def reconcile_quality_execution(plan_id: str, plan_digest: str, candidate_txn_id: str | None = None) -> str:
-    """只读核对已尝试的质量计划。单容器损失、整批报废和整批返工可省略候选ID，按唯一完整事务标记定位，核对尝试时间、父子事务、成员、数量及原因。返工另核对原生移动路径、目标和返回步骤。检验、批采样、整批OK与批维护仍须明确候选ID。核实历史归属后仍保留unknown占用，人工审核才变更计划状态。"""
+    """只读核对已尝试的质量计划。单容器损失、整批处置、批维护及带系统标记的普通检验可自动定位。整批OK只核对父批结果，检验和批维护只核对可见字段。旧检验仍须明确候选ID。其他事务给出人工取证入口。只有独立确认的本地审计可结束占用。"""
     try:
         if candidate_txn_id is not None:
             iid(candidate_txn_id, '候选事务ID')
         with attempt_lock(p.PLAN_DB, plan_id):
-            snap, state, attempt = attempted_plan(plan_id, plan_digest)
-            if snap['kind'] in disposition.SERVICE_TYPES:
+            snap, state, attempt = attempted_plan(plan_id, plan_digest, allow_manual=True)
+            mode = history_mode(snap)
+            if mode == 'manual':
+                return q.encode({'plan_id': plan_id, 'state': state, 'attempt': attempt, **FLAGS,
+                                 'comparison': 'manual_review_required', 'complete': False,
+                                 'review_action': 'recover' if state == 'in_flight' else 'resolve',
+                                 'evidence_tool': 'inspect_quality_transaction', 'review_tool': 'review_quality_transaction'})
+            if mode == 'native':
                 proof = await disposition.verify(snap, attempt, candidate_txn_id)
-                return q.encode({'plan_id': plan_id, 'state': state, 'attempt': attempt, **FLAGS, **proof})
+                action = 'resolve_history' if proof.get('recorded_business_effects_verified') else 'resolve'
+                return q.encode({'plan_id': plan_id, 'state': state, 'attempt': attempt, **FLAGS, **proof,
+                                 'review_action': 'recover' if state == 'in_flight' else action})
+            root = None
+            if snap['kind'] in ('inspection', 'lot_inspection') and snap.get('marker'):
+                root_page = await disposition.roots(snap, limit=1)
+                first, more = root_page
+                if more or not first:
+                    return q.encode({'comparison': 'ambiguous' if more else 'no_records', 'complete': False, **FLAGS})
+                root = first[0]
+                if candidate_txn_id is not None and root['TxnId'] != candidate_txn_id:
+                    return q.encode({'comparison': 'candidate_mismatch', 'complete': False, **FLAGS})
+                candidate_txn_id = root['TxnId']
+            maintenance_page = None
+            if candidate_txn_id is None and snap['kind'] == 'lot_maintenance':
+                maintenance_page = await candidates(snap, limit=1)
+                first, more = maintenance_page
+                if more or not first:
+                    return q.encode({'comparison': 'ambiguous' if more else 'no_records', 'complete': False, **FLAGS})
+                candidate_txn_id = first[0]['TxnId']
             if candidate_txn_id is None:
                 raise ValueError('该类型须明确候选事务ID。')
             rows, more = await candidates(snap, limit=100, txn_id=candidate_txn_id)
@@ -286,6 +318,9 @@ async def reconcile_quality_execution(plan_id: str, plan_digest: str, candidate_
             checks = {'active_history': i.wire_int(row.get('ReversalStatus'), '冲销状态') == 1,
                       'transaction_type': i.wire_int(row.get('TxnType'), '事务类型') == SERVICE_TYPES[snap['kind']]}
             if snap['kind'] == 'lot_maintenance':
+                if maintenance_page is not None and (rows != maintenance_page[0]
+                        or await candidates(snap, limit=1) != maintenance_page):
+                    raise ValueError('核对期间批维护候选发生变化。')
                 checks.update(quantity=i.numeric(str(row.get('Qty')), '维护历史数量') == i.numeric(str(snap['body']['qty']), '原数量'),
                               sample_rate=i.wire_int(row.get('SampleRate'), '维护历史频率') == snap['body']['sampleRate'])
                 comparison = {'comparison': 'partial_match' if all(checks.values()) else 'mismatch',
@@ -293,22 +328,28 @@ async def reconcile_quality_execution(plan_id: str, plan_digest: str, candidate_
                               'unverified_checks': ['维护历史未保存AllowAdjustToLotSize，不能核实保留选项最终效果',
                                                     '任务要求重算、成员采样标志和最终事务因果链尚待非空现场验收']}
                 evidence = {'header': row}
-            elif snap['kind'] == 'lot_completion':
-                checks.update(sampling_completed=i.wire_bool(row.get('SamplingCompleted'), '完成标志') == snap['body']['samplingCompleted'],
-                              sampling_lot_result=i.wire_int(row.get('SamplingLotResult'), '批结果') == snap['body']['samplingLotResult'])
-                comparison = {'comparison': 'partial_match' if all(checks.values()) else 'mismatch',
-                              'unverified_checks': ['ExecuteSamplingLotHistory没有已核实的目标批关联键',
-                                                    '整批最终事务及后续影响尚未通过非空现场验收']}
-                evidence = {'header': row}
             else:
                 evidence = await trace(row['SummaryId'])
                 if evidence['header'] != row:
                     raise ValueError('候选查询与明细展开之间历史记录变化。')
                 comparison = compare_sampling(snap, evidence)
+                if root is not None:
+                    target_ref = snap['body']['samplingLot' if snap['kind'] == 'lot_inspection' else 'container']
+                    checks['exact_root_and_attempt'] = (
+                        target_ref['instanceId'] == snap['target_id']
+                        and root['HistoryMainlineId'] == root['IntegrationTxnId'] == row['HistoryMainlineId']
+                        and root['HistoryId'] == row['HeaderHistoryId'] == row['ContainerId']
+                        and root['TxnTypeName'] == SERVICES[snap['kind']]
+                        and i.wire_int(root['TxnType'], '原生检验事务类型') == SERVICE_TYPES[snap['kind']]
+                        and i.wire_int(root['ReversalStatus'], '原生检验冲销状态') == 1
+                        and disposition.attempt_time_matches(attempt, root))
+                    if await disposition.roots(snap, limit=1) != root_page:
+                        raise ValueError('核对期间检验原标记记录发生变化。')
                 if not all(checks.values()):
                     comparison['comparison'] = 'mismatch'
+            linked = root is not None and all(checks.values()) and comparison['compared_fields_match']
             return q.encode({'plan_id': plan_id, 'state': state, 'attempt': attempt, 'candidate_txn_id': candidate_txn_id,
                              'checks': checks, **comparison, 'original_request': snap['body'],
-                             'evidence': evidence, 'complete': True, **FLAGS})
+                             'evidence': evidence, 'complete': True, **FLAGS, 'request_correlation_verified': linked})
     except (ValueError, TypeError, KeyError, AttributeError, AttemptBusy) as error:
         return q.encode({'comparison': 'incomplete', 'complete': False, **FLAGS, 'error': str(error)})

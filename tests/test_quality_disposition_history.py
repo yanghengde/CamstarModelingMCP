@@ -1,6 +1,7 @@
 import asyncio
 import copy
 import json
+import sqlite3
 from datetime import datetime, timezone
 
 import pytest
@@ -273,3 +274,107 @@ def test_batch_rework_rejects_incomplete_or_unstable_transactions(rework, case):
     else:
         rework['changed'] = 'moves'
     assert not reconcile(install(rework))['request_correlation_verified']
+
+
+@pytest.mark.parametrize('case', ['match', 'wrong_lot', 'wrong_result', 'other_reason', 'reversed', 'changed'])
+def test_batch_ok_uses_native_lot_identity_without_claiming_member_effects(env, case):
+    lot = key(30)
+    snap = env['snapshot']
+    root = env['roots'][0] | {'ContainerId': '', 'HistoryId': '', 'TxnTypeName': 'ExecuteSamplingLot', 'TxnType': '8980'}
+    env.update(roots=[root], mainlines=[root])
+    env['lot'] = [{'ExecuteSamplingLotHistoryId': key(31), 'HistoryMainlineId': ROOT, 'HistoryId': lot, 'TxnId': TXN,
+                   'IntegrationTxnId': ROOT, 'CDOTypeId': '8989', 'SamplingLotResult': '1', 'SamplingCompleted': 'true',
+                   'ScrapReasonId': '', 'ReworkReasonId': ''}]
+    snap.update(kind='lot_completion', action='ok', service='ExecuteSamplingLot', name='L', target_id=lot,
+                body={'samplingLot': {'name': 'L', 'instanceId': lot}, 'samplingCompleted': True,
+                      'samplingLotResult': 1, 'comments': root['Comments']})
+    if case == 'wrong_lot':
+        env['lot'][0]['HistoryId'] = key(999)
+    elif case == 'wrong_result':
+        env['lot'][0]['SamplingLotResult'] = '2'
+    elif case == 'other_reason':
+        env['lot'][0]['ReworkReasonId'] = REASON
+    elif case == 'reversed':
+        root['ReversalStatus'] = '2'
+    elif case == 'changed':
+        env['changed'] = 'lot'
+    digest = install(env)
+    result = reconcile(digest)
+    assert result['request_correlation_verified'] is (case == 'match'), result
+    assert not result.get('recorded_business_effects_verified') and not result['completion_causal_chain_verified']
+    assert not result['verified_success'] and not result['state_changed']
+    assert 'error' in history_review(digest)
+    assert all('QtyHistory' not in query for query in env['queries'])
+
+
+def history_review(digest, txn=TXN):
+    return json.loads(asyncio.run(plans.review_quality_transaction(
+        'plan', digest, 'resolve_history', txn, '核对原事务与当前原对象效果。', 'committed')))
+
+
+@pytest.mark.parametrize('case', ['match', 'wrong_current_qty', 'current_changed', 'wrong_txn', 'reversed', 'in_flight',
+                                  'audit_write_failure'])
+def test_loss_final_audit_is_atomic_and_requires_stable_current_effects(env, monkeypatch, case):
+    from tools import quality_quantity_loss as loss
+    before = env['snapshot']['before']['container']
+    observed = before | {'Qty': '8', 'Qty2': '4', 'Status': 1, 'ChangeCount': 2}
+    reads = 0
+
+    async def record(cid):
+        nonlocal reads
+        assert cid == CONTAINER
+        reads += 1
+        if case == 'wrong_current_qty' or case == 'current_changed' and reads == 2:
+            return observed | {'Qty': '7'}
+        return observed
+
+    monkeypatch.setattr(loss, 'record', record)
+    digest = install(env, state='in_flight' if case == 'in_flight' else 'unknown')
+    if case == 'reversed':
+        env['roots'][0]['ReversalStatus'] = '2'
+    if case == 'audit_write_failure':
+        with plans.db_connect() as db:
+            db.execute("CREATE TRIGGER fail_state BEFORE UPDATE ON plans BEGIN SELECT RAISE(ABORT,'fault'); END")
+        with pytest.raises(sqlite3.IntegrityError):
+            history_review(digest)
+    else:
+        out = history_review(digest, key(99) if case == 'wrong_txn' else TXN)
+        assert out['state_changed'] is (case == 'match'), out
+        if case == 'match':
+            assert out['state'] == 'history_committed' and out['verified_success']
+            assert not out['mes_write_performed'] and not out['original_plan_reusable']
+            assert out['history_attestation']['candidate_txn_id'] == TXN
+            assert out['history_attestation']['plan_digest'] == digest
+            assert len(out['history_attestation']['evidence_digest']) == 64
+            assert 'error' in history_review(digest)
+    with plans.db_connect() as db:
+        state = db.execute('SELECT state FROM plans').fetchone()[0]
+        records = db.execute('SELECT record FROM reviews').fetchall()
+        assert state == ('history_committed' if case == 'match' else 'in_flight' if case == 'in_flight' else 'unknown')
+        assert len(records) == (1 if case == 'match' else 0)
+
+
+@pytest.mark.parametrize('case', ['match', 'missing_baseline', 'retained_task', 'new_task', 'route_unavailable'])
+def test_batch_rework_final_audit_requires_original_routes_and_task_cleanup(rework, monkeypatch, case):
+    from tools import quality_lot_rework
+    snap = rework['snapshot']
+    current = [row | {'Status': '1', 'ChangeCount': '2'} for row in snap['before']['members']]
+    evidence = {
+        'current_lot': {'lot': {'MfgLotId': snap['target_id'], 'SamplingCompleted': True, 'SamplingLotResult': 2}},
+        'original_members_current_records': current,
+        'missing_original_member_ids': [],
+        'member_route_evidence': [{'container_id': row['ContainerId'], 'available': case != 'route_unavailable',
+                                   'expected_route_currently_observed': True, 'quantity_currently_unchanged': True}
+                                  for row in current],
+        'sampling_task_cleanup': {'baseline_available': case != 'missing_baseline',
+                                  'all_original_tasks_absent': case != 'retained_task',
+                                  'new_tasks': [{}] if case == 'new_task' else []},
+    }
+
+    async def inspect(snapshot):
+        assert snapshot == snap
+        return evidence
+
+    monkeypatch.setattr(quality_lot_rework, 'inspect_snapshot', inspect)
+    out = history_review(install(rework))
+    assert out['state_changed'] is (case == 'match'), out

@@ -301,7 +301,11 @@ def plan_preview(calls):
                 from tools.quality_plans import confirmation_summary
                 args=json.loads(arguments)
                 lines.append(confirmation_summary(args.get('plan_id'),args.get('plan_digest')))
-                if function['name']=='review_quality_transaction':lines.append('人工审计内容：'+json.dumps(args,ensure_ascii=False)+'；须人工最终服务端事务/审计证据，当前同名/同值/空历史不能证明结果。')
+                if function['name']=='review_quality_transaction':
+                    description = ('系统将复核指定MES历史及原对象当前效果，仅在全部匹配后登记本地结案并解除待审占用。'
+                                   if args.get('action')=='resolve_history'
+                                   else '须人工最终服务端事务/审计证据，当前同名、同值或空历史不能证明结果。')
+                    lines.append('本地审计内容：'+json.dumps(args,ensure_ascii=False)+'。'+description)
             except (ValueError,TypeError,KeyError,AttributeError):lines.append('质量事务计划无法读取，不应继续。')
         if function.get('name')=='verify_collection_submission':
             try:

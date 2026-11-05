@@ -83,7 +83,7 @@
 
 正式提交只发一次ChangeQty，不自动重试。即使HTTP200，结果先unknown，原容器与配置保留占用。`inspect_quality_transaction`按原ID读取当前记录，不通过旧名称找另一个对象；当前数量符合投影或状态Closed都不是本次提交成功的因果证据。未返回记录也不证明容器不存在或请求未提交，因为查询还依赖当前状态记录。
 
-目前 `find_quality_execution_candidates/reconcile_quality_execution` 不支持quantity_loss，未猜测历史表/父键，不伪造最终历史。最终审计证据须人工review，不能换一个新计划再次扣量。占用只覆盖共用质量journal的流程，不是MES全局锁，不能承诺阻止外部客户端或其他既有数量类型的写入。
+`reconcile_quality_execution` 可按系统标记核对本次数量损失的主历史、汇总和损失明细。历史匹配后，经确认可使用 `review_quality_transaction` 的 `resolve_history` 核对当前原容器的余额、单位和状态后结案。证据不足时继续保留待审占用。占用只覆盖共用质量日志的流程，外部客户端仍可更新 MES。详见[质量事务归因与审计](quality-disposition-history.md)。
 
 ## 验证与未完成范围
 
