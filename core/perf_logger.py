@@ -61,3 +61,49 @@ def get_perf_logs(limit: int = 500) -> list:
     # 逆序返回，最新的在前面
     return list(reversed(logs))
 
+
+
+def get_perf_log_groups(limit: int = 20, cursor: str | None = None) -> dict:
+    """Page complete prompt groups against a fixed file snapshot, newest first."""
+    import base64
+    snapshot = None
+    offset = 0
+    if cursor:
+        try:
+            snapshot, offset = json.loads(base64.urlsafe_b64decode(cursor).decode('utf-8'))
+            if type(snapshot) is not int or type(offset) is not int or snapshot < 0 or offset < 0:
+                raise ValueError()
+        except Exception as exc:
+            raise ValueError('无效的日志分页游标') from exc
+    groups = {}
+    try:
+        with open(PERF_LOG_FILE, 'rb') as stream:
+            if snapshot is None:
+                snapshot = os.fstat(stream.fileno()).st_size
+            while stream.tell() < snapshot:
+                line = stream.readline()
+                if not line or stream.tell() > snapshot:
+                    break
+                try:
+                    log = json.loads(line)
+                    prompt = log.get('details', {}).get('prompt') or '未知背景对话'
+                    session = log.get('session_id') or 'unknown'
+                    key = json.dumps([session, prompt], ensure_ascii=False)
+                    timestamp = log['timestamp']
+                    duration = float(log['duration_ms'])
+                    group = groups.setdefault(key, dict(id=key, prompt=prompt, sessionId=session,
+                        username=log.get('username', 'Unknown'), timestamp=timestamp, totalTimeMs=0, steps=[]))
+                    group['timestamp'] = max(group['timestamp'], timestamp)
+                    group['totalTimeMs'] += duration
+                    group['steps'].append(log)
+                except (ValueError, KeyError, TypeError, AttributeError):
+                    continue
+    except FileNotFoundError:
+        return {'groups': [], 'next_cursor': None, 'has_more': False}
+    ordered = sorted(groups.values(), key=lambda g: (g['timestamp'], g['id']), reverse=True)
+    page = ordered[offset:offset + limit]
+    for group in page:
+        group['steps'].sort(key=lambda step: step['timestamp'], reverse=True)
+    has_more = offset + limit < len(ordered)
+    next_cursor = base64.urlsafe_b64encode(json.dumps([snapshot, offset + limit]).encode()).decode() if has_more else None
+    return {'groups': page, 'next_cursor': next_cursor, 'has_more': has_more}

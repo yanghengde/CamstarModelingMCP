@@ -8,7 +8,8 @@ let activeRun = null, viewVersion = 0, runClock = null;
 const activeRunStates = new Set(['queued','running','cancelling']);
 const runIsActive = () => !!activeRun && activeRunStates.has(activeRun.status);
 let view = location.pathname === '/records' ? 'records' : 'chat';
-let recordLimit = 30;
+const RECORD_PAGE_SIZE = 50;
+let recordLimit = RECORD_PAGE_SIZE;
 function resizeComposer() {
     const input = $('inputBox');
     if (!input.getClientRects().length) return;
@@ -140,14 +141,14 @@ function renderSessions() {
 }
 document.addEventListener('input', event => {
     if (event.target.id !== 'recordSearch') return;
-    recordLimit = 30;
+    recordLimit = RECORD_PAGE_SIZE;
     $('recordsView').scrollTop = 0;
     renderSessions();
 });
 $('recordsView').addEventListener('scroll', () => {
     const panel = $('recordsView');
     if (panel.scrollHeight - panel.scrollTop - panel.clientHeight > 160 || recordLimit >= matchingRecords().length) return;
-    recordLimit += 30;
+    recordLimit += RECORD_PAGE_SIZE;
     renderSessions();
 }, {passive:true});
 async function refreshSessions() {

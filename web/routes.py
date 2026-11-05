@@ -11,7 +11,7 @@ from config import CAMSTAR_USERNAME, ENABLE_PERFORMANCE_LOG, AGENT_ENGINE
 from agent.memory import get_user_messages, get_sessions, create_session, set_active_session, get_active_session, user_memories
 from agent.llm_client import chat_stream
 from agent.experience import get_experience_status, list_candidates
-from core.perf_logger import get_perf_logs
+from core.perf_logger import get_perf_logs, get_perf_log_groups
 from web.chat_runs import RUNS, RunConflict
 
 router = APIRouter()
@@ -160,6 +160,17 @@ def api_logs_data():
         
     logs = get_perf_logs(1000)
     return {"status": "enabled", "logs": logs}
+
+
+@router.get('/api/logs/groups')
+def api_log_groups(limit: int = Query(default=20, ge=1, le=100),
+                   cursor: str | None = Query(default=None, max_length=512)):
+    if not ENABLE_PERFORMANCE_LOG:
+        return {'status': 'disabled', 'groups': [], 'next_cursor': None, 'has_more': False}
+    try:
+        return {'status': 'enabled', **get_perf_log_groups(limit, cursor)}
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
 
 
 @router.get("/api/experience/status")

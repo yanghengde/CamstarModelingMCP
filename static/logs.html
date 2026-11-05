@@ -4,12 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>运行日志与路由分析</title>
+    <title>Opcenter · 运行日志</title>
     <!-- Favicon SVG -->
     <link rel="icon" type="image/svg+xml" href="/static/svg/manufacturing-assistant.svg?v=2">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #008577;
@@ -30,7 +27,6 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
         }
 
         body {
@@ -40,28 +36,6 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-        }
-
-        /* Top Nav */
-        nav {
-            height: 56px;
-            background: var(--bg-surface);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            justify-content: space-between;
-            flex-shrink: 0;
-            box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
-            z-index: 10;
-        }
-
-        .nav-title {
-            font-weight: 600;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .badge {
@@ -357,28 +331,21 @@
             height: 16px;
         }
     </style>
-<link rel="stylesheet" href="/static/workspace.css?v=20261022-stable-scroll"><style>
-body{display:block;} .trace-sidebar{width:280px;min-width:220px;} .app-layout{min-height:0;} .main-content{min-width:0;} nav.log-topbar{height:66px;box-shadow:none;} .sidebar .nav{align-items:stretch;justify-content:initial;} .sidebar .nav-item{justify-content:flex-start;} .nav-title{font-size:13px;} @media(max-width:760px){.app-shell{grid-template-columns:1fr;} .app-shell>.sidebar{display:none;} .trace-sidebar{width:35%;min-width:115px;} .log-home{display:inline;}} @media(min-width:761px){.log-home{display:none;}}
+<link rel="stylesheet" href="/static/workspace.css?v=20261101-confirmation-menu"><style>
+body{display:block;} .trace-sidebar{width:320px;min-width:0;} .app-layout{min-height:0;} .main-content{min-width:0;}
+.log-meta{gap:8px;flex-wrap:wrap;} .log-meta-user{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.log-load-status{padding:16px;text-align:center;font-size:12px;color:var(--text-tertiary);}
+@media(max-width:760px){.trace-sidebar{width:40%;} .log-item{padding:12px;} .log-item.active{padding-left:9px;} .main-header,.trace-body{padding:16px;} .trace-stats{flex-wrap:wrap;gap:10px;} .trace-title{overflow-wrap:anywhere;}}
 </style></head>
 
-<body><div class="app-shell"><aside class="sidebar" aria-label="工作台导航">
+<body><button class="sidebar-backdrop" id="sidebarBackdrop" aria-label="关闭导航"></button>
+<div class="app-shell"><aside class="sidebar" aria-label="工作台导航">
 <a class="brand" href="/"><img class="brand-mark" src="/static/svg/manufacturing-assistant.svg?v=2" alt="制造助手"><div><div class="brand-name">Opcenter</div><div class="brand-subtitle">MANUFACTURING WORKSPACE</div></div></a>
-<a class="new-chat" href="/">返回制造助手</a>
-<nav class="nav"><a class="nav-item" id="chatNav" href="/">◈　制造助手</a><a class="nav-item" id="recordsNav" href="/records">▤　操作记录</a><a class="nav-item active" href="/logs">☷　运行日志</a></nav>
-<div class="session-list"></div>
-<div class="sidebar-footer"><div class="user-profile"><span class="avatar">M</span><div><div class="user-name" id="username">Modeling</div></div><span class="siemens">SIEMENS</span></div></div></aside><main class="workspace">
-
-    <nav class="log-topbar"><a href="/" class="log-home">← 制造助手</a>
-        <div class="nav-title">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
-                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </svg>
-            执行日志 (Logs)
-        </div>
-        <div id="envStatus">
-            <span class="badge">监控采集中</span>
-        </div>
-    </nav>
+<button class="new-chat new-chat-entry" id="newChatTopBtn" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H7a4 4 0 0 0-4 4v10a4 4 0 0 0 4 4h10a4 4 0 0 0 4-4v-5"/><path d="m16 3-8 8-1 4 4-1 8-8a2.12 2.12 0 0 0-3-3Z"/></svg><span>新建对话</span></button>
+<nav class="nav"><a class="nav-item" id="chatNav" href="/">◈　制造助手</a><a class="nav-item" id="recordsNav" href="/records">▤　操作记录</a><a class="nav-item active" href="/logs" aria-current="page">☷　运行日志</a></nav>
+<div class="recent-heading">最近聊天</div><div class="session-list" id="sessionListUI"></div>
+<div class="sidebar-footer"><div class="user-profile"><span class="avatar">M</span><div><div class="user-name" id="username">正在连接</div></div><span class="siemens">SIEMENS</span></div></div></aside>
+<main class="workspace"><header class="topbar"><div class="breadcrumbs"><button class="menu-toggle" id="menuToggle" aria-label="展开导航" aria-expanded="false">☰</button><span>工作台</span><span>›</span><h1 id="pageTitle">运行日志</h1></div><div class="top-actions"><div id="envStatus"><span class="badge">监控采集中</span></div><div class="connection" id="connection" role="status" hidden><span class="status-dot"></span><span id="connectionText">正在连接</span></div><button class="guide-toggle" id="guideToggle" hidden aria-expanded="false" aria-controls="modelingGuide">建模指南</button></div></header>
 
     <div class="app-layout">
         <!-- Sidebar -->
@@ -404,74 +371,69 @@ body{display:block;} .trace-sidebar{width:280px;min-width:220px;} .app-layout{mi
         </div>
     </div>
 
-</main></div>
+</main></div><div id="notice" role="alert" hidden></div>
     <script>
         let globalGroups = [];
 
-        document.addEventListener('DOMContentLoaded', fetchLogs);
+        const PAGE_SIZE = 20;
+        let nextCursor = null, hasMore = true, logsLoading = false;
+        let selectedIndex = -1;
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeNavigation();
+            fetchLogs();
+            document.getElementById('sidebarList').addEventListener('scroll', event => {
+                const list = event.currentTarget;
+                if (list.scrollHeight - list.scrollTop - list.clientHeight < 160) fetchLogs();
+            }, {passive: true});
+        });
 
         async function fetchLogs() {
+            if (logsLoading || !hasMore) return;
+            logsLoading = true;
+            const list = document.getElementById('sidebarList');
+            let status = list.querySelector('.log-load-status');
+            if (status) status.textContent = '加载中…';
             try {
-                const res = await fetch('/api/logs/data');
+                const params = new URLSearchParams({limit: PAGE_SIZE});
+                if (nextCursor) params.set('cursor', nextCursor);
+                const res = await fetch('/api/logs/groups?' + params);
+                if (!res.ok) throw new Error(res.status === 404 ? '后台尚未加载日志分页接口，请重启服务后刷新' : `日志加载失败（HTTP ${res.status}）`);
                 const data = await res.json();
-
                 if (data.status === 'disabled') {
+                    hasMore = false;
                     document.getElementById('envStatus').innerHTML = '<span class="badge" style="background:#fef3f2;color:#b42318">监控已停用</span>';
-                    document.getElementById('sidebarList').innerHTML = '<div style="padding: 20px; font-size: 13px; color: #667085;">数据采集已在 .env 关闭</div>';
+                    list.textContent = '日志采集已关闭';
                     return;
                 }
-
-                processLogs(data.logs);
-            } catch (e) {
-                console.error(e);
-                document.getElementById('sidebarList').innerHTML = '<div style="color:red; padding:20px;">接口请求失败</div>';
-            }
+                const start = globalGroups.length;
+                globalGroups.push(...data.groups);
+                nextCursor = data.next_cursor;
+                hasMore = data.has_more;
+                renderSidebar(start);
+                if (selectedIndex < 0 && globalGroups.length) selectTrace(0);
+                status = document.createElement('div');
+                status.className = 'log-load-status';
+                status.setAttribute('role', 'status');
+                status.textContent = !globalGroups.length ? '暂无调用记录' : hasMore ? '向下滚动加载更多' : '已显示全部记录';
+                list.append(status);
+            } catch (error) {
+                list.querySelector('.log-load-status')?.remove();
+                if (!globalGroups.length) list.replaceChildren();
+                const retry = document.createElement('button');
+                retry.className = 'log-load-status';
+                retry.textContent = error.message.includes('后台尚未加载') ? error.message : '加载失败，点击重试';
+                retry.onclick = () => fetchLogs();
+                list.append(retry);
+            } finally { logsLoading = false; }
         }
 
-        function processLogs(logs) {
-            if (!logs || logs.length === 0) {
-                document.getElementById('sidebarList').innerHTML = '<div style="padding: 20px; font-size: 13px; color: #667085; text-align:center;">暂无任何大模型通话产生。<br/>可在对话框提问后再刷新本页</div>';
-                return;
-            }
-
-            const groupsMap = {};
-            logs.forEach(log => {
-                const promptText = log.details.prompt || "未知背景对话";
-                const session = log.session_id || "unknown";
-                const key = session + "|" + promptText;
-
-                if (!groupsMap[key]) {
-                    groupsMap[key] = {
-                        id: key,
-                        prompt: promptText,
-                        sessionId: session,
-                        username: log.username,
-                        timestamp: log.timestamp,
-                        totalTimeMs: 0,
-                        steps: []
-                    };
-                }
-                groupsMap[key].totalTimeMs += log.duration_ms;
-                // Always push, we'll sort them reversed inside the component
-                groupsMap[key].steps.push(log);
-            });
-
-            // Convert to array and sort latest primary prompt logic
-            globalGroups = Object.values(groupsMap).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-            renderSidebar();
-
-            // 默认选中第一条
-            if (globalGroups.length > 0) {
-                selectTrace(0);
-            }
-        }
-
-        function renderSidebar() {
+        function renderSidebar(start = 0) {
             const listEl = document.getElementById('sidebarList');
-            listEl.innerHTML = '';
+            if (start === 0) listEl.replaceChildren();
+            else listEl.querySelector('.log-load-status')?.remove();
 
-            globalGroups.forEach((group, index) => {
+            globalGroups.slice(start).forEach((group, pageIndex) => {
+                const index = start + pageIndex;
                 const div = document.createElement('div');
                 div.className = 'log-item';
                 div.setAttribute('data-index', index);
@@ -485,9 +447,9 @@ body{display:block;} .trace-sidebar{width:280px;min-width:220px;} .app-layout{mi
                 div.innerHTML = `
                 <div class="log-query">${escapeHtml(group.prompt)}</div>
                 <div class="log-meta">
-                    <span style="display:flex;align-items:center;gap:4px">
+                    <span class="log-meta-user">
                         <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        ${group.username}
+                        ${escapeHtml(group.username)}
                     </span>
                     <div class="log-meta-right">
                         <span>${timeStr}</span>
@@ -500,6 +462,7 @@ body{display:block;} .trace-sidebar{width:280px;min-width:220px;} .app-layout{mi
         }
 
         function selectTrace(index) {
+            selectedIndex = index;
             // Highlight logic
             const items = document.querySelectorAll('.log-item');
             items.forEach(el => el.classList.remove('active'));
@@ -588,6 +551,69 @@ body{display:block;} .trace-sidebar{width:280px;min-width:220px;} .app-layout{mi
                 </div>
             </div>
         `;
+        }
+
+        async function initializeNavigation() {
+            const byId = id => document.getElementById(id);
+            const closeNavigation = () => {
+                document.body.classList.remove('sidebar-open');
+                byId('menuToggle').setAttribute('aria-expanded', 'false');
+            };
+            byId('menuToggle').onclick = () => {
+                const open = document.body.classList.toggle('sidebar-open');
+                byId('menuToggle').setAttribute('aria-expanded', String(open));
+            };
+            byId('sidebarBackdrop').onclick = closeNavigation;
+            document.addEventListener('keydown', event => { if (event.key === 'Escape') closeNavigation(); });
+            const request = async (url, options) => {
+                const response = await fetch(url, options);
+                if (!response.ok) throw new Error('导航加载失败');
+                return response.json();
+            };
+            byId('newChatTopBtn').disabled = true;
+            try {
+                const config = await request('/config');
+                byId('username').textContent = config.username;
+                byId('newChatTopBtn').disabled = false;
+                byId('newChatTopBtn').onclick = async () => {
+                    byId('newChatTopBtn').disabled = true;
+                    try {
+                        const data = await request(`/sessions/${encodeURIComponent(config.username)}/new`, {method: 'POST'});
+                        location.href = '/?session_id=' + encodeURIComponent(data.session_id);
+                    } catch (error) {
+                        byId('notice').textContent = '新建对话失败，请重试';
+                        byId('notice').hidden = false;
+                        byId('newChatTopBtn').disabled = false;
+                    }
+                };
+                const data = await request('/sessions/' + encodeURIComponent(config.username));
+                const sessions = (data.sessions || []).slice().reverse().filter(session => session.run ||
+                    (typeof session.has_messages === 'boolean' ? session.has_messages : !/^新对话 \d+$/.test(session.title || '')));
+                document.querySelector('.recent-heading').hidden = !sessions.length;
+                for (const session of sessions.slice(0, 30)) {
+                    const link = document.createElement('a');
+                    link.className = 'session-item';
+                    link.href = '/?session_id=' + encodeURIComponent(session.id);
+                    const title = document.createElement('span');
+                    title.className = 'session-title';
+                    title.textContent = session.title || '未命名对话';
+                    link.append(title);
+                    const label = {queued:'执行中',running:'执行中',cancelling:'停止中',approval_required:'待确认',interrupted:'需核实',incomplete:'需核实',limited:'达到上限',failed:'出错'}[session.run?.status];
+                    if (label) {
+                        const badge = document.createElement('span');
+                        badge.className = 'run-badge ' + session.run.status;
+                        badge.textContent = label;
+                        link.append(badge);
+                    }
+                    byId('sessionListUI').append(link);
+                }
+                byId('sessionListUI').addEventListener('scroll', () => {
+                    document.querySelector('.recent-heading').classList.toggle('is-scrolled', byId('sessionListUI').scrollTop > 0);
+                }, {passive: true});
+            } catch (error) {
+                byId('notice').textContent = '导航加载失败，请刷新重试';
+                byId('notice').hidden = false;
+            }
         }
 
         function escapeHtml(unsafe) {
