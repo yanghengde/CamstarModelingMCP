@@ -8,6 +8,7 @@ from collections import Counter
 from pydantic import StrictInt
 
 from tools import mcp, quality as q, quality_inspection as i, quality_plans as p
+from tools import quality_disposition_history as disposition
 from core.transfer_attempt_lock import attempt_lock, AttemptBusy
 
 FLAGS = {'verified_success': False, 'state_changed': False, 'retry_allowed': False,
@@ -120,9 +121,11 @@ def attempted_plan(plan_id, fingerprint):
     snap = p.checked(row, fingerprint)
     if row[2] not in ('unknown', 'in_flight') or not attempt:
         raise ValueError('只核对有实际尝试记录的unknown/in_flight计划。')
-    if snap.get('kind') not in SERVICE_TYPES:
-        raise ValueError('仅支持单容器检验、批采样、整批OK和批维护的历史核对。')
-    if snap.get('service') != SERVICES[snap['kind']]:
+    kind = snap.get('kind')
+    service = SERVICES.get(kind) or disposition.SERVICE_TYPES.get(kind,(None,None))[0]
+    if service is None:
+        raise ValueError('当前计划类型没有受支持的历史核对入口。')
+    if snap.get('service') != service:
         raise ValueError('原计划种类与实际服务不一致。')
     if snap.get('inspection_effects'):
         raise ValueError('原生全检/自动扣量尚未核实原任务及父子事务历史，不能用普通检验payload匹配代替；请inspect后以最终证据人工review。')
@@ -247,26 +250,33 @@ async def get_inspection_result_history(summary_history_id: str) -> str:
 
 @mcp.tool
 async def find_quality_execution_candidates(plan_id: str, plan_digest: str, offset: StrictInt = 0, limit: StrictInt = 20) -> str:
-    """只读查有尝试记录的unknown/in_flight检验/批采样/整批OK/批维护计划候选历史。校验摘要及环境，完整评论精确匹配（维护用汇总StoredComments）；采样还约束历史容器/测试/批ID。分页不代表候选唯一，含冲销状态。整批执行历史缺少已核实的目标批键，候选不能证明目标批或本次成功。不写journal、不解锁、不重试。"""
+    """只读查有尝试记录的unknown/in_flight检验、批采样、整批OK、批维护、单容器损失及整批报废候选历史。校验摘要及环境，精确匹配完整评论。采样还约束容器/测试/批ID，数量处置核对主历史候选。分页不能证明候选唯一，不写journal、不解锁、不重试。"""
     try:
         with attempt_lock(p.PLAN_DB, plan_id):
             snap, state, attempt = attempted_plan(plan_id, plan_digest)
-            rows, more = await candidates(snap, offset, limit)
+            reader = disposition.roots if snap['kind'] in disposition.SERVICE_TYPES else candidates
+            rows, more = await reader(snap, offset, limit)
             return q.encode({'plan_id': plan_id, 'state': state, 'attempt': attempt, 'rows': rows,
                              'page_complete': True, 'complete': False, 'has_more': more,
                              'next_offset': offset+limit if more else None,
-                             'target_linkage_available': snap['kind'] != 'lot_completion', **FLAGS})
+                             'target_linkage_available': snap['kind'] not in ('lot_completion','lot_scrap'), **FLAGS})
     except (ValueError, TypeError, KeyError, AttributeError, AttemptBusy) as error:
         return q.encode({'complete': False, **FLAGS, 'error': str(error)})
 
 
 @mcp.tool
-async def reconcile_quality_execution(plan_id: str, plan_digest: str, candidate_txn_id: str) -> str:
-    """只读核对明确候选事务与原检验/批采样/整批OK/批维护请求。有尝试记录、摘要环境一致，精确关联评论和历史目标，区分Active1/Deleted2/Reversal3。完整有界测量历史按无序样本多重集合核对点ID/数值/类型/限值/通过/拒收；不伪造顺序。维护历史可核对批ID/数量/频率，保留选项及任务重算未核实；计数增量/原因及整批OK目标归属仍有未核实项。即使payload_match也不确认提交成功、不改状态或占用，不允许重试。"""
+async def reconcile_quality_execution(plan_id: str, plan_digest: str, candidate_txn_id: str | None = None) -> str:
+    """只读核对已尝试的质量计划。单容器损失和整批报废可省略候选ID，按唯一完整事务标记自动定位，核对尝试时间、父子事务、成员、余额、原因、单位和选项。检验、批采样、整批OK与批维护仍须明确候选ID，仅返回对应历史比较。核实历史归属后仍保留unknown占用，人工审核才变更计划状态。"""
     try:
-        iid(candidate_txn_id, '候选事务ID')
+        if candidate_txn_id is not None:
+            iid(candidate_txn_id, '候选事务ID')
         with attempt_lock(p.PLAN_DB, plan_id):
             snap, state, attempt = attempted_plan(plan_id, plan_digest)
+            if snap['kind'] in disposition.SERVICE_TYPES:
+                proof = await disposition.verify(snap, attempt, candidate_txn_id)
+                return q.encode({'plan_id': plan_id, 'state': state, 'attempt': attempt, **FLAGS, **proof})
+            if candidate_txn_id is None:
+                raise ValueError('该类型须明确候选事务ID。')
             rows, more = await candidates(snap, limit=100, txn_id=candidate_txn_id)
             if more or len(rows) != 1:
                 return q.encode({'comparison': 'incomplete' if more else ('no_records' if not rows else 'ambiguous'),

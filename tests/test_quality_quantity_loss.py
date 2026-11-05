@@ -196,14 +196,18 @@ def test_transport_accepts_only_reviewed_loss_not_bonus_or_sell(env,mode):
     with pytest.raises(ValueError):p.transport(snap)
 
 
-def test_unknown_never_replays_loss_and_original_id_inspection_does_not_unlock(env):
+def test_unknown_never_replays_loss_and_original_id_inspection_does_not_unlock(env, monkeypatch):
     first=prepare();second=prepare();assert execute(first)['state']=='unknown'
     assert 'error' in execute(first) and 'error' in execute(second)
     env['row'].update(Qty='8.5',ContainerName='Renamed')
     out=result(p.inspect_quality_transaction(first['plan_id'],first['plan_digest']))
     assert out['current_record']['ContainerId']==CID and out['current_record']['ContainerName']=='Renamed'
     assert not out['verified_success'] and not out['state_changed'] and not out['retry_allowed']
-    assert 'error' in result(h.find_quality_execution_candidates(first['plan_id'],first['plan_digest']))
+    async def empty_history(query, maximum):
+        assert 'FROM HistoryMainline WHERE Comments=' in query
+        return []
+    monkeypatch.setattr(h.q,'sql_rows',empty_history)
+    assert result(h.find_quality_execution_candidates(first['plan_id'],first['plan_digest']))['rows'] == []
     assert result(p.get_quality_transaction_plan(first['plan_id']))['state']=='unknown'
     env['client'].request.assert_awaited_once()
 
