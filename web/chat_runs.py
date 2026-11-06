@@ -9,6 +9,7 @@ import json
 import sqlite3
 import time
 import uuid
+from contextlib import contextmanager
 from pathlib import Path
 
 from config import CHAT_RUN_DB
@@ -29,11 +30,16 @@ class ChatRuns:
         self.ready = False
         self.stopping = False
 
+    @contextmanager
     def db(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
         db = sqlite3.connect(self.path, timeout=10)
         db.row_factory = sqlite3.Row
-        return db
+        try:
+            with db:
+                yield db
+        finally:
+            db.close()
 
     def initialize(self):
         if self.ready:
@@ -67,12 +73,77 @@ class ChatRuns:
         db.execute("INSERT INTO events VALUES(?,?,?)", (run_id, seq, json.dumps(payload, ensure_ascii=False)))
 
     def append(self, run_id, payload):
+        self.append_many(run_id, [payload])
+
+    def append_many(self, run_id, payloads):
         # Tool arguments are already kept by the execution/checkpoint layer.
         # The reconnect journal only needs the public step name.
-        if payload.get('type') == 'step':
-            payload = {"type": "step", "func": payload.get('func', '')}
         with self.db() as db:
-            self._append(db, run_id, payload)
+            for payload in payloads:
+                if payload.get('type') == 'step':
+                    payload = {"type": "step", "func": payload.get('func', '')}
+                self._append(db, run_id, payload)
+
+    async def _record_stream(self, run_id, source):
+        """Journal bursts off the event loop, with at most 50 ms batching delay.
+
+        Keep a single pending read across flush timeouts: cancelling a read would
+        cancel the underlying LLM/tool execution. Finish writes before terminal
+        state, including explicit cancellation, so reconnect cursors stay ordered.
+        """
+        pending, buffer, error = [], '', False
+        read = None
+        last_flush = time.monotonic()
+
+        async def flush():
+            nonlocal last_flush
+            if not pending:
+                return
+            batch = pending[:]
+            pending.clear()
+            write = asyncio.create_task(asyncio.to_thread(self.append_many, run_id, batch))
+            try:
+                await asyncio.shield(write)
+            except asyncio.CancelledError:
+                await write
+                raise
+            last_flush = time.monotonic()
+
+        try:
+            while True:
+                if read is None:
+                    read = asyncio.create_task(anext(source))
+                timeout = max(0, .05 - (time.monotonic() - last_flush)) if pending else None
+                done, _ = await asyncio.wait([read], timeout=timeout)
+                if not done:
+                    await flush()
+                    continue
+                completed, read = read, None
+                try:
+                    chunk = completed.result()
+                except StopAsyncIteration:
+                    break
+                buffer += chunk.replace('\r\n', '\n')
+                while '\n\n' in buffer:
+                    frame, buffer = buffer.split('\n\n', 1)
+                    raw = '\n'.join(line[5:].lstrip() for line in frame.splitlines() if line.startswith('data:'))
+                    if raw:
+                        payload = json.loads(raw)
+                        error = error or payload.get('type') == 'error'
+                        pending.append(payload)
+                if len(pending) >= 100 or time.monotonic() - last_flush >= .05:
+                    await flush()
+            if buffer.strip():
+                raise ValueError('聊天进度流未完整结束。')
+            return error
+        finally:
+            if read is not None:
+                read.cancel()
+                await asyncio.gather(read, return_exceptions=True)
+            try:
+                await source.aclose()
+            finally:
+                await flush()
 
     def get(self, username, run_id):
         self.initialize()
@@ -126,20 +197,7 @@ class ChatRuns:
     async def _work(self, run_id, username, session_id, message, stream, workflow):
         try:
             self.state(run_id, 'running')
-            error = False
-            buffer = ''
-            async for chunk in stream(username, message, session_id):
-                buffer += chunk.replace('\r\n', '\n')
-                while '\n\n' in buffer:
-                    frame, buffer = buffer.split('\n\n', 1)
-                    raw = '\n'.join(line[5:].lstrip() for line in frame.splitlines() if line.startswith('data:'))
-                    if not raw:
-                        continue
-                    payload = json.loads(raw)
-                    error = error or payload.get('type') == 'error'
-                    self.append(run_id, payload)
-            if buffer.strip():
-                raise ValueError('聊天进度流未完整结束。')
+            error = await self._record_stream(run_id, stream(username, message, session_id))
             info = await workflow(username, session_id)
             status = {'approval_required': 'approval_required', 'limited': 'limited',
                       'cancelled': 'cancelled', 'incomplete': 'incomplete'}.get(info.get('status'), 'completed')

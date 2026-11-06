@@ -1,6 +1,7 @@
 """Background chat execution, reconnect journals and duplicate-write prevention."""
 import asyncio
 import json
+import threading
 
 import httpx
 import pytest
@@ -9,6 +10,69 @@ from fastapi import FastAPI
 from web.chat_runs import ChatRuns, RunConflict
 from web import routes
 from agent import memory
+
+
+def test_stream_journal_batches_bursts_and_flushes_during_upstream_wait(tmp_path):
+    async def run():
+        manager = ChatRuns(tmp_path / 'runs.sqlite')
+        gate = asyncio.Event()
+        batches = []
+        original = manager.append_many
+        def record(run_id, payloads):
+            batches.append(len(payloads))
+            original(run_id, payloads)
+        manager.append_many = record
+        async def stream(*_):
+            for i in range(1000):
+                yield event({'type': 'stream_chunk', 'content': str(i)})
+            await gate.wait()
+        item = manager.start('u', 's', 'a', 'r1', 0, stream, workflow)
+        task = manager.tasks[item['id']]
+        async def persisted():
+            while True:
+                with manager.db() as db:
+                    count = db.execute("SELECT COUNT(*) FROM events WHERE payload LIKE '%stream_chunk%'").fetchone()[0]
+                if count == 1000:
+                    return
+                await asyncio.sleep(.01)
+        await asyncio.wait_for(persisted(), 10)
+        assert not task.done()  # The pending upstream read was not cancelled by a flush timeout.
+        gate.set()
+        await task
+        assert len(batches) < 100
+        assert sum(batches) == 1000
+    asyncio.run(run())
+
+
+def test_slow_journal_write_keeps_loop_responsive_and_cancel_waits_for_commit(tmp_path):
+    async def run():
+        manager = ChatRuns(tmp_path / 'runs.sqlite')
+        writing, release = threading.Event(), threading.Event()
+        original = manager.append_many
+        def slow_write(run_id, payloads):
+            writing.set()
+            assert release.wait(5)
+            original(run_id, payloads)
+        manager.append_many = slow_write
+        async def stream(*_):
+            yield event({'type': 'stream_chunk', 'content': 'committed before cancellation'})
+            await asyncio.Event().wait()
+        item = manager.start('u', 's', 'a', 'r1', 0, stream, workflow)
+        task = manager.tasks[item['id']]
+        try:
+            assert await asyncio.to_thread(writing.wait, 3)
+            # This code must run while the disk worker remains blocked.
+            manager.cancel('u', item['id'])
+            await asyncio.sleep(.01)
+            assert not task.done()
+        finally:
+            release.set()
+        await asyncio.wait_for(task, 3)
+        frames = [part async for part in manager.events('u', item['id'])]
+        assert 'committed before cancellation' in ''.join(frames)
+        assert 'cancelled' in frames[-1]
+        assert manager.get('u', item['id'])['status'] == 'cancelled'
+    asyncio.run(run())
 
 
 async def workflow(*_):
