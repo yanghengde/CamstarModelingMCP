@@ -4,6 +4,7 @@ Excel Importer Tools
 Provides tools to parse Excel schemas and import Workflows from Excel files.
 """
 
+import asyncio
 import os
 import json
 import pandas as pd
@@ -39,11 +40,29 @@ def get_case_insensitive_key(data: Any, key_name: str) -> Optional[Any]:
     return None
 
 
+def _read_schema(file_path: str) -> dict:
+    # Import plans accept 200 rows. One extra row detects oversized sheets
+    # without materializing the entire workbook just to count its rows.
+    schema_info = {}
+    with pd.ExcelFile(file_path) as xl:
+        for sheet_name in xl.sheet_names:
+            df = pd.read_excel(xl, sheet_name=sheet_name, nrows=201).fillna("")
+            schema_info[sheet_name] = {
+                "columns": list(df.columns),
+                "row_count_estimate": len(df),
+                "row_count_is_lower_bound": len(df) == 201,
+                "sample_rows": df.head(3).to_dict(orient="records"),
+            }
+    return schema_info
+
+
 @mcp.tool
 async def parse_excel_schema(file_path: str) -> str:
     """
     Parse an Excel file's structure (sheets, columns, and sample rows)
     to help mapping columns to MES entity fields.
+    Reads at most 201 data rows per sheet; row_count_is_lower_bound=true
+    means the sheet has at least row_count_estimate rows, not an exact count.
     
     Required fields:
       - file_path: Absolute or relative path to the Excel file.
@@ -52,18 +71,7 @@ async def parse_excel_schema(file_path: str) -> str:
         return f"❌ File not found at path: {file_path}"
     
     try:
-        xl = pd.ExcelFile(file_path)
-        schema_info = {}
-        
-        for sheet_name in xl.sheet_names:
-            df = pd.read_excel(xl, sheet_name=sheet_name, nrows=3)
-            df = df.fillna("")
-            
-            schema_info[sheet_name] = {
-                "columns": list(df.columns),
-                "row_count_estimate": pd.read_excel(xl, sheet_name=sheet_name).shape[0],
-                "sample_rows": df.to_dict(orient="records")
-            }
+        schema_info = await asyncio.to_thread(_read_schema, file_path)
             
         return json.dumps({
             "success": True,

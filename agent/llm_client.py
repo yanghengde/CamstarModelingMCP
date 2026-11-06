@@ -19,6 +19,7 @@ from agent.memory import get_user_messages, save_user_session, update_session_ti
 from tools import mcp, get_tool_func
 from core.tool_catalog import TOOL_POLICIES
 from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCTION
+from agent.prompts import deduplicate_runtime_rules
 from agent.safety import MutationCounts, classify_tool, count_tool_calls, evaluate_mutations, approval_prompt, is_explicit_confirmation
 from agent.safety import requests_execution_review
 from core.perf_logger import record_perf
@@ -115,7 +116,8 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             llm_start_time = time.time()
             selected_tools = select_tools(openai_tools, chat_messages)
             model_messages = list(chat_messages)
-            model_messages.insert(1, {"role": "system", "content": ROUTING_INSTRUCTION})
+            model_messages.insert(1, {"role": "system", "content":
+                deduplicate_runtime_rules(model_messages, ROUTING_INSTRUCTION)})
             from agent.memory import session_auto_confirm, AUTO_CONFIRM_INSTRUCTION
             if session_auto_confirm(username, actual_session_id):
                 model_messages.insert(2, {'role': 'system', 'content': AUTO_CONFIRM_INSTRUCTION})

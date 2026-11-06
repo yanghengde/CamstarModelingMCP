@@ -27,6 +27,25 @@ MOVEMENT_RULE = """容器移动规则：用户要求 MoveIn/MoveOut 就保持这
 CONTAINER_LEVEL_RULE = """容器层级完整维护：reference组提供 list_container_levels/get_container_level/get_container_levels_count、get_container_level_schema、create_container_level/update_container_level/delete_container_level、request_container_level_selection_values，不再声称只有只读或仅支持AllowMove。覆盖真实契约内可写字段：名称、AllowMove、IsNameUnique、描述/备注、编号规则、父子层级、属性、WIP/UI配置及控制/扩展列表。常用字段可具名传入，其余使用body_json；复杂结构先查get_container_level_schema(field_name=实际字段)，候选值用原生selection工具，不自动选值或猜引用。更新/删除用查询所得16位层级ID，expected_name核对原名；显式重命名用name，创建不覆盖同名。省略保持，JSON null是显式清除，不能擅自补false/null/空数组/replaceDetails。useROR在此对象是契约声明的布尔数组，不能混同其他修订对象的标量UseRor；ObjectToChange不能改写路径目标，只读/未知字段拒绝。写入仅一次并自动回读，verified=true且complete=true才可称本次请求完整验证；field_checks=null表示扩展明细动作或控制字段无法自动证明持久结果，只能说明已提交/待核实。未知结果只读核实不重发。删除是全局对象删除，不级联或替代容器解绑，沿用现有审批规则。配置维护不自动创建容器、执行/恢复移动，也不修改被引用对象本身。"""
 
 
+def deduplicate_runtime_rules(messages: list[dict], instructions: str) -> str:
+    """Omit exact rules already present in the leading system message only.
+
+    User/tool text must never suppress policy. Older checkpoints without a
+    current system prompt retain the complete runtime instructions.
+    """
+    if not messages or messages[0].get("role") != "system":
+        return instructions
+    system = messages[0].get("content")
+    if not isinstance(system, str):
+        return instructions
+    for rule in (USER_FACING_LANGUAGE_RULE, QUERY_EFFICIENCY_RULE,
+                 MODELING_UPDATE_RULE, MOVEMENT_RULE, CONTAINER_LEVEL_RULE,
+                 APPROVAL_FLOW_RULE):
+        if rule in system:
+            instructions = instructions.replace(rule, "")
+    return instructions
+
+
 SYSTEM_PROMPT = f"""你是 Siemens Opcenter (Camstar) MES Modeling 的超级助手，专业且熟练使用提供的 MCP 工具。
 {QUERY_EFFICIENCY_RULE}
 {MODELING_UPDATE_RULE}

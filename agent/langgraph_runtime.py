@@ -29,7 +29,7 @@ from agent.experience import (
     build_runtime_experience_context,
     record_tool_outcome,
 )
-from agent.prompts import USER_FACING_LANGUAGE_RULE, QUERY_EFFICIENCY_RULE, APPROVAL_FLOW_RULE
+from agent.prompts import USER_FACING_LANGUAGE_RULE, QUERY_EFFICIENCY_RULE, APPROVAL_FLOW_RULE, deduplicate_runtime_rules
 from agent.safety import (
     MutationCounts,
     SafetyDecision,
@@ -150,7 +150,8 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
         from agent.memory import session_auto_confirm, AUTO_CONFIRM_INSTRUCTION
         language_message = {
             "role": "system",
-            "content": USER_FACING_LANGUAGE_RULE + "\n" + QUERY_EFFICIENCY_RULE + "\n" + ROUTING_INSTRUCTION + "\n" + APPROVAL_FLOW_RULE,
+            "content": deduplicate_runtime_rules(model_messages,
+                USER_FACING_LANGUAGE_RULE + "\n" + QUERY_EFFICIENCY_RULE + "\n" + ROUTING_INSTRUCTION + "\n" + APPROVAL_FLOW_RULE),
         }
         insert_at = 1 if model_messages and model_messages[0].get("role") == "system" else 0
         model_messages.insert(insert_at, language_message)

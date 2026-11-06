@@ -111,7 +111,7 @@ async def create_chat_run(req: ChatRequest):
 
 
 @router.get('/api/chat/runs/{run_id}')
-async def get_chat_run(run_id: str, username: str):
+def get_chat_run(run_id: str, username: str):
     run = RUNS.get(username, run_id)
     if not run:
         raise HTTPException(404, '任务不存在。')
@@ -119,7 +119,7 @@ async def get_chat_run(run_id: str, username: str):
 
 
 @router.get('/api/chat/runs/{run_id}/events')
-async def chat_run_events(run_id: str, username: str, after: int = Query(default=0, ge=0)):
+def chat_run_events(run_id: str, username: str, after: int = Query(default=0, ge=0)):
     if not RUNS.get(username, run_id):
         raise HTTPException(404, '任务不存在。')
     return StreamingResponse(RUNS.events(username, run_id, after), media_type='text/event-stream',
@@ -192,7 +192,7 @@ UPLOAD_DIR = os.path.join("data", "uploads")
 
 
 @router.post("/api/upload")
-async def upload_file(file: UploadFile = File(...)):
+def upload_file(file: UploadFile = File(...)):
     """接收并暂存上传的文件，返回文件本地路径"""
     os.makedirs(UPLOAD_DIR, exist_ok=True)
     

@@ -1,4 +1,5 @@
 """Persist immutable, single-use workflow import plans before any write."""
+import asyncio
 import hashlib
 import json
 import sqlite3
@@ -115,9 +116,11 @@ async def preview_workflow_import(file_path: str, mapping_json: str) -> str:
         if not isinstance(header, int) or not 0 <= header <= 30:
             raise ValueError("header_row 必须为 0..30")
         if Path(file_path).suffix.lower() == ".csv":
-            frame = pd.read_csv(file_path, header=header, dtype=str, keep_default_na=False)
+            frame = await asyncio.to_thread(pd.read_csv, file_path, header=header,
+                                           dtype=str, keep_default_na=False, nrows=201)
         else:
-            frame = pd.read_excel(file_path, sheet_name=mapping["sheet_name"], header=header, dtype=str, keep_default_na=False)
+            frame = await asyncio.to_thread(pd.read_excel, file_path, sheet_name=mapping["sheet_name"],
+                                           header=header, dtype=str, keep_default_na=False, nrows=201)
         if not 1 <= len(frame) <= 200 or any(col not in frame for col in fields.values()):
             raise ValueError("必须为 1..200 行且映射列全部存在")
         groups, errors = {}, []

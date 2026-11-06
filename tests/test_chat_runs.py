@@ -79,6 +79,35 @@ async def workflow(*_):
     return {'status': 'idle'}
 
 
+def test_slow_event_read_does_not_block_loop(tmp_path):
+    async def run():
+        manager = ChatRuns(tmp_path / 'runs.sqlite')
+        manager.initialize()
+        with manager.db() as db:
+            db.execute("INSERT INTO runs VALUES('r','u','s','request','read',0,'completed',1,2)")
+            manager._append(db, 'r', {'type': 'done', 'reply': 'saved'})
+        entered, release = threading.Event(), threading.Event()
+        original = manager._event_page
+        def slow_read(*args):
+            entered.set()
+            assert release.wait(5)
+            return original(*args)
+        manager._event_page = slow_read
+        subscription = manager.events('u', 'r')
+        read = asyncio.create_task(anext(subscription))
+        try:
+            assert await asyncio.to_thread(entered.wait, 3)
+            assert not read.done()
+            # A separate coroutine can still run while SQLite reading is stalled.
+            await asyncio.sleep(0)
+        finally:
+            release.set()
+        assert 'saved' in await asyncio.wait_for(read, 3)
+        await subscription.aclose()
+        assert [part async for part in manager.events('other', 'r')] == []
+    asyncio.run(run())
+
+
 def event(payload):
     return 'data: ' + json.dumps(payload) + '\n\n'
 

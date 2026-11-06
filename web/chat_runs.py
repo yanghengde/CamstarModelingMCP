@@ -59,6 +59,8 @@ class ChatRuns:
                 );
                 CREATE UNIQUE INDEX IF NOT EXISTS one_active_chat_run
                     ON runs(username, session_id) WHERE status IN ('queued','running','cancelling');
+                CREATE INDEX IF NOT EXISTS runs_by_session_started
+                    ON runs(username, session_id, started_at DESC);
             ''')
             stale = db.execute("SELECT id FROM runs WHERE status IN ('queued','running','cancelling')").fetchall()
             for row in stale:
@@ -211,20 +213,29 @@ class ChatRuns:
         finally:
             self.tasks.pop(run_id, None)
 
+    def _event_page(self, username, run_id, after):
+        """Read a bounded journal page using one connection off the event loop."""
+        self.initialize()
+        with self.db() as db:
+            run = db.execute("SELECT status FROM runs WHERE username=? AND id=?",
+                             (username, run_id)).fetchone()
+            if run is None:
+                return None, []
+            rows = db.execute("SELECT seq,payload FROM events WHERE run_id=? AND seq>? ORDER BY seq LIMIT 200",
+                              (run_id, after)).fetchall()
+        return run['status'], rows
+
     async def events(self, username, run_id, after=0):
         # Closing this generator only detaches a browser, never cancels _work.
         heartbeat = time.monotonic()
         while True:
-            run = self.get(username, run_id)
-            if not run:
+            status, rows = await asyncio.to_thread(self._event_page, username, run_id, after)
+            if status is None:
                 return
-            with self.db() as db:
-                rows = db.execute("SELECT seq,payload FROM events WHERE run_id=? AND seq>? ORDER BY seq LIMIT 200",
-                                  (run_id, after)).fetchall()
             for row in rows:
                 after = row['seq']
                 yield f"id: {after}\ndata: {row['payload']}\n\n"
-            if run['status'] not in ACTIVE and not rows:
+            if status not in ACTIVE and not rows:
                 return
             if not rows:
                 if time.monotonic() - heartbeat >= 15:
