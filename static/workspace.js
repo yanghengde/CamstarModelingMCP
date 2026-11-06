@@ -153,14 +153,19 @@ $('recordsView').addEventListener('scroll', () => {
 }, {passive:true});
 async function refreshSessions() {
     const data = await api(`/sessions/${encodeURIComponent(username)}`);
-    sessions = (data.sessions || []).slice().reverse();
+    const nextSessions = (data.sessions || []).slice().reverse();
+    const changed = JSON.stringify(sessions) !== JSON.stringify(nextSessions);
+    sessions = nextSessions;
+    const previousSession = sessionId;
     if (!sessionId) {
         const candidates = [new URLSearchParams(location.search).get('session_id'), storedSession(), data.active_session, sessions[0]?.id];
         sessionId = candidates.find(id => sessions.some(s => s.id === id)) || null;
     }
-    rememberSession();
-    renderSessions();
-    renderConfirmationMode();
+    if (changed || previousSession !== sessionId) {
+        rememberSession();
+        renderSessions();
+        renderConfirmationMode();
+    }
 }
 function appendMessage(role, text) {
     $('msgs').querySelector('.welcome')?.remove();
@@ -169,7 +174,14 @@ function appendMessage(role, text) {
     if (role === 'agent') renderMarkdown(bubble, text); else bubble.textContent = text;
     wrapper.append(bubble); $('msgs').append(wrapper); scrollBottom(); return bubble;
 }
-function scrollBottom() { $('msgs').scrollTop = $('msgs').scrollHeight; }
+let scrollFrame = null;
+function scrollBottom() {
+    if (scrollFrame !== null) return;
+    scrollFrame = requestAnimationFrame(() => {
+        scrollFrame = null;
+        $('msgs').scrollTop = $('msgs').scrollHeight;
+    });
+}
 function createWorkSummary(label) {
     const details = document.createElement('details'); details.className = 'work-summary';
     const summary = document.createElement('summary'); summary.textContent = label;
@@ -258,6 +270,21 @@ function attachRun(run, token) {
 async function observeRun(run, token, work, updateClock) {
     let cursor = 0, streamBubble = null, streamText = '';
     const current = () => token === viewVersion && sessionId === run.session_id;
+    let renderTimer = null, dirty = false;
+    function flushStream() {
+        clearTimeout(renderTimer); renderTimer = null;
+        if (!dirty || !streamBubble || !current()) return;
+        const panel = $('msgs');
+        const follow = panel.scrollHeight - panel.scrollTop - panel.clientHeight < 100;
+        renderMarkdown(streamBubble, streamText);
+        dirty = false;
+        if (follow) scrollBottom();
+    }
+    function queueStreamRender() {
+        dirty = true;
+        // Coalesce token bursts and journal replay into one Markdown/layout pass.
+        if (renderTimer === null) renderTimer = setTimeout(flushStream, 80);
+    }
     function event(frame) {
         if (!current()) return;
         const lines = frame.split('\n');
@@ -269,14 +296,16 @@ async function observeRun(run, token, work, updateClock) {
             if (work.steps.textContent === '正在处理请求…') work.steps.textContent = '';
             const step = document.createElement('div'); step.textContent = data.func || '工具调用'; work.steps.append(step);
         } else if (data.type === 'stream_start') {
+            flushStream();
             streamBubble = appendMessage('agent', ''); streamText = '';
         } else if (data.type === 'stream_chunk') {
             if (!streamBubble) { streamBubble = appendMessage('agent', ''); streamText = ''; }
-            streamText += data.content || ''; renderMarkdown(streamBubble, streamText); scrollBottom();
-        } else if (data.type === 'stream_end') streamBubble = null;
+            streamText += data.content || ''; queueStreamRender();
+        } else if (data.type === 'stream_end') { flushStream(); streamBubble = null; }
         else if (data.type === 'done' && data.reply) appendMessage('agent', data.reply);
         else if (data.type === 'error') appendMessage('agent', data.message || '执行失败');
         else if (data.type === 'run_state') {
+            if (!activeRunStates.has(data.status)) flushStream();
             activeRun.status = data.status;
             if (!activeRunStates.has(data.status)) activeRun.finished_at ||= Date.now() / 1000;
             if (data.message) appendMessage('agent', data.message);
@@ -301,6 +330,7 @@ async function observeRun(run, token, work, updateClock) {
                 }
                 if (done) break;
             }
+            flushStream();
             if (!current()) return;
             const latest = await api(`/api/chat/runs/${encodeURIComponent(run.id)}?username=${encodeURIComponent(username)}`);
             if (!current()) return;
@@ -314,6 +344,7 @@ async function observeRun(run, token, work, updateClock) {
                 return;
             }
         } catch (error) {
+            flushStream();
             if (!current() || error.name === 'AbortError') return;
             status('进度连接中断，后台任务继续执行，正在重新连接…');
         }
@@ -474,11 +505,14 @@ async function initialize() {
 initialize().then(() => { if (initialDraft && !runIsActive()) { setComposerText(initialDraft); $('inputBox').focus(); } });
 
 // Session badges keep updating even when another chat/records page is visible.
+let refreshingSessions = false;
 setInterval(async () => {
-    if (!initialized || loading) return;
+    if (!initialized || loading || refreshingSessions || document.hidden) return;
+    refreshingSessions = true;
     try {
         await refreshSessions();
         const latest = sessions.find(item => item.id === sessionId)?.run;
         if (latest && latest.id !== activeRun?.id && !loading) await loadHistory();
     } catch (_) { /* reconnecting the progress stream handles transient outages */ }
+    finally { refreshingSessions = false; }
 }, 5000);

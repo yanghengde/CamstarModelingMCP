@@ -43,10 +43,11 @@ async def simulated_stream(username, message, session_id):
         pending[session_id] = False
     yield event({'type': 'step', 'func': 'offline_preview'})
     yield event({'type': 'stream_start'})
-    count = 250 if message == '需要停止' else 80 if message == '后台连续执行' else 12
+    count = 1000 if message == '流式性能演示' else 250 if message == '需要停止' else 80 if message == '后台连续执行' else 12
     content = ''
     for i in range(count):
-        await asyncio.sleep(.12)
+        if message != '流式性能演示':
+            await asyncio.sleep(.12)
         fragment = f'进度 {i + 1:02d}\n'
         content += fragment
         ticks[session_id] = i + 1

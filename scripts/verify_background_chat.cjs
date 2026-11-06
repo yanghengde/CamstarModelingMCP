@@ -129,6 +129,28 @@ const assert = require('assert');
     await page.waitForFunction(() => document.querySelector('.sidebar').getBoundingClientRect().right <= 1);
     assert.equal(await page.locator('#menuToggle').isVisible(), true);
     await page.screenshot({path:path.join(root, 'data/background-chat-ui/mobile.png'), fullPage:true});
+    await page.setViewportSize({width:1440,height:1000});
+    await newChat();
+    await page.evaluate(() => {
+      window.markdownPasses = 0;
+      const original = renderMarkdown;
+      renderMarkdown = (...args) => { window.markdownPasses++; return original(...args); };
+    });
+    const burst = await send('流式性能演示');
+    await finished(burst.id);
+    await page.waitForFunction(() => !document.getElementById('inputBox').disabled && document.getElementById('msgs').textContent.includes('后台演示已完成。'));
+    assert.match(await page.locator('#msgs').innerText(), /进度 1000/);
+    report.stream_markdown_passes = await page.evaluate(() => window.markdownPasses);
+    assert.ok(report.stream_markdown_passes < 25, `Excessive renders: ${report.stream_markdown_passes}`);
+    const unchangedList = await page.evaluate(async () => {
+      await refreshSessions();
+      const first = document.getElementById('sessionListUI').firstChild;
+      await refreshSessions();
+      return first === document.getElementById('sessionListUI').firstChild;
+    });
+    assert.ok(unchangedList, 'Unchanged session polling must preserve DOM nodes');
+    report.checks.push('1000 个流式片段合并渲染且末尾完整；未变化的会话列表保留 DOM');
+    assert.deepEqual(report.browser_errors, []);
     fs.writeFileSync(path.join(root, 'docs/background-chat-ui-validation.json'), JSON.stringify(report, null, 2));
     console.log(JSON.stringify(report, null, 2));
   } catch (error) { console.error(logs); throw error; }
