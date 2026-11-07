@@ -111,3 +111,21 @@ def test_current_tool_exchange_keeps_provider_metadata():
     messages=[{'role':'user','content':'查询'}, {'role':'assistant','reasoning_content':'continuation metadata',
                'tool_calls':[{'id':'c','function':{'name':'get_capabilities','arguments':'{}'}}]}]
     assert budget_history(messages)[0] == messages
+
+
+def test_disabled_budget_preserves_large_conversation_and_full_directory(monkeypatch):
+    from agent import context_budget
+    monkeypatch.setattr(context_budget, 'AGENT_HISTORY_TOKEN_BUDGET', 0)
+    catalog = asyncio.run(get_capabilities())
+    messages = [{'role':'user','content':'批量操作计划和对象引用不要省略。'*10000},
+                {'role':'assistant','tool_calls':[{'id':'c','function':{'name':'get_capabilities','arguments':'{}'}}]},
+                {'role':'tool','name':'get_capabilities','tool_call_id':'c','content':catalog},
+                {'role':'assistant','content':'完整回答。'*10000},
+                {'role':'user','content':'继续查询 workflow'}]
+    before = copy.deepcopy(messages)
+    result, metrics = budget_history(messages)
+    assert result == before == messages
+    assert metrics['history_estimated_tokens'] > 16000
+    assert metrics['history_budget_enabled'] is False
+    assert metrics['history_removed_messages'] == 0
+    assert metrics['history_projected_discovery_messages'] == 0
