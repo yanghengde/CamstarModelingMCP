@@ -12,7 +12,12 @@ import hashlib
 import json
 import re
 import sqlite3
-from datetime import datetime, timezone
+import threading
+from contextlib import contextmanager
+
+_INIT_LOCK = threading.Lock()
+_INITIALIZED = set()
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -44,48 +49,71 @@ _VOLATILE_PATTERN = re.compile(
 )
 
 
-def _connect() -> sqlite3.Connection:
+@contextmanager
+def _connect():
     db_path = Path(EXPERIENCE_DB)
     if not db_path.is_absolute():
         db_path = PROJECT_ROOT / db_path
     db_path.parent.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(db_path, timeout=5)
     connection.row_factory = sqlite3.Row
-    connection.execute("PRAGMA journal_mode=WAL")
-    connection.executescript(
-        """
-        CREATE TABLE IF NOT EXISTS experience_events (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            created_at TEXT NOT NULL,
-            session_id TEXT NOT NULL,
-            tool_name TEXT NOT NULL,
-            argument_keys TEXT NOT NULL,
-            outcome TEXT NOT NULL,
-            result_excerpt TEXT NOT NULL,
-            candidate_id INTEGER
-        );
+    identity = (str(db_path.resolve()), db_path.stat().st_ino)
+    with _INIT_LOCK:
+        if identity not in _INITIALIZED:
+            connection.execute("PRAGMA journal_mode=WAL")
+            connection.executescript(
+                """
+                CREATE TABLE IF NOT EXISTS experience_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    created_at TEXT NOT NULL,
+                    session_id TEXT NOT NULL,
+                    tool_name TEXT NOT NULL,
+                    argument_keys TEXT NOT NULL,
+                    outcome TEXT NOT NULL,
+                    result_excerpt TEXT NOT NULL,
+                    candidate_id INTEGER
+                );
 
-        CREATE TABLE IF NOT EXISTS experience_candidates (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            fingerprint TEXT NOT NULL UNIQUE,
-            tool_name TEXT NOT NULL,
-            symptom TEXT NOT NULL,
-            occurrences INTEGER NOT NULL DEFAULT 1,
-            first_seen TEXT NOT NULL,
-            last_seen TEXT NOT NULL,
-            status TEXT NOT NULL DEFAULT 'pending',
-            resolution TEXT,
-            evidence TEXT,
-            revalidate INTEGER NOT NULL DEFAULT 1,
-            reviewed_at TEXT
-        );
-        """
-    )
-    return connection
+                CREATE TABLE IF NOT EXISTS experience_candidates (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    fingerprint TEXT NOT NULL UNIQUE,
+                    tool_name TEXT NOT NULL,
+                    symptom TEXT NOT NULL,
+                    occurrences INTEGER NOT NULL DEFAULT 1,
+                    first_seen TEXT NOT NULL,
+                    last_seen TEXT NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'pending',
+                    resolution TEXT,
+                    evidence TEXT,
+                    revalidate INTEGER NOT NULL DEFAULT 1,
+                    reviewed_at TEXT
+                );
+                CREATE INDEX IF NOT EXISTS experience_events_retention
+                    ON experience_events(outcome, created_at);
+                CREATE INDEX IF NOT EXISTS experience_candidates_status
+                    ON experience_candidates(status, last_seen DESC);
+                """
+            )
+            _INITIALIZED.add(identity)
+    try:
+        with connection:
+            yield connection
+    finally:
+        connection.close()
 
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def prune_events(days):
+    """Keep all reviewed/pending rules; expire only old successful telemetry."""
+    if not days:
+        return 0
+    cutoff = (datetime.now(timezone.utc)-timedelta(days=days)).isoformat(timespec='seconds')
+    with _connect() as connection:
+        return connection.execute("DELETE FROM experience_events WHERE outcome='success' AND created_at<?",
+                                  (cutoff,)).rowcount
 
 
 def _sanitize(text: str, limit: int = 1200) -> str:

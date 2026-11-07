@@ -171,6 +171,30 @@ def test_pending_parameter_correction_never_executes_old_values(tmp_path,monkeyp
     assert final_preview['arguments']['values']=={'温度':30}
 
 
+def test_multiturn_budget_preserves_plan_ids_and_revised_approval(tmp_path, monkeypatch, schemas):
+    from agent.context_budget import budget_history
+    observed = []
+    def bounded(messages):
+        # Simulate long older narration, without changing durable graph history.
+        prefix = messages[:1] if messages and messages[0].get('role') == 'system' else []
+        remainder = messages[len(prefix):]
+        seeded = prefix + [{'role':'user','content':'旧的说明'},
+                           {'role':'assistant','content':'已结束的解释。'*5000},
+                           {'role':'user','content':'另一个已完成的话题'}] + remainder
+        result, metrics = budget_history(seeded, budget=16000)
+        assert metrics['history_removed_messages'] >= 1
+        observed.append(metrics)
+        for plan_id in ev.CURRENT.get().plans:
+            assert plan_id in json.dumps(result, ensure_ascii=False)
+        return result, metrics
+    monkeypatch.setattr(runtime, 'budget_history', bounded)
+    case=next(c for c in CASES if c['id']=='D08')
+    result=execute_replay(tmp_path,monkeypatch,schemas,case,RevisedPlanClient())
+    assert result['passed'] and observed
+    assert result['simulated_execution_count']==1
+    assert result['turns'][0]['approval_pending'] and result['turns'][1]['approval_pending']
+
+
 @pytest.mark.parametrize('case_id',['D10','D11','D14'])
 def test_pending_gate_accepts_clear_confirmation_or_cancels_for_new_task(tmp_path,monkeypatch,schemas,case_id):
     case=next(c for c in CASES if c['id']==case_id)

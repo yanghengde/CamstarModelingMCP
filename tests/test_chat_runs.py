@@ -12,6 +12,11 @@ from web import routes
 from agent import memory
 
 
+@pytest.fixture(autouse=True)
+def isolate_run_metrics(monkeypatch):
+    monkeypatch.setattr('web.chat_runs.record_perf', lambda *args, **kwargs: None)
+
+
 def test_stream_journal_batches_bursts_and_flushes_during_upstream_wait(tmp_path):
     async def run():
         manager = ChatRuns(tmp_path / 'runs.sqlite')

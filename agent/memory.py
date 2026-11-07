@@ -9,12 +9,70 @@ import glob
 import json
 import uuid
 import time
+import threading
+from pathlib import Path
+
+_STORE_LOCK = threading.RLock()
 
 from config import MEMORY_FILE, SESSIONS_DIR
 from agent.prompts import SYSTEM_PROMPT
 
 # 内存中的状态字典
 user_memories: dict = {}
+
+
+class LazySession(dict):
+    """Metadata-only entry until a caller actually requests its messages."""
+    def __init__(self, summary, path):
+        super().__init__(summary)
+        self.path = path
+
+    def hydrate(self):
+        with _STORE_LOCK:
+            if not dict.__contains__(self, 'messages'):
+                with open(self.path, encoding='utf-8') as stream:
+                    full = json.load(stream)
+                # Preserve an explicitly changed metadata setting before save.
+                full.update(dict(self))
+                self.update(full)
+        return self
+
+    def __getitem__(self, key):
+        if key == 'messages':
+            self.hydrate()
+        return super().__getitem__(key)
+
+    def get(self, key, default=None):
+        if key == 'messages':
+            self.hydrate()
+        return super().get(key, default)
+
+
+def _atomic_json(path, data):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + '.' + uuid.uuid4().hex + '.tmp')
+    try:
+        with temporary.open('w', encoding='utf-8') as stream:
+            json.dump(data, stream, ensure_ascii=False)
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def _summary(data):
+    return {**{k: data[k] for k in ('id', 'title', 'updated_at', 'auto_confirm') if k in data},
+            'has_messages': any(m.get('role') in ('user', 'assistant') and bool(m.get('content'))
+                                for m in data.get('messages', []))}
+
+
+def _summary_path(path):
+    return Path(path).parent / '.index' / Path(path).name
+
+
+def _write_summary(path, data):
+    stat = os.stat(path)
+    _atomic_json(_summary_path(path), {'mtime_ns': stat.st_mtime_ns, 'size': stat.st_size, 'summary': _summary(data)})
 
 
 def get_user_dir(username: str) -> str:
@@ -29,8 +87,8 @@ def _save_metadata(username: str):
     data_to_save = {
         "active_session": user_memories[username].get("active_session")
     }
-    with open(metadata_path, "w", encoding="utf-8") as f:
-        json.dump(data_to_save, f, ensure_ascii=False, indent=2)
+    with _STORE_LOCK:
+        _atomic_json(metadata_path, data_to_save)
 
 
 def save_session(username: str, session_id: str):
@@ -39,10 +97,13 @@ def save_session(username: str, session_id: str):
         d = get_user_dir(username)
         os.makedirs(d, exist_ok=True)
         session_data = user_memories[username]["sessions"][session_id]
-        session_data["updated_at"] = time.time()
-        file_path = os.path.join(d, f"{session_id}.json")
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(session_data, f, ensure_ascii=False, indent=2)
+        with _STORE_LOCK:
+            if isinstance(session_data, LazySession):
+                session_data.hydrate()
+            session_data["updated_at"] = time.time()
+            file_path = os.path.join(d, f"{session_id}.json")
+            _atomic_json(file_path, session_data)
+            _write_summary(file_path, session_data)
 
 
 def save_memory():
@@ -103,12 +164,27 @@ def load_memory() -> dict:
                 if os.path.basename(s_file) == "metadata.json":
                     continue
                 try:
-                    with open(s_file, "r", encoding="utf-8") as fs:
-                        s_data = json.load(fs)
-                        sid = s_data.get("id")
-                        if sid:
-                            s_data.setdefault("updated_at", os.path.getmtime(s_file))
-                            mem[uname]["sessions"][sid] = s_data
+                    stat = os.stat(s_file)
+                    cached = None
+                    try:
+                        with _summary_path(s_file).open(encoding='utf-8') as stream:
+                            cached = json.load(stream)
+                    except (OSError, ValueError):
+                        pass
+                    if (isinstance(cached, dict) and isinstance(cached.get('summary'), dict)
+                            and cached['summary'].get('id') and 'has_messages' in cached['summary']
+                            and cached.get('mtime_ns') == stat.st_mtime_ns and cached.get('size') == stat.st_size):
+                        s_data = LazySession(cached['summary'], s_file)
+                    else:
+                        # One-time metadata migration; never rewrite the history.
+                        with open(s_file, encoding='utf-8') as stream:
+                            full = json.load(stream)
+                        full.setdefault('updated_at', stat.st_mtime)
+                        _write_summary(s_file, full)
+                        s_data = LazySession(_summary(full), s_file)
+                    sid = s_data.get('id')
+                    if sid:
+                        mem[uname]['sessions'][sid] = s_data
                 except Exception:
                     pass
 
@@ -143,7 +219,7 @@ def get_sessions(username: str) -> list:
     return sorted(
         [{"id": k, "title": v.get("title", "会话"), "updated_at": v.get("updated_at", 0),
           "auto_confirm": v.get("auto_confirm") is True,
-          "has_messages": any(
+          "has_messages": v['has_messages'] if isinstance(v, LazySession) and 'messages' not in v else any(
               message.get("role") in ("user", "assistant") and bool(message.get("content"))
               for message in v.get("messages", [])
           )}

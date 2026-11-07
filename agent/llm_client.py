@@ -18,11 +18,13 @@ from config import (
 from agent.memory import get_user_messages, save_user_session, update_session_title, user_memories
 from tools import mcp, get_tool_func
 from core.tool_catalog import TOOL_POLICIES
-from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCTION
+from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCTION, routing_instructions
 from agent.prompts import deduplicate_runtime_rules
 from agent.safety import MutationCounts, classify_tool, count_tool_calls, evaluate_mutations, approval_prompt, is_explicit_confirmation
 from agent.safety import requests_execution_review
 from core.perf_logger import record_perf
+from core.async_io import durable_io
+from agent.context_budget import budget_history
 from core.inference_metrics import InferenceMetrics, stream_options
 from core.movement_policy import movement_targets, movement_failed, movement_call_blocked, MOVEMENT_RETRY_BLOCKED
 
@@ -70,7 +72,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
     SSE 流式聊天生成器。
     每执行一步工具调用都会向前端推送进度事件。
     """
-    chat_messages = get_user_messages(username, session_id)
+    chat_messages = await asyncio.to_thread(get_user_messages, username, session_id)
     
     # 尝试恢复 session_id，保证日志准确性和更新标题
     actual_session_id = session_id
@@ -80,11 +82,11 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
     is_first_message = (len(chat_messages) == 1) # 只有 system prompt
         
     chat_messages.append({"role": "user", "content": message})
-    save_user_session(username, actual_session_id)
+    await durable_io(save_user_session, username, actual_session_id)
 
     if is_first_message and actual_session_id != "unknown":
         new_title = await generate_title(message)
-        update_session_title(username, actual_session_id, new_title)
+        await durable_io(update_session_title, username, actual_session_id, new_title)
         yield f"data: {json.dumps({'type': 'title_update', 'title': new_title, 'session_id': actual_session_id}, ensure_ascii=False)}\n\n"
 
 
@@ -108,16 +110,16 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
         if loops > MAX_TOOL_LOOPS:
             reply = f"⚠️ 遇到过多连续的操作，达到预设循环上限 ({MAX_TOOL_LOOPS} 次)，自动中断了当前任务。如需调整，请在 .env 文件中修改 MAX_TOOL_LOOPS 的值。"
             chat_messages.append({"role": "assistant", "content": reply})
-            save_user_session(username, actual_session_id)
+            await durable_io(save_user_session, username, actual_session_id)
             yield f"data: {json.dumps({'type': 'done', 'reply': reply}, ensure_ascii=False)}\n\n"
             break
 
         try:
             llm_start_time = time.time()
             selected_tools = select_tools(openai_tools, chat_messages)
-            model_messages = list(chat_messages)
+            model_messages, context_metrics = budget_history(chat_messages)
             model_messages.insert(1, {"role": "system", "content":
-                deduplicate_runtime_rules(model_messages, ROUTING_INSTRUCTION)})
+                deduplicate_runtime_rules(model_messages, routing_instructions(selected_tools))})
             from agent.memory import session_auto_confirm, AUTO_CONFIRM_INSTRUCTION
             if session_auto_confirm(username, actual_session_id):
                 model_messages.insert(2, {'role': 'system', 'content': AUTO_CONFIRM_INSTRUCTION})
@@ -170,7 +172,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
                                 tool_calls_dict[idx]["function"]["arguments"] += tc.function.arguments
 
             llm_duration = time.time() - llm_start_time
-            record_perf("LLM_Inference", llm_duration, username, actual_session_id, {"model": LLM_MODEL, "prompt": message, "streamed": True, **metrics.result(), **selection_metrics(selected_tools, len(openai_tools))})
+            await durable_io(record_perf,"LLM_Inference", llm_duration, username, actual_session_id, {"model": LLM_MODEL, "prompt": message, "streamed": True, **metrics.result(), **context_metrics, **selection_metrics(selected_tools, len(openai_tools))})
         except asyncio.CancelledError:
             print(f"[WARN] [中止] 用户取消了请求 [@{username}]")
             raise
@@ -190,7 +192,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             msg_dict["tool_calls"] = response_tool_calls
             
         chat_messages.append(msg_dict)
-        save_user_session(username, actual_session_id)
+        await durable_io(save_user_session, username, actual_session_id)
 
         # 无工具调用 → 返回最终回答
         if not response_tool_calls:
@@ -254,7 +256,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
                     "name": func_name,
                     "content": "Action aborted by user/system."
                 })
-                save_user_session(username, actual_session_id)
+                await durable_io(save_user_session, username, actual_session_id)
                 raise
             except Exception as e:
                 result = f"Error executing {func_name}: {e}"
@@ -262,7 +264,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             tool_duration = time.time() - tool_start_time
             if movement_failed(result):
                 blocked_movement_targets.update(movement_targets(func_name, func_args))
-            record_perf(f"Tool_Execute", tool_duration, username, actual_session_id, {"tool": func_name, "prompt": message})
+            await durable_io(record_perf,f"Tool_Execute", tool_duration, username, actual_session_id, {"tool": func_name, "prompt": message})
 
             chat_messages.append({
                 "role": "tool",
@@ -270,7 +272,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
                 "name": func_name,
                 "content": str(result)
             })
-            save_user_session(username, actual_session_id)
+            await durable_io(save_user_session, username, actual_session_id)
 
 
 async def chat_stream(username: str, message: str, session_id: str = None):

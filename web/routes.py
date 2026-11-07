@@ -1,18 +1,19 @@
 import os
+import asyncio
 import uuid
-import shutil
 from typing import Literal
 
 from fastapi import APIRouter, File, Query, UploadFile, HTTPException
 from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel, Field, StrictBool
 
-from config import CAMSTAR_USERNAME, ENABLE_PERFORMANCE_LOG, AGENT_ENGINE
+from config import CAMSTAR_USERNAME, ENABLE_PERFORMANCE_LOG, AGENT_ENGINE, UPLOAD_MAX_BYTES
+from core.async_io import durable_io
 from agent.memory import get_user_messages, get_sessions, create_session, set_active_session, get_active_session, user_memories
 from agent.llm_client import chat_stream
 from agent.experience import get_experience_status, list_candidates
 from core.perf_logger import get_perf_logs, get_perf_log_groups
-from web.chat_runs import RUNS, RunConflict
+from web.chat_runs import RUNS, RunConflict, QueueFull
 
 router = APIRouter()
 
@@ -35,7 +36,7 @@ async def confirmation_settings(username: str, session_id: str, req: Confirmatio
     if session is None:
         raise HTTPException(404, '对话不存在。')
     session['auto_confirm'] = req.auto_confirm
-    save_session(username, session_id)
+    await durable_io(save_session, username, session_id)
     return {'auto_confirm': req.auto_confirm}
 
 
@@ -87,7 +88,7 @@ def history_endpoint(username: str, session_id: str = None):
     return {"messages": messages, "run": RUNS.latest(username, session_id or get_active_session(username))}
 
 
-def start_chat_run(req):
+def _chat_identity(req):
     session_id = req.session_id or get_active_session(req.username)
     if req.session_id and req.session_id not in user_memories.get(req.username, {}).get('sessions', {}):
         raise HTTPException(404, "对话不存在，请重新选择。")
@@ -95,9 +96,16 @@ def start_chat_run(req):
         session_id = create_session(req.username)
     if not req.message.strip():
         raise HTTPException(422, "消息不能为空。")
+    return session_id, len(get_user_messages(req.username, session_id))
+
+
+async def start_chat_run(req):
+    session_id, history_start = await durable_io(_chat_identity, req)
     try:
-        return RUNS.start(req.username, session_id, req.message, req.request_id or uuid.uuid4().hex,
-                          len(get_user_messages(req.username, session_id)), chat_stream, workflow_endpoint)
+        return await RUNS.astart(req.username, session_id, req.message, req.request_id or uuid.uuid4().hex,
+                                history_start, chat_stream, workflow_endpoint)
+    except QueueFull as exc:
+        raise HTTPException(429, str(exc), headers={'Retry-After': '2'}) from exc
     except RunConflict as exc:
         raise HTTPException(409, {"message": str(exc), "run": exc.run}) from exc
     except ValueError as exc:
@@ -107,7 +115,7 @@ def start_chat_run(req):
 @router.post('/api/chat/runs', status_code=202)
 async def create_chat_run(req: ChatRequest):
     """Accept once, run on the server, and return before execution finishes."""
-    return start_chat_run(req)
+    return await start_chat_run(req)
 
 
 @router.get('/api/chat/runs/{run_id}')
@@ -128,7 +136,7 @@ def chat_run_events(run_id: str, username: str, after: int = Query(default=0, ge
 
 @router.post('/api/chat/runs/{run_id}/cancel')
 async def cancel_chat_run(run_id: str, username: str):
-    run = RUNS.cancel(username, run_id)
+    run = await RUNS.acancel(username, run_id)
     if not run:
         raise HTTPException(404, '任务不存在。')
     return run
@@ -137,7 +145,7 @@ async def cancel_chat_run(run_id: str, username: str):
 @router.post("/chat")
 async def chat_endpoint(req: ChatRequest):
     """Backward-compatible SSE subscription to a server-owned background run."""
-    run = start_chat_run(req)
+    run = await start_chat_run(req)
     return StreamingResponse(
         RUNS.events(req.username, run['id']), media_type="text/event-stream",
         headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'}
@@ -196,11 +204,23 @@ def upload_file(file: UploadFile = File(...)):
     """接收并暂存上传的文件，返回文件本地路径"""
     os.makedirs(UPLOAD_DIR, exist_ok=True)
     
-    unique_filename = f"{uuid.uuid4().hex}_{file.filename}"
+    unique_filename = f"{uuid.uuid4().hex}_{os.path.basename((file.filename or 'upload').replace(chr(92), '/'))}"
     file_path = os.path.join(UPLOAD_DIR, unique_filename)
     
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    if file.size is not None and file.size > UPLOAD_MAX_BYTES:
+        raise HTTPException(413, '上传文件超过大小限制。')
+    try:
+        total = 0
+        with open(file_path, "wb") as buffer:
+            while chunk := file.file.read(min(1024 * 1024, UPLOAD_MAX_BYTES + 1 - total)):
+                total += len(chunk)
+                if total > UPLOAD_MAX_BYTES:
+                    raise HTTPException(413, '上传文件超过大小限制。')
+                buffer.write(chunk)
+    except BaseException:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        raise
         
     return {
         "success": True,

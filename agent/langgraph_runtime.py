@@ -50,10 +50,12 @@ from config import (
     MAX_READ_FAILURES,
 )
 from core.perf_logger import record_perf
+from core.async_io import durable_io
+from agent.context_budget import budget_history, ContextBudgetExceeded
 from core.inference_metrics import InferenceMetrics, stream_options
 from core.movement_policy import movement_targets, movement_failed, movement_call_blocked, MOVEMENT_RETRY_BLOCKED
 from tools import get_tool_func
-from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCTION
+from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCTION, routing_instructions
 
 
 class AgentState(TypedDict, total=False):
@@ -70,6 +72,7 @@ class AgentState(TypedDict, total=False):
     pending_tool_calls: list[dict[str, Any]]
     final_reply: str
     stop_reason: str
+    revising_approval: bool
     read_failures: int
     blocked_movement_targets: list[str]
 
@@ -143,15 +146,16 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
             for message in state.get("messages", [])[-8:]
             if message.get("role") == "tool" and message.get("name")
         }
-        experience_context = build_runtime_experience_context(
+        experience_context = await asyncio.to_thread(build_runtime_experience_context,
             state.get("request_message", ""), tool_names
         )
-        model_messages = list(state.get("messages", []))
+        selected_tools = select_tools(_openai_tools, state.get("messages", []))
+        model_messages, context_metrics = budget_history(state.get("messages", []))
         from agent.memory import session_auto_confirm, AUTO_CONFIRM_INSTRUCTION
         language_message = {
             "role": "system",
             "content": deduplicate_runtime_rules(model_messages,
-                USER_FACING_LANGUAGE_RULE + "\n" + QUERY_EFFICIENCY_RULE + "\n" + ROUTING_INSTRUCTION + "\n" + APPROVAL_FLOW_RULE),
+                USER_FACING_LANGUAGE_RULE + "\n" + QUERY_EFFICIENCY_RULE + "\n" + routing_instructions(selected_tools) + "\n" + APPROVAL_FLOW_RULE),
         }
         insert_at = 1 if model_messages and model_messages[0].get("role") == "system" else 0
         model_messages.insert(insert_at, language_message)
@@ -164,11 +168,17 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
             }
             model_messages.insert(insert_at + 1, context_message)
 
+        if state.get('revising_approval'):
+            model_messages.append({'role': 'system', 'content':
+                '本轮因用户的新指令撤销了旧待确认调用。旧计划不能执行。'
+                '如用户仍要求原提交任务改参数后重新展示计划，应准备新计划并提出对应执行工具调用，'
+                '由系统审批门暂停展示；提出调用不是实际提交，不要改成普通文本询问后再重复系统确认。'
+                '若用户已取消任务、改为只查询或明确只预览不提交，则不得提出执行调用。'})
+
         exhausted = int(state.get("read_failures", 0)) >= MAX_READ_FAILURES
         if exhausted:
             model_messages.append({"role": "system", "content":
                 "本轮查询连续失败，停止调用工具。请立即用中文总结已取得的数据和失败原因，不得声称查询完整或成功。"})
-        selected_tools = select_tools(_openai_tools, model_messages)
         metrics = InferenceMetrics()
         response_stream = await _client.chat.completions.create(
             model=LLM_MODEL,
@@ -210,10 +220,15 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
                         item["function"]["name"] += call.function.name
                     if call.function.arguments:
                         item["function"]["arguments"] += call.function.arguments
+    except ContextBudgetExceeded as exc:
+        reply = str(exc)
+        return {'loop_count': loops, 'pending_tool_calls': [], 'final_reply': reply,
+                'stop_reason': 'context_budget',
+                'messages': state.get('messages', []) + [{'role': 'assistant', 'content': reply}]}
     except asyncio.CancelledError:
         raise
 
-    record_perf(
+    await durable_io(record_perf,
         "LLM_Inference",
         time.time() - started,
         state.get("username", "unknown"),
@@ -223,6 +238,7 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
             "prompt": state.get("request_message", ""),
             "streamed": True,
             **metrics.result(),
+            **context_metrics,
             **selection_metrics(selected_tools, len(_openai_tools)),
             "engine": "langgraph",
         },
@@ -351,7 +367,7 @@ async def _execute_tool_node(state: AgentState) -> dict[str, Any]:
         except Exception as exc:  # Tool errors are returned to the model for recovery.
             result = f"Error executing {func_name}: {exc}"
         finally:
-            record_perf(
+            await durable_io(record_perf,
                 "Tool_Execute",
                 time.time() - started,
                 state.get("username", "unknown"),
@@ -364,7 +380,7 @@ async def _execute_tool_node(state: AgentState) -> dict[str, Any]:
             )
 
     try:
-        candidate_id = record_tool_outcome(
+        candidate_id = await durable_io(record_tool_outcome,
             session_id=state.get("session_id", "unknown"),
             tool_name=func_name,
             arguments=func_args,
@@ -487,6 +503,7 @@ async def get_workflow_status(username: str, session_id: str) -> dict[str, Any]:
         result["status"] = "incomplete" if snapshot.next else {
             "complete": "complete", "cancelled": "cancelled",
             "loop_limit": "limited",
+            "context_budget": "limited",
         }.get(reason, "idle")
     return result
 
@@ -512,9 +529,9 @@ async def _sync_legacy_messages(
     snapshot = await _graph.aget_state(graph_config)
     state: AgentState = snapshot.values
     if not _has_interrupt(snapshot) and state.get("messages"):
-        legacy_messages = get_user_messages(username, session_id)
+        legacy_messages = await asyncio.to_thread(get_user_messages, username, session_id)
         legacy_messages[:] = state["messages"]
-        save_user_session(username, session_id)
+        await durable_io(save_user_session, username, session_id)
     return state
 
 
@@ -526,13 +543,14 @@ async def langgraph_chat_stream(
     if _graph is None:
         raise RuntimeError("LangGraph runtime has not been initialized")
 
-    chat_messages = get_user_messages(username, session_id)
+    chat_messages = await asyncio.to_thread(get_user_messages, username, session_id)
     actual_session_id = _actual_session_id(username, session_id)
     is_first_message = len(chat_messages) == 1
     graph_config = _graph_config(username, actual_session_id)
 
     snapshot = await _graph.aget_state(graph_config)
     start_new_request = not _has_interrupt(snapshot)
+    revising_approval = False
     if _has_interrupt(snapshot):
         if is_explicit_confirmation(message):
             try:
@@ -568,8 +586,9 @@ async def langgraph_chat_stream(
                 ):
                     yield event
                 await _sync_legacy_messages(username, actual_session_id, graph_config)
-                chat_messages = get_user_messages(username, actual_session_id)
+                chat_messages = await asyncio.to_thread(get_user_messages, username, actual_session_id)
                 start_new_request = True
+                revising_approval = True
             except asyncio.CancelledError:
                 raise
             except Exception as exc:
@@ -577,14 +596,14 @@ async def langgraph_chat_stream(
                 return
     if start_new_request:
         chat_messages.append({"role": "user", "content": message})
-        save_user_session(username, actual_session_id)
+        await durable_io(save_user_session, username, actual_session_id)
 
         if is_first_message and actual_session_id != "unknown":
             # Imported lazily to avoid a module cycle with llm_client.
             from agent.llm_client import generate_title
 
             title = await generate_title(message)
-            update_session_title(username, actual_session_id, title)
+            await durable_io(update_session_title, username, actual_session_id, title)
             yield _sse(
                 {
                     "type": "title_update",
@@ -606,6 +625,7 @@ async def langgraph_chat_stream(
             "pending_tool_calls": [],
             "final_reply": "",
             "stop_reason": "",
+            "revising_approval": revising_approval,
             "read_failures": 0,
             "blocked_movement_targets": [],
         }
@@ -646,7 +666,7 @@ async def langgraph_chat_stream(
         username, actual_session_id, graph_config
     )
     reply = final_state.get("final_reply", "")
-    if reply and final_state.get("stop_reason") in {"loop_limit", "cancelled"}:
+    if reply and final_state.get("stop_reason") in {"loop_limit", "cancelled", "context_budget"}:
         yield _sse({"type": "done", "reply": reply})
     elif not reply:
         yield _sse({"type": "done", "reply": "任务已完成。"})

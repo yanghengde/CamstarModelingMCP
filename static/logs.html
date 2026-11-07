@@ -475,7 +475,7 @@ body{display:block;} .trace-sidebar{width:320px;min-width:0;} .app-layout{min-he
             const chronoSteps = [...group.steps].reverse();
 
             const llmCount = chronoSteps.filter(s => s.action.toLowerCase().includes('llm')).length;
-            const toolCount = chronoSteps.length - llmCount;
+            const toolCount = chronoSteps.filter(s => s.action === 'Tool_Execute').length;
             const totalSecs = (group.totalTimeMs / 1000).toFixed(2);
 
             let stepsHtml = '';
@@ -488,9 +488,21 @@ body{display:block;} .trace-sidebar{width:320px;min-width:0;} .app-layout{min-he
                     `<svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>` :
                     `<svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`;
 
-                const title = isLLM ? 'LLM Inference 核心推理' : 'Tool Execute 工具分发';
+                const isRun = step.action === 'Run_Total';
+                const title = isRun ? '任务总耗时（包含排队）' : isLLM ? 'LLM Inference 核心推理' : 'Tool Execute 工具分发';
 
                 let metaHtml = '';
+                if (step.details.run_id) {
+                    metaHtml += `<div class="meta-row"><div class="meta-label">Run ID</div><div class="meta-value">${escapeHtml(step.details.run_id)}</div></div>`;
+                }
+                if (isRun) {
+                    for (const [key, label, scale, unit] of [
+                        ['queue_seconds', '排队', 1, 's'], ['execution_seconds', '执行', 1, 's'],
+                        ['event_loop_lag_p95_ms', '循环延迟 P95', 1, 'ms'], ['event_loop_lag_max_ms', '最大循环延迟', 1, 'ms']]) {
+                        const value = step.details[key];
+                        metaHtml += `<div class="meta-row"><div class="meta-label">${label}</div><div class="meta-value">${Number.isFinite(value) ? (value * scale).toFixed(2) + unit : '未采样'}</div></div>`;
+                    }
+                }
                 if (isLLM && step.details.model) {
                     metaHtml += `<div class="meta-row"><div class="meta-label">Model</div><div class="meta-value">${step.details.model}</div></div>`;
                 }
@@ -598,7 +610,7 @@ body{display:block;} .trace-sidebar{width:320px;min-width:0;} .app-layout{min-he
                     title.className = 'session-title';
                     title.textContent = session.title || '未命名对话';
                     link.append(title);
-                    const label = {queued:'执行中',running:'执行中',cancelling:'停止中',approval_required:'待确认',interrupted:'需核实',incomplete:'需核实',limited:'达到上限',failed:'出错'}[session.run?.status];
+                    const label = {queued:'排队中',running:'执行中',cancelling:'停止中',approval_required:'待确认',interrupted:'需核实',incomplete:'需核实',limited:'达到上限',failed:'出错'}[session.run?.status];
                     if (label) {
                         const badge = document.createElement('span');
                         badge.className = 'run-badge ' + session.run.status;

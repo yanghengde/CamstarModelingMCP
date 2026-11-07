@@ -28,6 +28,8 @@ from web.mcp_transport import BearerTokenMiddleware
 from core.quality_signature_vault import VAULT
 from core import quality_signature_ui
 from web.chat_runs import RUNS
+from web.upload_limits import UploadLimitMiddleware
+from core.retention import maintenance_loop
 
 
 async def expire_signature_inputs():
@@ -43,8 +45,8 @@ async def lifespan(app: FastAPI):
         print("[WARN] 未找到有效的 CAMSTAR_BASE_URL，请检查 .env 配置。")
 
     # 恢复历史记忆
-    init_memory()
-    RUNS.initialize()
+    await asyncio.to_thread(init_memory)
+    await asyncio.to_thread(RUNS.initialize)
 
     # 注册 MCP 工具
     await register_tools()
@@ -57,6 +59,7 @@ async def lifespan(app: FastAPI):
     print("[READY] Web 服务启动就绪！")
     quality_signature_ui.activate()
     signature_reaper=asyncio.create_task(expire_signature_inputs())
+    maintenance = asyncio.create_task(maintenance_loop(RUNS))
     mcp_http_app = getattr(app.state, "mcp_http_app", None)
     try:
         # Mounted Starlette applications do not run their lifespan implicitly.
@@ -67,6 +70,9 @@ async def lifespan(app: FastAPI):
         else:
             yield
     finally:
+        maintenance.cancel()
+        with suppress(asyncio.CancelledError):
+            await maintenance
         await RUNS.shutdown()
         signature_reaper.cancel()
         with suppress(asyncio.CancelledError):await signature_reaper
@@ -90,6 +96,7 @@ def create_app() -> FastAPI:
         title="Siemens Opcenter Modeling AI Agent",
         lifespan=lifespan
     )
+    app.add_middleware(UploadLimitMiddleware)
 
     # 挂载静态资源
     svg_dir = os.path.join("static", "svg")

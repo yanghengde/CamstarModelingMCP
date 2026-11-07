@@ -122,3 +122,16 @@ SAFE_DELETE_THRESHOLD = int(os.getenv("SAFE_DELETE_THRESHOLD", "0")) # Default 0
 # 日志与性能监控开关
 # ---------------------------------------------------------------------------
 ENABLE_PERFORMANCE_LOG = os.getenv("ENABLE_PERFORMANCE_LOG", "True").lower() in ("true", "1", "yes")
+
+# Single-worker admission and storage budgets. Zero retention disables pruning.
+CHAT_MAX_RUNNING = max(1, int(os.getenv("CHAT_MAX_RUNNING", "4")))
+CHAT_MAX_RUNNING_PER_USER = max(1, int(os.getenv("CHAT_MAX_RUNNING_PER_USER", "2")))
+CHAT_MAX_QUEUED = max(0, int(os.getenv("CHAT_MAX_QUEUED", "32")))
+CHAT_MAX_QUEUED_PER_USER = max(0, int(os.getenv("CHAT_MAX_QUEUED_PER_USER", "8")))
+CHAT_QUEUE_TIMEOUT = max(1., float(os.getenv("CHAT_QUEUE_TIMEOUT", "120")))
+AGENT_HISTORY_TOKEN_BUDGET = max(512, int(os.getenv("AGENT_HISTORY_TOKEN_BUDGET", "16000")))
+UPLOAD_MAX_BYTES = max(1, int(os.getenv("UPLOAD_MAX_BYTES", "20971520")))
+EXCEL_MAX_SHEETS = max(1, int(os.getenv("EXCEL_MAX_SHEETS", "20")))
+PERF_RETENTION_DAYS = max(0, int(os.getenv("PERF_RETENTION_DAYS", "90")))
+CHAT_EVENT_RETENTION_DAYS = max(0, int(os.getenv("CHAT_EVENT_RETENTION_DAYS", "30")))
+UPLOAD_RETENTION_DAYS = max(0, int(os.getenv("UPLOAD_RETENTION_DAYS", "7")))

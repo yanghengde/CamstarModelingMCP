@@ -10,6 +10,7 @@ import json
 import pandas as pd
 from typing import Any, Dict, List, Optional
 from tools import mcp
+from config import EXCEL_MAX_SHEETS, UPLOAD_MAX_BYTES
 from tools.workflows import create_workflow, list_workflows, rebuild_workflow_route
 
 
@@ -44,7 +45,11 @@ def _read_schema(file_path: str) -> dict:
     # Import plans accept 200 rows. One extra row detects oversized sheets
     # without materializing the entire workbook just to count its rows.
     schema_info = {}
+    if os.path.getsize(file_path) > UPLOAD_MAX_BYTES:
+        raise ValueError('文件超过大小限制')
     with pd.ExcelFile(file_path) as xl:
+        if len(xl.sheet_names) > EXCEL_MAX_SHEETS:
+            raise ValueError(f'工作表数量超过上限 {EXCEL_MAX_SHEETS}')
         for sheet_name in xl.sheet_names:
             df = pd.read_excel(xl, sheet_name=sheet_name, nrows=201).fillna("")
             schema_info[sheet_name] = {

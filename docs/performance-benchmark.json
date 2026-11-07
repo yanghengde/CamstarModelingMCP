@@ -1,0 +1,12 @@
+{
+  "groups": 5000,
+  "records": 10000,
+  "jsonl_bytes": 1920560,
+  "index_build_and_first_page_ms": 627.57,
+  "indexed_page_median_ms": 4.86,
+  "workflow_rules": {
+    "full_chars": 24513,
+    "selected_chars": 2168,
+    "reduction_percent": 91.16
+  }
+}

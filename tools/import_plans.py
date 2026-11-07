@@ -13,7 +13,7 @@ from tools.process_context import ReadContext, get_workflow_structure
 from tools.modeling_details import raw_json
 from core.http_client import request
 from core.import_lock import workflow_locks
-from config import CAMSTAR_BASE_URL
+from config import CAMSTAR_BASE_URL, UPLOAD_MAX_BYTES, EXCEL_MAX_SHEETS
 
 PLAN_DB = Path(__file__).resolve().parents[1] / "data" / "import_plans.sqlite3"
 
@@ -103,6 +103,22 @@ def _actions(name, revision, rows, before):
     return actions
 
 
+def _read_import_frame(file_path, mapping, header):
+    path = Path(file_path)
+    if path.is_file() and path.stat().st_size > UPLOAD_MAX_BYTES:
+        raise ValueError('文件超过大小限制')
+    options = dict(header=header, dtype=str, keep_default_na=False, nrows=201)
+    if path.suffix.lower() == '.csv':
+        return pd.read_csv(file_path, **options)
+    if path.is_file():
+        with pd.ExcelFile(file_path) as workbook:
+            if len(workbook.sheet_names) > EXCEL_MAX_SHEETS:
+                raise ValueError(f'工作表数量超过上限 {EXCEL_MAX_SHEETS}')
+            return pd.read_excel(workbook, sheet_name=mapping['sheet_name'], **options)
+    # Preserve the reader's normal error and support in-memory/mock readers.
+    return pd.read_excel(file_path, sheet_name=mapping['sheet_name'], **options)
+
+
 @mcp.tool
 async def preview_workflow_import(file_path: str, mapping_json: str) -> str:
     """Read ALL mapped Excel rows (max 200) and validate exact Specs, duplicates and conflicts. Return immutable 1-hour plan, original rows, before/after routes and exact write payloads. No business writes. Mapping fields: workflow_name, workflow_revision, step_name, spec_name; optional spec_revision, sequence, workflow_description. Existing routes are completely replaced; advanced routes are rejected."""
@@ -115,12 +131,7 @@ async def preview_workflow_import(file_path: str, mapping_json: str) -> str:
         header = mapping.get("header_row", 0)
         if not isinstance(header, int) or not 0 <= header <= 30:
             raise ValueError("header_row 必须为 0..30")
-        if Path(file_path).suffix.lower() == ".csv":
-            frame = await asyncio.to_thread(pd.read_csv, file_path, header=header,
-                                           dtype=str, keep_default_na=False, nrows=201)
-        else:
-            frame = await asyncio.to_thread(pd.read_excel, file_path, sheet_name=mapping["sheet_name"],
-                                           header=header, dtype=str, keep_default_na=False, nrows=201)
+        frame = await asyncio.to_thread(_read_import_frame, file_path, mapping, header)
         if not 1 <= len(frame) <= 200 or any(col not in frame for col in fields.values()):
             raise ValueError("必须为 1..200 行且映射列全部存在")
         groups, errors = {}, []
