@@ -135,6 +135,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             
             tool_calls_dict = {}
             full_content = ""
+            reasoning_content = ""
             has_started_stream = False
             
             async for chunk in response_stream:
@@ -142,6 +143,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
                 if len(chunk.choices) == 0:
                     continue
                 delta = chunk.choices[0].delta
+                reasoning_content += getattr(delta, "reasoning_content", None) or ""
                 
                 # 推送流式文本
                 if delta.content:
@@ -190,6 +192,8 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             msg_dict["content"] = full_content
         if response_tool_calls:
             msg_dict["tool_calls"] = response_tool_calls
+            if reasoning_content:
+                msg_dict["reasoning_content"] = reasoning_content
             
         chat_messages.append(msg_dict)
         await durable_io(save_user_session, username, actual_session_id)

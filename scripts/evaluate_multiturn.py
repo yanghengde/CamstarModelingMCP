@@ -400,7 +400,9 @@ async def run_case(case,schemas,round_number,turn_timeout):
                 async for chunk in runtime.langgraph_chat_stream(username,item['text'],session):
                     if chunk.startswith('data: '):events.append(json.loads(chunk[6:].strip()))
             try:await asyncio.wait_for(consume(),turn_timeout)
-            except Exception as exc:error=type(exc).__name__
+            except Exception as exc:
+                error=f'{type(exc).__name__}: {exc}'
+                print(f'{case["id"]} r{round_number} t{index}: {error}', flush=True)
             state=await runtime._graph.aget_state(config)
             current_calls=proposed_calls(state.values.get('messages',[]))[old_calls:]
             trace=world.trace[before:]

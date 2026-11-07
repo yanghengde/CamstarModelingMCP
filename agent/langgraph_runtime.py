@@ -191,12 +191,14 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
 
         tool_calls: dict[int, dict[str, Any]] = {}
         full_content = ""
+        reasoning_content = ""
         stream_started = False
         async for chunk in response_stream:
             metrics.observe(chunk)
             if not chunk.choices:
                 continue
             delta = chunk.choices[0].delta
+            reasoning_content += getattr(delta, "reasoning_content", None) or ""
             if delta.content:
                 if not stream_started:
                     writer({"type": "stream_start"})
@@ -250,6 +252,8 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
         assistant_message["content"] = full_content
     if ordered_calls:
         assistant_message["tool_calls"] = ordered_calls
+        if reasoning_content:
+            assistant_message["reasoning_content"] = reasoning_content
 
     update: dict[str, Any] = {
         "messages": state.get("messages", []) + [assistant_message],
