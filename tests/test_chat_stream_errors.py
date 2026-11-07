@@ -29,5 +29,6 @@ def test_chat_stream_serializes_unhandled_runtime_error(monkeypatch):
     assert events[0].startswith("data: ")
     payload = json.loads(events[0][6:])
     assert payload["type"] == "error"
-    assert "RuntimeError" in payload["message"]
-    assert "checkpoint unavailable" in payload["message"]
+    assert "RuntimeError" not in payload["message"]
+    assert "checkpoint unavailable" not in payload["message"]
+    assert "checkpoint unavailable" in payload["details"]

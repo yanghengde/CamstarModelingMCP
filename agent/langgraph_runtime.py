@@ -29,7 +29,7 @@ from agent.experience import (
     build_runtime_experience_context,
     record_tool_outcome,
 )
-from agent.prompts import USER_FACING_LANGUAGE_RULE, QUERY_EFFICIENCY_RULE, APPROVAL_FLOW_RULE, deduplicate_runtime_rules
+from agent.prompts import USER_FACING_LANGUAGE_RULE, QUERY_EFFICIENCY_RULE, APPROVAL_FLOW_RULE, BUSINESS_PRESENTATION_RULE, BUSINESS_RESPONSE_CHECK, deduplicate_runtime_rules
 from agent.safety import (
     MutationCounts,
     SafetyDecision,
@@ -51,6 +51,8 @@ from config import (
 )
 from core.perf_logger import record_perf
 from core.async_io import durable_io
+from core.user_errors import error_event, tool_diagnostic
+from agent.read_efficiency import previous_failed_read
 from agent.context_budget import budget_history, ContextBudgetExceeded
 from core.inference_metrics import InferenceMetrics, stream_options
 from core.movement_policy import movement_targets, movement_failed, movement_call_blocked, MOVEMENT_RETRY_BLOCKED
@@ -155,7 +157,7 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
         language_message = {
             "role": "system",
             "content": deduplicate_runtime_rules(model_messages,
-                USER_FACING_LANGUAGE_RULE + "\n" + QUERY_EFFICIENCY_RULE + "\n" + routing_instructions(selected_tools) + "\n" + APPROVAL_FLOW_RULE),
+                USER_FACING_LANGUAGE_RULE + "\n" + QUERY_EFFICIENCY_RULE + "\n" + routing_instructions(selected_tools) + "\n" + APPROVAL_FLOW_RULE + "\n" + BUSINESS_PRESENTATION_RULE),
         }
         insert_at = 1 if model_messages and model_messages[0].get("role") == "system" else 0
         model_messages.insert(insert_at, language_message)
@@ -179,6 +181,7 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
         if exhausted:
             model_messages.append({"role": "system", "content":
                 "本轮查询连续失败，停止调用工具。请立即用中文总结已取得的数据和失败原因，不得声称查询完整或成功。"})
+        model_messages.append({'role': 'system', 'content': BUSINESS_RESPONSE_CHECK})
         metrics = InferenceMetrics()
         response_stream = await _client.chat.completions.create(
             model=LLM_MODEL,
@@ -263,8 +266,8 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
         "final_reply": full_content if not ordered_calls else "",
         "stop_reason": "complete" if not ordered_calls else "",
     }
-    if stream_started and not ordered_calls:
-        writer({"type": "stream_end"})
+    if stream_started:
+        writer({"type": "stream_end", "audience": "activity" if ordered_calls else "answer"})
     return update
 
 
@@ -357,10 +360,14 @@ async def _execute_tool_node(state: AgentState) -> dict[str, Any]:
         started = time.time()
         try:
             tool_func = get_tool_func(func_name)
+            previous_error = previous_failed_read(state.get('messages', []), func_name, func_args)
             if movement_targets(func_name, func_args) & set(state.get("blocked_movement_targets", [])):
                 result = MOVEMENT_RETRY_BLOCKED
             elif tool_func is None:
                 result = f"Error: tool '{func_name}' not found"
+            elif previous_error:
+                result = json.dumps({'error': '本轮相同参数的读取已失败，未重复请求；请使用已有结果说明限制。',
+                                     'previous_error': previous_error}, ensure_ascii=False)
             elif (func_name.startswith(("get_", "list_"))
                   and int(state.get("read_failures", 0)) >= MAX_READ_FAILURES):
                 result = "Error: query failure limit reached; return the available results."
@@ -408,6 +415,10 @@ async def _execute_tool_node(state: AgentState) -> dict[str, Any]:
     creates += call_count.creates
     updates += call_count.updates
     deletes += call_count.deletes
+
+    diagnostic = tool_diagnostic(result)
+    if diagnostic:
+        writer({"type": "tool_diagnostic", "func": func_name, "details": diagnostic})
 
     tool_message = {
         "role": "tool",
@@ -566,7 +577,7 @@ async def langgraph_chat_stream(
             except asyncio.CancelledError:
                 raise
             except Exception as exc:
-                yield _sse({"type": "error", "message": f"工作流恢复失败: {exc}"})
+                yield _sse(error_event("暂时无法继续此任务，请查看技术详情；已提交的操作请先核实。", exc))
                 return
         elif is_explicit_rejection(message):
             try:
@@ -578,7 +589,7 @@ async def langgraph_chat_stream(
             except asyncio.CancelledError:
                 raise
             except Exception as exc:
-                yield _sse({"type": "error", "message": f"工作流取消失败: {exc}"})
+                yield _sse(error_event("暂时无法取消此任务，请查看技术详情并核实当前状态。", exc))
                 return
         else:
             # A correction or topic change must invalidate the old approval.
@@ -596,7 +607,7 @@ async def langgraph_chat_stream(
             except asyncio.CancelledError:
                 raise
             except Exception as exc:
-                yield _sse({"type": "error", "message": f"旧审批撤销失败，未处理新指令: {exc}"})
+                yield _sse(error_event("原审批未能撤销，新指令尚未处理，请先核实审批状态。", exc))
                 return
     if start_new_request:
         chat_messages.append({"role": "user", "content": message})
@@ -650,7 +661,7 @@ async def langgraph_chat_stream(
             )
             return
         except Exception as exc:
-            yield _sse({"type": "error", "message": f"工作流执行失败: {exc}"})
+            yield _sse(error_event("本次任务未能完成，请查看技术详情；已提交的操作请先核实。", exc))
             return
 
     final_snapshot = await _graph.aget_state(graph_config)

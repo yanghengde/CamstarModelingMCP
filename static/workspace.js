@@ -36,13 +36,13 @@ function matchingRecords() {
     const query = $('recordSearch').value.trim().toLocaleLowerCase();
     return startedSessions().filter(session => (session.title || '未命名对话').toLocaleLowerCase().includes(query));
 }
-const statusLabels = {idle:'准备就绪', complete:'任务已完成', completed:'任务已完成', queued:'任务已提交，正在排队等待执行', running:'后台执行中 · 可切换页面', cancelling:'正在停止执行…', cancelled:'执行已停止，请核实已提交操作', failed:'执行出现错误，请检查回复与运行日志', interrupted:'上次执行已中断，请核实实际结果', limited:'已达到执行上限',context_limited:'上下文容量不足，请查看处理建议', incomplete:'上次流程尚未完成，请核对执行结果后继续', unavailable:'流程状态暂不可用', approval_required:'等待确认操作'};
+const statusLabels = {idle:'准备就绪', complete:'处理已结束', completed:'处理已结束', queued:'任务已提交，正在排队等待执行', running:'后台执行中 · 可切换页面', cancelling:'正在停止执行…', cancelled:'执行已停止，请核实已提交操作', failed:'执行出现错误，请检查回复与运行日志', interrupted:'上次执行已中断，请核实实际结果', limited:'已达到执行上限',context_limited:'上下文容量不足，请查看处理建议', incomplete:'上次流程尚未完成，请核对执行结果后继续', unavailable:'流程状态暂不可用', approval_required:'等待确认操作'};
 async function api(url, options) {
     const response = await fetch(url, options);
     let data;
     try { data = await response.json(); }
     catch (_) {
-        throw new Error(response.ok ? `接口返回了无效数据（${url}）` : `请求失败（HTTP ${response.status}，${url}），请查看运行日志`);
+        throw new Error(response.ok ? '服务返回的数据暂时无法读取，请稍后重试。' : '请求暂时未能完成，请查看运行日志。');
     }
     if (!response.ok) {
         const error = new Error(typeof data.detail === 'string' ? data.detail : data.detail?.message || `请求失败（${response.status}）`);
@@ -188,7 +188,24 @@ function createWorkSummary(label) {
     const steps = document.createElement('div'); steps.className = 'work-steps';
     steps.textContent = '正在处理请求…';
     details.append(summary, steps); $('msgs').append(details);
-    return {summary, steps};
+    return {summary, steps, details};
+}
+function appendWorkDetail(work, text, label = '处理过程') {
+    if (!text) return;
+    if (work.steps.textContent === '正在处理请求…') work.steps.textContent = '';
+    const entry = document.createElement('div'); entry.className = 'work-detail';
+    const heading = document.createElement('strong'); heading.textContent = label;
+    const body = document.createElement('pre'); body.textContent = String(text).slice(0, 4000);
+    entry.append(heading, body); work.steps.append(entry);
+}
+function appendTaskError(message, detail) {
+    const bubble = appendMessage('agent', message || '本次任务未能完成。');
+    if (detail) {
+        const details = document.createElement('details'); details.className = 'diagnostic-details';
+        const summary = document.createElement('summary'); summary.textContent = '查看技术详情';
+        const body = document.createElement('pre'); body.textContent = String(detail).slice(0, 4000);
+        details.append(summary, body); bubble.append(details);
+    }
 }
 async function refreshWorkflow() {
     if (!sessionId) return;
@@ -216,13 +233,15 @@ async function loadHistory() {
     const data = await api(`/history/${encodeURIComponent(username)}?session_id=${encodeURIComponent(target)}`);
     if (token !== viewVersion || target !== sessionId) return;
     $('msgs').replaceChildren();
-    let needsSummary = false;
+    let historyWork = null;
     const messages = data.run ? (data.messages || []).slice(0, data.run.history_start) : data.messages || [];
     for (const message of messages) {
-        if (message.role === 'user') { appendMessage('user', message.content || ''); needsSummary = true; }
+        if (message.role === 'user') { appendMessage('user', message.content || ''); historyWork = null; }
         else if (message.role === 'assistant' && message.content) {
-            if (needsSummary) { createWorkSummary('执行记录').steps.textContent = '此历史对话未记录页面耗时，详细过程可在运行日志中查看。'; needsSummary = false; }
-            appendMessage('agent', message.content);
+            if (message.tool_calls?.length) {
+                historyWork ||= createWorkSummary('查看处理详情');
+                appendWorkDetail(historyWork, message.content);
+            } else appendMessage('agent', message.content);
         }
     }
     if (data.run) {
@@ -285,6 +304,14 @@ async function observeRun(run, token, work, updateClock) {
         // Coalesce token bursts and journal replay into one Markdown/layout pass.
         if (renderTimer === null) renderTimer = setTimeout(flushStream, 80);
     }
+    function archiveActivity() {
+        clearTimeout(renderTimer); renderTimer = null; dirty = false;
+        if (streamBubble) {
+            appendWorkDetail(work, streamText);
+            streamBubble.parentElement.remove();
+        }
+        streamBubble = null; streamText = '';
+    }
     function event(frame) {
         if (!current()) return;
         const lines = frame.split('\n');
@@ -292,7 +319,8 @@ async function observeRun(run, token, work, updateClock) {
         if (!raw) return;
         const data = JSON.parse(raw);
         if (data.type === 'step') {
-            status(`后台执行：${data.func || '工具调用'} · 可切换页面`);
+            archiveActivity(); // Also handles journals produced before audience metadata existed.
+            status('正在处理 · 可切换页面');
             if (work.steps.textContent === '正在处理请求…') work.steps.textContent = '';
             const step = document.createElement('div'); step.textContent = data.func || '工具调用'; work.steps.append(step);
         } else if (data.type === 'stream_start') {
@@ -301,9 +329,13 @@ async function observeRun(run, token, work, updateClock) {
         } else if (data.type === 'stream_chunk') {
             if (!streamBubble) { streamBubble = appendMessage('agent', ''); streamText = ''; }
             streamText += data.content || ''; queueStreamRender();
-        } else if (data.type === 'stream_end') { flushStream(); streamBubble = null; }
+        } else if (data.type === 'stream_end') {
+            if (data.audience === 'activity') archiveActivity();
+            else { flushStream(); streamBubble = null; }
+        }
+        else if (data.type === 'tool_diagnostic') appendWorkDetail(work, data.details, `技术详情 · ${data.func || '工具调用'}`);
         else if (data.type === 'done' && data.reply) appendMessage('agent', data.reply);
-        else if (data.type === 'error') appendMessage('agent', data.message || '执行失败');
+        else if (data.type === 'error') { archiveActivity(); appendTaskError(data.message, data.details); }
         else if (data.type === 'run_state') {
             if (!activeRunStates.has(data.status)) flushStream();
             activeRun.status = data.status;
@@ -498,7 +530,7 @@ $('msgs').onclick = event => {
 };
 async function initialize() {
     setBusy(true); setView(view,false);
-    try { const config = await api('/config'); username = config.username; $('username').textContent = username; $('connectionText').textContent = config.agent_engine === 'langgraph' ? 'LangGraph 已连接' : '传统执行引擎'; $('connection').classList.add('connected'); await refreshSessions(); if (!sessionId) { await newSession(); await refreshSessions(); } await loadHistory(); initialized = true; }
+    try { const config = await api('/config'); username = config.username; $('username').textContent = username; $('connectionText').textContent = '服务已连接'; $('connection').classList.add('connected'); await refreshSessions(); if (!sessionId) { await newSession(); await refreshSessions(); } await loadHistory(); initialized = true; }
     catch(error) { $('connectionText').textContent = '连接失败'; $('connection').classList.add('error'); notice(`加载失败，请刷新重试：${error.message}`); }
     finally { setBusy(false); }
 }

@@ -314,6 +314,10 @@
 .work-summary[open] summary::after { transform: rotate(90deg); }
 .work-summary summary:focus-visible { outline: 2px solid #777; outline-offset: 4px; }
 .work-steps { padding: 14px 0 3px; font-size: 12px; line-height: 1.9; color: #737780; }
+.work-detail { margin: 10px 0; }
+.work-detail pre, .diagnostic-details pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 240px; overflow: auto; font-size: 12px; line-height: 1.7; margin: 8px 0; }
+.diagnostic-details { margin-top: 10px; color: var(--secondary); font-size: 12px; }
+.diagnostic-details summary { cursor: pointer; }
 
 /* Reserve scroll space and keep native/custom modes identical on hover. */
 .messages, .records, .session-list, .log-list, .main-content, .guide, .composer-area {

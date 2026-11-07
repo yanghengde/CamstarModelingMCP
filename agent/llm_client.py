@@ -19,11 +19,13 @@ from agent.memory import get_user_messages, save_user_session, update_session_ti
 from tools import mcp, get_tool_func
 from core.tool_catalog import TOOL_POLICIES
 from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCTION, routing_instructions
-from agent.prompts import deduplicate_runtime_rules
+from agent.prompts import deduplicate_runtime_rules, BUSINESS_PRESENTATION_RULE, BUSINESS_RESPONSE_CHECK
 from agent.safety import MutationCounts, classify_tool, count_tool_calls, evaluate_mutations, approval_prompt, is_explicit_confirmation
 from agent.safety import requests_execution_review
 from core.perf_logger import record_perf
 from core.async_io import durable_io
+from core.user_errors import error_event, tool_diagnostic
+from agent.read_efficiency import previous_failed_read
 from agent.context_budget import budget_history
 from core.inference_metrics import InferenceMetrics, stream_options
 from core.movement_policy import movement_targets, movement_failed, movement_call_blocked, MOVEMENT_RETRY_BLOCKED
@@ -119,10 +121,11 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             selected_tools = select_tools(openai_tools, chat_messages)
             model_messages, context_metrics = budget_history(chat_messages)
             model_messages.insert(1, {"role": "system", "content":
-                deduplicate_runtime_rules(model_messages, routing_instructions(selected_tools))})
+                deduplicate_runtime_rules(model_messages, routing_instructions(selected_tools) + "\n" + BUSINESS_PRESENTATION_RULE)})
             from agent.memory import session_auto_confirm, AUTO_CONFIRM_INSTRUCTION
             if session_auto_confirm(username, actual_session_id):
                 model_messages.insert(2, {'role': 'system', 'content': AUTO_CONFIRM_INSTRUCTION})
+            model_messages.append({'role': 'system', 'content': BUSINESS_RESPONSE_CHECK})
             metrics = InferenceMetrics()
             response_stream = await oai_client.chat.completions.create(
                 model=LLM_MODEL,
@@ -179,8 +182,8 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             print(f"[WARN] [中止] 用户取消了请求 [@{username}]")
             raise
         except Exception as e:
-            reply = f"❌ 请求 LLM ({LLM_MODEL}) 失败: {e}"
-            yield f"data: {json.dumps({'type': 'error', 'message': reply}, ensure_ascii=False)}\n\n"
+            payload = error_event("暂时无法生成回复，请查看技术详情；已提交的操作请先核实。", e)
+            yield f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
             break
 
         # 整理出 response 结构
@@ -197,6 +200,9 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             
         chat_messages.append(msg_dict)
         await durable_io(save_user_session, username, actual_session_id)
+
+        if has_started_stream and response_tool_calls:
+            yield f"data: {json.dumps({'type': 'stream_end', 'audience': 'activity'}, ensure_ascii=False)}\n\n"
 
         # 无工具调用 → 返回最终回答
         if not response_tool_calls:
@@ -246,10 +252,14 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             tool_start_time = time.time()
             try:
                 tool_func = get_tool_func(func_name)
+                previous_error = previous_failed_read(chat_messages, func_name, func_args)
                 if movement_targets(func_name, func_args) & blocked_movement_targets:
                     result = MOVEMENT_RETRY_BLOCKED
                 elif tool_func is None:
                     result = f"Error: tool '{func_name}' not found"
+                elif previous_error:
+                    result = json.dumps({'error': '本轮相同参数的读取已失败，未重复请求；请使用已有结果说明限制。',
+                                         'previous_error': previous_error}, ensure_ascii=False)
                 else:
                     result = await tool_func(**func_args)
             except asyncio.CancelledError:
@@ -269,6 +279,10 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             if movement_failed(result):
                 blocked_movement_targets.update(movement_targets(func_name, func_args))
             await durable_io(record_perf,f"Tool_Execute", tool_duration, username, actual_session_id, {"tool": func_name, "prompt": message})
+
+            diagnostic = tool_diagnostic(result)
+            if diagnostic:
+                yield f"data: {json.dumps({'type': 'tool_diagnostic', 'func': func_name, 'details': diagnostic}, ensure_ascii=False)}\n\n"
 
             chat_messages.append({
                 "role": "tool",
@@ -295,8 +309,5 @@ async def chat_stream(username: str, message: str, session_id: str = None):
         raise
     except Exception as exc:
         logger.exception("Chat stream failed for user %s", username)
-        payload = {
-            "type": "error",
-            "message": f"聊天工作流执行失败：{type(exc).__name__}: {exc}",
-        }
+        payload = error_event("本次任务未能完成，请查看技术详情；已提交的操作请先核实。", exc)
         yield f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"

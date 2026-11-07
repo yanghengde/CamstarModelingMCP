@@ -19,6 +19,7 @@ from config import (CHAT_RUN_DB, CHAT_MAX_RUNNING, CHAT_MAX_RUNNING_PER_USER,
 from core.async_io import durable_io, finish_before_cancel
 from core.run_context import current_run_id
 from core.perf_logger import record_perf
+from core.user_errors import error_event
 from collections import Counter, deque
 import threading
 
@@ -329,7 +330,9 @@ class ChatRuns:
             await self.astate(run_id, status, "执行已停止；已提交的操作不会撤销，请核实实际结果后继续。")
         except Exception as exc:
             status = 'failed'
-            await durable_io(self.append, run_id, {"type": "error", "message": f"后台任务异常：{type(exc).__name__}: {exc}"})
+            logging.getLogger(__name__).exception('Background run failed: %s', run_id)
+            await durable_io(self.append, run_id, error_event(
+                '本次任务未能完成，请查看技术详情；已提交的操作请先核实。', exc))
             await self.astate(run_id, status)
         finally:
             monitor_task.cancel()
