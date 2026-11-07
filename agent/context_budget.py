@@ -1,11 +1,12 @@
 """Conservative history budget without rewriting business evidence/checkpoints.
 
-UTF-8 byte count bounds byte-tokenizer input conservatively; it is not a claim
-of provider-exact tokens. Tool exchanges, user instructions and the latest two
+Use a local BPE token estimate, not UTF-8 bytes counted as tokens. This is not
+the provider's exact usage. Tool exchanges, user instructions and the latest two
 turns are never truncated. If that evidence does not fit, stop before inference.
 """
 import json
 import re
+from functools import lru_cache
 from config import AGENT_HISTORY_TOKEN_BUDGET
 
 
@@ -18,11 +19,28 @@ _REFERENCE_OR_STATE = re.compile(
     r'|计划|对象|容器|工单|产品|工艺|版本|编号|确认|审批|取消|未知|待核实')
 
 
+@lru_cache(maxsize=1)
+def _encoding():
+    try:
+        import tiktoken
+        return tiktoken.get_encoding('cl100k_base')
+    except Exception:
+        return None
+
+
+def initialize_context_budget():
+    if _encoding() is None:
+        raise RuntimeError('历史预算分词器不可用，请在服务 Python 环境安装 requirements.txt 并检查 tiktoken 编码缓存。')
+
+
 def estimate_tokens(message):
-    return len(json.dumps(message, ensure_ascii=False, separators=(',', ':')).encode('utf-8')) + 16
+    text = json.dumps(message, ensure_ascii=False, separators=(',', ':'))
+    encoding = _encoding()
+    return (len(encoding.encode(text, disallowed_special=())) if encoding is not None
+            else len(text.encode('utf-8'))) + 16
 
 
-def _discovery_view(message):
+def _discovery_view(message, completed=False):
     """Project only the local capability directory, never business evidence.
 
     The full tool response remains in memory/checkpoints. Exact tool-detail
@@ -56,6 +74,16 @@ def _discovery_view(message):
             projected['capability_gaps'] = {**gaps, 'items': [
                 {k: v for k, v in item.items() if k not in ('swagger_contracts', 'priority')}
                 for item in gaps['items']]}
+        if completed:
+            # Completed discovery is navigation data, not a business receipt.
+            # Keep all groups and constraints classifications; reread precise
+            # gaps/details on demand. The original response stays on disk.
+            if isinstance(gaps, dict) and isinstance(gaps.get('items'), list):
+                projected['capability_gaps'] = {**gaps, 'items': [
+                    {k: item[k] for k in ('id', 'title', 'groups', 'status', 'status_label') if k in item}
+                    for item in gaps['items']]}
+            projected['directory_projection']['scope'] = (
+                '已完成轮次的目录索引。完整原响应仍保留；需要具体缺口的 current/missing 或工具限制时重新查询 get_capabilities。')
         content = json.dumps(projected, ensure_ascii=False, separators=(',', ':'))
         if estimate_tokens({**message, 'content': content}) < estimate_tokens(message):
             return {**message, 'content': content}
@@ -68,7 +96,13 @@ def budget_history(messages, budget=None):
     budget = AGENT_HISTORY_TOKEN_BUDGET if budget is None else budget
     original_cost = sum(estimate_tokens(m) for m in messages if m.get('role') != 'system')
     source_messages = messages
-    messages = [_discovery_view(m) for m in messages]
+    turn_start = max((i for i, m in enumerate(messages) if m.get('role') == 'user'), default=0)
+    messages = [_discovery_view(m, completed=i < turn_start) for i, m in enumerate(messages)]
+    # Reasoning is provider continuation metadata, not user-visible evidence.
+    # Retain it inside the active tool exchange; do not carry old-turn metadata.
+    messages = [{k: v for k, v in m.items() if k != 'reasoning_content'}
+                if i < turn_start and 'reasoning_content' in m else m
+                for i, m in enumerate(messages)]
     seen_directories = {}
     for i, message in enumerate(messages):
         if (message.get('role') == 'tool' and message.get('name') == 'get_capabilities'
@@ -87,6 +121,7 @@ def budget_history(messages, budget=None):
     total = sum(costs)
     if total <= budget:
         return list(messages), {'history_estimated_tokens': total, 'history_removed_messages': 0,
+                                'history_token_estimator': 'cl100k_base' if _encoding() else 'utf8_fallback',
                                 'history_original_estimated_tokens': original_cost,
                                 'history_projected_discovery_messages': projected_count}
     users = [i for i, m in enumerate(messages) if m.get('role') == 'user']
@@ -111,5 +146,6 @@ def budget_history(messages, budget=None):
         result.insert(1 if result and result[0].get('role') == 'system' else 0,
                       {'role': 'system', 'content': '部分较早的助手说明已省略。用户原指令和全部工具证据保留；不得猜测省略内容或据此扩展授权。'})
     return result, {'history_estimated_tokens': total, 'history_removed_messages': len(removed),
+                    'history_token_estimator': 'cl100k_base' if _encoding() else 'utf8_fallback',
                     'history_original_estimated_tokens': original_cost,
                     'history_projected_discovery_messages': projected_count}

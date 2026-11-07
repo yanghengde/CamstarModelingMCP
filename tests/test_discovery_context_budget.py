@@ -81,3 +81,33 @@ def test_agent_answers_after_real_catalog_instead_of_context_limit(monkeypatch):
     assert len(requests)==2
     assistant = next(m for m in requests[1]['messages'] if m.get('tool_calls'))
     assert assistant['reasoning_content']=='provider continuation metadata'
+
+
+def test_overview_then_workflow_and_followups_keep_budget_and_evidence():
+    catalog = asyncio.run(get_capabilities())
+    messages = [{'role':'system','content':'全局规则'}, {'role':'user','content':'介绍实际能力和限制'},
+                {'role':'assistant','tool_calls':[{'id':'catalog','function':{'name':'get_capabilities','arguments':'{}'}}],
+                 'reasoning_content':'old provider metadata '*5000},
+                {'role':'tool','name':'get_capabilities','tool_call_id':'catalog','content':catalog},
+                {'role':'assistant','content':'当前能力说明，质量、产品、工单、容器、工艺、版本、审批及待核实限制。'*100}]
+    original = copy.deepcopy(messages)
+    workflow = json.dumps({'value':[{'Name':'WF-A','Revision':'1','InstanceID':'0000000000000701'}]})
+    for turn in range(10):
+        messages.extend([{'role':'user','content':'查询当前的workflow' if not turn else '继续查看该路线'},
+                         {'role':'assistant','tool_calls':[{'id':f'w{turn}','function':{'name':'list_workflows','arguments':'{}'}}]},
+                         {'role':'tool','name':'list_workflows','tool_call_id':f'w{turn}','content':workflow},
+                         {'role':'assistant','content':'WF-A 版本1，引用实际ID 0000000000000701。'}])
+        view, metrics = budget_history(messages, budget=16000)
+        assert metrics['history_estimated_tokens'] < 16000
+        assert [m for m in view if m.get('name')=='list_workflows'] == [m for m in messages if m.get('name')=='list_workflows']
+        assert view[-1] == messages[-1]
+        assert 'reasoning_content' not in view[2]
+        archived = json.loads(next(m for m in view if m.get('name')=='get_capabilities')['content'])
+        assert len(archived['groups']) == len(json.loads(catalog)['groups'])
+    assert messages[:len(original)] == original
+
+
+def test_current_tool_exchange_keeps_provider_metadata():
+    messages=[{'role':'user','content':'查询'}, {'role':'assistant','reasoning_content':'continuation metadata',
+               'tool_calls':[{'id':'c','function':{'name':'get_capabilities','arguments':'{}'}}]}]
+    assert budget_history(messages)[0] == messages

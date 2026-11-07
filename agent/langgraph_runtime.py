@@ -507,7 +507,7 @@ async def get_workflow_status(username: str, session_id: str) -> dict[str, Any]:
         result["status"] = "incomplete" if snapshot.next else {
             "complete": "complete", "cancelled": "cancelled",
             "loop_limit": "limited",
-            "context_budget": "limited",
+            "context_budget": "context_limited",
         }.get(reason, "idle")
     return result
 

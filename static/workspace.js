@@ -36,7 +36,7 @@ function matchingRecords() {
     const query = $('recordSearch').value.trim().toLocaleLowerCase();
     return startedSessions().filter(session => (session.title || '未命名对话').toLocaleLowerCase().includes(query));
 }
-const statusLabels = {idle:'准备就绪', complete:'任务已完成', completed:'任务已完成', queued:'任务已提交，正在排队等待执行', running:'后台执行中 · 可切换页面', cancelling:'正在停止执行…', cancelled:'执行已停止，请核实已提交操作', failed:'执行出现错误，请检查回复与运行日志', interrupted:'上次执行已中断，请核实实际结果', limited:'已达到执行上限', incomplete:'上次流程尚未完成，请核对执行结果后继续', unavailable:'流程状态暂不可用', approval_required:'等待确认操作'};
+const statusLabels = {idle:'准备就绪', complete:'任务已完成', completed:'任务已完成', queued:'任务已提交，正在排队等待执行', running:'后台执行中 · 可切换页面', cancelling:'正在停止执行…', cancelled:'执行已停止，请核实已提交操作', failed:'执行出现错误，请检查回复与运行日志', interrupted:'上次执行已中断，请核实实际结果', limited:'已达到执行上限',context_limited:'上下文容量不足，请查看处理建议', incomplete:'上次流程尚未完成，请核对执行结果后继续', unavailable:'流程状态暂不可用', approval_required:'等待确认操作'};
 async function api(url, options) {
     const response = await fetch(url, options);
     let data;
@@ -112,7 +112,7 @@ function renderSessions() {
             const button = document.createElement('button');
             button.className = target === 'recordList' ? 'record-card' : 'session-item' + (session.id === sessionId ? ' active' : '');
             const title = document.createElement('span'); title.className = 'session-title'; title.textContent = session.title || '未命名对话'; button.append(title);
-            const label = {queued:'排队中',running:'执行中',cancelling:'停止中',approval_required:'待确认',interrupted:'需核实',incomplete:'需核实',limited:'达到上限',failed:'出错'}[session.run?.status];
+            const label = {queued:'排队中',running:'执行中',cancelling:'停止中',approval_required:'待确认',interrupted:'需核实',incomplete:'需核实',limited:'达到上限',context_limited:'上下文已满',failed:'出错'}[session.run?.status];
             if (label) { const badge = document.createElement('span'); badge.className = 'run-badge ' + session.run.status; badge.textContent = label; button.append(badge); }
             button.disabled = loading || !initialized;
             if (target === 'recordList') {

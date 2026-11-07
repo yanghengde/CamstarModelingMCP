@@ -200,7 +200,7 @@ def test_budget_keeps_exact_plan_refs_tool_pairs_and_current_turn():
                 {'role':'user','content':'先不要执行'}, {'role':'assistant','content':'待确认'},
                 {'role':'user','content':'对象改为SN2，重新准备'}]
     original = copy.deepcopy(messages)
-    trimmed, metrics = context_budget.budget_history(messages, budget=3000)
+    trimmed, metrics = context_budget.budget_history(messages, budget=1000)
     assert messages == original and metrics['history_removed_messages'] == 1
     assert messages[2] in trimmed and messages[3] in trimmed
     assert trimmed[-1] == messages[-1]

@@ -610,7 +610,7 @@ body{display:block;} .trace-sidebar{width:320px;min-width:0;} .app-layout{min-he
                     title.className = 'session-title';
                     title.textContent = session.title || '未命名对话';
                     link.append(title);
-                    const label = {queued:'排队中',running:'执行中',cancelling:'停止中',approval_required:'待确认',interrupted:'需核实',incomplete:'需核实',limited:'达到上限',failed:'出错'}[session.run?.status];
+                    const label = {queued:'排队中',running:'执行中',cancelling:'停止中',approval_required:'待确认',interrupted:'需核实',incomplete:'需核实',limited:'达到上限',context_limited:'上下文已满',failed:'出错'}[session.run?.status];
                     if (label) {
                         const badge = document.createElement('span');
                         badge.className = 'run-badge ' + session.run.status;

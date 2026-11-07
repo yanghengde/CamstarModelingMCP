@@ -315,6 +315,7 @@ class ChatRuns:
             error = await self._record_stream(run_id, stream(username, message, session_id))
             info = await workflow(username, session_id)
             status = {'approval_required': 'approval_required', 'limited': 'limited',
+                      'context_limited': 'context_limited',
                       'cancelled': 'cancelled', 'incomplete': 'incomplete'}.get(info.get('status'), 'completed')
             if error:
                 status = 'failed'

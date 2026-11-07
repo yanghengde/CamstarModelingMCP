@@ -30,6 +30,7 @@ from core import quality_signature_ui
 from web.chat_runs import RUNS
 from web.upload_limits import UploadLimitMiddleware
 from core.retention import maintenance_loop
+from agent.context_budget import initialize_context_budget
 
 
 async def expire_signature_inputs():
@@ -45,6 +46,7 @@ async def lifespan(app: FastAPI):
         print("[WARN] 未找到有效的 CAMSTAR_BASE_URL，请检查 .env 配置。")
 
     # 恢复历史记忆
+    await asyncio.to_thread(initialize_context_budget)
     await asyncio.to_thread(init_memory)
     await asyncio.to_thread(RUNS.initialize)
 

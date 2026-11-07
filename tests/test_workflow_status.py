@@ -36,3 +36,11 @@ def test_pending_checkpoint_is_not_reported_as_running(monkeypatch):
     monkeypatch.setattr(runtime, "_graph", graph)
     monkeypatch.setattr(runtime, "user_memories", {"user": {"sessions": {"one": {}}}})
     assert asyncio.run(runtime.get_workflow_status("user", "one"))["status"] == "incomplete"
+
+
+def test_context_budget_has_separate_status_from_tool_loop_limit(monkeypatch):
+    graph=SimpleNamespace(aget_state=AsyncMock(return_value=SimpleNamespace(
+        tasks=[], values={'stop_reason':'context_budget'}, next=())))
+    monkeypatch.setattr(runtime,'_graph',graph)
+    monkeypatch.setattr(runtime,'user_memories',{'user':{'sessions':{'one':{}}}})
+    assert asyncio.run(runtime.get_workflow_status('user','one'))['status']=='context_limited'
