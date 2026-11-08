@@ -24,6 +24,12 @@ def test_valid_and_limits(monkeypatch):
     assert r['checks'][0]['limits']['upper']['status'] == 'outside'
 
 
+def test_unit_is_bound_to_the_immutable_collection_snapshot(monkeypatch):
+    unit={'Name':'MINUTE','InstanceId':'0000000000000001'}
+    result=validate(monkeypatch,{'X':1},[{'Name':'X','DataType':9,'IsRequired':True,'UOM':unit}])
+    assert result['checks'][0]['uom']==unit
+
+
 @pytest.mark.parametrize('value', [True, '2', [], {}, float('inf'), float('nan')])
 def test_bad_numeric(monkeypatch, value):
     r = validate(monkeypatch, {'X': value})

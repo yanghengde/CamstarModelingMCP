@@ -112,6 +112,17 @@ def test_container_mapping_filter(monkeypatch):
     assert not result['complete'] and not result['dynamic_requirements_verified']
 
 
+def test_missing_info_spec_uses_same_container_status_and_native_collectdata_id(monkeypatch):
+    info,inquiry,_=container_setup(monkeypatch,[{'TxnToUse':2200,'Required':False,'DataCollectionDef':{'InstanceID':'d'}}])
+    info['data'].pop('CurrentSpec')
+    status={'complete':True,'data':{'ContainerStatusDetails':{'Container':{'Name':'C','InstanceId':'c'},'Spec':{'InstanceID':'s'}}}}
+    inquiry.side_effect=[json.dumps(info),json.dumps(status)]
+    result=run(dc.get_container_collection_requirements('C','c',transaction_name='CollectData'))
+    assert result['static_mappings_complete'] and result['static_mapping_count']==1
+    assert result['mappings'][0]['transaction']=='CollectData'
+    assert inquiry.await_args_list[1].kwargs['view']=='status'
+
+
 def test_container_identity_missing_map_and_empty(monkeypatch):
     info, inquiry, spec = container_setup(monkeypatch)
     assert run(dc.get_container_collection_requirements('C'))['static_mapping_count'] == 0

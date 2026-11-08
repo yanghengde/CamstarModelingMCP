@@ -13,7 +13,7 @@ def capability_gap_summary(group=None):
     try:
         data = json.loads(path.read_text(encoding='utf-8'))
         labels = {'not_integrated': '未接入', 'partial': '部分支持', 'blocked': '执行门禁关闭',
-                  'contract_unconfirmed': '业务契约待确认', 'validation_pending': '验收与自动核对待补'}
+                  'contract_unconfirmed': '业务契约待确认', 'validation_pending': '验收与自动核对待补', 'implemented': '已实现并完成限定范围验收'}
         gaps = [g for g in data['gaps'] if group is None or group in g['groups']]
         return {'checked_at': data.get('checked_at'), 'source': 'docs/core-capability-gaps.json',
                 'document': 'docs/core-capability-gaps.md', 'scope': data['scope'],
@@ -163,16 +163,23 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
         'change_container_quantity': '既有数量变更；损失类型2已阻断直接提交，须prepare_container_quantity_loss及确认的质量计划。其余类型不是报废/报工，真实写入未验收。',
         'get_mfgorder_progress': '分布统计仅覆盖当前页，不等同工单完成数量。',
         'get_mfgorder_production_summary': '全工单当前关联容器、按工序/单位/冲销状态分组原始吞吐及原生CompletedQty/ScrapQty。完工日期与后置过程分开；本应用良品/不良台账与双口径工时分别用get_production_reports/get_production_worktime，不汇总多工序吞吐为产量。',
+        'verify_production_transaction': '按唯一原请求评论、事务主历史和汇总/明细核对Thruput、ContainerDefect、MoveIn、MoveStd；成功保存history_committed，空/错/冲销历史不解锁。',
+        'prepare_production_station_transition': '明确分步流程：enter=MoveIn，exit/complete=独立MoveStd，先完整吞吐；complete沿真实路径移入IsLastStep完工节点，不改工单状态或绕过校验。',
+        'execute_production_station_transition': '单次原生进站/移站，原计划重核并防重放；未知核实历史，绝非失败MoveOut的自动替代。',
+        'prepare_production_labor_submission': '绑定已有人工记录及原工序，专用CollectData七点定义保存实际分钟；明确分钟UOM，不猜TaskTime，不自动改生产配置。',
+        'execute_production_labor_submission': '原人工分钟计划单次提交MES CollectData，与原采集计划共享不可重放保护。',
+        'verify_production_labor_submission': '核对唯一CollectData事务及全部七点，确认MES实际分钟落账；不会重复累计人工工时。',
+        'get_production_labor_submission': '查询人工记录与原MES采集计划的绑定和落账状态，明确本地与MES来源。',
         'prepare_production_reject': '明确record登记保留在制或scrap复用原生LossDetails扣量。record须分别提供缺陷次数和不良件数；scrap须明确归零关闭/吞吐调整选项。',
-        'execute_production_reject': '仅原生ContainerDefect，单次提交后unknown；原生动态验证及现场写入未验收，不能绕过原质量事务占用。',
+        'execute_production_reject': '原生ContainerDefect登记，保留数量；限定基础容器的非空提交和完整历史归因已验收，提交未知先verify_production_transaction。',
         'record_production_report': '本应用良品/不良台账，须已核实本工序吞吐及原不良处置计划。原生计划不可重复入账，按工序/单位统计，不代表MES质量判定。',
         'record_production_labor': '本应用人工实报分钟，明确员工/工单/带时区区间，重叠记录拒绝；不写MES TaskTime。',
-        'get_production_worktime': '人工实报与MES MoveOut历时分别统计，不相加。自动仅正常未冲销、唯一事务且日期有效的原始区间，排除项明确计数。',
+        'get_production_worktime': '人工实际分钟与原生MoveIn/MoveHistory配对历时分别统计，含MES工时落账状态；匹配截秒源时间后以实际事务毫秒计时，不相加。',
         'get_production_reports': '本应用台账按工序/单位分组的良品、登记不良与报废数量，不跨工序累计为工单产量。',
         'get_mfgorder_completion_readiness': '核对MES生产完成日期、后置过程和未完成在制及本应用未核实提交；不提供MES关闭授权。',
         'record_mfgorder_completion': '只保存MES已完成后的本应用整单收尾记录；不关闭MES工单或改写原状态/日期。',
         'get_container_throughput_history': '实际直接容器ThruputHistory主记录，不重复相加明细；分页不保证跨页快照，冲销和重加工须另行核实。',
-        'prepare_container_throughput': '相同上报层级的基础无父子容器。Thruput可部分加工；MoveWithThruput仅未进站且全部剩余量。准备只读静态计划，不证明原生动态校验或现场验收。',
+        'prepare_container_throughput': '基础相同上报层级：Thruput支持部分加工；空计数读原生QtyRemaining，不直接归零；MoveWithThruput原有受限入口未纳入本次路线验收。',
         'execute_container_throughput': '重读计划后单次原生提交，unknown占用原容器；不自动重试，响应和回读仅为核实证据。',
         'get_container_throughput_plan': '只读本地计划、提交响应及历史回读；unknown/in_flight不是可重试结论。',
         'review_container_throughput': '人工最终事务证据审计unknown计划，不释放in_flight，不再执行或重放旧计划。',

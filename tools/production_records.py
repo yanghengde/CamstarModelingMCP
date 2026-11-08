@@ -149,6 +149,7 @@ async def reject_snapshot(arguments):
     """Native defect registration preserves WIP; bad units remain separate facts."""
     context, row, status = await report_context(arguments['container_name'], arguments.get('container_instance_id'))
     p.ensure_no_unresolved_throughput(context['container_id'])
+    p.ensure_no_unresolved_collection(context['container_id'])
     p.ensure_no_unresolved_quality(context['container_id'])
     if (p.sql_number(row.get('CDOTypeId'), '容器类型', integer=True) != 1040
             or p.sql_number(row.get('Status'), '状态', integer=True) != 1
@@ -174,13 +175,14 @@ async def reject_snapshot(arguments):
                  'instanceId': p.identifier(reason['InstanceID'])}, 'defectCount': count}]}
     if Decimal(str(body['qtyInspected'])) != inspected:
         raise ValueError('检查数量无法无损传输，不自动舍入。')
-    if arguments.get('comments'):
-        body['comments'] = text(arguments['comments'], '备注')
+    if arguments.get('comments') or arguments.get('_receipt_marker'):
+        body['comments'] = p.receipt_comments(arguments)
     return {'service': 'ContainerDefect', 'environment': p.CAMSTAR_SHOPFLOOR_BASE_URL.rstrip('/'),
             'query_environment': p.CAMSTAR_QUERY_BASE_URL.rstrip('/'), 'container_id': context['container_id'],
             'body': body, 'context': context, 'counters': row, 'reason': reason,
             'reject_qty': decimal_text(rejected), 'inspected_qty': decimal_text(inspected),
-            'quantity_deduction': False, 'history_baseline': await reject_history(context['container_id'])}
+            'quantity_deduction': False, 'history_baseline': await reject_history(context['container_id']),
+            **({'receipt_marker': arguments['_receipt_marker']} if arguments.get('_receipt_marker') else {})}
 
 
 @mcp.tool
@@ -204,6 +206,7 @@ async def prepare_production_reject(container_name: str, reject_qty: str,
                 raise ValueError('报废时须明确close_when_zero与adjust_throughput。')
             context, row, _ = await report_context(container_name, container_instance_id)
             p.ensure_no_unresolved_throughput(context['container_id'])
+            p.ensure_no_unresolved_collection(context['container_id'])
             current = amount(row.get('Qty'), '当前数量', True)
             if rejected > current:
                 raise ValueError('报废数量超过当前数量。')
@@ -219,7 +222,7 @@ async def prepare_production_reject(container_name: str, reject_qty: str,
             raise ValueError('登记保留在制不接受报废扣量选项。')
         args = dict(service='ContainerDefect', container_name=container_name, container_instance_id=container_instance_id,
                     reject_qty=decimal_text(rejected), inspected_qty=inspected_qty, defect_count=defect_count,
-                    reason_name=reason_name, comments=comments)
+                    reason_name=reason_name, comments=comments, _receipt_marker='MCP-PROD:' + uuid.uuid4().hex)
         snap = await asyncio.wait_for(reject_snapshot(args), 60)
         args['container_instance_id'] = snap['container_id']
         key, signature = uuid.uuid4().hex, p.digest(snap)
@@ -264,9 +267,11 @@ def reviewed_source(kind, key, signature):
     if not p.PLAN_DB.is_file():
         raise ValueError('生产提交计划不存在。')
     with p.db_connect() as db:
-        row = db.execute('SELECT digest,payload,state FROM plans WHERE id=?', (key,)).fetchone()
+        row = db.execute('SELECT digest,payload,state,outcome FROM plans WHERE id=?', (key,)).fetchone()
         review = db.execute('SELECT conclusion FROM reviews WHERE plan_id=?', (key,)).fetchone()
-    if not row or row[0] != signature or row[2] != 'reviewed_committed' or review != ('committed',):
+    if not row or row[0] != signature or not (row[2] == 'reviewed_committed' and review == ('committed',)
+            or row[2] == 'history_committed' and json.loads(row[3] or '{}').get('native_receipt', {}).get('verified') is True
+            and json.loads(row[3])['native_receipt'].get('snapshot_digest') == signature):
         raise ValueError('生产提交计划尚未依据最终证据核实提交，不能记为已报工。')
     snap = json.loads(row[1])['snapshot']
     if (p.digest(snap) != signature or snap['environment'] != p.CAMSTAR_SHOPFLOOR_BASE_URL.rstrip('/')
@@ -438,6 +443,10 @@ async def get_mfgorder_completion_readiness(mfgorder_name: str) -> str:
             out['blockers'].append('原工单已配置后置过程，但尚未记录其完成日期。')
         if incomplete:
             out['blockers'].append('工单仍有未完成的Active容器。')
+        from tools.production_labor import export_summary
+        labor_storage = export_summary(ledger_records('labor', oid))
+        for record_id in labor_storage['pending_record_ids']:
+            out['blockers'].append('本应用仍有未核实的MES人工工时提交：' + record_id)
         if p.PLAN_DB.is_file():
             with p.db_connect() as db:
                 active = db.execute("SELECT id,payload FROM plans WHERE state IN ('unknown','in_flight')").fetchall()
@@ -458,6 +467,7 @@ async def get_mfgorder_completion_readiness(mfgorder_name: str) -> str:
                 if snap.get('environment') == quality_plans.environment() and (snap.get('production_context') or {}).get('order_id') == oid:
                     out['blockers'].append('本应用仍有未核实的报废提交：' + key)
         out.update(complete=True, order=order, native_completion=native, incomplete_active_containers=incomplete,
+            manual_labor_mes_storage=labor_storage,
             recorded_local_completions=ledger_records('completion', oid),
             ready_to_record_local_completion=not out['blockers'],
             scope='native_completion_dates_and_current_WIP_plus_application_reporting_attempts',
@@ -494,17 +504,27 @@ async def record_mfgorder_completion(completion_key: str, mfgorder_name: str, co
 ELAPSED_CTE = ("WITH intervals AS (SELECT h.ContainerId,h.TxnId,COUNT(*) AS NativeRows,"
     "MIN(CASE WHEN h.ReversalStatus=1 AND h.TxnId IS NOT NULL AND LEN(h.TxnId)=16 "
     "AND h.MoveInDateGMT IS NOT NULL AND h.TxnDateGMT IS NOT NULL "
-    "AND h.TxnDateGMT>=h.MoveInDateGMT THEN 1 ELSE 0 END) AS ValidInterval,"
-    "MAX(DATEDIFF_BIG(MICROSECOND,h.MoveInDateGMT,h.TxnDateGMT)) AS ElapsedMicroseconds "
+    "AND h.TxnDateGMT>=entered.ActualMoveInGMT AND entered.MatchingMoveIns=1 THEN 1 ELSE 0 END) AS ValidInterval,"
+    "MAX(DATEDIFF_BIG(MICROSECOND,entered.ActualMoveInGMT,h.TxnDateGMT)) AS ElapsedMicroseconds "
     "FROM HistoryMainline h JOIN Container c ON c.ContainerId=h.ContainerId "
-    "WHERE h.TxnTypeName='MoveOut' AND c.MfgOrderId='{oid}' GROUP BY h.ContainerId,h.TxnId) ")
+    "JOIN MoveHistory m ON m.HistoryMainlineId=h.HistoryMainlineId AND m.TxnId=h.TxnId AND m.HistoryId=h.HistoryId "
+    "OUTER APPLY (SELECT COUNT(*) AS MatchingMoveIns,MIN(i.TxnDateGMT) AS ActualMoveInGMT FROM HistoryMainline i "
+    "JOIN MoveInHistory n ON n.HistoryMainlineId=i.HistoryMainlineId AND n.TxnId=i.TxnId AND n.HistoryId=i.HistoryId "
+    "WHERE i.ContainerId=h.ContainerId AND i.WorkflowStepId=h.WorkflowStepId AND i.StepPass=h.StepPass "
+    "AND i.TxnTypeName='MoveIn' AND i.ReversalStatus=1 AND i.StepEntryTxnId=h.StepEntryTxnId "
+    "AND (i.TxnDateGMT=h.MoveInDateGMT OR CAST(CONVERT(varchar(19),i.TxnDateGMT,126) AS datetime2)=h.MoveInDateGMT)) entered "
+    "WHERE h.TxnTypeName='MoveStd' AND h.TxnServiceName='MoveStd' "
+    "AND (h.TxnParentTypeName IS NULL OR h.TxnParentTypeName IN ('','MoveOut','MoveWithThruput')) "
+    "AND c.MfgOrderId='{oid}' GROUP BY h.ContainerId,h.TxnId) ")
 
 
 @mcp.tool
 async def get_production_worktime(mfgorder_name: str, offset: int = 0, limit: int = 20) -> str:
     """分别统计人工实报（本应用台账）与MES进出站历时。人工分钟不与自动历时相加。
-    自动口径仅直接MoveOut主历史，GMT MoveInDateGMT至TxnDateGMT，正常未冲销状态1，
-    同容器同事务必须唯一；缺日期、负时长、重复/冲销分别排除并报告。无历史不证明没生产。
+    自动口径取原生MoveHistory的MoveStd出站，独立或MoveOut/MoveWithThruput子事务；
+    须有同容器/工序/步骤次数/入步事务的唯一正常MoveInHistory；本部署MoveInDate按秒截断，
+    按已验收的截秒或精确时间关联，历时使用原进站和出站事务GMT时间（含毫秒）。
+    同容器同事务必须唯一；缺进站、日期、负时长、重复/冲销分别排除并报告。无历史不证明没生产。
     自动统计按当前工单关联容器；人工按登记时工单归属。人工记录分页，全量总计单独返回。
     """
     out = {'complete': False, 'mes_write_performed': False, 'combined_hours': None}
@@ -518,6 +538,8 @@ async def get_production_worktime(mfgorder_name: str, offset: int = 0, limit: in
             'total_minutes': decimal_text(total), 'total_hours': str(total / 60), 'record_count': len(labor),
             'records': labor[offset:offset + limit], 'page': {'offset': offset, 'limit': limit,
                 'has_more': offset + limit < len(labor)}}
+        from tools.production_labor import export_summary
+        out['manual']['mes_storage'] = export_summary(labor)
         sql = ELAPSED_CTE.format(oid=p.identifier(order['instance_id'])) + (
             'SELECT COUNT(*) AS IntervalCount,COALESCE(SUM(CASE WHEN NativeRows=1 AND ValidInterval=1 '
             'THEN ElapsedMicroseconds ELSE 0 END),0) AS ElapsedMicroseconds,'
@@ -530,12 +552,12 @@ async def get_production_worktime(mfgorder_name: str, offset: int = 0, limit: in
                   ('IntervalCount', 'ElapsedMicroseconds', 'IncludedCount', 'ExcludedCount')}
         if totals['IntervalCount'] != totals['IncludedCount'] + totals['ExcludedCount']:
             raise ValueError('自动耗时包含/排除计数不一致。')
-        out.update(order=order, complete=True, automatic={'source': 'MES HistoryMainline MoveOut',
+        out.update(order=order, complete=True, automatic={'source': 'MES MoveHistory + uniquely paired MoveInHistory',
             'basis': 'elapsed_time_not_person_labor', **totals,
             'recorded_elapsed_hours': str(Decimal(totals['ElapsedMicroseconds']) / Decimal('3600000000')),
             'has_recorded_intervals': totals['IntervalCount'] > 0,
             'coverage_complete': totals['ExcludedCount'] == 0, 'scope': 'currently_order_linked_containers'},
-            warnings=['缺失的进出站区间不能推断为零工时。直接MoveStd或无MoveIn的带吞吐移站不计为已核实加工历时。',
+            warnings=['缺失的进出站区间不能推断为零工时。没有唯一真实MoveIn配对的移站不计为已核实加工历时。',
                       '历时包含等待/暂停可能性，不乘人员数，不计作人工工时。跨查询不是一致性快照。'])
     except (ValueError, TypeError, KeyError, AttributeError) as exc:
         out['error'] = str(exc)

@@ -72,6 +72,8 @@ VALUES = {
 }
 TITLES = {
     'execute_production_reject': '登记不良并保留在制数量',
+    'execute_production_station_transition': '提交生产进出站或移入完工节点',
+    'execute_production_labor_submission': '将人工实际分钟数提交MES',
     'record_production_report': '保存良品和不良品报工',
     'record_production_labor': '登记人工实报工时',
     'record_mfgorder_completion': '登记本应用整单收尾',

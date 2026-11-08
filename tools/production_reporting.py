@@ -37,6 +37,50 @@ def digest(value):
                                      allow_nan=False).encode()).hexdigest()
 
 
+def receipt_comments(arguments):
+    """Only internally minted markers can attribute a write to this plan."""
+    comments = arguments.get('comments') or ''
+    if not isinstance(comments, str) or len(comments) > 1000:
+        raise ValueError('comments须为不超过1000字符的文本。')
+    marker = arguments.get('_receipt_marker')
+    if marker is None:  # Historical plans retain their original exact body.
+        return comments
+    if not isinstance(marker, str) or not re.fullmatch(r'MCP-PROD:[0-9a-f]{32}', marker):
+        raise ValueError('原计划事务标记无效。')
+    return marker + (' ' + comments if comments else '')
+
+
+async def remaining_quantity(counters, cid, name):
+    """Nullable new-container counters are resolved by MES, never defaulted locally."""
+    for field in ('Qty', 'CurrentThruputQty', 'ThruputAdjustmentQty'):
+        if field not in counters:
+            raise ValueError(field + '列缺失，未按零处理。')
+        if counters[field] not in (None, ''):
+            sql_number(counters[field], field)
+    sql_number(counters['Qty'], 'Qty')
+    if all(counters[k] not in (None, '') for k in ('CurrentThruputQty', 'ThruputAdjustmentQty')):
+        remaining = (Decimal(str(counters['Qty'])) - Decimal(str(counters['CurrentThruputQty']))
+                     + Decimal(str(counters['ThruputAdjustmentQty'])))
+        if remaining < 0:
+            raise ValueError('剩余未加工量为负数。')
+        return float(remaining), None
+    # execute=false evaluates the native read-only QtyRemaining field. It does
+    # not execute Thruput, and is not evidence of dynamic write validation.
+    raw = await request('POST', '/api/Thruput', base_url=CAMSTAR_SHOPFLOOR_BASE_URL,
+        body={'container': {'name': name, 'instanceId': identifier(cid)}},
+        params={'execute': 'false', '$select': 'Container,QtyRemaining'}, response_formatter=raw_json)
+    try:
+        response = json.loads(raw); data = response.get('data', {})
+    except (ValueError, TypeError):
+        raise ValueError('原生剩余加工量读取失败：' + str(raw)) from None
+    ref = data.get('Container', {})
+    if (ref.get('InstanceId') != cid or ref.get('Name') != name or response.get('error')
+            or data.get('ErrorCode') or data.get('error')):
+        raise ValueError('原生剩余量引用未核实；不将空计数推断为零。')
+    remaining = sql_number(data.get('QtyRemaining'), '原生QtyRemaining')
+    return remaining, {'source': 'Thruput.QtyRemaining execute=false', 'container_id': cid, 'remaining_qty': remaining}
+
+
 def sql_number(value, label, *, integer=False):
     """Query/AdHoc encodes scalar values as strings on this deployment."""
     if type(value) not in (str, int, float):
@@ -83,6 +127,19 @@ def ensure_no_unresolved_throughput(cid):
             snap = json.loads(payload)['snapshot']
             if snap['environment'] == CAMSTAR_SHOPFLOOR_BASE_URL.rstrip('/') and snap['container_id'] == cid:
                 raise ValueError('此容器有未核实吞吐请求；不能通过普通移站绕过占用。')
+
+
+def ensure_no_unresolved_collection(cid):
+    from tools import collection_submission as c
+    if not c.PLAN_DB.is_file():
+        return
+    with c.db_connect() as db:
+        rows = db.execute("SELECT payload FROM plans WHERE state IN ('unknown','in_flight')").fetchall()
+    for raw, in rows:
+        snap = json.loads(raw)['snapshot']
+        if (snap.get('environment') == CAMSTAR_SHOPFLOOR_BASE_URL.rstrip('/')
+                and snap['body']['container'].get('instanceId') == cid):
+            raise ValueError('此容器有未核实采集/工时提交；先核实原事务，不移动或重复报工。')
 
 
 async def query_rows(sql):
@@ -167,6 +224,9 @@ async def get_container_throughput_history(container_name: str, container_instan
 
 async def checked_snapshot(arguments):
     service = arguments['service']
+    if service in ('MoveIn', 'MoveStd'):
+        from tools.production_station import station_snapshot
+        return await station_snapshot(arguments)
     if service == 'ContainerDefect':
         from tools.production_records import reject_snapshot
         return await reject_snapshot(arguments)
@@ -178,6 +238,7 @@ async def checked_snapshot(arguments):
     name = arguments['container_name']
     status, cid = await container_state(name, arguments.get('container_instance_id'))
     ensure_no_unresolved_throughput(cid)
+    ensure_no_unresolved_collection(cid)
     ensure_no_unresolved_quality(cid)
     if type(status.get('Status')) is not int or status['Status'] != 1 or type(status.get('InProcess')) is not bool:
         raise ValueError('容器须为已明确的Active状态，InProcess必须明确。')
@@ -193,7 +254,7 @@ async def checked_snapshot(arguments):
     if not same_level:
         raise ValueError('仅支持吞吐上报层级与当前容器层级相同的直接报工；不自动切换层级或展开父子容器。')
     if service == 'MoveWithThruput' and (status['InProcess'] or level.get('AllowMove') is not True):
-        raise ValueError('带吞吐移站仅支持未进站且层级允许移动的容器；已进站使用原MoveOut流程。')
+        raise ValueError('带吞吐移站仅支持未进站且层级允许移动的容器；已进站须明确选择分步生产流程，不自动换事务。')
     # SQL contains only a server-verified hexadecimal identity. Current counters
     # prevent knowingly processing the same remaining quantity twice.
     rows = await query_rows('SELECT ContainerId, ChangeCount, Qty, Qty2, UOMId, CurrentStatusId, '
@@ -204,8 +265,10 @@ async def checked_snapshot(arguments):
     if len(rows) != 1 or rows[0].get('ContainerId') != cid:
         raise ValueError('容器计数器未唯一读取。')
     counters = rows[0]
+    remaining, quantity_read = await remaining_quantity(counters, cid, name.strip())
     for field in ('Qty', 'CurrentThruputQty', 'ThruputAdjustmentQty'):
-        counters[field] = sql_number(counters.get(field), field)
+        if counters[field] not in (None, ''):
+            counters[field] = sql_number(counters[field], field)
     for field in ('ChildCount', 'CurrentHoldCount', 'ChangeCount'):
         counters[field] = sql_number(counters.get(field), field, integer=True)
     counters['ProductionComplete'] = sql_boolean(counters.get('ProductionComplete'), 'ProductionComplete')
@@ -217,7 +280,6 @@ async def checked_snapshot(arguments):
     if type(counters.get('ChangeCount')) is not int:
         raise ValueError('容器版本计数未返回。')
     # Vendor AdjustedThruputQty = CurrentThruputQty - ThruputAdjustmentQty.
-    remaining = counters['Qty'] - counters['CurrentThruputQty'] + counters['ThruputAdjustmentQty']
     if qty > remaining:
         raise ValueError('本次加工量超过当前剩余未加工量。')
     # MoveWithThruput exposes no root qty field. Partial throughput is
@@ -236,11 +298,8 @@ async def checked_snapshot(arguments):
         if resource.get('IsFrozen') is not False:
             raise ValueError('资源冻结状态未明确为false。')
         body['resource'] = {'name': resource['Name'], 'instanceId': identifier(resource['InstanceID'])}
-    comments = arguments.get('comments')
-    if comments is not None:
-        if not isinstance(comments, str) or len(comments) > 1000:
-            raise ValueError('comments须为不超过1000字符的文本。')
-        body['comments'] = comments
+    if arguments.get('comments') is not None or arguments.get('_receipt_marker'):
+        body['comments'] = receipt_comments(arguments)
     # No execute=false POST: preparation is entirely read-only. Native execution
     # retains its collection, dispatch, signature, timer, and training validation.
     history = await query_rows(throughput_sql(cid, 0, 1))
@@ -251,7 +310,8 @@ async def checked_snapshot(arguments):
             'status': {key: status.get(key) for key in ('Container', 'Status', 'InProcess', 'Workflow', 'Step',
                 'Spec', 'Operation', 'Qty', 'Qty2', 'UOM', 'UOM2', 'MfgOrder', 'ContainerLevel')},
             'counters': counters, 'operation': operation, 'level': level,
-            'resource': resource, 'history_baseline': history}
+            'resource': resource, 'history_baseline': history, 'native_quantity_read': quantity_read,
+            **({'receipt_marker': arguments['_receipt_marker']} if arguments.get('_receipt_marker') else {})}
 
 
 @mcp.tool
@@ -262,10 +322,12 @@ async def prepare_container_throughput(container_name: str, qty: float,
     """只读准备一小时单次吞吐计划；qty是本次加工量，不是良品/不良品/余额。
     Thruput支持部分加工且不移站；MoveWithThruput仅未进站基础容器的全部剩余量移站。
     直接相同上报层级、无父子/冻结/生产完成；不调用Shopfloor预览，不绕过原生要求。
-    真实执行和报工效果尚待现场验收；无法把它当作整单完工或人工工时登记。
+    独立Thruput已完成限定现场验收；MoveWithThruput未纳入本次完整路线验收。
+    本入口不直接登记人工工时或关闭工单。
     """
     arguments = dict(container_name=container_name, qty=qty, service=service,
-                     container_instance_id=container_instance_id, resource_name=resource_name, comments=comments)
+                     container_instance_id=container_instance_id, resource_name=resource_name, comments=comments,
+                     _receipt_marker='MCP-PROD:' + uuid.uuid4().hex)
     try:
         snap = await asyncio.wait_for(checked_snapshot(arguments), timeout=60)
         # Always bind execution to the exact resolved Container even if input omitted ID.
@@ -288,7 +350,7 @@ def checked_plan(row, signature):
         raise ValueError('计划不存在、摘要不符、已使用或过期。')
     data = json.loads(row[1])
     snap = data['snapshot']
-    if snap.get('service') not in ('Thruput', 'MoveWithThruput', 'ContainerDefect'):
+    if snap.get('service') not in ('Thruput', 'MoveWithThruput', 'ContainerDefect', 'MoveIn', 'MoveStd'):
         raise ValueError('计划不属于已核实的生产事务服务。')
     if (digest(snap) != signature or snap['environment'] != CAMSTAR_SHOPFLOOR_BASE_URL.rstrip('/')
             or snap['query_environment'] != CAMSTAR_QUERY_BASE_URL.rstrip('/')):
@@ -301,6 +363,9 @@ def confirmation_summary(plan_id, plan_digest):
         row = db.execute('SELECT digest,payload,state,created FROM plans WHERE id=?', (plan_id,)).fetchone()
     try:
         snap = checked_plan(row, plan_digest)['snapshot']
+        if snap['service'] in ('MoveIn', 'MoveStd'):
+            return '生产进出站独立步骤（不是失败后的自动替代）：\n' + raw_json({
+                'service': snap['service'], 'action': snap['action'], 'request': snap['body']})
         if snap['service'] == 'ContainerDefect':
             return '登记不良并保留在制数量：\n' + raw_json({'request': snap['body'],
                 'reject_qty': snap['reject_qty'], 'quantity_deduction': False}) + '\n不良件数与缺陷次数分开；未知结果不重试。'
@@ -369,7 +434,11 @@ async def execute_container_throughput(plan_id: str, plan_digest: str) -> str:
                 outcome['response'] = await request('POST', '/api/' + snap['service'],
                     base_url=CAMSTAR_SHOPFLOOR_BASE_URL, body=snap['body'],
                     params={'execute': 'true'}, response_formatter=raw_json)
-                if snap['service'] == 'ContainerDefect':
+                if snap['service'] in ('MoveIn', 'MoveStd'):
+                    outcome['history_after'] = await query_rows('SELECT TOP 3 HistoryMainlineId,TxnId,TxnTypeName,'
+                        'WorkflowStepId,StepPass,Comments FROM HistoryMainline '
+                        f"WHERE ContainerId='{snap['container_id']}' ORDER BY HistoryMainlineId DESC")
+                elif snap['service'] == 'ContainerDefect':
                     from tools.production_records import reject_history
                     outcome['history_after'] = await reject_history(snap['container_id'])
                 else:
@@ -457,6 +526,12 @@ async def get_mfgorder_production_summary(mfgorder_name: str) -> str:
         # may count closed Containers, so do not add it to quantities ourselves.
         if native.get('complete') is True:
             out['production_completed_qty'] = native['completed_qty']
+            unit = orders[0].get('UOMId')
+            ordered = sql_number(orders[0]['Qty'], '工单计划量') if orders[0].get('Qty') not in (None, '') else None
+            if (ordered is not None and ordered > 0 and native['order_qty'] == ordered and unit and containers
+                    and all(row.get('UOMId') == unit for row in containers)):
+                out['completion_percentage'] = float(Decimal(str(native['completed_qty'])) * 100 / Decimal(str(ordered)))
+                out['progress_basis'] = 'MES CompletedQty / OrderQty; same current-container UOM, not good yield'
         out.update(order=orders[0], container_distribution=containers, throughput_by_operation=throughput,
                    production_complete_date_recorded=bool(orders[0].get('ProductionCompleteDateGMT')),
                    order_business_closed=None, scope='currently_order_linked_containers', complete=True,

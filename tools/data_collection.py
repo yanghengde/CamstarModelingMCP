@@ -109,10 +109,22 @@ async def get_container_collection_requirements(container_name: str, container_i
         if container_instance_id and (container.get('InstanceId') or container.get('InstanceID')) != container_instance_id.strip():
             raise ValueError('容器 ID 不匹配。')
         ctx = ReadContext(max_requests=4 + 3 * max_definitions)
-        if not payload.get('CurrentSpec'):
-            out['status'] = 'current_spec_unknown'
-            raise ValueError('容器查询未返回当前 Spec，无法确认工序采集要求。')
-        spec = await ctx.resolve('Specs', payload.get('CurrentSpec'))
+        spec_ref = payload.get('CurrentSpec')
+        if not spec_ref:
+            # ContainerInfoInquiry omits CurrentSpec for some started containers.
+            # Use the fixed status inquiry, pinning the same actual Container ID.
+            cid = container.get('InstanceId') or container.get('InstanceID')
+            status_info = json.loads(await get_container_details(container_name, cid, view='status'))
+            row = status_info.get('data', {}).get('ContainerStatusDetails', {})
+            actual = row.get('Container') or {}
+            if (status_info.get('complete') is not True or actual.get('Name') != container_name.strip()
+                    or (actual.get('InstanceId') or actual.get('InstanceID')) != cid or not row.get('Spec')):
+                out['status'] = 'current_spec_unknown'
+                raise ValueError('容器两个固定查询均未核实当前Spec和同一容器身份。')
+            spec_ref = row['Spec']
+            info = status_info
+            out['source'] = 'Query/ViewContainerStatus -> Specs/TxnMap -> DataCollectionDefs'
+        spec = await ctx.resolve('Specs', spec_ref)
         out['spec'] = {k: spec.get(k) for k in ('InstanceID', 'Name', 'Revision')}
         expanded = await ctx.get('Specs', spec['InstanceID'], {'$expand': 'TxnMap'})
         if expanded.get('InstanceID') != spec['InstanceID']:
@@ -120,11 +132,15 @@ async def get_container_collection_requirements(container_name: str, container_i
         rows = expanded.get('TxnMap')
         if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
             raise ValueError('TxnMap 未返回有效列表，不能认定无需采集。')
-        selected = [r for r in rows if not transaction_name or r.get('TxnName') == transaction_name]
+        # TxnName is a calculated label and is absent in live TxnMap leaf
+        # responses. TxnToUse=2200 is the verified CollectData CDO contract.
+        selected = [r for r in rows if not transaction_name or r.get('TxnName') == transaction_name
+                    or transaction_name == 'CollectData' and not r.get('TxnName') and r.get('TxnToUse') == 2200]
         out.update(transaction_filter=transaction_name or None, static_mapping_count=len(selected),
                    static_mappings_complete=not _has_next_link(expanded) and len(selected) <= max_definitions and info.get('complete') is True)
         for row in selected[:max_definitions]:
-            item = {'transaction': row.get('TxnName'), 'required': row.get('Required'), 'sequence': row.get('Sequence'),
+            item = {'transaction': row.get('TxnName') or ('CollectData' if row.get('TxnToUse') == 2200 else None),
+                    'required': row.get('Required'), 'sequence': row.get('Sequence'),
                     'definition_ref': row.get('DataCollectionDef')}
             try:
                 item['definition'] = await definition(ctx, row.get('DataCollectionDef'), definition_kind, 0, 50)

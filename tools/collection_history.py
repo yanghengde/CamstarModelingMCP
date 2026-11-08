@@ -42,8 +42,8 @@ async def get_container_collection_history(container_name: str, container_instan
             'd.IsRequired,d.IsLimitViolation,d.IsLimitOverride,d.IsLimitOverrideAllowed,'
             'h.HistoryMainlineId,m.ContainerId,m.TxnDate,m.TxnType '
             'FROM DataPointHistoryDetail d JOIN DataPointHistory h '
-            'ON d.DataPointHistoryId=h.DataPointHistoryId '
-            'JOIN HistoryMainline m ON h.HistoryMainlineId=m.HistoryMainlineId '
+            'ON d.DataPointHistoryId=h.DataPointHistoryId AND d.TxnId=h.TxnId AND d.HistoryId=h.HistoryId '
+            'JOIN HistoryMainline m ON h.HistoryMainlineId=m.HistoryMainlineId AND h.TxnId=m.TxnId AND h.HistoryId=m.HistoryId '
             f"WHERE m.ContainerId='{identifier}' ")
         if txn_id is not None:
             query += f"AND d.TxnId='{txn_id}' "

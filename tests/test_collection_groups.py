@@ -69,7 +69,7 @@ def test_group_echo_mismatch_prevents_plan(setup,change):
 
 def history(setup,monkeypatch,ready):
     saved=result(cs.get_collection_submission_plan(ready['plan_id']))['plan'];snap=saved['snapshot']
-    header={'HistoryMainlineId':HID,'TxnId':TXN,'ContainerId':CID,'TxnType':2200,'Comments':snap['body']['comments'],'SpecId':SID}
+    header={'HistoryMainlineId':HID,'TxnId':TXN,'ContainerId':CID,'TxnType':2200,'Comments':snap['body']['comments'],'SpecId':SID,'ReversalStatus':'1'}
     rows=[{'DPCollectionSampleHistoryId':f'{i+20:016x}','HistoryMainlineId':HID,'TxnId':TXN,'ContainerId':CID,'TxnType':2200,
            'DataCollectionDefId':DID,'GroupId':GID,'PointId':PID,'DataType':9,'CellName':str(i+1),'DataValue':str(i+1)} for i in range(2)]
     monkeypatch.setattr(cv,'request',AsyncMock(side_effect=lambda *a,**k:json.dumps([header])))

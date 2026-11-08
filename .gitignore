@@ -36,6 +36,7 @@ docs/quality-fixtures/
 docs/t05-fixtures/
 docs/t09-fixtures/
 docs/collection-fixtures/
+docs/production-acceptance/
 docs/acceptance-2026-10-24/
 docs/multiturn-evaluation/*
 !docs/multiturn-evaluation/README.md

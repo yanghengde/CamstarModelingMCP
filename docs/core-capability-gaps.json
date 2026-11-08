@@ -28,22 +28,30 @@
         "mfgorder",
         "container"
       ],
-      "status": "partial",
+      "status": "implemented",
       "priority": "P1",
-      "current": "已有进出站、Thruput/MoveWithThruput单次提交与历史、原生工单完工量/日期。本应用新增良品/不良台账、不良登记保留在制或报废扣量选择、人工实报与MES进出站历时分别统计、原MES完成后的本地整单收尾。现场只读联调通过，生产写入未验收。",
-      "missing": "人工工时尚未回写MES TaskTime（单位/持久化未核实），独立MES整单关闭无已验证契约；完整过站、报工及非空自动耗时仍待现场验收。",
+      "current": "第1部分六项已实现并完成独立现场闭环验收：部分吞吐、明确分步进出站、原生工单进度、两种不良处置及声明良品关联、MES人工分钟落账与自动历时分别统计、原生过站触发整单生产完成。19个独立测试对象保留证据。",
+      "missing": "原生复合MoveOut仍有服务端Transaction Details错误；当前采用明确分步MoveIn/Thruput/MoveStd。复杂父子容器、返工、签名及必填采集路线不属于本次验收范围。TaskTime不是本方案人工分钟的存储字段。",
       "contracts": [
         "Shopfloor/Thruput",
         "Shopfloor/MoveWithThruput",
-        "Query/MfgOrderInquiry"
+        "Query/MfgOrderInquiry",
+        "Shopfloor/MoveIn",
+        "Shopfloor/MoveStd",
+        "Shopfloor/ContainerDefect",
+        "Shopfloor/ChangeQty",
+        "Shopfloor/CollectData"
       ],
       "code": [
         "tools/container_moves.py",
         "tools/order_progress.py",
         "tools/production_reporting.py",
-        "tools/production_records.py"
+        "tools/production_records.py",
+        "tools/production_station.py",
+        "tools/production_verification.py",
+        "tools/production_labor.py"
       ],
-      "next_step": "按docs/production-reporting.md在明确测试工单验证原生加工量、两种不良处置及过站完工触发链；核对非空MoveOut耗时，单独查明人工工时回写与独立MES关闭契约。"
+      "next_step": "按现场实际配置扩展复杂路线验收；原生MoveOut修复单独处理，不在失败容器上自动换事务。"
     },
     {
       "id": "G03",
@@ -14664,6 +14672,126 @@
           "read_only_fields": []
         }
       }
+    },
+    "Shopfloor/MoveIn": {
+      "source_path": "/swagger/MoveIn/swagger.json",
+      "http_status": 200,
+      "listed_in_catalog": true,
+      "sha256": "4d23b7f32f7988472d77f8695006c87c8b4797453475ac1f21b360aa53ae62df",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/api/MoveIn"
+        },
+        {
+          "method": "POST",
+          "path": "/api/MoveIn/PerformEvent"
+        },
+        {
+          "method": "POST",
+          "path": "/api/MoveIn({key})/AdvancedPerformEvent"
+        },
+        {
+          "method": "POST",
+          "path": "/api/MoveIn/{key}/AdvancedPerformEvent"
+        },
+        {
+          "method": "POST",
+          "path": "/api/MoveIn/AdvancedPerformEvent"
+        },
+        {
+          "method": "POST",
+          "path": "/api/MoveIn/RequestSelectionValues"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/MoveIn({key})"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/MoveIn/{key}"
+        }
+      ]
+    },
+    "Shopfloor/MoveStd": {
+      "source_path": "/swagger/MoveStd/swagger.json",
+      "http_status": 200,
+      "listed_in_catalog": true,
+      "sha256": "4fc7dd3e354befffe64c337747d50f7ab3d11617a48ed3592eb1b7d0ddd2ccc9",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/api/MoveStd"
+        },
+        {
+          "method": "POST",
+          "path": "/api/MoveStd/PerformEvent"
+        },
+        {
+          "method": "POST",
+          "path": "/api/MoveStd({key})/AdvancedPerformEvent"
+        },
+        {
+          "method": "POST",
+          "path": "/api/MoveStd/{key}/AdvancedPerformEvent"
+        },
+        {
+          "method": "POST",
+          "path": "/api/MoveStd/AdvancedPerformEvent"
+        },
+        {
+          "method": "POST",
+          "path": "/api/MoveStd/RequestSelectionValues"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/MoveStd({key})"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/MoveStd/{key}"
+        }
+      ]
+    },
+    "Shopfloor/ContainerDefect": {
+      "source_path": "/swagger/ContainerDefect/swagger.json",
+      "http_status": 200,
+      "listed_in_catalog": true,
+      "sha256": "4abe051c20c3d60218070ad5eef748080f83f39d31277bfad8eb0f8712a6b348",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/api/ContainerDefect"
+        },
+        {
+          "method": "POST",
+          "path": "/api/ContainerDefect/PerformEvent"
+        },
+        {
+          "method": "POST",
+          "path": "/api/ContainerDefect({key})/AdvancedPerformEvent"
+        },
+        {
+          "method": "POST",
+          "path": "/api/ContainerDefect/{key}/AdvancedPerformEvent"
+        },
+        {
+          "method": "POST",
+          "path": "/api/ContainerDefect/AdvancedPerformEvent"
+        },
+        {
+          "method": "POST",
+          "path": "/api/ContainerDefect/RequestSelectionValues"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/ContainerDefect({key})"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/ContainerDefect/{key}"
+        }
+      ]
     }
   },
   "checked_at": "2026-11-01T11:38:39.466069+08:00",

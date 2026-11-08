@@ -88,6 +88,7 @@ def test_move_with_throughput_only_explicit_all_remaining(monkeypatch):
     assert reads.await_count == 1
     mock_context(monkeypatch)
     result = json.loads(run(p.prepare_container_throughput('LOT-1', 9, service='MoveWithThruput')))
+    assert result['request'].pop('comments').startswith('MCP-PROD:')
     assert result['request'] == {'container': {'name': 'LOT-1', 'instanceId': CID},
                                  'moveAllQty': True, 'thruputAllQty': True, 'close': False}
     assert 'qty' not in result['request']  # Compound service has no qty root field.

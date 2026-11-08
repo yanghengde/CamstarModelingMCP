@@ -21,7 +21,7 @@ def test_reason_contract(monkeypatch,kind,entity):
     call=AsyncMock(return_value='ok'); monkeypatch.setattr(p,'request',call)
     asyncio.run(p.list_production_reasons(kind,10,20))
     call.assert_awaited_once_with('GET','/api/'+entity,params={'$top':10,'$skip':20})
-    evidence=json.loads(Path('docs/production-api-audit-evidence.json').read_text(encoding='utf-8'))
+    evidence=json.loads(Path(__file__).with_name('fixtures').joinpath('production_contracts.json').read_text(encoding='utf-8'))
     contract=next(c for c in evidence['contracts'] if c['name']==entity)
     assert 'get' in contract['paths']['/api/'+entity]
 
@@ -37,7 +37,7 @@ def test_quantity_contract(monkeypatch,kind):
     body=call.await_args.kwargs['body']
     assert body=={'container':{'name':'BOX'},'serviceDetails':[{'changeQtyType':kind,'reasonCode':{'name':'reason'},'qty':2,'qty2':3}]}
     assert call.await_args.args==('POST','/api/ChangeQty')
-    evidence=json.loads(Path('docs/production-api-audit-evidence.json').read_text(encoding='utf-8'))
+    evidence=json.loads(Path(__file__).with_name('fixtures').joinpath('production_contracts.json').read_text(encoding='utf-8'))
     schema=next(c for c in evidence['contracts'] if c['name']=='ChangeQty')['schemas']
     assert set(body)<=set(schema['ChangeQty']['properties'])
     assert set(body['serviceDetails'][0])<=set(schema['ChangeQtyDetails']['properties'])

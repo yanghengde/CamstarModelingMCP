@@ -1,12 +1,26 @@
 """Movement failures stop automatic retries within a single agent request."""
 import json
 
-MOVEMENT_TOOLS = frozenset({"container_move", "container_move_in", "container_move_out"})
+MOVEMENT_TOOLS = frozenset({"container_move", "container_move_in", "container_move_out",
+                            "execute_production_station_transition", "execute_container_throughput"})
 
 
 def movement_targets(name, args):
     if name not in MOVEMENT_TOOLS:
         return set()
+    if name in ('execute_production_station_transition','execute_container_throughput'):
+        try:
+            from tools import production_reporting as p
+            if not p.PLAN_DB.is_file():return set()
+            with p.db_connect() as db:
+                row=db.execute('SELECT digest,payload FROM plans WHERE id=?',(args.get('plan_id'),)).fetchone()
+            if not row or row[0]!=args.get('plan_digest'):return set()
+            snap=json.loads(row[1])['snapshot']
+            if p.digest(snap)!=row[0] or snap.get('service') not in ('MoveIn','MoveStd','MoveWithThruput'):return set()
+            ref=snap['body']['container']
+            return {p.identifier(snap['container_id']).casefold(),ref['name'].strip().casefold()}
+        except (ValueError,TypeError,KeyError,AttributeError):
+            return set()
     return {str(args[key]).strip().casefold() for key in ("container_name", "container_instance_id")
             if args.get(key)}
 
@@ -18,7 +32,8 @@ def movement_failed(result):
         data = json.loads(result)
     except (TypeError, ValueError):
         return False
-    return isinstance(data, dict) and bool(data.get("error") or data.get("ErrorCode"))
+    return isinstance(data, dict) and bool(data.get("error") or data.get("ErrorCode")
+        or isinstance(data.get('response'),str) and data['response'].startswith(('❌','Error')))
 
 
 def movement_call_blocked(call, blocked):

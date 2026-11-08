@@ -15,7 +15,7 @@ GROUP_TERMS = {
     "operation": r"operation|工序|工作中心",
     "product": r"product|产品|bom|物料清单",
     "mfgorder": r"mfgorder|工单|订单|生产进度|报工|良品|工时|人时|历时|worktime|labor|yield|整单完工|整单收尾|完工量|开工准备|开工配置|前置任务|后置任务|过程任务|待执行任务|待办任务",
-    "container": r"container|容器|追溯|父子|拆分|合并|拆批|合批|装箱|拆箱|split|combine|associate|disassociate|序列号|批次|在制|过站|移站|进站|出站|开工|挂起|释放|返工|不良|报工|吞吐|thruput|throughput|加工量",
+    "container": r"container|容器|追溯|父子|拆分|合并|拆批|合批|装箱|拆箱|split|combine|associate|disassociate|序列号|批次|在制|过站|移站|进站|出站|开工|挂起|释放|返工|不良|报工|吞吐|thruput|throughput|加工量|工时|人时|worktime|labor|整单完工|工单完工",
     "reference": r"uom|计量单位|单位|allowmove|编号|层级|产线|产品类型|numbering|level|mfgline|producttype",
     "query": r"query|inquiry|sql|历史|状态|进度|在制|追溯",
     "excel": r"excel|csv|表格|附件|导入|上传",
@@ -25,8 +25,8 @@ WRITE_TERMS = re.compile(r"保存草稿|补齐|补充资料|正式提交|提交�
 # Empty domains are global discovery/safety rules. Keep the full constant for
 # diagnostics and compatibility; runtime requests use routing_instructions().
 ROUTING_SECTIONS = [
-    (('container', 'mfgorder'), '报工的不良由调用时选择record登记保留在制或scrap报废扣量，先prepare_production_reject。record必须分别明确不良件数、检查数量和缺陷次数，使用返回的execute_production_reject；scrap须明确close_when_zero和adjust_throughput，使用原execute_quality_transaction，不能换普通ChangeQty。先提交并核实本工序Thruput=良品+不良，再准备/提交/核实不良处置；同容器、工单、单位、工序及次数一致后record_production_report记入本应用台账，一个原生计划不能重复记账。人工工时用record_production_labor，明确员工、工单、带时区区间和实际分钟；同员工重叠不重复计算。本应用良品/不良和人工工时均明确标注台账来源，不伪称MES质量判定或TaskTime写入。get_production_worktime分别返回人工实报和MES MoveOut进出站历时，不相加；get_production_reports按工序/单位统计。整单先get_mfgorder_completion_readiness，原MES完成日期、后置过程、未完成在制和本应用未核实提交满足后，record_mfgorder_completion只登记本应用收尾，不调用独立MES关闭。'),
-    (('container', 'mfgorder'), '生产加工量先prepare_container_throughput，核对qty与请求，再execute_container_throughput单次提交；Thruput仅上报不移站，MoveWithThruput仅未进站基础容器全部剩余量，已进站沿用MoveOut。准备只有静态读取，没有原生预览验证。get_container_throughput_history读实际主历史，unknown不自动重试或改用旧移站绕过占用，最终事务证据人工核实后review_container_throughput。工单数量和生产完成日期用get_mfgorder_production_summary，保留native_order_quantities原始口径；CompletedQty不等同良品数，ScrapQty不等同不良件数，按工序累计吞吐不能当作工单产量。缺陷次数、数量损失、工时与整单业务关闭分别处理，不用TaskTime猜工时单位，不手改订单状态/日期伪造完工。'),
+    (('container', 'mfgorder'), '报工先独立Thruput=良品+不良，单次提交后用verify_production_transaction按唯一标记和原生主/明细历史核实。再prepare_production_reject明确record保留在制或scrap扣量；record分别指定不良件数/检查数/缺陷次数，scrap明确归零关闭/吞吐调整选项。原事务已核实后record_production_report关联原计划保存声明的良品/不良，一个原生计划只入账一次。get_production_reports按工序/单位统计，不把缺陷次数当不良件数。人工工时record_production_labor明确员工/工单/容器/带时区区间及实际分钟，重叠拒绝；要落MES使用prepare_production_labor_submission -> execute_production_labor_submission -> verify_production_labor_submission，以专用CollectData七点定义保存实际分钟，不猜TaskTime单位或执行作业任务。get_production_worktime分别返回人工实报、MES落账情况、唯一真实MoveInHistory配对的MoveHistory自动历时，不相加。'),
+    (('container', 'mfgorder'), '已验收分步生产流程：prepare_production_station_transition(action=enter) -> execute_production_station_transition -> verify_production_transaction；再独立吞吐和不良处置；全部剩余加工量为零后沿真实路径action=exit，移入IsLastStep生产完成节点必须明确action=complete。每步独立提交，不是原子批量；原生校验保留。原生MoveOut在当前部署实测Transaction Details错误，失败容器本请求停止，不在其上改事务自动重试。新分步计划也受本请求移动失败和未核实提交保护。新容器空吞吐计数只经execute=false读取原生QtyRemaining，不本地当零、不等于动态写验证。get_mfgorder_production_summary读取原生完工量/日期，同单位时显示CompletedQty比例；ScrapQty不解释为不良件数，不跨工序累计产量。全部容器按工艺到达完工节点后MES规则触发整单生产完成；get_mfgorder_completion_readiness再核查日期/后置过程/在制/未核实提交，record_mfgorder_completion登记本应用收尾，不直接修改订单状态/日期。'),
     ((), "介绍能力时先get_capabilities；概览必须覆盖本次返回的全部非空业务分组，按业务任务归纳，不照搬旧对话或固定工具数量。重点说明当前目录中的质量事件资料/草稿/提交/日志、审批与受控电子签名、抽检/SPC、数据采集、BOM投料、设备资源和文档/开工准备能力；仅列实际返回的入口，逐项保留限制。标题使用“当前能力说明”，不能将capability_gaps.checked_at写成整个实时目录的核查时间；该日期只属于历史缺口盘点，不能代表当前部署或现场验收日期。未支持/受限部分按返回capability_gaps的核查日期和状态归类，区分未接入、部分支持、门禁关闭和待验收，并说明已有受限入口。Swagger存在不代表可执行，历史说明不替代当前目录；不得笼统说生产容器报废或所有质量对象开启/关闭全部未提供，也不得说所有写入都需逐项确认。"),
     (('reference', 'collection', 'quality'), "单位主数据用reference组list_uoms/get_uom查询，create_uom/update_uom维护。创建采集点、检验指标或其他需单位的定义时，先核实真实UOM名称/ID；不得将EACH/UNIT当作所有测量的默认单位。缺失单位且用户明确要求新增时先create_uom并核实verified=true，再引用；若名称/含义不明确先询问。重命名是全局变更，不代表单位换算，不能改写历史数值。"),
     ((), "用户明确要求执行且参数完整时，普通少量操作不重复征询确认；新建检验指标/检验项目/抽检计划由执行层核实有效计划后可免逐项确认。需确认的操作直接交系统审批门，不先用聊天再问一遍；仅预览不执行。"),
@@ -137,7 +137,7 @@ def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
     level_reset = (re.search(r"恢复|复位|重置|撤销", current)
                    and re.search(r"检验水平|采样状态", context))
     approval_decision_submission = re.search(r"^(?:(?:请|帮我|提交|执行)\s*)*(?:批准|拒绝|签批)", current)
-    throughput_submission = re.search(r'上报|报工|带吞吐移站|记录.*(?:工时|人时)|(?:工时|人时).*(?:填报|记录)|整单收尾', current)
+    throughput_submission = re.search(r'上报|报工|带吞吐移站|(?:记录|提交|写入|落账|核实|复核).*(?:工时|人时)|(?:工时|人时).*(?:填报|记录|提交|写入|落账|核实|复核)|整单收尾|整单完工|工单完工', current)
     wants_write = bool(WRITE_TERMS.search(current) or task_submission or collection_submission or inspection_submission or triage_submission or event_text_clear or event_draft_save or level_reset or approval_decision_submission or throughput_submission)
     if re.search(r"查询|查看|追溯|了解|有哪些|历史", current) and not re.search(
         r"执行|创建|新建|新增|修改|更新|删除|重建|绑定|解绑|升版|导入|启动|开工|请将|请把|帮我把|create|update|delete|patch|import", current, re.I

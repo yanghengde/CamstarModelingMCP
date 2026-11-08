@@ -1,117 +1,89 @@
-# 生产过站与报工
+# 第1部分：生产过站与报工
 
-2026-11-08。已接入独立加工量上报、带吞吐移站、实际吞吐历史和全工单生产证据；按用户选择新增不良登记/报废扣量、本应用良品与不良台账、人工工时与进出站历时分别统计、MES完成后的本应用整单收尾。
-现场仅进行了契约和查询联调，没有执行生产事务。人工工时保存在本应用，不写未经核实的MES TaskTime；独立MES整单关闭尚无已验证契约，不能称为MES六项写入全部验收。
+2026-11-08。六项核心功能已实现，并使用独立测试数据完成原生写入及历史核对。验收范围：同一吞吐层级、无父子/载具/返工/冻结的基础容器，以及明确的分步生产流程。
 
-契约与现场只读证据见[核查记录](production-reporting-contract.json)。
-
-## 入口
-
-| 功能 | 工具 | 当前范围 |
+| 功能 | 入口 | 已验证行为 |
 |---|---|---|
-| 进站、出站 | `container_move_in` / `container_move_out` | 沿用已有原生事务；MoveOut组合事务及完整路线仍待现场验收 |
-| 独立上报本次加工量 | `prepare_container_throughput` → `execute_container_throughput` | `service=Thruput`，明确正数qty，可部分上报，不移动工序 |
-| 带吞吐移站 | 同上，`service=MoveWithThruput` | 仅未进站的基础容器、明确全部剩余加工量，不代替已进站的MoveOut |
-| 单容器加工历史 | `get_container_throughput_history` | 实际ThruputHistory主记录，保留事务、工序、单位、StepPass及冲销标志，明确分页 |
-| 工单生产汇总 | `get_mfgorder_production_summary` | 当前关联容器、按工序/单位/冲销状态分组的原始吞吐、原生产量及生产完成时间 |
-| 提交结果核对 | `get_container_throughput_plan` | 原始请求、响应及提交后的历史回读；同值或HTTP成功不自动作为本次提交归因 |
-| 中断恢复 | `recover_container_throughput_attempt` | 本机执行结束后in_flight转unknown，保留占用，不证明MES请求结束 |
-| 最终结果审计 | `review_container_throughput` | 明确原生最终事务/日志证据后审计unknown；旧计划永不可重放 |
+| 吞吐量 | prepare_container_throughput → execute_container_throughput → verify_production_transaction | 部分加工、剩余量、原生ThruputHistory、单次提交 |
+| 进出站 | prepare_production_station_transition → execute_production_station_transition → verify_production_transaction | enter=MoveIn；报工后exit/complete=独立MoveStd，沿真实路径推进 |
+| 工单进度 | get_mfgorder_production_summary；既有get_mfgorder_progress | 原生完工量、在制、按工序/单位的吞吐及完成日期；单位一致时显示原生完工数量比例 |
+| 良品/不良 | prepare_production_reject；record_production_report；get_production_reports | 登记保留在制、报废扣量；声明件数与已核实原生计划关联 |
+| 工时 | record_production_labor；人工工时提交四个入口；get_production_worktime | 人工实际分钟可落MES CollectData；进出站历时独立统计 |
+| 整单完工 | station action=complete；get_mfgorder_completion_readiness → record_mfgorder_completion | 原生移入完工节点触发生产完成，读取MES日期后登记应用收尾 |
 
-新入口已纳入MCP注册、Agent工具分发、能力目录、自然语言路由与确认摘要。
-部署时重启服务并刷新客户端工具清单。
+具体数量、对象及事务见[现场验收](production-acceptance.md)，契约来源见[结构化记录](production-reporting-contract.json)。
 
-## 两种不良处置与良品/不良报工
+## 操作顺序
 
-报工时由调用方明确选择，选择不保存在全局配置中：
+1. 查询实际容器ID、状态、工单和工艺路径。
+2. 排队工序用action=enter准备、执行、核实原生进站。
+3. 独立Thruput明确本次加工量=良品+不良，可以分次上报；执行后核实唯一原生历史。
+4. 有不良时选择record或scrap，准备、执行并核实原处置。
+5. record_production_report保存不可变声明台账；每个原生计划只被一条报工记录消费，同编号/内容幂等。
+6. 人工分钟需要落MES时，在原工序提交并核实人工工时采集计划。
+7. 剩余未加工量为零后，明确真实路径出站。普通目标节点选exit；移入IsLastStep生产完成节点必须选complete。
+8. 全部容器按工艺完成后，核查MES生产完成日期、后置过程、未完成在制及未核实提交，再登记应用整单收尾。
 
-| 选择 | 准备与执行 | 数量影响 |
+各步为独立事务，不是跨步骤原子批量。中途失败不自动重试、回滚、补报、跳站或改用其它事务。原生签名、培训、采集、调度及计时校验保留；准备不等于通过动态写入验证。
+
+## 出站与整单完成
+
+原生复合MoveOut在本部署实测返回13500597：Transaction Details requires input。测试C02失败后停止，没有重试或改用其它事务。
+
+已验收的分步流程明确采用MoveIn、独立Thruput、独立MoveStd；它不是失败后的自动替代。新计划同样纳入应用内同一请求的移动失败限制；本机unknown/in_flight提交阻止后续报工及移动。外部MCP客户端须保持相同授权与失败停止要求。
+
+现场确认：移入IsLastStep时MES即设置ProductionComplete，该节点不能再当待加工工序重复进站。complete沿原路径移动，close=false，不直接写OrderStatus或完成日期。
+
+整单生产完成与独立业务关闭分别报告。本部分实现原生工艺触发的生产完成和其后的应用收尾，不把修改Closed、日期或任务状态冒充生产完成。
+
+## 两种不良处置
+
+| 选择 | 原生事务 | 数量影响及核实 |
 |---|---|---|
-| `record` 不良登记 | `prepare_production_reject` → 返回的`execute_production_reject` | 原生ContainerDefect，保留在制数量 |
-| `scrap` 报废扣量 | `prepare_production_reject` → 返回的`execute_quality_transaction` | 复用原生LossDetails，扣减明确数量；归零关闭和吞吐调整必须明确选择 |
+| record | execute_production_reject执行ContainerDefect | 保留在制；明确不良件数、检查数及缺陷次数；verify_production_transaction核对DefectHistory及明细 |
+| scrap | execute_quality_transaction执行LossDetails | 扣减明确数量；必须明确close_when_zero、adjust_throughput；沿用质量历史核对及resolve_history结案 |
 
-登记模式分别提供`reject_qty`不良件数、`inspected_qty`本次检查数量、`defect_count`缺陷次数；一件可能存在多个缺陷，不自动推断相等。报废模式复用已有原因组、主单位、子类型和原生回显约束；全量自动选用明确的RecordAllQty计划，不以普通类型数字模拟报废。报工封装额外绑定原工单、持久状态、工序、步骤次数与单位，执行时变化阻止旧计划。
+良品/不良是操作员声明的件数，保存在data/production_records.sqlite3，并关联MES加工量和处置证据；不伪称MES自动质量判定。缺陷次数不等于不良件数。按工序和单位分别统计，不跨工序相加成为工单产量。
 
-完整报工顺序：先准备并提交本工序独立Thruput，数量为本次良品加不良；按最终证据核实后再准备并提交不良处置。再次核实后调用`record_production_report`保存本应用台账。任一步未知立即停止，不自动继续或回滚。`disposition=none`仅用于不良为零。
+## 两种工时
 
-报工台账必须绑定已核实提交的原计划，核对数量、容器、工单、主单位、工序及步骤次数。每个原生计划只能被一条报工记录消费，报工编号及相同内容幂等，不可覆盖旧记录。
-`get_production_reports`按工序和单位分别统计良品、登记不良、报废数量；不跨工序累加为工单产量。良品/不良为操作员明确声明并与原生提交关联，不伪称MES自动质量判定。
+record_production_labor要求明确员工、工单、带时区起止时间和实际分钟，可绑定容器。实际分钟须为正且不超过区间经过时间；最长区间7天；同员工重叠区间拒绝，团队逐人登记。
 
-## 两类工时分别保留
+只登记本地时明确标为应用台账。需要MES落账时，先将记录绑定原容器，再使用：
 
-- `record_production_labor`：按明确员工、工单、带时区起止区间及实际分钟保存人工工时。可核对容器归属，实际分钟不能超过区间经过时间，同员工重叠区间拒绝重复计算；团队逐人登记。原始输入与100纳秒时间刻度均保留。
-- `get_production_worktime`：分别返回人工台账的全量分钟/小时与MES自动历时。人工记录分页不改变全量总计，两类小时数不相加。
+1. prepare_production_labor_submission(record_id, definition_name, definition_revision, minutes_uom_name)
+2. execute_production_labor_submission(record_id)
+3. verify_production_labor_submission(record_id)
+4. get_production_labor_submission(record_id)查询落账状态
 
-自动口径仅取原生MoveOut主历史的`MoveInDateGMT`到`TxnDateGMT`，按当前工单关联容器统计；正常未冲销状态为1，同容器同事务必须唯一。缺失日期、负区间、冲销和重复主记录排除并计数。采用SQL Server DATEDIFF_BIG微秒差，避免猜测原生Duration/ElapsedTime字段的单位。
-没有MoveOut历史表示未取得相应区间证据，不证明实际工时为零。仅MoveStd或无MoveIn的MoveWithThruput不混入自动加工历时。历时可能含等待、暂停，不等于人员实际劳动时间。
+原生CollectData专用User定义必须恰有七点并关联当前Spec的CollectData：
 
-台账文件为`data/production_records.sqlite3`，按Modeling/Query/Shopfloor环境隔离，数量以十进制文本保留。人工工时没有写入MES TaskTime，其未知单位不被默认解释成小时。
-
-## 整单收尾
-
-`get_mfgorder_completion_readiness`核查原生生产完成日期、已配置后置过程的完成日期、未完成Active容器，以及本应用未核实的报工/报废提交。
-只有证据齐全，`record_mfgorder_completion`才登记本应用收尾，同一原生完成日期不可重复登记。未记录生产完成日期或仍有未完成在制时拒绝保存。
-此入口不向MES发送关闭事务，不修改OrderStatus或生产日期。实际MES完成仍由原生工艺规则触发，独立MES业务关闭须另行查明契约。
-
-## 数量与完工口径
-
-`qty`表示本次加工量，不表示余额、良品量或不良品量。只支持工序吞吐上报层级与当前容器层级相同、无父子关联、Active、未冻结、尚未生产完成的基础容器，不修改层级或绕过原生配置。
-
-本地原生元数据定义为：
-
-```
-AdjustedThruputQty = CurrentThruputQty - ThruputAdjustmentQty
-剩余未加工量 = Qty - CurrentThruputQty + ThruputAdjustmentQty
-```
-
-此处调整量的符号不可写反。容器实际身份来自状态中的Container引用，不能使用临时状态视图行ID。
-缺失/异常的加工量计数不作为零；冻结计数沿用已有数量处置查询的显式`COALESCE(CurrentHoldCount,0)`契约。
-Query/AdHoc的数字和布尔字符串按严格规则解析。
-
-原生`MfgOrderInquiry_GetOrderQuantities`已通过现场只读调用，返回`CompletedQty`、`ScrapQty`、`OrderQty`。
-汇总将`CompletedQty`单独标为原生完工量，保留原始响应；不把它当作质量合格数，也不把`ScrapQty`当作不良件数。
-本地原生定义中的`ScrapQty`统计Status=2容器的个数，而`CompletedQty`累加ProductionComplete容器的Qty；这说明两者不能直接按统一单位相加。
-本地副本与现场完整业务定义的一致性尚未证实。
-
-本地原生`MoveTxn_SetMfgOrderProductionComplete`会在原生既往完工量、本次完工量与报废量达到工单数量时设置生产完成日期。
-汇总回读现场`ProductionCompleteDateGMT`及后置过程时间，不直接调用内部CLF、不写数据库、不通过修改OrderStatus或日期伪造完工。
-生产完成时间、后置过程完成和整单业务关闭分别报告。没有独立的已核实整单关闭契约。
-
-按工序统计的吞吐量含多次过站/重加工或可能的冲销记录；主历史与明细不重复累加，不跨工序求和成为工单产量。
-工单统计限定为当前关联容器，不能据此追溯历史改绑前的订单归属；多次查询不保证事务快照。
-
-## 提交和结果核对
-
-准备阶段只有只读查询和本地静态计划，不调用Shopfloor的execute=false预览，也不声称已通过动态校验。
-执行前重读身份、状态、数量、配置和历史基线；任一变化使旧计划失效。
-计划绑定Modeling读取所得实际Container、Shopfloor及Query环境、不可变摘要与一小时时效。
-领取时通过SQLite事务互斥；领取后只发一次POST，保持产品原生签名、采集、调度、计时及培训校验，不传绕过开关。
-
-请求一经尝试保留unknown或in_flight，不自动重试、回滚或改用其他事务。
-同一容器的未核实吞吐请求阻止后续本模块提交，也阻止现有普通MoveStd/MoveIn/MoveOut入口绕过占用。
-中断恢复保留占用；最终人工审计才释放占用，但原计划一直不可重放。
-这是本应用本地保护，不是MES原生幂等键，也不阻止其他客户端同时操作现场。
-外部MCP客户端仍负责身份、业务授权和适当的人工确认，计划ID/摘要不是授权凭证。
-
-## 仍需完成
-
-| 项目 | 缺少的业务/现场证据 |
+| 点名 | 类型 |
 |---|---|
-| 原生报工验收 | 代码已支持两种不良处置和关联台账，仍须现场核对实际数量、原因、历史与提交结果 |
-| 工时 | 人工台账已实现；非空MoveOut区间尚待验收，MES TaskTime的单位、持久化及回写入口仍未核实 |
-| 整单完工 | 本应用收尾核查/登记已实现；原生完成触发链和独立MES关闭仍需现场契约与完整路线验收 |
-| 写入验收 | 在明确的测试容器/工单验证部分吞吐、剩余量、带吞吐移站、历史关联和重复提交处理 |
+| LaborKey、EmployeeName、EmployeeId、MfgOrderName | String |
+| ActualMinutes | Decimal；明确指定的分钟UOM |
+| StartTime、EndTime | TimeStamp，输入带时区 |
 
-## 验证
+通过已有采集维护工具配置，不自动修改现有生产配置。提交绑定原容器、工单、单位、工序和步骤次数；工序变化后不在另一工序补写。每条工时只绑定一个单次计划，不重复累计。该方案不猜TaskTime单位，也不执行或完成电子作业任务。
 
-离线测试禁止真实HTTPX网络；覆盖数量及调整符号、严格字符串解析、引用身份、未进站约束、临时视图ID变化、不可变计划、环境变化、单次提交、并发、取消、中断恢复、最终人工审计、分页、原生产量、注册与路由，并回归原移动/审批/工单查询。
+自动历时取MoveHistory和唯一真实MoveInHistory，支持独立MoveStd及对应MoveOut/MoveWithThruput子事务历史。必须同容器、工序、步骤次数、入步事务且正常未冲销。
 
-相关回归429项通过，启用HTTPX网络阻断且真实网络尝试为0。只读现场验证：工单汇总、容器吞吐历史、双口径工时和收尾条件可读，BOX-0001本次加工量1的静态检查通过，扩展字段及重复读取摘要一致；没有创建执行计划或提交生产写入。示例工单无MoveOut区间，未将空历史当作真实零工时；其80个Active未完成容器阻止整单收尾。
+本部署MoveInDateGMT截到整秒；按现场验证的精确/截秒规则关联唯一进站记录，实际历时使用两个原生事务的GMT时间，保留毫秒。缺进站、负区间、重复或冲销排除并计数。无历史不证明没生产；历时可能含等待/暂停，不等于人工劳动。
 
-可复用只读联调命令：
+get_production_worktime分别返回人工分钟/小时、MES人工落账情况、自动历时及包含/排除数。两种小时数不相加；原生落账不会再次累计同一条人工记录。
 
-```powershell
-venv/Scripts/python.exe scripts/validate_production_reporting.py --mfgorder MO-100076435 --container BOX-0001 --container-instance-id 0004108000000002
-```
+## 数量和结果核对
 
-该脚本只GET契约及调用固定Query查询，不执行生产写入、不创建执行计划。
+原生定义：AdjustedThruputQty = CurrentThruputQty - ThruputAdjustmentQty；剩余量 = Qty - CurrentThruputQty + ThruputAdjustmentQty。
+
+新容器计数可为空。代码保留空值，仅通过Thruput execute=false读取原生只读QtyRemaining确认剩余量，不本地设零，也不将其视为动态写入验证。
+
+新计划含唯一评论标记，绑定实际16位Container ID、环境、配置、工序、步骤次数和历史基线。执行前重读、原子领取并只POST一次。HTTP成功、当前相同数量或空历史不足以证明本次成功。
+
+verify_production_transaction双读唯一主历史和持久汇总/明细，核对服务、事务因果键、数量、单位、路径、原因及正常状态；成功保存history_committed并解除本机占用，原计划仍不可重放。无标记旧计划、未覆盖组合服务或证据不足时沿用最终证据人工审计。
+
+证据表示核实时的事实。后续改绑、冲销、重加工和配置变化须另查原生历史；本地锁不是MES全局排他或原生幂等键，跨查询不保证一致性快照。
+
+原生CompletedQty保留为原生完工量，不当作质量良品。当前原生ScrapQty可能统计关闭容器个数，不直接当报废件数，也不与CompletedQty相加计算良品。
+
+现场已验证部分吞吐、两种不良处置、分步进出站、人工分钟落账、非空自动历时、整单生产完成和防重放。父子/载具、返工及复杂签名/培训/计时/必填采集路线未纳入本次现场验收；原有MoveWithThruput入口未作为本次整条路线验收。原生MoveOut服务端问题仍待独立修复。

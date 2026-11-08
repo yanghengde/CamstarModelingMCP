@@ -346,13 +346,21 @@ def plan_preview(calls):
                                             args.get('evidence_reference'), args.get('review_note'), args.get('conclusion')))
             except (ValueError, TypeError, KeyError):
                 lines.append('工单任务人工核实信息无法读取，不应继续。')
-        if function.get("name") in ("execute_container_throughput", "execute_production_reject"):
+        if function.get("name") in ("execute_container_throughput", "execute_production_reject", "execute_production_station_transition"):
             try:
                 from tools.production_reporting import confirmation_summary
                 args = json.loads(arguments)
                 lines.append(confirmation_summary(args.get('plan_id'), args.get('plan_digest')))
             except (ValueError, TypeError, KeyError):
                 lines.append('吞吐报工计划无法读取，不应继续。')
+        if function.get('name') == 'execute_production_labor_submission':
+            try:
+                from tools.production_labor import linked_plan
+                from tools.collection_submission import confirmation_summary
+                args, _, _ = linked_plan(json.loads(arguments).get('record_id'))
+                lines.append(confirmation_summary(**args))
+            except (ValueError, TypeError, KeyError):
+                lines.append('原人工工时提交计划无法核实，不应继续。')
         if function.get("name") == "execute_mfgorder_task_result":
             try:
                 from tools.mfgorder_task_plans import confirmation_summary

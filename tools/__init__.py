@@ -70,6 +70,9 @@ from tools import resources
 from tools import production_basics
 from tools import production_reporting
 from tools import production_records
+from tools import production_verification
+from tools import production_station
+from tools import production_labor
 from tools import system_info          # MCP 服务诊断（无外部副作用）
 from tools import quality_spc
 from tools import quality_spc_annotations
@@ -102,7 +105,10 @@ def get_tool_func(name: str):
     """
     if name not in TOOL_POLICIES:
         return None
-    production_tool = getattr(production_records, name, None) or getattr(production_reporting, name, None)
+    from tools import production_verification
+    production_tool = (getattr(production_records, name, None) or getattr(production_reporting, name, None)
+                       or getattr(production_verification, name, None) or getattr(production_station, name, None)
+                       or getattr(production_labor, name, None))
     if production_tool is not None:
         return production_tool
     for module in [quality_lot_scrap, quality_event_logs, quality_event_data, quality_event_drafts, quality_event_submission, quality_capa_approval_revision, quality_approval_assignment, quality_approval_history, quality_approval_decisions, quality_approval_delegation, quality_approval_actions, quality_approvals, quality_event_lifecycle, quality_event_creation, quality_event_close_plan, quality_event_closure, quality_event_update, quality_event_triage, quality_spc_history, quality_spc_violations, quality_spc_annotations, quality_spc, quality, quality_plans, quality_inspection, quality_definitions, quality_lots, quality_lot_execution, quality_history, quality_sampling_references, quality_lot_maintenance, quality_configuration, quality_current_sampling, quality_ncr_escalation, quality_ncr_closure, quality_lot_rework, quality_quantity_loss, collection_groups, collection_group_history, collection_verification, collection_modeling, component_issue_bulk, component_issue_reasons, component_issue_plans, document_files, collection_recovery, spec_documents, mfgorder_task_recovery, mfgorder_task_history, mfgorder_task_plans, mfgorder_task_preview, mfgorder_tasks, container_transfer_reconciliation, container_transfer_plans, container_transfers, collection_reconciliation, collection_submission, collection_history, collection_validation, component_issue, production_readiness, data_collection, boms, resources, production_basics, modeling_workspace, container_genealogy, container_trace,import_plans, order_progress, process_context, modeling_details, container_inquiry, tool_discovery, specs, operations, workflows, workflow_steps, products, mfgorders,

@@ -74,6 +74,18 @@ def test_changed_context_never_submits(monkeypatch,tmp_path):
     assert all(c.kwargs['params']['execute']=='false' for c in req.call_args_list)
 
 
+def test_changed_unit_cannot_silently_reinterpret_declared_minutes(monkeypatch,tmp_path):
+    val,_,_,req=setup(monkeypatch,tmp_path)
+    val['checks'][0]['uom']={'Name':'MINUTE','InstanceId':'0000000000000001'}
+    cs.validate_collection_values.return_value=json.dumps(val)
+    ready=preview()
+    val['checks'][0]['uom']={'Name':'HOUR','InstanceId':'0000000000000002'}
+    cs.validate_collection_values.return_value=json.dumps(val)
+    result=run(cs.collect_container_data(ready['plan_id'],ready['plan_digest']))
+    assert result['submitted'] is False
+    assert all(call.kwargs['params']['execute']=='false' for call in req.call_args_list)
+
+
 def test_submit_unknown_no_retries_or_new_plan_bypass(monkeypatch,tmp_path):
     from tools import collection_history
     _,_,_,req=setup(monkeypatch,tmp_path);r=preview()

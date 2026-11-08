@@ -1,7 +1,7 @@
 {
   "checked_at": "2026-11-08T10:54:26.848833+08:00",
-  "method": "GET Swagger, fixed Query reads, local vendor metadata reads, repeated static snapshot; no Shopfloor POST or preview",
-  "shopfloor_transactions_executed": false,
+  "method": "Prior read-only contract audit followed by 2026-11-08 isolated native writes and full receipt verification; see part1_acceptance",
+  "shopfloor_transactions_executed": true,
   "contracts": {
     "Thruput": {
       "source_path": "/swagger/Thruput/swagger.json",
@@ -98,11 +98,11 @@
       "shopfloor_transactions_executed": false
     }
   },
-  "onsite_write_acceptance": "not_performed",
+  "onsite_write_acceptance": "verified_limited_phased_flow",
   "remaining_scope": [
-    "MES TaskTime units/persistence and manual labor writeback",
-    "independent MES order business close and full native route acceptance",
-    "onsite native throughput, defect/scrap effects, and nonempty MoveOut elapsed intervals"
+    "Native compound MoveOut server issue",
+    "Complex hierarchy/rework/signature/required collection routes outside limited acceptance",
+    "TaskTime is not the explicit-minute CollectData labor contract"
   ],
   "extension_checked_at": "2026-11-08T11:53:17.848424+08:00",
   "extension": {
@@ -185,6 +185,71 @@
       "counter_fields_present": true,
       "mes_writes": false,
       "plan_saved": false
-    }
-  }
+    },
+    "historical_before_part1_acceptance": true
+  },
+  "part1_acceptance": {
+    "checked_at": "2026-11-08",
+    "manuals_root": "D:/Deepseek/camstar/2510",
+    "manuals": [
+      {
+        "file": "OCEXCR_Modeling_2510plus_R1.pdf",
+        "pdf_pages": [
+          267,
+          605
+        ]
+      },
+      {
+        "file": "Mendix UIs Operator-Based Modules.pdf",
+        "pdf_pages": [
+          70,
+          72,
+          81,
+          82
+        ]
+      }
+    ],
+    "scope": "Same reporting level, basic containers, explicit phased MoveIn / Thruput / MoveStd; optional CollectData actual labor in minutes",
+    "native_writes_verified": true,
+    "objects_created": 19,
+    "prefix": "CDX-P1-20261108",
+    "receipts": {
+      "move_in": "4000000000010283",
+      "throughput": "4000000000010284",
+      "production_complete_move": "4000000000010285",
+      "actual_labor": "400000000001028a",
+      "defect": "400000000001028e",
+      "scrap": "4000000000010290"
+    },
+    "order": {
+      "name": "CDX-P1-20261108-END2",
+      "instance_id": "00065480000000b3",
+      "completed_qty": 1,
+      "production_complete_date_gmt": "2026-11-08T09:40:26.000"
+    },
+    "actual_labor_minutes": 1,
+    "automatic_interval_microseconds": 3540000,
+    "quantity_acceptance": {
+      "processed": 6,
+      "declared_good": 4,
+      "recorded_reject_units": 1,
+      "scrapped_units": 1,
+      "remaining_material_qty": 5
+    },
+    "moveout": {
+      "status": "server_rejected",
+      "code": "13500597",
+      "message": "Transaction Details requires input",
+      "container": "CDX-P1-20261108-C02",
+      "retries": 0
+    },
+    "native_counter_read": "Nullable SQL counters preserved; only native Thruput.QtyRemaining execute=false resolves remaining quantity",
+    "native_elapsed_linkage": "Unique MoveInHistory with same container/step/pass/step-entry transaction; MoveInDateGMT is truncated to second in this deployment, use original TxnDateGMT milliseconds for duration",
+    "record_sources": "Good/reject declarations are immutable application records bound to native receipts; labor may also persist as native CollectData explicit minutes, not TaskTime",
+    "evidence": "docs/production-acceptance.md",
+    "local_journal": "docs/production-acceptance/journal.json",
+    "native_completed_percentage": 100,
+    "original_plan_replay_blocked": true
+  },
+  "baseline_method_before_acceptance": "GET Swagger, fixed Query reads, local vendor metadata reads, repeated static snapshot; no Shopfloor POST or preview"
 }

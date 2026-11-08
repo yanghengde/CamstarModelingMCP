@@ -19,7 +19,7 @@ Modeling 586 个分组、Shopfloor 249 个分组、Query 61 个分组；针对�
 | 编号 | 核心能力 | 状态 | 优先级 | 已有能力 | 尚缺范围 |
 |---|---|---|---|---|---|
 | G01 | 独立工单下发 | 业务契约待确认 | P1 | 已有工单建模维护、开工和过程任务。 | 尚未确认带业务校验的独立下发事务；orderStatus/releaseDate字段维护不能当作下发。 |
-| G02 | 吞吐量及整单报工 | 部分支持 | P1 | 已有进出站、Thruput/MoveWithThruput单次提交与历史、原生工单完工量/日期。本应用新增良品/不良台账、不良登记保留在制或报废扣量选择、人工实报与MES进出站历时分别统计、原MES完成后的本地整单收尾。现场只读联调通过，生产写入未验收。 | 人工工时尚未回写MES TaskTime（单位/持久化未核实），独立MES整单关闭无已验证契约；完整过站、报工及非空自动耗时仍待现场验收。 |
+| G02 | 吞吐量及整单报工 | 已实现并限定验收 | P1 | 第1部分六项已实现并完成独立现场闭环验收：部分吞吐、明确分步进出站、原生工单进度、两种不良处置及声明良品关联、MES人工分钟落账与自动历时分别统计、原生过站触发整单生产完成。19个独立测试对象保留证据。 | 原生复合MoveOut仍有服务端Transaction Details错误；当前采用明确分步MoveIn/Thruput/MoveStd。复杂父子容器、返工、签名及必填采集路线不属于本次验收范围。TaskTime不是本方案人工分钟的存储字段。 |
 | G03 | 容器关闭与非标准移站 | 未接入 | P1 | 支持正常进出站、返工、基础容器追溯。 | 无Close/MoveNonStd专用工具；独立容器关闭/任意目标移站未开放（数量损失计划中的显式归零关闭选项另见G09）。 |
 | G04 | 完整物料投料模式 | 部分支持 | P1 | 模式2批量来源和模式5数量投料已接入计划及核对。 | 模式1序列容器、3批号、4库存点仅意图预览；替代料、第二数量未形成执行闭环。 |
 | G05 | 退料、替换与分配物料 | 未接入 | P1 | 已有需求查询和投料历史。 | ComponentRemove/Replace/Distribute无专用执行工具，不能用负数投料模拟退料。 |
@@ -57,7 +57,7 @@ Swagger分组：`Shopfloor/Thruput`、`Shopfloor/MoveWithThruput`、`Query/MfgOr
 
 代码依据：[container_moves.py](../tools/container_moves.py)、[order_progress.py](../tools/order_progress.py)、[production_reporting.py](../tools/production_reporting.py)、[production_records.py](../tools/production_records.py)。
 
-下一步：按docs/production-reporting.md在明确测试工单验证原生加工量、两种不良处置及过站完工触发链；核对非空MoveOut耗时，单独查明人工工时回写与独立MES关闭契约。
+验收与限制见[生产过站与报工](production-reporting.md)及[现场验收](production-acceptance.md)。按现场实际配置扩展复杂路线验收；原生MoveOut修复单独处理，不在失败容器上自动换事务。
 
 ### G03 容器关闭与非标准移站
 

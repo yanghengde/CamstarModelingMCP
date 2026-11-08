@@ -172,7 +172,9 @@ def test_manual_and_elapsed_are_separate_and_summary_is_not_page_total(monkeypat
     assert result['automatic']['coverage_complete'] is False
     assert result['combined_hours'] is None
     query = p.query_rows.await_args.args[0]
-    assert "TxnTypeName='MoveOut'" in query and 'ReversalStatus=1' in query
+    assert "TxnTypeName='MoveStd'" in query and 'ReversalStatus=1' in query
+    assert 'JOIN MoveHistory' in query and 'JOIN MoveInHistory' in query and 'MatchingMoveIns=1' in query
+    assert 'entered.ActualMoveInGMT' in query and 'i.StepEntryTxnId=h.StepEntryTxnId' in query
     assert 'NativeRows=1' in query and 'MICROSECOND' in query
 
 

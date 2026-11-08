@@ -191,8 +191,9 @@ async def _submit(service, payload, instance_id, level_name):
                 raise ValueError(field + " 须为布尔值。")
         name = payload["container"]["name"]
         cid = await _movement_context(name, instance_id, level_name, service)
-        from tools.production_reporting import ensure_no_unresolved_throughput
+        from tools.production_reporting import ensure_no_unresolved_throughput, ensure_no_unresolved_collection
         ensure_no_unresolved_throughput(cid)
+        ensure_no_unresolved_collection(cid)
         payload["container"] = _container_ref(name, cid)
     except (ValueError, TypeError, KeyError, AttributeError) as exc:
         return "❌ 移动前检查未通过：" + str(exc)

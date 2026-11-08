@@ -13,15 +13,17 @@ from config import CAMSTAR_QUERY_BASE_URL
 
 
 async def verify_history(snap):
+    from tools.production_reporting import sql_number
     body=snap['body'];marker=body.get('comments');cid=body['container']['instanceId'];did=body['dataCollectionDef']['instanceId']
     if not isinstance(marker,str) or not re.fullmatch(r'MCP-COL:[0-9a-f]{32}',marker):raise ValueError('旧计划没有唯一提交标记，仅可人工核实。')
     if not shared.valid_id(cid) or not shared.valid_id(did):raise ValueError('快照ID无效。')
-    sql=("SELECT TOP 2 HistoryMainlineId,TxnId,ContainerId,TxnType,Comments,SpecId FROM HistoryMainline "
+    sql=("SELECT TOP 2 HistoryMainlineId,TxnId,ContainerId,TxnType,Comments,SpecId,ReversalStatus FROM HistoryMainline "
          f"WHERE ContainerId='{cid}' AND Comments='{marker}' ORDER BY TxnDate DESC,HistoryMainlineId")
     headers=json.loads(await request('POST','/api/AdHoc',base_url=CAMSTAR_QUERY_BASE_URL,body={'queryText':sql},response_formatter=raw_json,retry_read_only=True))
     if not isinstance(headers,list) or len(headers)!=1:raise ValueError('唯一提交标记未匹配唯一历史主事务。')
     header=headers[0];txn=header.get('TxnId');spec=snap.get('spec') or {}
-    if (header.get('ContainerId')!=cid or header.get('Comments')!=marker or header.get('TxnType')!=2200
+    if (header.get('ContainerId')!=cid or header.get('Comments')!=marker or sql_number(header.get('TxnType'),'采集历史类型',integer=True)!=2200
+            or sql_number(header.get('ReversalStatus'),'采集历史冲销状态',integer=True)!=1
             or not shared.valid_id(txn) or not shared.valid_id(header.get('HistoryMainlineId'))
             or not shared.valid_id(spec.get('InstanceID')) or header.get('SpecId')!=spec['InstanceID']):raise ValueError('历史事务类型/工序/容器/标记未匹配。')
     grouped=body['parametricData'].get('@odata.type')=='#shopfloor.DPCollection'
@@ -58,9 +60,14 @@ async def verify_history(snap):
         if not same_value(wanted,observed[key],types[pid]):raise ValueError('采集历史值与提交值不一致。')
     for row in rows:
         pid=row.get('PointId' if grouped else 'DataPointId')
+        check=next((c for c in snap['validation']['checks'] if c['point_instance_id']==pid),{})
+        unit=check.get('uom') or {}
+        expected_unit=unit.get('InstanceId') or unit.get('InstanceID')
+        if expected_unit and row.get('UOMId')!=expected_unit:
+            raise ValueError('采集历史单位与原计划明确单位不符。')
         if (row.get('DataCollectionDefId')!=did or row.get('TxnId')!=txn or row.get('ContainerId')!=cid
-                or row.get('HistoryMainlineId')!=header['HistoryMainlineId'] or row.get('TxnType')!=2200
-                or row.get('DataType')!=types.get(pid)):raise ValueError('采集历史定义、数据类型或事务父链不一致。')
+                or row.get('HistoryMainlineId')!=header['HistoryMainlineId'] or sql_number(row.get('TxnType'),'采集明细事务类型',integer=True)!=2200
+                or sql_number(row.get('DataType'),'采集明细类型',integer=True)!=types.get(pid)):raise ValueError('采集历史定义、数据类型或事务父链不一致。')
     return {'header':header,'rows':rows,'request_marker':marker,'verified_at':time.time()}
 
 
