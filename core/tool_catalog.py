@@ -19,6 +19,21 @@ DISABLED_MODELING_PATCH_TOOLS = {
 }
 
 TOOL_POLICIES = {
+    'prepare_production_reject': ToolPolicy('container'),
+    'execute_production_reject': ToolPolicy('container', 'update', True, True),
+    'record_production_report': ToolPolicy('mfgorder', 'create'),
+    'record_production_labor': ToolPolicy('mfgorder', 'create'),
+    'get_production_worktime': ToolPolicy('mfgorder'),
+    'get_production_reports': ToolPolicy('mfgorder'),
+    'get_mfgorder_completion_readiness': ToolPolicy('mfgorder'),
+    'record_mfgorder_completion': ToolPolicy('mfgorder', 'create'),
+    'get_container_throughput_history': ToolPolicy('container'),
+    'prepare_container_throughput': ToolPolicy('container'),
+    'get_container_throughput_plan': ToolPolicy('container'),
+    'execute_container_throughput': ToolPolicy('container', 'update', True, True),
+    'review_container_throughput': ToolPolicy('container', 'update', True, True),
+    'recover_container_throughput_attempt': ToolPolicy('container', 'update', True, True),
+    'get_mfgorder_production_summary': ToolPolicy('mfgorder'),
     'list_uoms': ToolPolicy('reference'),
     'get_uom': ToolPolicy('reference'),
     'create_uom': ToolPolicy('reference', 'create'),

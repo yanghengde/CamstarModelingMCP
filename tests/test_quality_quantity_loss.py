@@ -287,3 +287,21 @@ def test_batch_scrap_registration_closed_schema_and_mcp_read_only(lot_env):
             schema=next(v.input_schema for v in await client.list_tools() if v.name==name)
             assert schema['additionalProperties'] is False
     asyncio.run(run());lot_env[2].request.assert_not_awaited()
+
+
+def test_production_scrap_plan_binds_original_order_context(env,monkeypatch):
+    from tools import production_records
+    context=dict(container_id=CID,container_name='C',order_id=key(9000),order_name='MO',
+                 unit_id=UOM,step_id=STEP,status_id=STATUS,step_pass=1)
+    monkeypatch.setattr(production_records,'report_context',AsyncMock(return_value=(context,env['row'],{})))
+    args=dict(container_name='C',container_instance_id=CID,loss_reason_name='SCRAP',close_when_zero=False,
+              adjust_throughput=False,loss_quantity='2',record_all_quantity=False,comments='',production_context=context)
+    out=result(p.prepare('quantity_loss',args))
+    assert out['state']=='ready'
+    saved=result(p.get_quality_transaction_plan(out['plan_id']))
+    assert saved['snapshot']['production_context']==context
+    changed=dict(context,order_id=key(9001))
+    monkeypatch.setattr(production_records,'report_context',AsyncMock(return_value=(changed,env['row'],{})))
+    rejected=result(p.execute_quality_transaction(out['plan_id'],out['plan_digest']))
+    assert rejected.get('error') and not rejected.get('submitted')
+    env['client'].request.assert_not_awaited()

@@ -1,0 +1,190 @@
+{
+  "checked_at": "2026-11-08T10:54:26.848833+08:00",
+  "method": "GET Swagger, fixed Query reads, local vendor metadata reads, repeated static snapshot; no Shopfloor POST or preview",
+  "shopfloor_transactions_executed": false,
+  "contracts": {
+    "Thruput": {
+      "source_path": "/swagger/Thruput/swagger.json",
+      "http_status": 200,
+      "sha256": "5d0bd54185bd8198bec69b996579b036b04b4321843cf7a167e67b5b071d4cbf",
+      "post_path_verified": true,
+      "required": [
+        "container"
+      ],
+      "used_fields": {
+        "container": {
+          "$ref": "#/components/schemas/ContainerRef"
+        },
+        "qty": {
+          "type": "number",
+          "description": "CdoId: 3390; FieldId: 5486; Workspace: csi; Flags: None; Annotations: Material quantity (individual)",
+          "format": "double",
+          "nullable": true
+        },
+        "thruputAllQty": {
+          "type": "boolean",
+          "description": "CdoId: 3390; FieldId: 5490; Workspace: csi; Flags: None; Annotations: Overrides Qty,Qty2,ChildCount and UnitCount . Replaces them with the maximum allowable amounts. Also overrides the ThruputAllQty field in the details if set to true .",
+          "nullable": true
+        }
+      }
+    },
+    "MoveWithThruput": {
+      "source_path": "/swagger/MoveWithThruput/swagger.json",
+      "http_status": 200,
+      "sha256": "ca978322046c0de15971794651abdee1481041a3fafab5c20b2417af35a28031",
+      "post_path_verified": true,
+      "required": [],
+      "used_fields": {
+        "close": {
+          "type": "boolean",
+          "description": "CdoId: 6980; FieldId: 7612; Workspace: csi; Flags: None; Annotations: Determines whether to close the container after it is moved. Used by Move subservice.",
+          "nullable": true
+        },
+        "container": {
+          "$ref": "#/components/schemas/ContainerRef"
+        },
+        "moveAllQty": {
+          "type": "boolean",
+          "description": "CdoId: 6980; FieldId: 7615; Workspace: csi; Flags: None; Annotations: Determines whether to move all qty.",
+          "nullable": true
+        },
+        "thruputAllQty": {
+          "type": "boolean",
+          "description": "CdoId: 6980; FieldId: 7626; Workspace: csi; Flags: None; Annotations: Overrides Qty,Qty2,ChildCount and UnitCount . Replaces them with the maximum allowable amounts. Also overrides the ThruputAllQty field in the details if set to true .",
+          "nullable": true
+        }
+      }
+    }
+  },
+  "local_native_metadata": {
+    "source_sha256": "76eae4ba015cf5e754a851e073e722c70e8c19e37bb1447bd888e4ebc32de247",
+    "live_deployment_equivalence_verified": false,
+    "adjusted_throughput_expression": "CurrentThruputQty-ThruputAdjustmentQty",
+    "production_complete_clf": "MoveTxn_SetMfgOrderProductionComplete",
+    "native_quantity_query": "MfgOrderInquiry_GetOrderQuantities",
+    "warning": "Local definition counts ScrapQty as Status=2 Containers, while CompletedQty sums Qty. Do not equate ScrapQty to rejected units or CompletedQty to quality yield."
+  },
+  "live_read_validation": {
+    "order_name": "MO-100076435",
+    "order_complete": true,
+    "native_order_quantities": {
+      "complete": true,
+      "source": "AdvancedQuery/MfgOrderInquiry_GetOrderQuantities",
+      "scope": "native_query_definition_not_quality_yield",
+      "raw": {
+        "ScrapQty": "0",
+        "CompletedQty": "0",
+        "OrderQty": "80",
+        "MfgOrderName": "MO-100076435"
+      },
+      "completed_qty": 0.0,
+      "scrap_qty_native": 0.0,
+      "order_qty": 80.0
+    },
+    "throughput_history_complete": true,
+    "throughput_history_row_count": 0,
+    "static_snapshot": {
+      "static_ready": true,
+      "stable_repeat_snapshot": true,
+      "request": {
+        "container": {
+          "name": "BOX-0001",
+          "instanceId": "0004108000000002"
+        },
+        "thruputAllQty": false,
+        "qty": 1
+      },
+      "remaining_qty": 1.0,
+      "shopfloor_transactions_executed": false
+    }
+  },
+  "onsite_write_acceptance": "not_performed",
+  "remaining_scope": [
+    "MES TaskTime units/persistence and manual labor writeback",
+    "independent MES order business close and full native route acceptance",
+    "onsite native throughput, defect/scrap effects, and nonempty MoveOut elapsed intervals"
+  ],
+  "extension_checked_at": "2026-11-08T11:53:17.848424+08:00",
+  "extension": {
+    "choices": {
+      "reject_disposition": [
+        "record_preserve_WIP",
+        "scrap_native_LossDetails"
+      ],
+      "worktime": [
+        "application_manual_actual_minutes",
+        "MES_MoveOut_elapsed_time"
+      ]
+    },
+    "ContainerDefect": {
+      "source_path": "/swagger/ContainerDefect/swagger.json",
+      "http_status_observed": 200,
+      "normalized_local_copy_sha256": "651261ef8df5e9bea0c4626d33d01b7ebb7f6f2cd6dccfe7057f6b61a381da4d",
+      "required": [
+        "container",
+        "serviceDetails"
+      ],
+      "used_fields": {
+        "container": {
+          "$ref": "#/components/schemas/ContainerRef"
+        },
+        "qtyInspected": {
+          "type": "number",
+          "description": "CdoId: 6846; FieldId: 6329; Workspace: csi; Flags: None; Annotations: Amount of quantity inspected that resulted in the defects being recorded by this transaction.",
+          "format": "double",
+          "nullable": true
+        },
+        "serviceDetails": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ContainerDefectDetail"
+          },
+          "description": "CdoId: 7094; FieldId: 9083; Workspace: csi; Flags: Required; Annotations: ServiceDetails"
+        }
+      }
+    },
+    "live_reads": {
+      "order": {
+        "complete": true,
+        "error": null
+      },
+      "worktime": {
+        "complete": true,
+        "error": null
+      },
+      "report_ledger": {
+        "complete": true,
+        "error": null
+      },
+      "completion_readiness": {
+        "complete": true,
+        "error": null
+      },
+      "throughput_history": {
+        "complete": true,
+        "error": null
+      }
+    },
+    "automatic_elapsed_sample_intervals": 0,
+    "completion_sample_ready": false,
+    "completion_sample_incomplete_active_containers": 80,
+    "manual_storage": "application_production_ledger_not_MES_TaskTime",
+    "yield_storage": "operator_declared_application_ledger_linked_to_reviewed_native_plans",
+    "native_order_close_executed": false,
+    "shopfloor_transactions_executed": false,
+    "regression": {
+      "passed": 429,
+      "offline_httpx_guard": true,
+      "blocked_attempt_count": 0,
+      "attempts": []
+    },
+    "static_snapshot": {
+      "static_ready": true,
+      "repeat_digest_equal": true,
+      "remaining_qty": 1.0,
+      "counter_fields_present": true,
+      "mes_writes": false,
+      "plan_saved": false
+    }
+  }
+}

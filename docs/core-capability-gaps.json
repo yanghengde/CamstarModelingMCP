@@ -30,8 +30,8 @@
       ],
       "status": "partial",
       "priority": "P1",
-      "current": "已有MoveIn/MoveOut/MoveStd和工单进度查询。",
-      "missing": "未封装Thruput/MoveWithThruput专用闭环；良品、不良、工时及整单完工未形成已验证流程。",
+      "current": "已有进出站、Thruput/MoveWithThruput单次提交与历史、原生工单完工量/日期。本应用新增良品/不良台账、不良登记保留在制或报废扣量选择、人工实报与MES进出站历时分别统计、原MES完成后的本地整单收尾。现场只读联调通过，生产写入未验收。",
+      "missing": "人工工时尚未回写MES TaskTime（单位/持久化未核实），独立MES整单关闭无已验证契约；完整过站、报工及非空自动耗时仍待现场验收。",
       "contracts": [
         "Shopfloor/Thruput",
         "Shopfloor/MoveWithThruput",
@@ -39,9 +39,11 @@
       ],
       "code": [
         "tools/container_moves.py",
-        "tools/order_progress.py"
+        "tools/order_progress.py",
+        "tools/production_reporting.py",
+        "tools/production_records.py"
       ],
-      "next_step": "先核实单次吞吐历史与工单汇总，再定义报工边界。"
+      "next_step": "按docs/production-reporting.md在明确测试工单验证原生加工量、两种不良处置及过站完工触发链；核对非空MoveOut耗时，单独查明人工工时回写与独立MES关闭契约。"
     },
     {
       "id": "G03",

@@ -174,6 +174,14 @@ async def build_loss(args, marker):
     secondary_requested = args.get('secondary_loss_quantity') is not None
     ref, row, status = await snapshot(args['container_name'], args.get('container_instance_id'),
                                      allow_secondary_quantity=secondary_requested)
+    from tools.production_reporting import ensure_no_unresolved_throughput
+    ensure_no_unresolved_throughput(ref['instanceId'])
+    production_context = args.get('production_context')
+    if production_context is not None:
+        from tools.production_records import report_context
+        current_context, _, _ = await report_context(ref['name'], ref['instanceId'])
+        if current_context != production_context:
+            raise ValueError('报工报废的原工单、工序、单位或容器绑定发生变化。')
     amount, after, number = quantity_options(args, row)
     secondary = None
     if secondary_requested:
@@ -211,7 +219,8 @@ async def build_loss(args, marker):
                        unit_conversion_performed=False)
     reads = set()
     for (entity, _), state in dep.states.items(): reads.update(d.resources(entity, state))
-    return {'kind': 'quantity_loss', 'action': 'loss', 'service': 'ChangeQty', 'name': ref['name'], 'target_id': ref['instanceId'],
+    return {**({'production_context': production_context} if production_context is not None else {}),
+            'kind': 'quantity_loss', 'action': 'loss', 'service': 'ChangeQty', 'name': ref['name'], 'target_id': ref['instanceId'],
             'scope_key': 'quantity-loss:'+ref['instanceId'], 'reason': reason_ref, 'expected_loss_quantity': str(amount),
             'before': {'container': row, 'container_status': status}, 'dependencies': list(dep.states.values()),
             'resource_reads': sorted(reads), 'resource_writes': [e.runtime_claim('container', ref['instanceId'])],

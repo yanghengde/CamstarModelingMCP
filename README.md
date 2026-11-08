@@ -1,5 +1,7 @@
 # Camstar Modeling MCP Agent
 
+生产过站与报工：[加工量上报、不良登记/报废选择、双口径工时及整单收尾](docs/production-reporting.md)。原生提交与历史证据、本应用良品/不良及人工工时台账分别标注来源；MES生产完成后的本地收尾已接入，独立MES关闭和现场写入验收仍待补齐。
+
 质量开发当前目标与完成标准：[闭环交付总清单](docs/quality-completion-plan.md)。C1代码和离线验证已交付、现场未验收；本轮推进[C2.A角色替代审批](docs/quality-role-approval.md)。下一闭环为安全电子签名输入与提交，旧阶段报告不等于全部质量功能完成。
 
 质量功能入口：[NCR、CAPA、质量对象与抽检/SPC工具及现场验证范围](docs/quality-mcp-tools.md)。

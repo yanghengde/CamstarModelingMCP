@@ -71,6 +71,13 @@ VALUES = {
     'SamplingPlans': '抽检计划', 'SampleTests': '检验项目', 'SampleDataPoints': '检验指标',
 }
 TITLES = {
+    'execute_production_reject': '登记不良并保留在制数量',
+    'record_production_report': '保存良品和不良品报工',
+    'record_production_labor': '登记人工实报工时',
+    'record_mfgorder_completion': '登记本应用整单收尾',
+    'execute_container_throughput': '上报本次加工量',
+    'review_container_throughput': '登记加工量上报的核实结果',
+    'recover_container_throughput_attempt': '登记加工量上报中断并保留占用',
     'execute_quality_transaction': '提交质量业务操作',
     'review_quality_transaction': '登记质量事务的本地审计结果',
     'execute_data_collection_change': '维护采集配置',
