@@ -8,16 +8,13 @@ MCP 工具注册中心
 import logging
 from fastmcp import FastMCP
 from core.tool_catalog import TOOL_POLICIES
+from core.mcp_guidance import MCP_INSTRUCTIONS
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 mcp = FastMCP(
     "CamstarModeling",
-    instructions=(
-        "MCP Server for Siemens Opcenter (Camstar) Modeling, Shopfloor, and "
-        "Query APIs. Provides tools to manage modeling entities, execute "
-        "manufacturing Container transactions, and run read-only queries."
-    ),
+    instructions=MCP_INSTRUCTIONS,
 )
 
 # -------------------------------------------------------
@@ -96,6 +93,7 @@ from tools import quality_event_drafts
 from tools import quality_event_data
 from tools import quality_event_logs
 from tools import quality_lot_scrap
+from tools import read_orchestration
 
 
 def get_tool_func(name: str):
@@ -105,6 +103,9 @@ def get_tool_func(name: str):
     """
     if name not in TOOL_POLICIES:
         return None
+    orchestration_tool = getattr(read_orchestration, name, None)
+    if orchestration_tool is not None:
+        return orchestration_tool
     from tools import production_verification
     production_tool = (getattr(production_records, name, None) or getattr(production_reporting, name, None)
                        or getattr(production_verification, name, None) or getattr(production_station, name, None)

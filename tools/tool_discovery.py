@@ -58,6 +58,10 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
               'reference': '基础资料与原因码', 'query': '查询服务', 'excel': '表格导入', 'system': '系统与能力发现'}
     disabled = DISABLED_MODELING_PATCH_TOOLS
     caveats = {
+        'search_camstar_read_tools': '跨组搜索已注册只读工具和真实参数，无MES请求。是否可编排由独立审核白名单决定，不由read标签自动推断。',
+        'get_camstar_read_metadata': '现场列/类型与实体Swagger按环境缓存6小时，明确刷新；只缓存元数据，不缓存生产结果。SQL字段与API字段分别处理。',
+        'execute_camstar_read_plan': '受控只读DAG：审核工具调用、结构化数据集、投影/关联/精确汇总、有限并发和分页。上游错误/不完整不作完整汇总，不接受SQL/Python/URL/写入。最多12步500行，非事务快照。',
+        'run_camstar_read_template': 'order_dates一次查询1..20个工单及全部当前关联容器（含关闭），明确计划/原生生产/实际首箱日期与时区；空日期不等于未开工。首次元数据读取后复用缓存。',
         'list_quality_references': '有界列出质量参考配置。spc_control对应维护服务，返回受限说明和get_spc_native_readiness入口；SPC图使用spc_chart。',
         'get_quality_reference_details': '读取明确质量配置；spc_control维护服务不支持按名称或ID读取持久控制配置，请核对明确SPC图的原生依赖。',
         'get_container_level_schema': '覆盖当前归档契约的全部字段；指定field_name返回精确嵌套/引用schema。只读字段和路径目标选择器不能写。契约声明可写不等于该字段已完成现场持久化验收。',

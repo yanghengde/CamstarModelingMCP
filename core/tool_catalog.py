@@ -19,6 +19,10 @@ DISABLED_MODELING_PATCH_TOOLS = {
 }
 
 TOOL_POLICIES = {
+    'search_camstar_read_tools': ToolPolicy('query'),
+    'get_camstar_read_metadata': ToolPolicy('query'),
+    'execute_camstar_read_plan': ToolPolicy('query'),
+    'run_camstar_read_template': ToolPolicy('query'),
     'prepare_production_reject': ToolPolicy('container'),
     'execute_production_reject': ToolPolicy('container', 'update', True, True),
     'record_production_report': ToolPolicy('mfgorder', 'create'),

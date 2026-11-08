@@ -25,6 +25,8 @@ WRITE_TERMS = re.compile(r"保存草稿|补齐|补充资料|正式提交|提交�
 # Empty domains are global discovery/safety rules. Keep the full constant for
 # diagnostics and compatibility; runtime requests use routing_instructions().
 ROUTING_SECTIONS = [
+    (('container', 'mfgorder', 'query', 'product', 'workflow', 'spec', 'operation', 'resource'),
+     '批量/跨对象只读优先共享查询层：search_camstar_read_tools跨组发现工具，get_camstar_read_metadata查看现场字段/类型及受控计划schema。工单开工/日期优先run_camstar_read_template(template=order_dates,parameters={order_names:[明确工单名],timezone:Asia/Shanghai})，覆盖已关闭容器并分别返回计划/工单生产/实际首箱日期，不用Modeling Containers空数组判断未开工。其它组合查询execute_camstar_read_plan用dataset/call/select/group/join，复用审核工具，明确结果引用、依赖、分页。数据集字段与API字段分开，不猜StartDate/DueDate等名称。上游不完整禁止汇总，零内部模型回合不等于零HTTP请求。不以InstanceID排序冒充创建时间排序，生产写入仍走原专用工具。'),
     (('container', 'mfgorder'), '报工先独立Thruput=良品+不良，单次提交后用verify_production_transaction按唯一标记和原生主/明细历史核实。再prepare_production_reject明确record保留在制或scrap扣量；record分别指定不良件数/检查数/缺陷次数，scrap明确归零关闭/吞吐调整选项。原事务已核实后record_production_report关联原计划保存声明的良品/不良，一个原生计划只入账一次。get_production_reports按工序/单位统计，不把缺陷次数当不良件数。人工工时record_production_labor明确员工/工单/容器/带时区区间及实际分钟，重叠拒绝；要落MES使用prepare_production_labor_submission -> execute_production_labor_submission -> verify_production_labor_submission，以专用CollectData七点定义保存实际分钟，不猜TaskTime单位或执行作业任务。get_production_worktime分别返回人工实报、MES落账情况、唯一真实MoveInHistory配对的MoveHistory自动历时，不相加。'),
     (('container', 'mfgorder'), '已验收分步生产流程：prepare_production_station_transition(action=enter) -> execute_production_station_transition -> verify_production_transaction；再独立吞吐和不良处置；全部剩余加工量为零后沿真实路径action=exit，移入IsLastStep生产完成节点必须明确action=complete。每步独立提交，不是原子批量；原生校验保留。原生MoveOut在当前部署实测Transaction Details错误，失败容器本请求停止，不在其上改事务自动重试。新分步计划也受本请求移动失败和未核实提交保护。新容器空吞吐计数只经execute=false读取原生QtyRemaining，不本地当零、不等于动态写验证。get_mfgorder_production_summary读取原生完工量/日期，同单位时显示CompletedQty比例；ScrapQty不解释为不良件数，不跨工序累计产量。全部容器按工艺到达完工节点后MES规则触发整单生产完成；get_mfgorder_completion_readiness再核查日期/后置过程/在制/未核实提交，record_mfgorder_completion登记本应用收尾，不直接修改订单状态/日期。'),
     ((), "介绍能力时先get_capabilities；概览必须覆盖本次返回的全部非空业务分组，按业务任务归纳，不照搬旧对话或固定工具数量。重点说明当前目录中的质量事件资料/草稿/提交/日志、审批与受控电子签名、抽检/SPC、数据采集、BOM投料、设备资源和文档/开工准备能力；仅列实际返回的入口，逐项保留限制。标题使用“当前能力说明”，不能将capability_gaps.checked_at写成整个实时目录的核查时间；该日期只属于历史缺口盘点，不能代表当前部署或现场验收日期。未支持/受限部分按返回capability_gaps的核查日期和状态归类，区分未接入、部分支持、门禁关闭和待验收，并说明已有受限入口。Swagger存在不代表可执行，历史说明不替代当前目录；不得笼统说生产容器报废或所有质量对象开启/关闭全部未提供，也不得说所有写入都需逐项确认。"),
@@ -191,7 +193,9 @@ def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
             except (ValueError, TypeError, AttributeError):
                 pass
     # Small discovery set when intent is ambiguous; the model can expand it.
-    base = {"get_capabilities", "load_tool_group", "get_mcp_server_status"}
+    base = {"get_capabilities", "load_tool_group", "get_mcp_server_status", "search_camstar_read_tools"}
+    if re.search(r'开工日期|开工时间|工单.{0,15}日期|首箱|批量查询|批量.{0,15}查|关联汇总|只读编排', context):
+        base.update({'get_camstar_read_metadata', 'execute_camstar_read_plan', 'run_camstar_read_template'})
     if re.search(r"spc|控制图|判异", context, re.I) and re.search(r"历史|history|MES", context, re.I):
         base.add("get_container_collection_history")
     if not groups:

@@ -70,6 +70,8 @@ def test_streamable_http_auth_initialize_list_and_call(monkeypatch):
         init_result = initialized.json()["result"]
         assert init_result["protocolVersion"] == "2025-11-25"
         assert init_result["serverInfo"]["name"] == "CamstarModeling"
+        assert "run_camstar_read_template" in init_result["instructions"]
+        assert "execute_adhoc_query是兜底" in init_result["instructions"]
 
         listed = client.post(
             "/mcp/",

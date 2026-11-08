@@ -471,6 +471,11 @@ async def execute_adhoc_query(
     Execute one read-only ad hoc SELECT through the Query API.
     POST Query /api/AdHoc
 
+    Fallback for queries not covered by reviewed tools/datasets. For known order
+    dates use run_camstar_read_template(order_dates) directly; for batch joins or
+    aggregation prefer execute_camstar_read_plan. Do not rediscover schema on
+    every request or request unbounded rows that will be trimmed.
+
     For safety this MCP accepts exactly one SELECT statement and rejects SQL
     comments, SELECT INTO, and write/execution keywords. parameters_json uses
     the same formats as execute_advanced_query.
