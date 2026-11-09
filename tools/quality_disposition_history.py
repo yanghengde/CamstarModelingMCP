@@ -54,7 +54,8 @@ def comments(snap):
 async def roots(snap, offset=0, limit=20):
     q.paging(offset, limit)
     value = comments(snap)
-    rows = await q.sql_rows('SELECT '+MAINLINE+' FROM HistoryMainline WHERE Comments='+q.literal(value)
+    extra=' AND ContainerId='+q.literal(identifier(snap['target_id'])) if snap.get('complex_version') else ''
+    rows = await q.sql_rows('SELECT '+MAINLINE+' FROM HistoryMainline WHERE Comments='+q.literal(value)+extra
         +f' ORDER BY HistoryMainlineId OFFSET {offset} ROWS FETCH NEXT {limit+1} ROWS ONLY', limit+1)
     for row in rows:
         identifier(row['HistoryMainlineId'])
@@ -216,6 +217,9 @@ def compare_rework(snap, evidence, mainlines, root_id, reason):
 
 
 def compare(snap, attempt, root, evidence):
+    if snap.get('complex_version'):
+        from tools.quantity_loss_complex import compare as compare_complex
+        return compare_complex(snap,attempt,root,evidence)
     kind = snap['kind']
     service, service_type = SERVICE_TYPES[kind]
     root_id = root['HistoryMainlineId']

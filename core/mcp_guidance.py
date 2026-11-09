@@ -22,5 +22,13 @@ ProductionComplete、InProcess与单位；有分页时不得用片段冒充全�
 prepare_resource_throughput / prepare_resource_collection，核对后execute_resource_change，
 再reconcile_resource_change。分组资源采集在本环境不保存样本，执行已关闭，不能把预览成功当落账。
 设备吞吐与容器报工分别统计；状态、吞吐及采集历史使用resource分组专用读取工具。
+9. 数量损失先区分真实对象类型。父子层级/跟踪载具先get_quantity_loss_scope，再
+prepare_related_container_quantity_loss；独立容器用prepare_container_quantity_loss。
+明确部分数量或全量及关闭、解关联、生产数量选项；复杂入口generate_rollups=true。
+完整相关范围最多8个，实物成员同产品/主单位/步骤；父容器仅明确整棵子树全量。
+原生Batch7939禁止ChangeQty，不转换类型或循环成员代扣。归零可能清除共享状态
+的载具绑定，须展示完整投影。单次execute_quality_transaction后
+reconcile_quality_execution，再review_quality_transaction(action="resolve_history")核实结案；
+unknown不重发，不能仅凭HTTP200或同值回读认领成功。
 这些是工具使用建议，不是客户端必然遵循的服务端强制路由；准确性优先于省略必要检查。
 """

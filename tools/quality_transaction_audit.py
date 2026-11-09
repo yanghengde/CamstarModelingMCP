@@ -22,7 +22,10 @@ def balance_matches(current, member):
     )
 
 
-async def current_evidence(snap):
+async def current_evidence(snap,txn_id=None):
+    if snap.get('complex_version'):
+        from tools.quantity_loss_complex import current_evidence as current_complex
+        return await current_complex(snap,txn_id)
     kind = snap['kind']
     if kind == 'quantity_loss':
         from tools.quality_quantity_loss import record
@@ -69,10 +72,12 @@ async def verified_evidence(snap, attempt, txn_id):
     proof = await history.verify(snap, attempt, txn_id)
     if not (proof.get('request_correlation_verified') and proof.get('recorded_business_effects_verified')):
         raise ValueError('指定事务未通过原生历史核对，继续保留待审占用。')
-    checks, current = await current_evidence(snap)
+    checks, current = await current_evidence(snap,txn_id) if snap.get('complex_version') else await current_evidence(snap)
     if not all(checks.values()):
         raise ValueError('当前原对象的状态、数量、路线或任务清理未全部匹配，继续保留待审占用。')
-    if await current_evidence(snap) != (checks, current) or await history.verify(snap, attempt, txn_id) != proof:
+    repeated=await current_evidence(snap,txn_id) if snap.get('complex_version') else await current_evidence(snap)
+    if repeated != (checks, current) or await history.verify(snap, attempt, txn_id) != proof:
         raise ValueError('审计期间历史或当前证据发生变化，继续保留待审占用。')
     return {'candidate_txn_id': txn_id, 'attempt': attempt, 'history_checks': proof['checks'],
-            'current_checks': checks, 'evidence_digest': plans.digest({'history': proof['evidence'], 'current': current})}
+            'current_checks': checks, 'evidence_digest': plans.digest({'history': proof['evidence'], 'current': current}),
+            **({'native_scope_evidence':current} if snap.get('complex_version') else {})}

@@ -136,6 +136,8 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
         'get_sampling_lot_details': 'SamplingLot存储于MfgLot，校验类型8587；成员和样本各自分页，不是整批质量判定。',
         'prepare_lot_inspection': 'CollectLotSamplingData，来源成员须已进站且属于该批，使用整批任务剩余数；本次增量，固定任务/版本，随机采样不要求SamplingRequired=true。移站/LIMS false，真实事务待验收。',
         'get_sampling_lot_readiness': '完整有界成员/任务及MES完成、通过标志；前置满足不是权限、签名或业务批准。',
+        'get_quantity_loss_scope': '只读完整活动层级、载具成员及双向跟踪身份，最多8个相关容器；不创建计划。真实Batch原生禁止ChangeQty。',
+        'prepare_related_container_quantity_loss': '父子层级/跟踪载具单次LossDetails计划；叶部分或明确父子树全量，同产品/主单位/步骤且复杂限单单位。关闭保留历史父ID，归零清除共享状态载具绑定，完整投影/占用；六笔现场原生历史及效果已验收，unknown不重放。',
         'prepare_container_quantity_loss': '单个基础Container原生LossDetails部分损失/明确全量报废准备，当前主单位增量；明确归零关闭和生产数量调整选项，原因属当前Operation的LossReasons组。强制4030/-1回显，无抽样批成员/Batch/层级/载具。默认拒绝双单位；明确secondary_loss_quantity可准备双单位部分损失，两组原单位/余额固定且各自损失小于余额，不转换单位、不混用全量模式；确认单次执行，unknown不重复扣量。',
         'get_sampling_lot_scrap_readiness': '抽样批报废只读阻塞检查，完整成员/任务重读；ScrapReason未实现注释和与LossReason类型冲突未解，执行就绪固定false，不生成结果3计划或循环扣量。',
         'prepare_sampling_lot_scrap': '明确LossReason名称及持久ID绑定原生ScrapReason槽真实LossReason类型，完整1..20基础成员、失败证据、原因组/全量LossDetails/原生关闭生产数量默认和任务基线。确认后仅一次ExecuteSamplingLot结果3；unknown不重试，原ID证据人工审核，实际原子性/历史待验收。',
@@ -215,7 +217,7 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
                                'gap_date_scope': 'capability_gaps.checked_at仅为人工缺口盘点日期，不是当前能力目录的核查日期。',
                                'coverage': '概览覆盖全部非空业务分组，按实际工具及限制归纳；重点呈现近期质量、审批签名、SPC、采集、投料及开工准备入口。'},
               'limitations': ['工具已注册不代表现场事务验收通过；权限、配置和状态由产品校验。',
-                              '独立工单下发及整单报工尚未形成已验证闭环；基础单容器数量损失/全量报废已有受限计划，复杂场景及现场写入验收待补。',
+                              '独立工单下发未核实；第1部分生产与整单完工已限定验收。数量损失的基础单/双单位及同产品单单位层级/跟踪载具已限定验收，真实Batch被MES原生禁止。',
                               '确认方式取决于当前对话设置和执行层策略，不能笼统声称所有写入都需逐项确认；缺失选择/参数或用户明确要求先确认时仍等待用户。',
                               '目录查询不加载业务工具，不授予写入权限。']}
     if group is not None and group not in labels:

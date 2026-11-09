@@ -19,6 +19,8 @@ DISABLED_MODELING_PATCH_TOOLS = {
 }
 
 TOOL_POLICIES = {
+    'get_quantity_loss_scope': ToolPolicy('quality'),
+    'prepare_related_container_quantity_loss': ToolPolicy('quality'),
     'prepare_resource_change': ToolPolicy('resource'),
     'prepare_resource_activation': ToolPolicy('resource'),
     'prepare_resource_setup': ToolPolicy('resource'),

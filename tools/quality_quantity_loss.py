@@ -132,7 +132,7 @@ def quantity_options(args, row):
 
 async def preview(body, current):
     raw = await request('POST', '/api/ChangeQty', base_url=CAMSTAR_SHOPFLOOR_BASE_URL, body=body,
-                        params={'execute': 'false', '$select': 'Container,CloseWhenZero,DisassociateWhenClosed,GenerateRollups,RecordAllQtySummaryOnly,Comments,ServiceDetails,ESigRequirement',
+                        params={'execute': 'false', '$select': 'Container,CloseWhenZero,DisassociateWhenClosed,GenerateRollups,RecordAllQtySummaryOnly,RollupReason,Comments,ServiceDetails,ESigRequirement',
                                 '$expand': 'ServiceDetails'}, response_formatter=raw_json)
     try: outer = json.loads(raw)
     except (ValueError, TypeError): raise ValueError('数量损失非执行预览失败：'+str(raw)[:1000]) from None
@@ -170,6 +170,9 @@ async def preview(body, current):
 
 
 async def build_loss(args, marker):
+    if args.get('complex_scope'):
+        from tools.quantity_loss_complex import build
+        return await build(args,marker)
     comment = i.inspection_comment(args.get('comments', ''))
     secondary_requested = args.get('secondary_loss_quantity') is not None
     ref, row, status = await snapshot(args['container_name'], args.get('container_instance_id'),
@@ -228,6 +231,9 @@ async def build_loss(args, marker):
 
 
 def validate_transport(snap):
+    if snap.get('complex_version'):
+        from tools.quantity_loss_complex import validate_transport as validate_complex
+        return validate_complex(snap)
     body = snap['body']; args = snap['arguments']
     if (snap.get('kind') != 'quantity_loss' or snap.get('action') != 'loss' or snap.get('service') != 'ChangeQty'
             or set(body) != {'container', 'closeWhenZero', 'disassociateWhenClosed', 'generateRollups', 'recordAllQtySummaryOnly', 'serviceDetails', 'comments'}):
@@ -265,6 +271,9 @@ def validate_transport(snap):
 
 
 async def inspect_snapshot(snap):
+    if snap.get('complex_version'):
+        from tools.quantity_loss_complex import inspect_snapshot as inspect_complex
+        return await inspect_complex(snap)
     current = await record(snap['target_id'])
     result = {'original_container_id': snap['target_id'], 'current_record': current,
             'expected_loss_quantity': snap['expected_loss_quantity'], 'verified_success': False, 'state_changed': False,

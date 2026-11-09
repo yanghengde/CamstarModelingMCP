@@ -196,17 +196,21 @@
       ],
       "status": "partial",
       "priority": "P1",
-      "current": "基础单容器单/双单位部分损失及单单位明确全量LossDetails计划已有实现。双单位部分损失和单单位全量关闭已在隔离容器上核对余额、生产数量选项及最终历史。",
-      "missing": "Batch子类型、层级及载具受限。",
+      "current": "第4部分于2026-11-09完成六笔隔离原生验收：子容器部分/全量、父子树全量级联、最后子容器及生产数量选项、跟踪载具部分/全量与共享状态脱离。完整原生历史及所有原对象效果核实结案；基础单/双单位入口保留。",
+      "missing": "真实Batch7939被MES原生ChangeQty禁止；复杂层级/载具限8个完整相关容器、同产品/主单位/步骤和单单位，父容器部分分摊及无跟踪身份载具未开放。关闭保留历史父ID；不伪造逐叶历史或直接改表。",
       "contracts": [
         "Shopfloor/ChangeQty",
         "Shopfloor/PartScrap"
       ],
       "code": [
         "tools/quality_quantity_loss.py",
-        "tools/production_basics.py"
+        "tools/quantity_loss_complex.py",
+        "tools/quality_disposition_history.py",
+        "tools/quality_transaction_audit.py",
+        "core/carrier_factory_wcf.py",
+        "scripts/quantity_loss_acceptance.py"
       ],
-      "next_step": "有明确业务需求时再核实Batch子类型、层级及载具场景。"
+      "next_step": "限定范围使用专用准备、单次执行、历史及当前效果核实；Batch保持明确原生拒绝，详见docs/quantity-loss-complex.md。"
     },
     {
       "id": "G10",
