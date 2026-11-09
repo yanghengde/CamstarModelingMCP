@@ -310,7 +310,7 @@ async def prepare_container_quantity_loss(container_name: str, loss_reason_name:
 
 @mcp.tool
 async def get_sampling_lot_scrap_readiness(lot_name: str, lot_instance_id: str | None = None, loss_reason_name: str | None = None) -> str:
-    """只读完整抽样批报废前置，不创建计划。明确loss_reason_name时实时核对LossReason持久ID在原生ScrapReason槽的真实类型、每个成员原因组、全量LossDetails/关闭生产数量默认及完整批预览。成功返回preflight_passed=true，实际提交仍须prepare_sampling_lot_scrap及统一确认。省略原因只读取完整成员/任务及待核实项。ready_for_execution始终false，执行结果/原子性和最终历史须现场验收。"""
+    """只读完整抽样批报废前置，不创建计划。明确loss_reason_name时实时核对LossReason持久ID在原生ScrapReason槽的真实类型、每个成员原因组、全量LossDetails/关闭生产数量默认及完整批预览。成功返回preflight_passed=true，实际提交仍须prepare_sampling_lot_scrap及统一执行。省略原因只读取完整成员/任务及待明确选项。ready_for_execution始终false表示本工具不批准或执行事务，不表示功能未接入。已完成限定正向及冻结成员原生拒绝验收；本次实际结果须原生父子历史和完整原对象效果核实，不能推断所有故障均原子回滚。"""
     try:
         if loss_reason_name is not None:
             from tools.quality_lot_scrap import build_scrap
@@ -325,12 +325,13 @@ async def get_sampling_lot_scrap_readiness(lot_name: str, lot_instance_id: str |
                 issues.append({'container_id': member['ContainerId'], 'code': 'native_branch_would_skip_member'})
         if await e.lot_view('', view['lot']['MfgLotId']) != view: raise ValueError('核查期间抽样批、完整成员或任务发生变化。')
         return q.encode({'complete': True, 'ready_for_execution': False, 'plan_created': False, 'mes_write_performed': False,
-            'contract_review_date': '2026-10-28', 'contract_is_live_health_check': False,
+            'contract_review_date': '2026-11-09', 'contract_is_live_health_check': False,
             'quality_verdict': None, 'view': view, 'member_issues': issues, 'native_batch_branch_observed': True,
             'native_batch_branch_runtime_verified': False, 'preflight_passed': False, 'blockers': [
                 {'code': 'explicit_loss_reason_required', 'detail': '明确LossReason名称后才核对当前部署的持久ID绑定及成员原因适用组。'},
-                {'code': 'native_defaults_review_required', 'detail': '整批内部全量损失使用原生关闭和生产数量默认，须明确核对。'},
-                {'code': 'deployed_batch_effects_unverified', 'detail': '实际整批原子性、扣量/关闭和最终历史仍待现场验收。'}],
-            'automatic_fallback': False, 'note': '带明确原因复核后可使用prepare_sampling_lot_scrap准备原生结果3；不循环提交成员扣量。'})
+                {'code': 'native_defaults_review_required', 'detail': '整批内部全量损失使用原生关闭和生产数量默认，须明确核对。'}],
+            'deployment_validation': {'date': '2026-11-09', 'reference': 'docs/lot-scrap-completion.md',
+                'scope': 'isolated native full-lot loss and held-member validation rejection', 'universal_atomicity_guaranteed': False},
+            'automatic_fallback': False, 'note': 'ready_for_execution=false表示只读检查不代替准备/执行，不表示报废未实现。带明确原因复核后使用prepare_sampling_lot_scrap；实际结果须原生父子历史与全部原对象核实，不循环提交成员扣量。'})
     except (ValueError, TypeError, KeyError, AttributeError) as error:
         return q.encode({'complete': False, 'ready_for_execution': False, 'plan_created': False, 'mes_write_performed': False, 'error': str(error)})

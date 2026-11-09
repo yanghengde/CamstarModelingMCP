@@ -36,11 +36,19 @@ def test_core_gap_snapshot_is_scoped_and_not_a_live_health_claim():
     assert overview['checked_at'] and overview['live_health_check'] is False
     items = {g['id']: g for g in overview['items']}
     assert items['G09']['status'] == 'partial'  # Restricted Container loss is implemented.
+    assert items['G10']['status'] == 'implemented' and '2026-11-09' in items['G10']['current']
     assert items['G20']['status'] == 'partial' and 'UOM已有' in items['G20']['current']
     assert items['G01']['status'] == 'contract_unconfirmed'  # Never invent a release transaction.
     material = json.loads(asyncio.run(get_capabilities(group='material')))['capability_gaps']
     assert material['items'] and all('material' in g['groups'] for g in material['items'])
     assert not any(g['id'] == 'G14' for g in material['items'])
+
+
+def test_scrap_preflight_is_not_misreported_as_an_unimplemented_feature():
+    ready=json.loads(asyncio.run(get_capabilities(tool_name='get_sampling_lot_scrap_readiness')))['tool']
+    assert '不表示报废未接入' in ready['limitations']
+    scrap=json.loads(asyncio.run(get_capabilities(tool_name='prepare_sampling_lot_scrap')))['tool']
+    assert '正负现场验收' in scrap['limitations'] and 'resolve_history' in scrap['limitations']
 
 
 def test_gap_evidence_and_source_references_are_complete():

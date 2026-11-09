@@ -1,5 +1,7 @@
 # 原生整批报废
 
+2026-11-09更新：第5部分已完成独立正常报废与冻结成员原生拒绝验收，并强化完整原批/成员/两类任务的最终核对。详见[当前完成记录](lot-scrap-completion.md)。下文保留2026-11-04阶段依据及历史测试数量。
+
 2026-11-04，C4集中交付。新增 `prepare_sampling_lot_scrap(lot_name, loss_reason_name, lot_instance_id=None, comments='')`，正式事务使用统一确认入口 `execute_quality_transaction`。
 
 ## 原因绑定依据
@@ -28,6 +30,6 @@
 
 全项目4424项及2项子测试通过，离线HTTPX真实传输尝试0。专项覆盖具体原因类型、完整成员、原生默认值、错误子类型、签名要求、配置/数量变化、确认、未知防重及部分结果可见性。现场已验证LossReason ID的Load绑定和独立非执行LossDetails默认值。
 
-隔离批 LS 的两名成员均已扣量至零并关闭，原成员采样任务已清理。MES 历史确认同一事务下两笔成员损失，原因均为 SCRAP，并记录了生产数量选项。负向验收覆盖 LF 的整批返工失败，报废分支尚无独立失败注入证据。详见[隔离验收记录](c4-isolated-acceptance.md)。
+隔离批 LS 的两名成员均已扣量至零并关闭，原成员采样任务已清理。MES 历史确认同一事务下两笔成员损失，原因均为 SCRAP，并记录了生产数量选项。负向验收覆盖 LF 的整批返工失败，报废分支的独立失败注入后来已于2026-11-09补齐，见上方当前完成记录。详见[隔离验收记录](c4-isolated-acceptance.md)。
 
 本地证据包括 `docs/quality-fixtures/c4-reason-load-probe.json`、`c4-scrap-child-live-preview.json`、`c4-completion-live-read.json`、`c4-final-junit.xml` 和 `c4-final-network.json`。

@@ -95,7 +95,7 @@ async def workflow_steps(ctx, root):
     return result
 
 
-def blockers(view):
+def blockers(view, disposition='返工'):
     lot = view['lot']; issues = []
     if lot['LotStatus'] != 1 or lot['SamplingPassed'] is not False or type(lot['SamplingCompleted']) is not bool:
         issues.append('只处理Active、MES未通过且完成标志明确的抽样批')
@@ -110,7 +110,7 @@ def blockers(view):
         if row['Rejects'] > row['AllowedRejects']: failed = True
         if row['InspectAllContQty'] is not False or row['InspectAllQtyOnFailure'] is not False:
             issues.append('第一阶段不处理全检或失败转全检任务')
-    if not failed: issues.append('没有实际拒收超过MES任务阈值的证据，不返工未开始或已通过批')
+    if not failed: issues.append('没有实际拒收超过MES任务阈值的证据，不'+disposition+'未开始或已通过批')
     names = set()
     for row in view['members']:
         try:

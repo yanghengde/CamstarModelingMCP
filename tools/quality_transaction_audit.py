@@ -39,6 +39,7 @@ async def current_evidence(snap,txn_id=None):
         current = {row['container_id']: row['current_record'] for row in evidence['original_members']}
         checks = {'original_balances_and_statuses': current.keys() == members.keys()
                   and all(balance_matches(current[cid], member) for cid, member in members.items())}
+        checks.update(evidence['current_scope_checks'])
     else:
         from tools.quality_lot_rework import inspect_snapshot
         evidence = await inspect_snapshot(snap)

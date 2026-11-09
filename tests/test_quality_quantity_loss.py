@@ -252,7 +252,8 @@ def test_lot_scrap_assessment_is_explicitly_blocked_without_plan_or_write(lot_en
     out=result(r.get_sampling_lot_scrap_readiness('L'))
     assert out['complete'] and not out['ready_for_execution'] and not out['plan_created'] and not out['mes_write_performed']
     assert out['native_batch_branch_observed'] and not out['native_batch_branch_runtime_verified']
-    assert {v['code'] for v in out['blockers']}=={'explicit_loss_reason_required','native_defaults_review_required','deployed_batch_effects_unverified'}
+    assert {v['code'] for v in out['blockers']}=={'explicit_loss_reason_required','native_defaults_review_required'}
+    assert not out['deployment_validation']['universal_atomicity_guaranteed']
     assert not out['automatic_fallback'] and not p.PLAN_DB.exists()
     lot_env[1].assert_not_awaited();lot_env[2].request.assert_not_awaited()
 

@@ -4,6 +4,7 @@ The deployed Load accepts LossReason in the ScrapReason slot. Pin and verify
 that concrete type instead of resolving a ScrapReason by a similar name.
 """
 import json
+import re
 
 from tools import mcp, quality as q, quality_inspection as inspection, quality_plans as plans
 from tools import quality_lot_execution as lots, quality_lot_rework as rework, quality_quantity_loss as loss
@@ -115,7 +116,7 @@ async def member_context(member, lot_id, reason, dependencies):
 async def build_scrap(arguments, marker):
     comment = inspection.inspection_comment(arguments.get('comments', ''))
     view = await lots.lot_view(arguments['lot_name'], arguments.get('lot_instance_id'))
-    issues = rework.blockers(view)
+    issues = rework.blockers(view, disposition='报废')
     if issues:
         raise ValueError('不能准备整批报废：' + '；'.join(issues[:12]))
     tasks = await evidence.sampling_tasks(view['members'])
@@ -124,6 +125,9 @@ async def build_scrap(arguments, marker):
     reason = {'name': root['Name'], 'instanceId': root['InstanceID']}
     binding = await reason_binding(reason)
     lid = view['lot']['MfgLotId']
+    from tools.production_reporting import ensure_no_unresolved_throughput,ensure_no_unresolved_collection
+    for row in view['members']:
+        ensure_no_unresolved_throughput(row['ContainerId']);ensure_no_unresolved_collection(row['ContainerId'])
     members = [await member_context(row, lid, reason, dependencies) for row in view['members']]
     body = dict(samplingLot={'name': view['lot']['MfgLotName'], 'instanceId': lid}, samplingLotResult=3,
                 scrapReason=reason, comments=marker + (' ' + comment if comment else ''))
@@ -168,8 +172,27 @@ def validate_transport(snapshot):
     if binding != dict(concrete_type='LossReason', instance_id=snapshot['reason']['instanceId'], load_verified=True):
         raise ValueError('当前部署LossReason绑定未核实。')
     marker = snapshot['marker']
-    if not isinstance(marker, str) or not (body['comments'] == marker or body['comments'].startswith(marker + ' ')):
+    if not isinstance(marker, str) or not re.fullmatch(r'MCP-QUAL:[0-9a-f]{32}',marker) or not (body['comments'] == marker or body['comments'].startswith(marker + ' ')):
         raise ValueError('报废标记不符。')
+
+
+def current_scope_checks(snapshot, current_lot, current):
+    """Native scrap keeps lot membership and lot tasks, removes member tasks.
+
+    Verified against the C4 native result and the Part 5 isolated matrix. Do not
+    equate zero balances alone with an unchanged original production scope.
+    """
+    before=snapshot['before'];lot=current_lot['lot'];original=before['lot']
+    ids={r['ContainerId'] for r in before['members']};members=current_lot['members']
+    return {
+        'original_lot_identity':all(lot.get(k)==original.get(k) for k in ('MfgLotId','MfgLotName','CDOTypeId','ProductId','UOMId','SamplingPlanId','LotStatus'))
+            and inspection.numeric(str(lot['Qty']),'当前批量')==inspection.numeric(str(original['Qty']),'原批量'),
+        'original_complete_membership':len(members)==len(ids) and {r['ContainerId'] for r in members}==ids and set(current)==ids,
+        'original_lot_tasks_preserved':current_lot['tasks']==before['tasks'],
+        'original_member_context':set(current)==ids and all(row and row['SamplingLotId']==snapshot['target_id']
+            and row['CDOTypeId']==1040 and row['CurrentHoldCount']==0 and row['InRework'] is False
+            and not row['ParentContainerId'] and row['ChildCount']==0 and not row['CarrierId'] for row in current.values()),
+    }
 
 
 async def inspect_snapshot(snapshot):
@@ -190,14 +213,15 @@ async def inspect_snapshot(snapshot):
     if await evidence.sampling_tasks(snapshot['before']['members']) != tasks or await lots.lot_view('', snapshot['target_id']) != current_lot:
         raise ValueError('核实报废期间批或成员采样任务变化。')
     return dict(current_lot=current_lot, original_members=current,
+        current_scope_checks=current_scope_checks(snapshot,current_lot,{row['container_id']:row['current_record'] for row in current}),
         sampling_task_cleanup=evidence.cleanup(snapshot.get('member_sampling_tasks'), tasks),
         verified_success=False, retry_allowed=False, state_changed=False, history_correlation_verified=False,
-        note='原成员余额、关闭状态及任务缺失仅为证据；最终原生父子事务须人工review，unknown继续占用。')
+        note='原成员余额、关闭状态及任务缺失仅为证据；须reconcile_quality_execution核对唯一原生父子事务，再review_quality_transaction(resolve_history)核实完整原对象效果。unknown继续占用，不重放。')
 
 
 @mcp.tool
 async def prepare_sampling_lot_scrap(lot_name: str, loss_reason_name: str,
                                    lot_instance_id: str | None = None, comments: str = '') -> str:
-    """准备一次原生ExecuteSamplingLot结果3整批报废。完整1..20个未通过、具备拒收超阈值证据的基础Container成员，Active无冻结/返工/层级/载具/第二单位。loss_reason_name明确选择LossReason，以持久ID核实当前部署ScrapReason槽真实LossReason类型，并核对每个成员Operation完整LossReasons组。逐成员ChangeQty只做execute=false全量LossDetails及原生关闭/生产数量默认值探测，正式仅提交一次整批事务。绑定数量/单位/完整成员及采样任务，变化拒绝旧计划；原生会全量扣量、按默认关闭并清理采样任务。动态效果、原子性与最终历史待现场验收。unknown不重试，inspect原ID证据后人工review。"""
+    """准备一次原生ExecuteSamplingLot结果3整批报废。完整1..20个未通过、具备拒收超阈值证据的基础Container成员，Active无冻结/返工/层级/载具/第二单位。loss_reason_name明确选择LossReason，以持久ID核实当前部署ScrapReason槽真实LossReason类型，并核对每个成员Operation完整LossReasons组。逐成员ChangeQty只做execute=false全量LossDetails及原生关闭/生产数量默认值探测，正式仅提交一次整批事务。绑定数量/单位/完整成员及采样任务，变化拒绝旧计划；原生会全量扣量、按默认关闭并清理成员采样任务，保留原批成员归属和批级任务。execute_quality_transaction单次提交，再reconcile_quality_execution及review_quality_transaction(resolve_history)核实原生父子历史与完整效果结案。HTTP错误/超时/未知不重试；无历史或同值回读不能自动解锁，也不保证所有故障下的原子性。"""
     return await plans.prepare('lot_scrap', dict(lot_name=lot_name, loss_reason_name=loss_reason_name,
         lot_instance_id=lot_instance_id, comments=comments))

@@ -224,3 +224,66 @@ def test_scrap_plan_confirmation_is_required(env):
     calls = [{'function': {'name': 'execute_quality_transaction', 'arguments': json.dumps({
         'plan_id': ready['plan_id'], 'plan_digest': ready['plan_digest']})}}]
     assert evaluate_mutations(MutationCounts(), calls).requires_approval
+
+
+def native_scrap_scope():
+    """The deployed result retains membership/lot tasks after member closure."""
+    lot={'MfgLotId':LOT,'MfgLotName':'L','CDOTypeId':'8587','ProductId':OP,'UOMId':UOM,
+         'SamplingPlanId':GROUP,'LotStatus':1,'Qty':'5'}
+    members=[{'ContainerId':CID},{'ContainerId':CID2}]
+    tasks=[{'LotSampleDataId':key(987),'CompletedSamples':2,'Rejects':2}]
+    snap={'target_id':LOT,'before':{'lot':lot,'members':members,'tasks':tasks}}
+    view=copy.deepcopy(snap['before'])
+    current={cid:{'SamplingLotId':LOT,'CDOTypeId':1040,'CurrentHoldCount':0,'InRework':False,
+                  'ParentContainerId':'','ChildCount':0,'CarrierId':''} for cid in (CID,CID2)}
+    return snap,view,current
+
+
+def test_native_scrap_preserves_complete_original_scope():
+    snap,view,current=native_scrap_scope()
+    assert all(scrap.current_scope_checks(snap,view,current).values())
+
+
+@pytest.mark.parametrize('field,value',[('ProductId',CID),('UOMId',CID),('SamplingPlanId',CID),('Qty','0'),('MfgLotName','replacement')])
+def test_zero_members_cannot_hide_changed_lot_identity_or_quantity(field,value):
+    snap,view,current=native_scrap_scope();view['lot'][field]=value
+    assert not all(scrap.current_scope_checks(snap,view,current).values())
+
+
+@pytest.mark.parametrize('mode',['extra_member','missing_member','new_task','removed_task','changed_task'])
+def test_scrap_success_rejects_membership_or_lot_task_changes(mode):
+    snap,view,current=native_scrap_scope()
+    if mode=='extra_member':view['members'].append({'ContainerId':key(998)})
+    elif mode=='missing_member':view['members'].pop()
+    elif mode=='new_task':view['tasks'].append({'LotSampleDataId':key(998)})
+    elif mode=='removed_task':view['tasks']=[]
+    else:view['tasks'][0]['Rejects']=99
+    assert not all(scrap.current_scope_checks(snap,view,current).values())
+
+
+@pytest.mark.parametrize('field,value',[('SamplingLotId',CID),('CDOTypeId',7939),('CurrentHoldCount',1),
+    ('InRework',True),('ParentContainerId',CID2),('ChildCount',1),('CarrierId',GROUP)])
+def test_scrap_success_rejects_new_member_relationships_or_hold(field,value):
+    snap,view,current=native_scrap_scope();current[CID][field]=value
+    assert not all(scrap.current_scope_checks(snap,view,current).values())
+
+
+@pytest.mark.parametrize('marker',['','MCP-QUAL:short','external-comment','MCP-QUAL:'+'g'*32])
+def test_scrap_requires_a_system_transaction_marker(env,marker):
+    saved=snapshot(prepare());saved['marker']=marker;saved['body']['comments']=marker
+    with pytest.raises(ValueError):scrap.validate_transport(saved)
+
+
+def test_unresolved_production_blocks_whole_lot_disposition(env,monkeypatch):
+    from tools import production_reporting
+    def blocked(cid):
+        if cid==CID2:raise ValueError('Unresolved production attempt')
+    monkeypatch.setattr(production_reporting,'ensure_no_unresolved_throughput',blocked)
+    assert 'error'in prepare()
+    env['client'].request.assert_not_awaited()
+
+
+def test_missing_rejection_evidence_says_scrap_not_rework(env):
+    env['tasks'][0].update(Rejects=0,SamplesFailed=0)
+    error=prepare()['error']
+    assert '不报废'in error and '不返工'not in error

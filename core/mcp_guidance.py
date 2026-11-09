@@ -30,5 +30,13 @@ prepare_related_container_quantity_loss；独立容器用prepare_container_quant
 的载具绑定，须展示完整投影。单次execute_quality_transaction后
 reconcile_quality_execution，再review_quality_transaction(action="resolve_history")核实结案；
 unknown不重发，不能仅凭HTTP200或同值回读认领成功。
+10. SamplingLot整批报废先get_sampling_lot_scrap_readiness（提供明确loss_reason_name），
+再prepare_sampling_lot_scrap。ready_for_execution=false表示只读检查不批准事务，
+不表示报废未接入。限完整1..20个无冻结、非层级/载具/返工/双单位的基础成员，
+须有MES拒收超阈值证据，原因固定为实际LossReason持久ID。正式只执行一次
+ExecuteSamplingLot结果3，不循环成员扣量。核对原生父子历史、所有原成员余额/
+关闭、原批归属和批级任务保留、成员采样任务清理，再resolve_history结案。
+冻结成员拒绝已在隔离批核实未见部分提交；HTTP错误/超时仍保持unknown，
+不能凭错误码或无历史自动解除占用，也不推断所有故障均能原子回滚。
 这些是工具使用建议，不是客户端必然遵循的服务端强制路由；准确性优先于省略必要检查。
 """

@@ -218,10 +218,10 @@
       "groups": [
         "quality"
       ],
-      "status": "partial",
+      "status": "implemented",
       "priority": "P1",
-      "current": "已有显式LossReason ID绑定、完整成员/原因组和原生默认值核对的整批结果3计划。隔离批已验证单次原生执行、两个成员归零关闭、采样清理与最终父子历史。",
-      "missing": "独立报废失败注入尚未验收，已验证的负向场景是冻结成员导致整批返工失败。",
+      "current": "第5部分于2026-11-09完成独立正负现场验收：两成员原生整批报废、2/3 EACH归零关闭、原批成员归属及批级任务保留、成员采样任务清理、唯一原生父子历史和最终效果结案；冻结第二成员时旧计划提交前阻断，原生报废拒绝前后完整证据未变，测试冻结已释放。",
+      "missing": "限完整1..20个Active、无冻结/返工/层级/载具/第二单位的基础成员及MES拒收超阈值证据；不覆盖复杂签名、全检组合或所有故障原子性。HTTP错误/超时仍unknown，不凭错误码或无历史自动解锁。",
       "contracts": [
         "Shopfloor/ExecuteSamplingLot",
         "Shopfloor/SamplingLotTxn",
@@ -229,12 +229,13 @@
         "Modeling/LossReasons"
       ],
       "code": [
-        "tools/quality_lot_rework.py",
+        "tools/quality_lot_scrap.py",
         "tools/quality_quantity_loss.py",
-        "tools/quality_lot_execution.py",
-        "tools/quality_lot_scrap.py"
+        "tools/quality_transaction_audit.py",
+        "tools/quality_disposition_history.py",
+        "scripts/lot_scrap_acceptance.py"
       ],
-      "next_step": "如需扩大失败覆盖，单独验证报废子事务失败时的批状态。"
+      "next_step": "使用专用准备、单次ExecuteSamplingLot结果3、原生历史匹配及resolve_history完整效果结案；详见docs/lot-scrap-completion.md。"
     },
     {
       "id": "G11",
