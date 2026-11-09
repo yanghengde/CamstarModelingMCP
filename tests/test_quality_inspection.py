@@ -55,7 +55,7 @@ def setup(monkeypatch,tmp_path):
     sql_call=AsyncMock(side_effect=sql);monkeypatch.setattr(i.reads,'sql_rows',sql_call)
     async def preview(*a,**kw):
         state['counter']+=1;data=echo(kw['body']);task=state['tasks'][0]
-        data.update(RequiredSamples=str(task['TotalSamplesRequired']),SamplesTested=str(task['CompletedSamples']),
+        data.update(RequiredSamples=str(task['TotalSamplesRequired']),SamplesTested=str(kw['body'].get('samplesTested',task['CompletedSamples'])),
             AllowedRejects=str(task['AllowedRejects']),SampleType=str(state['definition']['test']['SampleType']),SamplingStatus='In Process')
         for n,detail in enumerate(data['ServiceDetails']):
             detail['InstanceId']=f'{state["counter"]+100+n:016x}';detail['Parent']={'InstanceId':f'{state["counter"]+200:016x}'};detail['CDOTypeId']='8462'
@@ -312,7 +312,7 @@ def test_literal_numeric_limits_are_inclusive_and_expressions_not_evaluated():
 def test_prepared_wire_body_conforms_to_archived_live_openapi(setup,kind):
     import jsonschema
     from pathlib import Path
-    schemas=json.loads(Path('docs/quality-fixtures/phase2-contracts.json').read_text(encoding='utf-8'))['CollectSamplingData']['components']['schemas']
+    schemas=json.loads(Path('tests/fixtures/inspection_input_schema.json').read_text(encoding='utf-8'))['components']['schemas']
     setup[0]['definition']=definition(kind)
     ready=counted() if kind==1 else measured([sample('1')])
     jsonschema.Draft7Validator({'components':{'schemas':schemas},'$ref':'#/components/schemas/CollectSamplingData'}).validate(ready['request_preview']['body'])

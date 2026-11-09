@@ -96,6 +96,7 @@ from tools import quality_event_drafts
 from tools import quality_event_data
 from tools import quality_event_logs
 from tools import quality_lot_scrap
+from tools import quality_inspection_event
 from tools import read_orchestration
 
 
@@ -106,6 +107,8 @@ def get_tool_func(name: str):
     """
     if name not in TOOL_POLICIES:
         return None
+    if name == 'prepare_inspection_quality_event':
+        return quality_inspection_event.prepare_inspection_quality_event
     quantity_tool = getattr(quantity_loss_complex, name, None)
     if quantity_tool is not None:
         return quantity_tool

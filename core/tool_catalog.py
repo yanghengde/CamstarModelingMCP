@@ -127,6 +127,7 @@ TOOL_POLICIES = {
     'get_inspection_test_definition': ToolPolicy('quality'),
     'get_container_inspection_tasks': ToolPolicy('quality'),
     'prepare_container_inspection': ToolPolicy('quality'),
+    'prepare_inspection_quality_event': ToolPolicy('quality'),
     'get_container_inspection_history': ToolPolicy('quality'),
     'prepare_inspection_definition': ToolPolicy('quality'),
     'prepare_product_sampling_plan': ToolPolicy('quality'),

@@ -229,6 +229,9 @@ async def build_capa_closure(args,marker):
 
 async def build(kind,args,marker,execution_binding=None):
     if not isinstance(marker,str) or not re.fullmatch(r'MCP-QUAL:[0-9a-f]{32}',marker):raise ValueError('质量事务关联标记无效。')
+    if kind=='inspection_event':
+        from tools.quality_inspection_event import build
+        return await build(args,marker)
     if kind=='capa_approval_revision':
         from tools.quality_capa_approval_revision import build
         return await build(args,marker)
@@ -384,6 +387,9 @@ def checked(row,fingerprint):
 
 def transport(snapshot):
     if snapshot.get('api','shopfloor')=='shopfloor':
+        if snapshot.get('kind')=='inspection_event' or snapshot.get('service')=='CreateProductionEvent':
+            from tools.quality_inspection_event import validate_transport
+            validate_transport(snapshot)
         if snapshot.get('kind')=='quality_approval_delegation':
             from tools.quality_approval_delegation import validate_transport
             validate_transport(snapshot)
@@ -448,7 +454,7 @@ def transport(snapshot):
         if snapshot.get('kind')=='quantity_loss' and snapshot.get('service')!='ChangeQty':
             raise ValueError('数量损失计划必须使用ChangeQty。')
         if snapshot.get('service') not in ('NCRCreate','NCRUpdate','NCRClose','NCRCloseQuality','NCREscalate','CreateCAPA','UpdateCAPA','CloseQualityObject',
-                'CollectSamplingData','CreateSamplingLot','CollectLotSamplingData','ExecuteSamplingLot','UpdateSamplingLot','CurrentSamplingStatusUpdate','ChangeQty','AddSPCAnnotation','RecordSPCViolation','TriageQualityObject','UpdateEvent','OpenQualityObject','ChangeOwner','CreateEvent','RouteApprovalSheet','CancelApprovalSheet','SignApproval','AssignApprovalSheet','DelegateTask','UpdateEventData','UpdateEventLogs'):
+                'CollectSamplingData','CreateProductionEvent','CreateSamplingLot','CollectLotSamplingData','ExecuteSamplingLot','UpdateSamplingLot','CurrentSamplingStatusUpdate','ChangeQty','AddSPCAnnotation','RecordSPCViolation','TriageQualityObject','UpdateEvent','OpenQualityObject','ChangeOwner','CreateEvent','RouteApprovalSheet','CancelApprovalSheet','SignApproval','AssignApprovalSheet','DelegateTask','UpdateEventData','UpdateEventLogs'):
             raise ValueError('质量服务不在执行白名单。')
         if snapshot.get('service')=='UpdateEvent':
             if snapshot.get('kind')=='event_submit':
@@ -506,7 +512,7 @@ def transport(snapshot):
                     or body['samplingLot'].get('instanceId')!=snapshot['target_id']):
                 raise ValueError('批维护服务、目标或允许字段不符。')
         params={'execute':'true'}
-        if snapshot['kind']=='event_create':params['$select']='QualityObject,CompletionMsg,Comments,ACEStatus,ACEMessage'
+        if snapshot['kind'] in ('event_create','inspection_event'):params['$select']='QualityObject,CompletionMsg,Comments,ACEStatus,ACEMessage'
         if snapshot['kind']=='capa_approval_revision':params['$select']='QualityObject,Comments,CompletionMsg,ACEStatus,ACEMessage'
         if snapshot['kind']=='quality_approval_assignment':params['$select']='QualityObject,ApprovalSheet,Comments,CompletionMsg,ACEStatus,ACEMessage'
         if snapshot['kind']=='quality_approval_decision':params['$select']='QualityObject,ApprovalSheet,ApprovalSheetEntry,ApprovalDecision,Comments,CompletionMsg,ACEStatus,ACEMessage'
@@ -713,6 +719,11 @@ async def inspect_quality_transaction(plan_id:str,plan_digest:str)->str:
             with db_connect() as db:row=db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone()
             snap=checked(row,plan_digest)
             if row[2] not in ('unknown','in_flight'):raise ValueError('仅检查已尝试/未知质量计划。')
+            if snap['kind']=='inspection_event':
+                from tools.quality_inspection_event import verify
+                from tools.quality_history import attempted_plan
+                _,_,attempt=attempted_plan(plan_id,plan_digest)
+                return encode(await verify(snap,attempt))
             if snap['kind']=='event_submit':
                 from tools.quality_event_submission import inspect
                 return encode(await inspect(snap))
@@ -828,17 +839,24 @@ async def inspect_quality_transaction(plan_id:str,plan_digest:str)->str:
 
 
 @mcp.tool
-async def review_quality_transaction(plan_id:str,plan_digest:str,action:Literal['recover','resolve','resolve_history'],evidence_reference:str,
+async def review_quality_transaction(plan_id:str,plan_digest:str,action:Literal['recover','resolve','resolve_history','resolve_rejection'],evidence_reference:str,
         review_note:str,conclusion:Literal['committed','not_committed','unknown']='unknown')->str:
-    """须确认的本地质量事务审计。recover把已停的in_flight转为unknown。resolve登记人工最终证据。resolve_history仅用于单容器损失、整批报废和返工，conclusion填committed，evidence_reference填已核对原生TxnId；复查历史和原对象当前效果后登记本地结论。证据不足时保留占用，原计划不可重放。"""
+    """须确认的本地质量事务审计。recover把已停的in_flight转为unknown；resolve登记人工最终证据。
+    resolve_history对已覆盖的数量损失、整批处置、计数检验扣量及关联事件核对原生TxnId和全部最终效果，conclusion=committed。
+    resolve_rejection仅对关联事件原生明确编号配置/字面值语法/服务权限拒绝，完整原响应与原检验/组织配置及事件/历史均重读核对，conclusion=not_committed、evidence_reference=native:原错误码；不是按HTTP错误或无历史通用解锁。
+    证据不足保留占用；结案不授权重放原计划、绕过权限或更改账号。"""
     try:
-        if action not in ('recover','resolve','resolve_history') or conclusion not in ('committed','not_committed','unknown'):raise ValueError('审计动作/结论无效。')
+        if action not in ('recover','resolve','resolve_history','resolve_rejection') or conclusion not in ('committed','not_committed','unknown'):raise ValueError('审计动作/结论无效。')
         if action=='recover' and conclusion!='unknown':raise ValueError('进程恢复不作服务端结论。')
         if not isinstance(evidence_reference,str) or not 1<=len(evidence_reference.strip())<=2000 or not isinstance(review_note,str) or not 10<=len(review_note.strip())<=4000:raise ValueError('须有证据引用及至少10字符核对说明。')
         if action=='resolve_history':
             if conclusion!='committed' or not reads.valid_id(evidence_reference):
                 raise ValueError('历史结案须指定committed及16位原生事务ID。')
             return encode(await resolve_verified_history(plan_id,plan_digest,evidence_reference,review_note))
+        if action=='resolve_rejection':
+            if conclusion!='not_committed'or evidence_reference not in ('native:13501022','native:2424841','native:13369354'):raise ValueError('仅支持明确生产事件编号配置/字面值语法/服务权限拒绝取证。')
+            from tools.quality_inspection_event_rejection import resolve
+            return encode(await resolve(plan_id,plan_digest,review_note,evidence_reference))
         with attempt_lock(PLAN_DB,plan_id),db_connect() as db:
             db.execute('BEGIN IMMEDIATE');row=db.execute('SELECT digest,payload,state,created,outcome FROM plans WHERE id=?',(plan_id,)).fetchone();checked(row,plan_digest)
             if row[2]!=('in_flight' if action=='recover' else 'unknown') or not db.execute('SELECT 1 FROM attempts WHERE plan_id=?',(plan_id,)).fetchone():raise ValueError('当前状态/提交尝试记录不允许该审计。')

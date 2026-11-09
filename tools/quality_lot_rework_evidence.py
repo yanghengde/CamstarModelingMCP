@@ -16,7 +16,7 @@ async def sampling_tasks(members):
     ids = member_ids(members)
     await schema_check({'ContainerSampleData': inspection.TASK_COLUMNS})
     clause = ','.join(q.literal(key) for key in ids)
-    rows = await q.sql_rows('SELECT TOP 201 ' + inspection.TASK_COLUMNS
+    rows = await q.sql_rows('SELECT TOP 201 ' + inspection.TASK_SELECT
         + ' FROM ContainerSampleData WHERE ContainerId IN (' + clause + ') ORDER BY ContainerSampleDataId', 201)
     if not isinstance(rows, list) or len(rows) > 200:
         raise ValueError('成员采样任务超过200条或未完整读取。')

@@ -1,0 +1,3688 @@
+{
+  "capture_date": "2026-11-09",
+  "origin": "isolated CDX-L6 native MES histories and exact original-task readback; URLs replaced, no credentials",
+  "cases": {
+    "sample_warmup": {
+      "snapshot": {
+        "kind": "inspection",
+        "action": "collect",
+        "inspection_input_version": 2,
+        "name": "CDX-L6-20261109-S",
+        "target_id": "0004108000000125",
+        "scope_key": "inspection-container:0004108000000125",
+        "before": {
+          "container": {
+            "ContainerId": "0004108000000125",
+            "ContainerName": "CDX-L6-20261109-S",
+            "ProductId": "00062c80000000b8",
+            "Status": 1,
+            "CurrentHoldCount": 0,
+            "InQualityControl": "0",
+            "SamplingRequired": true,
+            "SamplingPassed": false,
+            "SamplingLotId": "",
+            "Qty": "10",
+            "ChangeCount": 1
+          },
+          "task": {
+            "ContainerSampleDataId": "002106800000001f",
+            "ContainerId": "0004108000000125",
+            "SamplingPlanId": "0020f8800000001c",
+            "SampleTestId": "0020f7800000001c",
+            "InspectionLevelId": "0020ef8000000002",
+            "AQLLevelId": "0020ee8000000002",
+            "TotalSamplesRequired": 2,
+            "CompletedSamples": 0,
+            "Rejects": 0,
+            "AllowedRejects": 1,
+            "InspectAllContQty": false,
+            "InspectAllQtyOnFailure": false,
+            "ChangeCount": 1
+          },
+          "container_status": {
+            "Container": {
+              "InstanceId": "0004108000000125",
+              "CDOTypeName": "Container",
+              "Name": "CDX-L6-20261109-S"
+            },
+            "Spec": {
+              "InstanceId": "00071c80000000b5",
+              "CDOTypeName": "Spec",
+              "Name": "CDX-L6-20261109-SPEC",
+              "Revision": "1"
+            },
+            "Step": {
+              "InstanceId": "00074e80000000b5",
+              "CDOTypeName": "SpecStep",
+              "Name": "Inspect",
+              "Parent": {
+                "@odata.type": "#inquiry.RevisionedObjectRef",
+                "InstanceId": "0005aa80000000cd",
+                "CDOTypeName": "Workflow",
+                "Name": "CDX-L6-20261109-WF",
+                "Revision": "1"
+              }
+            },
+            "Workflow": {
+              "InstanceId": "0005aa80000000cd",
+              "CDOTypeName": "Workflow",
+              "Name": "CDX-L6-20261109-WF",
+              "Revision": "1"
+            },
+            "Operation": {
+              "InstanceId": "00060e80000000b5",
+              "CDOTypeName": "Operation",
+              "Name": "CDX-L6-20261109-OP"
+            },
+            "Product": {
+              "InstanceId": "00062c80000000b8",
+              "CDOTypeName": "Product",
+              "Name": "CDX-L6-20261109-PRODUCT",
+              "Revision": "1"
+            },
+            "Qty": 10.0,
+            "Status": 1
+          }
+        },
+        "definition": {
+          "test": {
+            "InstanceID": "0020f7800000001c",
+            "Name": "CDX-L6-20261109-SAMPLE",
+            "Revision": "1",
+            "Status": 1,
+            "IsFrozen": false,
+            "SampleType": 1,
+            "Instructions": null,
+            "AllowMoveOnFailure": false,
+            "AQLRejectReasons": {
+              "InstanceId": "0016588000000037",
+              "CDOTypeName": "LossReasonGroup",
+              "Name": "CDX-L6-20261109-GROUP"
+            },
+            "DecreaseByRejectCountReason": null,
+            "DecreaseBySampleSizeReason": {
+              "InstanceId": "00102c800000004f",
+              "CDOTypeName": "LossReason",
+              "Name": "CDX-L6-20261109-A"
+            },
+            "DefaultFailureMode": null,
+            "DefaultPEDescription": null,
+            "Classification": null,
+            "SubClassification": null,
+            "ScrapCountedRejectsByReason": false
+          },
+          "points": [],
+          "reject_reasons": [
+            {
+              "name": "CDX-L6-20261109-A",
+              "instanceId": "00102c800000004f"
+            },
+            {
+              "name": "CDX-L6-20261109-B",
+              "instanceId": "00102c8000000050"
+            }
+          ],
+          "reject_group": {
+            "Name": "CDX-L6-20261109-GROUP",
+            "InstanceID": "0016588000000037"
+          }
+        },
+        "service": "CollectSamplingData",
+        "body": {
+          "container": {
+            "name": "CDX-L6-20261109-S",
+            "instanceId": "0004108000000125"
+          },
+          "sampleTest": {
+            "name": "CDX-L6-20261109-SAMPLE",
+            "revision": "1",
+            "instanceId": "0020f7800000001c"
+          },
+          "sampleType": 1,
+          "serviceDetails": [
+            {
+              "sampleTest": {
+                "name": "CDX-L6-20261109-SAMPLE",
+                "revision": "1",
+                "instanceId": "0020f7800000001c"
+              },
+              "totalSamplesCollected": 1,
+              "rejects": 0,
+              "rejected": false
+            }
+          ],
+          "moveContainerOnCompletion": false,
+          "comments": "MCP-QUAL:6df446505a9747e683340f8f4625a28e",
+          "samplesTested": 1
+        },
+        "marker": "MCP-QUAL:6df446505a9747e683340f8f4625a28e",
+        "preview": {
+          "params": {
+            "execute": "false",
+            "$select": "Container,SampleTest,ServiceDetails,MoveContainerOnCompletion,Comments,RequiredSamples,SamplesTested,AllowedRejects,SampleType,SamplingStatus,ContainerSampleDataItem",
+            "$expand": "ServiceDetails($select=SampleTest,TotalSamplesCollected,Rejects,Rejected;$expand=SamplingDataPointDetails($select=SampleDataPoint,DataValue,Passed,RejectReason))"
+          },
+          "verified_input_echo": {
+            "container": {
+              "name": "CDX-L6-20261109-S",
+              "instanceId": "0004108000000125"
+            },
+            "sampleTest": {
+              "name": "CDX-L6-20261109-SAMPLE",
+              "revision": "1",
+              "instanceId": "0020f7800000001c"
+            },
+            "sampleType": 1,
+            "serviceDetails": [
+              {
+                "sampleTest": {
+                  "name": "CDX-L6-20261109-SAMPLE",
+                  "revision": "1",
+                  "instanceId": "0020f7800000001c"
+                },
+                "totalSamplesCollected": 1,
+                "rejects": 0,
+                "rejected": false
+              }
+            ],
+            "moveContainerOnCompletion": false,
+            "comments": "MCP-QUAL:6df446505a9747e683340f8f4625a28e",
+            "samplesTested": 1
+          },
+          "task_context": {
+            "RequiredSamples": "2",
+            "SamplesTested": "1",
+            "AllowedRejects": "1",
+            "SampleType": "1",
+            "SamplingStatus": null
+          },
+          "dynamic_validation_verified": false,
+          "detail_contract": "shopfloor.CollectSamplingDataDetails",
+          "point_contract": "shopfloor.SamplingDataPointDetails",
+          "response_dynamic_type_verified": false,
+          "local_checks": [
+            {
+              "group_number": 1,
+              "samples_collected": 1,
+              "rejects": 0,
+              "reject_reason": null,
+              "sample_partition_verified": false
+            }
+          ],
+          "samples_this_submission": 1,
+          "rejects_this_submission": 0,
+          "result_semantics": "literal numeric precheck only; MES final result and release unverified",
+          "automatic_move": false,
+          "quantity_or_event_effects_supported": true,
+          "counted_groups_this_submission": 1,
+          "sample_partition_verified": false,
+          "counted_group_accumulation_verified": false,
+          "counted_reason_history_verified": false,
+          "counted_group_semantics": "explicit disjoint cohorts; per-group counts are never allocated from a global total",
+          "native_effects": {
+            "mode": "counted_sample_size_loss",
+            "allow_full_inspection": false,
+            "allow_automatic_quantity_loss": true,
+            "runtime_effects_verified": false,
+            "deployed_logic_overrides_verified": false,
+            "quality_verdict": null,
+            "separate_quantity_submission": false,
+            "unit": {
+              "name": "EACH",
+              "instanceId": "0008de8000000002"
+            },
+            "automatic_quantity_loss": {
+              "basis": "explicit current counted SamplesTested",
+              "quantity": "1",
+              "projected_remaining_quantity": "9",
+              "reason": {
+                "name": "CDX-L6-20261109-A",
+                "instanceId": "00102c800000004f"
+              },
+              "native_child_defaults": {
+                "root": {
+                  "CloseWhenZero": true,
+                  "DisassociateWhenClosed": true,
+                  "GenerateRollups": true,
+                  "RecordAllQtySummaryOnly": true
+                },
+                "adjust_throughput": true,
+                "record_all_quantity": false,
+                "detail_type": 4030,
+                "quantity_multiplier": -1,
+                "counts_against_production": true,
+                "runtime_child_execution_verified": false
+              },
+              "allow_zero_quantity_loss": false,
+              "projected_close": false,
+              "projection_is_execution_result": false,
+              "note": "只提交一次CollectSamplingData，MES内部创建LossDetails；本工具不再提交ChangeQty。标准CLF内部把子服务ProcessESignatures设false，本工具不覆盖父事务签名；部署及签名链未验证。"
+            }
+          }
+        },
+        "arguments": {
+          "container_name": "CDX-L6-20261109-S",
+          "sample_test_name": "CDX-L6-20261109-SAMPLE",
+          "sample_test_revision": "1",
+          "container_instance_id": null,
+          "samples_collected": null,
+          "rejects": null,
+          "reject_reason_name": null,
+          "samples": null,
+          "comments": "",
+          "counted_groups": [
+            {
+              "samples_collected": 1,
+              "rejects": 0,
+              "reject_reason_name": null
+            }
+          ],
+          "allow_full_inspection": false,
+          "allow_automatic_quantity_loss": true,
+          "allow_zero_quantity_loss": false
+        },
+        "environment": {
+          "modeling": "https://test.invalid/Modeling",
+          "query": "https://test.invalid/Query",
+          "shopfloor": "https://test.invalid/Shopfloor"
+        },
+        "inspection_effects": {
+          "context": {
+            "mode": "counted_sample_size_loss",
+            "allow_full_inspection": false,
+            "allow_automatic_quantity_loss": true,
+            "runtime_effects_verified": false,
+            "deployed_logic_overrides_verified": false,
+            "quality_verdict": null,
+            "separate_quantity_submission": false,
+            "unit": {
+              "name": "EACH",
+              "instanceId": "0008de8000000002"
+            },
+            "automatic_quantity_loss": {
+              "basis": "explicit current counted SamplesTested",
+              "quantity": "1",
+              "projected_remaining_quantity": "9",
+              "reason": {
+                "name": "CDX-L6-20261109-A",
+                "instanceId": "00102c800000004f"
+              },
+              "native_child_defaults": {
+                "root": {
+                  "CloseWhenZero": true,
+                  "DisassociateWhenClosed": true,
+                  "GenerateRollups": true,
+                  "RecordAllQtySummaryOnly": true
+                },
+                "adjust_throughput": true,
+                "record_all_quantity": false,
+                "detail_type": 4030,
+                "quantity_multiplier": -1,
+                "counts_against_production": true,
+                "runtime_child_execution_verified": false
+              },
+              "allow_zero_quantity_loss": false,
+              "projected_close": false,
+              "projection_is_execution_result": false,
+              "note": "只提交一次CollectSamplingData，MES内部创建LossDetails；本工具不再提交ChangeQty。标准CLF内部把子服务ProcessESignatures设false，本工具不覆盖父事务签名；部署及签名链未验证。"
+            }
+          },
+          "container": {
+            "ContainerId": "0004108000000125",
+            "ContainerName": "CDX-L6-20261109-S",
+            "CDOTypeId": 1040,
+            "Status": 1,
+            "CurrentHoldCount": 0,
+            "ChangeCount": 1,
+            "ProductId": "00062c80000000b8",
+            "SamplingLotId": "",
+            "ParentContainerId": "",
+            "ChildCount": 0,
+            "Qty": "10",
+            "Qty2": "",
+            "UOMId": "0008de8000000002",
+            "UOM2Id": "",
+            "CurrentStatusId": "00085c8000000125",
+            "StatusRecordId": "00085c8000000125",
+            "CarrierId": "",
+            "InRework": false,
+            "SpecId": "00071c80000000b5",
+            "WorkflowStepId": "00074e80000000b5"
+          },
+          "container_status": {
+            "Container": {
+              "InstanceId": "0004108000000125",
+              "CDOTypeName": "Container",
+              "Name": "CDX-L6-20261109-S"
+            },
+            "Spec": {
+              "InstanceId": "00071c80000000b5",
+              "CDOTypeName": "Spec",
+              "Name": "CDX-L6-20261109-SPEC",
+              "Revision": "1"
+            },
+            "Step": {
+              "InstanceId": "00074e80000000b5",
+              "CDOTypeName": "SpecStep",
+              "Name": "Inspect",
+              "Parent": {
+                "@odata.type": "#inquiry.RevisionedObjectRef",
+                "InstanceId": "0005aa80000000cd",
+                "CDOTypeName": "Workflow",
+                "Name": "CDX-L6-20261109-WF",
+                "Revision": "1"
+              }
+            },
+            "Workflow": {
+              "InstanceId": "0005aa80000000cd",
+              "CDOTypeName": "Workflow",
+              "Name": "CDX-L6-20261109-WF",
+              "Revision": "1"
+            },
+            "Operation": {
+              "InstanceId": "00060e80000000b5",
+              "CDOTypeName": "Operation",
+              "Name": "CDX-L6-20261109-OP"
+            },
+            "Product": {
+              "InstanceId": "00062c80000000b8",
+              "CDOTypeName": "Product",
+              "Name": "CDX-L6-20261109-PRODUCT",
+              "Revision": "1"
+            },
+            "Qty": 10.0,
+            "Status": 1,
+            "InProcess": true
+          },
+          "dependencies": [
+            {
+              "entity": "SampleTests",
+              "InstanceID": "0020f7800000001c",
+              "Name": "CDX-L6-20261109-SAMPLE",
+              "Revision": "1",
+              "ChangeCount": 1,
+              "content_digest": "0c9efa1a9a462e878bab550c563ae48a74efa923abe7d424d4006aba26c7a138"
+            },
+            {
+              "entity": "Specs",
+              "InstanceID": "00071c80000000b5",
+              "Name": "CDX-L6-20261109-SPEC",
+              "Revision": "1",
+              "ChangeCount": 1,
+              "content_digest": "437a1dcf3e3fb61f7c1f0c9e6fff18428ed8a4b97a2a1881ac91bed6e058d386"
+            },
+            {
+              "entity": "UOMs",
+              "InstanceID": "0008de8000000002",
+              "Name": "EACH",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "d4e20313edadb208753477627d189e41c946cc0d600103cf34820642eb2a6f23"
+            },
+            {
+              "entity": "Operations",
+              "InstanceID": "00060e80000000b5",
+              "Name": "CDX-L6-20261109-OP",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "d3ca7aee7b28de15fc9e1ead978bbd31ec2af72e391785be0420c017b2b1db87"
+            },
+            {
+              "entity": "LossReasons",
+              "InstanceID": "00102c800000004f",
+              "Name": "CDX-L6-20261109-A",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "993dc4b2ecdb4ed8e8fb55359585b4f52c3a9d1f57ddbaf87c5d940eb576d1c0"
+            },
+            {
+              "entity": "LossReasonGroups",
+              "InstanceID": "0016588000000037",
+              "Name": "CDX-L6-20261109-GROUP",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "3ee83b598e063ab96e1c200ecfab41e99dc790c214341aa6c764621640463bf3"
+            }
+          ],
+          "resource_reads": [
+            "modeling:LossReasonGroups:id:0016588000000037",
+            "modeling:LossReasonGroups:name:cdx-l6-20261109-group",
+            "modeling:LossReasons:id:00102c800000004f",
+            "modeling:LossReasons:name:cdx-l6-20261109-a",
+            "modeling:Operations:id:00060e80000000b5",
+            "modeling:Operations:name:cdx-l6-20261109-op",
+            "modeling:SampleTests:id:0020f7800000001c",
+            "modeling:SampleTests:name:cdx-l6-20261109-sample",
+            "modeling:Specs:id:00071c80000000b5",
+            "modeling:Specs:name:cdx-l6-20261109-spec",
+            "modeling:UOMs:id:0008de8000000002",
+            "modeling:UOMs:name:each"
+          ]
+        },
+        "resource_reads": [
+          "modeling:LossReasonGroups:id:0016588000000037",
+          "modeling:LossReasonGroups:name:cdx-l6-20261109-group",
+          "modeling:LossReasons:id:00102c800000004f",
+          "modeling:LossReasons:name:cdx-l6-20261109-a",
+          "modeling:Operations:id:00060e80000000b5",
+          "modeling:Operations:name:cdx-l6-20261109-op",
+          "modeling:SampleTests:id:0020f7800000001c",
+          "modeling:SampleTests:name:cdx-l6-20261109-sample",
+          "modeling:Specs:id:00071c80000000b5",
+          "modeling:Specs:name:cdx-l6-20261109-spec",
+          "modeling:UOMs:id:0008de8000000002",
+          "modeling:UOMs:name:each"
+        ],
+        "inspection_evidence_version": 1
+      },
+      "attempt": {
+        "attempt_id": "c80cbdeec92240b79f34138cf8a7843b",
+        "started": 1794222813.317466,
+        "finished": 1794222813.508254
+      },
+      "root": {
+        "HistoryMainlineId": "00098880000002a7",
+        "HistoryId": "0004108000000125",
+        "TxnId": "4000000000010444",
+        "TxnDateGMT": "2026-11-09T11:13:32.510",
+        "TxnType": "8452",
+        "TxnTypeName": "CollectSamplingData",
+        "IntegrationTxnId": "00098880000002a7",
+        "ReversalStatus": "1",
+        "Comments": "MCP-QUAL:6df446505a9747e683340f8f4625a28e",
+        "ContainerId": "0004108000000125",
+        "ContainerName": "CDX-L6-20261109-S",
+        "ContainerChangeCount": "1",
+        "ProductId": "00062c80000000b8",
+        "OperationId": "00060e80000000b5",
+        "SpecId": "00071c80000000b5",
+        "WorkflowStepId": "00074e80000000b5",
+        "Qty": "10",
+        "Qty2": "",
+        "ToQty": "9",
+        "ToQty2": "",
+        "InRework": "false"
+      },
+      "evidence": {
+        "native": {
+          "mainlines": [
+            {
+              "HistoryMainlineId": "00098880000002a7",
+              "HistoryId": "0004108000000125",
+              "TxnId": "4000000000010444",
+              "TxnDateGMT": "2026-11-09T11:13:32.510",
+              "TxnType": "8452",
+              "TxnTypeName": "CollectSamplingData",
+              "IntegrationTxnId": "00098880000002a7",
+              "ReversalStatus": "1",
+              "Comments": "MCP-QUAL:6df446505a9747e683340f8f4625a28e",
+              "ContainerId": "0004108000000125",
+              "ContainerName": "CDX-L6-20261109-S",
+              "ContainerChangeCount": "1",
+              "ProductId": "00062c80000000b8",
+              "OperationId": "00060e80000000b5",
+              "SpecId": "00071c80000000b5",
+              "WorkflowStepId": "00074e80000000b5",
+              "Qty": "10",
+              "Qty2": "",
+              "ToQty": "9",
+              "ToQty2": "",
+              "InRework": "false"
+            },
+            {
+              "HistoryMainlineId": "00098880000002a8",
+              "HistoryId": "0004108000000125",
+              "TxnId": "4000000000010444",
+              "TxnDateGMT": "2026-11-09T11:13:32.510",
+              "TxnType": "4000",
+              "TxnTypeName": "ChangeQty",
+              "IntegrationTxnId": "00098880000002a7",
+              "ReversalStatus": "1",
+              "Comments": "",
+              "ContainerId": "0004108000000125",
+              "ContainerName": "CDX-L6-20261109-S",
+              "ContainerChangeCount": "1",
+              "ProductId": "00062c80000000b8",
+              "OperationId": "00060e80000000b5",
+              "SpecId": "00071c80000000b5",
+              "WorkflowStepId": "00074e80000000b5",
+              "Qty": "10",
+              "Qty2": "",
+              "ToQty": "9",
+              "ToQty2": "",
+              "InRework": "false"
+            }
+          ],
+          "summaries": [
+            {
+              "QtyHistoryId": "0013d88000000025",
+              "HistoryMainlineId": "00098880000002a8",
+              "HistoryId": "0004108000000125",
+              "TxnId": "4000000000010444",
+              "IntegrationTxnId": "00098880000002a7",
+              "CDOTypeId": "5080",
+              "Qty": "-1",
+              "Qty2": "",
+              "CloseWhenZero": "true",
+              "ThruputSummary": "false"
+            }
+          ],
+          "details": [
+            {
+              "QtyHistoryDetailsId": "001b148000000025",
+              "QtyHistoryId": "0013d88000000025",
+              "HistoryId": "0004108000000125",
+              "TxnId": "4000000000010444",
+              "IntegrationTxnId": "00098880000002a7",
+              "CDOTypeId": "6932",
+              "ContainerId": "0004108000000125",
+              "ProductId": "00062c80000000b8",
+              "OperationId": "00060e80000000b5",
+              "ChargeToStepId": "00074e80000000b5",
+              "ReasonCodeId": "00102c800000004f",
+              "ChangeQtyType": "2",
+              "QtyMultiplier": "-1",
+              "Qty": "1",
+              "Qty2": "",
+              "UOMId": "0008de8000000002",
+              "UOM2Id": "",
+              "AdjustThruput": "true",
+              "CountsAgainstProduction": "true",
+              "RecordAllQty": "false",
+              "CloseWhenZero": "true",
+              "ThisContainerClosed": "false",
+              "ThisContainerDisassociated": "false",
+              "IsRollup": "false"
+            }
+          ]
+        },
+        "summary": {
+          "CollectSamplingDataHistoryId": "00210d8000000002",
+          "HistoryId": "0004108000000125",
+          "HistoryMainlineId": "00098880000002a7",
+          "TxnId": "4000000000010444",
+          "CDOTypeId": "8461",
+          "SampleTestId": "0020f7800000001c",
+          "SamplingPlanId": "0020f8800000001c",
+          "ProductId": "00062c80000000b8",
+          "SpecId": "00071c80000000b5",
+          "InspectionLevelId": "0020ef8000000002",
+          "AQLLevelId": "0020ee8000000002",
+          "RequiredSamples": "2",
+          "SamplesTested": "1",
+          "TotalSamplesCompleted": "1",
+          "TotalRejects": "0",
+          "TotalPassedSamples": "1",
+          "AllowedRejects": "1",
+          "SamplingStatus": "In Process"
+        },
+        "samples": [
+          {
+            "sample_history": {
+              "InstanceID": "00210b800000001f",
+              "ParentId": "00210d8000000002",
+              "HistoryId": "0004108000000125",
+              "TxnId": "4000000000010444",
+              "SampleTestId": "0020f7800000001c",
+              "SampleTestName": "CDX-L6-20261109-SAMPLE",
+              "Rejected": "false",
+              "Rejects": "0",
+              "SampleTest": {
+                "InstanceID": "0020f7800000001c"
+              }
+            },
+            "points": []
+          }
+        ]
+      },
+      "current": {
+        "container": {
+          "ContainerId": "0004108000000125",
+          "ContainerName": "CDX-L6-20261109-S",
+          "CDOTypeId": 1040,
+          "Status": 1,
+          "CurrentHoldCount": 0,
+          "ChangeCount": 2,
+          "ProductId": "00062c80000000b8",
+          "SamplingLotId": "",
+          "ParentContainerId": "",
+          "ChildCount": 0,
+          "Qty": "9",
+          "Qty2": "",
+          "UOMId": "0008de8000000002",
+          "UOM2Id": "",
+          "CurrentStatusId": "00085c8000000125",
+          "StatusRecordId": "00085c8000000125",
+          "CarrierId": "",
+          "InRework": false,
+          "SpecId": "00071c80000000b5",
+          "WorkflowStepId": "00074e80000000b5"
+        },
+        "original_task": {
+          "ContainerSampleDataId": "002106800000001f",
+          "ContainerId": "0004108000000125",
+          "SamplingPlanId": "0020f8800000001c",
+          "SampleTestId": "0020f7800000001c",
+          "InspectionLevelId": "0020ef8000000002",
+          "AQLLevelId": "0020ee8000000002",
+          "TotalSamplesRequired": 2,
+          "CompletedSamples": 1,
+          "Rejects": 0,
+          "AllowedRejects": 1,
+          "InspectAllContQty": false,
+          "InspectAllQtyOnFailure": false,
+          "ChangeCount": 2
+        },
+        "task_missing": false,
+        "note": "原任务ID、完整累计及恰好一次版本变化核对；同值回读仍须唯一父子原生历史。"
+      }
+    },
+    "sample_groups": {
+      "snapshot": {
+        "kind": "inspection",
+        "action": "collect",
+        "inspection_input_version": 2,
+        "name": "CDX-L6-20261109-S",
+        "target_id": "0004108000000125",
+        "scope_key": "inspection-container:0004108000000125",
+        "before": {
+          "container": {
+            "ContainerId": "0004108000000125",
+            "ContainerName": "CDX-L6-20261109-S",
+            "ProductId": "00062c80000000b8",
+            "Status": 1,
+            "CurrentHoldCount": 0,
+            "InQualityControl": "0",
+            "SamplingRequired": true,
+            "SamplingPassed": false,
+            "SamplingLotId": "",
+            "Qty": "9",
+            "ChangeCount": 2
+          },
+          "task": {
+            "ContainerSampleDataId": "002106800000001f",
+            "ContainerId": "0004108000000125",
+            "SamplingPlanId": "0020f8800000001c",
+            "SampleTestId": "0020f7800000001c",
+            "InspectionLevelId": "0020ef8000000002",
+            "AQLLevelId": "0020ee8000000002",
+            "TotalSamplesRequired": 2,
+            "CompletedSamples": 1,
+            "Rejects": 0,
+            "AllowedRejects": 1,
+            "InspectAllContQty": false,
+            "InspectAllQtyOnFailure": false,
+            "ChangeCount": 2
+          },
+          "container_status": {
+            "Container": {
+              "InstanceId": "0004108000000125",
+              "CDOTypeName": "Container",
+              "Name": "CDX-L6-20261109-S"
+            },
+            "Spec": {
+              "InstanceId": "00071c80000000b5",
+              "CDOTypeName": "Spec",
+              "Name": "CDX-L6-20261109-SPEC",
+              "Revision": "1"
+            },
+            "Step": {
+              "InstanceId": "00074e80000000b5",
+              "CDOTypeName": "SpecStep",
+              "Name": "Inspect",
+              "Parent": {
+                "@odata.type": "#inquiry.RevisionedObjectRef",
+                "InstanceId": "0005aa80000000cd",
+                "CDOTypeName": "Workflow",
+                "Name": "CDX-L6-20261109-WF",
+                "Revision": "1"
+              }
+            },
+            "Workflow": {
+              "InstanceId": "0005aa80000000cd",
+              "CDOTypeName": "Workflow",
+              "Name": "CDX-L6-20261109-WF",
+              "Revision": "1"
+            },
+            "Operation": {
+              "InstanceId": "00060e80000000b5",
+              "CDOTypeName": "Operation",
+              "Name": "CDX-L6-20261109-OP"
+            },
+            "Product": {
+              "InstanceId": "00062c80000000b8",
+              "CDOTypeName": "Product",
+              "Name": "CDX-L6-20261109-PRODUCT",
+              "Revision": "1"
+            },
+            "Qty": 9.0,
+            "Status": 1
+          }
+        },
+        "definition": {
+          "test": {
+            "InstanceID": "0020f7800000001c",
+            "Name": "CDX-L6-20261109-SAMPLE",
+            "Revision": "1",
+            "Status": 1,
+            "IsFrozen": false,
+            "SampleType": 1,
+            "Instructions": null,
+            "AllowMoveOnFailure": false,
+            "AQLRejectReasons": {
+              "InstanceId": "0016588000000037",
+              "CDOTypeName": "LossReasonGroup",
+              "Name": "CDX-L6-20261109-GROUP"
+            },
+            "DecreaseByRejectCountReason": null,
+            "DecreaseBySampleSizeReason": {
+              "InstanceId": "00102c800000004f",
+              "CDOTypeName": "LossReason",
+              "Name": "CDX-L6-20261109-A"
+            },
+            "DefaultFailureMode": null,
+            "DefaultPEDescription": null,
+            "Classification": null,
+            "SubClassification": null,
+            "ScrapCountedRejectsByReason": false
+          },
+          "points": [],
+          "reject_reasons": [
+            {
+              "name": "CDX-L6-20261109-A",
+              "instanceId": "00102c800000004f"
+            },
+            {
+              "name": "CDX-L6-20261109-B",
+              "instanceId": "00102c8000000050"
+            }
+          ],
+          "reject_group": {
+            "Name": "CDX-L6-20261109-GROUP",
+            "InstanceID": "0016588000000037"
+          }
+        },
+        "service": "CollectSamplingData",
+        "body": {
+          "container": {
+            "name": "CDX-L6-20261109-S",
+            "instanceId": "0004108000000125"
+          },
+          "sampleTest": {
+            "name": "CDX-L6-20261109-SAMPLE",
+            "revision": "1",
+            "instanceId": "0020f7800000001c"
+          },
+          "sampleType": 1,
+          "serviceDetails": [
+            {
+              "sampleTest": {
+                "name": "CDX-L6-20261109-SAMPLE",
+                "revision": "1",
+                "instanceId": "0020f7800000001c"
+              },
+              "totalSamplesCollected": 1,
+              "rejects": 0,
+              "rejected": false
+            }
+          ],
+          "moveContainerOnCompletion": false,
+          "comments": "MCP-QUAL:59091f6071014265baf1aa0ea0a934f3",
+          "samplesTested": 1
+        },
+        "marker": "MCP-QUAL:59091f6071014265baf1aa0ea0a934f3",
+        "preview": {
+          "params": {
+            "execute": "false",
+            "$select": "Container,SampleTest,ServiceDetails,MoveContainerOnCompletion,Comments,RequiredSamples,SamplesTested,AllowedRejects,SampleType,SamplingStatus,ContainerSampleDataItem",
+            "$expand": "ServiceDetails($select=SampleTest,TotalSamplesCollected,Rejects,Rejected;$expand=SamplingDataPointDetails($select=SampleDataPoint,DataValue,Passed,RejectReason))"
+          },
+          "verified_input_echo": {
+            "container": {
+              "name": "CDX-L6-20261109-S",
+              "instanceId": "0004108000000125"
+            },
+            "sampleTest": {
+              "name": "CDX-L6-20261109-SAMPLE",
+              "revision": "1",
+              "instanceId": "0020f7800000001c"
+            },
+            "sampleType": 1,
+            "serviceDetails": [
+              {
+                "sampleTest": {
+                  "name": "CDX-L6-20261109-SAMPLE",
+                  "revision": "1",
+                  "instanceId": "0020f7800000001c"
+                },
+                "totalSamplesCollected": 1,
+                "rejects": 0,
+                "rejected": false
+              }
+            ],
+            "moveContainerOnCompletion": false,
+            "comments": "MCP-QUAL:59091f6071014265baf1aa0ea0a934f3",
+            "samplesTested": 1
+          },
+          "task_context": {
+            "RequiredSamples": "2",
+            "SamplesTested": "1",
+            "AllowedRejects": "1",
+            "SampleType": "1",
+            "SamplingStatus": "In Process"
+          },
+          "dynamic_validation_verified": false,
+          "detail_contract": "shopfloor.CollectSamplingDataDetails",
+          "point_contract": "shopfloor.SamplingDataPointDetails",
+          "response_dynamic_type_verified": false,
+          "local_checks": [
+            {
+              "group_number": 1,
+              "samples_collected": 1,
+              "rejects": 0,
+              "reject_reason": null,
+              "sample_partition_verified": false
+            }
+          ],
+          "samples_this_submission": 1,
+          "rejects_this_submission": 0,
+          "result_semantics": "literal numeric precheck only; MES final result and release unverified",
+          "automatic_move": false,
+          "quantity_or_event_effects_supported": true,
+          "counted_groups_this_submission": 1,
+          "sample_partition_verified": false,
+          "counted_group_accumulation_verified": false,
+          "counted_reason_history_verified": false,
+          "counted_group_semantics": "explicit disjoint cohorts; per-group counts are never allocated from a global total",
+          "native_effects": {
+            "mode": "counted_sample_size_loss",
+            "allow_full_inspection": false,
+            "allow_automatic_quantity_loss": true,
+            "runtime_effects_verified": false,
+            "deployed_logic_overrides_verified": false,
+            "quality_verdict": null,
+            "separate_quantity_submission": false,
+            "unit": {
+              "name": "EACH",
+              "instanceId": "0008de8000000002"
+            },
+            "automatic_quantity_loss": {
+              "basis": "explicit current counted SamplesTested",
+              "quantity": "1",
+              "projected_remaining_quantity": "8",
+              "reason": {
+                "name": "CDX-L6-20261109-A",
+                "instanceId": "00102c800000004f"
+              },
+              "native_child_defaults": {
+                "root": {
+                  "CloseWhenZero": true,
+                  "DisassociateWhenClosed": true,
+                  "GenerateRollups": true,
+                  "RecordAllQtySummaryOnly": true
+                },
+                "adjust_throughput": true,
+                "record_all_quantity": false,
+                "detail_type": 4030,
+                "quantity_multiplier": -1,
+                "counts_against_production": true,
+                "runtime_child_execution_verified": false
+              },
+              "allow_zero_quantity_loss": false,
+              "projected_close": false,
+              "projection_is_execution_result": false,
+              "note": "只提交一次CollectSamplingData，MES内部创建LossDetails；本工具不再提交ChangeQty。标准CLF内部把子服务ProcessESignatures设false，本工具不覆盖父事务签名；部署及签名链未验证。"
+            }
+          }
+        },
+        "arguments": {
+          "container_name": "CDX-L6-20261109-S",
+          "sample_test_name": "CDX-L6-20261109-SAMPLE",
+          "sample_test_revision": "1",
+          "container_instance_id": null,
+          "samples_collected": null,
+          "rejects": null,
+          "reject_reason_name": null,
+          "samples": null,
+          "comments": "",
+          "counted_groups": [
+            {
+              "samples_collected": 1,
+              "rejects": 0,
+              "reject_reason_name": null
+            }
+          ],
+          "allow_full_inspection": false,
+          "allow_automatic_quantity_loss": true,
+          "allow_zero_quantity_loss": false
+        },
+        "environment": {
+          "modeling": "https://test.invalid/Modeling",
+          "query": "https://test.invalid/Query",
+          "shopfloor": "https://test.invalid/Shopfloor"
+        },
+        "inspection_effects": {
+          "context": {
+            "mode": "counted_sample_size_loss",
+            "allow_full_inspection": false,
+            "allow_automatic_quantity_loss": true,
+            "runtime_effects_verified": false,
+            "deployed_logic_overrides_verified": false,
+            "quality_verdict": null,
+            "separate_quantity_submission": false,
+            "unit": {
+              "name": "EACH",
+              "instanceId": "0008de8000000002"
+            },
+            "automatic_quantity_loss": {
+              "basis": "explicit current counted SamplesTested",
+              "quantity": "1",
+              "projected_remaining_quantity": "8",
+              "reason": {
+                "name": "CDX-L6-20261109-A",
+                "instanceId": "00102c800000004f"
+              },
+              "native_child_defaults": {
+                "root": {
+                  "CloseWhenZero": true,
+                  "DisassociateWhenClosed": true,
+                  "GenerateRollups": true,
+                  "RecordAllQtySummaryOnly": true
+                },
+                "adjust_throughput": true,
+                "record_all_quantity": false,
+                "detail_type": 4030,
+                "quantity_multiplier": -1,
+                "counts_against_production": true,
+                "runtime_child_execution_verified": false
+              },
+              "allow_zero_quantity_loss": false,
+              "projected_close": false,
+              "projection_is_execution_result": false,
+              "note": "只提交一次CollectSamplingData，MES内部创建LossDetails；本工具不再提交ChangeQty。标准CLF内部把子服务ProcessESignatures设false，本工具不覆盖父事务签名；部署及签名链未验证。"
+            }
+          },
+          "container": {
+            "ContainerId": "0004108000000125",
+            "ContainerName": "CDX-L6-20261109-S",
+            "CDOTypeId": 1040,
+            "Status": 1,
+            "CurrentHoldCount": 0,
+            "ChangeCount": 2,
+            "ProductId": "00062c80000000b8",
+            "SamplingLotId": "",
+            "ParentContainerId": "",
+            "ChildCount": 0,
+            "Qty": "9",
+            "Qty2": "",
+            "UOMId": "0008de8000000002",
+            "UOM2Id": "",
+            "CurrentStatusId": "00085c8000000125",
+            "StatusRecordId": "00085c8000000125",
+            "CarrierId": "",
+            "InRework": false,
+            "SpecId": "00071c80000000b5",
+            "WorkflowStepId": "00074e80000000b5"
+          },
+          "container_status": {
+            "Container": {
+              "InstanceId": "0004108000000125",
+              "CDOTypeName": "Container",
+              "Name": "CDX-L6-20261109-S"
+            },
+            "Spec": {
+              "InstanceId": "00071c80000000b5",
+              "CDOTypeName": "Spec",
+              "Name": "CDX-L6-20261109-SPEC",
+              "Revision": "1"
+            },
+            "Step": {
+              "InstanceId": "00074e80000000b5",
+              "CDOTypeName": "SpecStep",
+              "Name": "Inspect",
+              "Parent": {
+                "@odata.type": "#inquiry.RevisionedObjectRef",
+                "InstanceId": "0005aa80000000cd",
+                "CDOTypeName": "Workflow",
+                "Name": "CDX-L6-20261109-WF",
+                "Revision": "1"
+              }
+            },
+            "Workflow": {
+              "InstanceId": "0005aa80000000cd",
+              "CDOTypeName": "Workflow",
+              "Name": "CDX-L6-20261109-WF",
+              "Revision": "1"
+            },
+            "Operation": {
+              "InstanceId": "00060e80000000b5",
+              "CDOTypeName": "Operation",
+              "Name": "CDX-L6-20261109-OP"
+            },
+            "Product": {
+              "InstanceId": "00062c80000000b8",
+              "CDOTypeName": "Product",
+              "Name": "CDX-L6-20261109-PRODUCT",
+              "Revision": "1"
+            },
+            "Qty": 9.0,
+            "Status": 1,
+            "InProcess": true
+          },
+          "dependencies": [
+            {
+              "entity": "SampleTests",
+              "InstanceID": "0020f7800000001c",
+              "Name": "CDX-L6-20261109-SAMPLE",
+              "Revision": "1",
+              "ChangeCount": 1,
+              "content_digest": "0c9efa1a9a462e878bab550c563ae48a74efa923abe7d424d4006aba26c7a138"
+            },
+            {
+              "entity": "Specs",
+              "InstanceID": "00071c80000000b5",
+              "Name": "CDX-L6-20261109-SPEC",
+              "Revision": "1",
+              "ChangeCount": 1,
+              "content_digest": "437a1dcf3e3fb61f7c1f0c9e6fff18428ed8a4b97a2a1881ac91bed6e058d386"
+            },
+            {
+              "entity": "UOMs",
+              "InstanceID": "0008de8000000002",
+              "Name": "EACH",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "d4e20313edadb208753477627d189e41c946cc0d600103cf34820642eb2a6f23"
+            },
+            {
+              "entity": "Operations",
+              "InstanceID": "00060e80000000b5",
+              "Name": "CDX-L6-20261109-OP",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "d3ca7aee7b28de15fc9e1ead978bbd31ec2af72e391785be0420c017b2b1db87"
+            },
+            {
+              "entity": "LossReasons",
+              "InstanceID": "00102c800000004f",
+              "Name": "CDX-L6-20261109-A",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "993dc4b2ecdb4ed8e8fb55359585b4f52c3a9d1f57ddbaf87c5d940eb576d1c0"
+            },
+            {
+              "entity": "LossReasonGroups",
+              "InstanceID": "0016588000000037",
+              "Name": "CDX-L6-20261109-GROUP",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "3ee83b598e063ab96e1c200ecfab41e99dc790c214341aa6c764621640463bf3"
+            }
+          ],
+          "resource_reads": [
+            "modeling:LossReasonGroups:id:0016588000000037",
+            "modeling:LossReasonGroups:name:cdx-l6-20261109-group",
+            "modeling:LossReasons:id:00102c800000004f",
+            "modeling:LossReasons:name:cdx-l6-20261109-a",
+            "modeling:Operations:id:00060e80000000b5",
+            "modeling:Operations:name:cdx-l6-20261109-op",
+            "modeling:SampleTests:id:0020f7800000001c",
+            "modeling:SampleTests:name:cdx-l6-20261109-sample",
+            "modeling:Specs:id:00071c80000000b5",
+            "modeling:Specs:name:cdx-l6-20261109-spec",
+            "modeling:UOMs:id:0008de8000000002",
+            "modeling:UOMs:name:each"
+          ]
+        },
+        "resource_reads": [
+          "modeling:LossReasonGroups:id:0016588000000037",
+          "modeling:LossReasonGroups:name:cdx-l6-20261109-group",
+          "modeling:LossReasons:id:00102c800000004f",
+          "modeling:LossReasons:name:cdx-l6-20261109-a",
+          "modeling:Operations:id:00060e80000000b5",
+          "modeling:Operations:name:cdx-l6-20261109-op",
+          "modeling:SampleTests:id:0020f7800000001c",
+          "modeling:SampleTests:name:cdx-l6-20261109-sample",
+          "modeling:Specs:id:00071c80000000b5",
+          "modeling:Specs:name:cdx-l6-20261109-spec",
+          "modeling:UOMs:id:0008de8000000002",
+          "modeling:UOMs:name:each"
+        ],
+        "inspection_evidence_version": 1
+      },
+      "attempt": {
+        "attempt_id": "d15839f39bec44bf972c58861f1cc310",
+        "started": 1794223203.8416746,
+        "finished": 1794223204.0742445
+      },
+      "root": {
+        "HistoryMainlineId": "00098880000002a9",
+        "HistoryId": "0004108000000125",
+        "TxnId": "4000000000010446",
+        "TxnDateGMT": "2026-11-09T11:20:03.030",
+        "TxnType": "8452",
+        "TxnTypeName": "CollectSamplingData",
+        "IntegrationTxnId": "00098880000002a9",
+        "ReversalStatus": "1",
+        "Comments": "MCP-QUAL:59091f6071014265baf1aa0ea0a934f3",
+        "ContainerId": "0004108000000125",
+        "ContainerName": "CDX-L6-20261109-S",
+        "ContainerChangeCount": "2",
+        "ProductId": "00062c80000000b8",
+        "OperationId": "00060e80000000b5",
+        "SpecId": "00071c80000000b5",
+        "WorkflowStepId": "00074e80000000b5",
+        "Qty": "9",
+        "Qty2": "",
+        "ToQty": "8",
+        "ToQty2": "",
+        "InRework": "false"
+      },
+      "evidence": {
+        "native": {
+          "mainlines": [
+            {
+              "HistoryMainlineId": "00098880000002a9",
+              "HistoryId": "0004108000000125",
+              "TxnId": "4000000000010446",
+              "TxnDateGMT": "2026-11-09T11:20:03.030",
+              "TxnType": "8452",
+              "TxnTypeName": "CollectSamplingData",
+              "IntegrationTxnId": "00098880000002a9",
+              "ReversalStatus": "1",
+              "Comments": "MCP-QUAL:59091f6071014265baf1aa0ea0a934f3",
+              "ContainerId": "0004108000000125",
+              "ContainerName": "CDX-L6-20261109-S",
+              "ContainerChangeCount": "2",
+              "ProductId": "00062c80000000b8",
+              "OperationId": "00060e80000000b5",
+              "SpecId": "00071c80000000b5",
+              "WorkflowStepId": "00074e80000000b5",
+              "Qty": "9",
+              "Qty2": "",
+              "ToQty": "8",
+              "ToQty2": "",
+              "InRework": "false"
+            },
+            {
+              "HistoryMainlineId": "00098880000002aa",
+              "HistoryId": "0004108000000125",
+              "TxnId": "4000000000010446",
+              "TxnDateGMT": "2026-11-09T11:20:03.030",
+              "TxnType": "4000",
+              "TxnTypeName": "ChangeQty",
+              "IntegrationTxnId": "00098880000002a9",
+              "ReversalStatus": "1",
+              "Comments": "",
+              "ContainerId": "0004108000000125",
+              "ContainerName": "CDX-L6-20261109-S",
+              "ContainerChangeCount": "2",
+              "ProductId": "00062c80000000b8",
+              "OperationId": "00060e80000000b5",
+              "SpecId": "00071c80000000b5",
+              "WorkflowStepId": "00074e80000000b5",
+              "Qty": "9",
+              "Qty2": "",
+              "ToQty": "8",
+              "ToQty2": "",
+              "InRework": "false"
+            }
+          ],
+          "summaries": [
+            {
+              "QtyHistoryId": "0013d88000000026",
+              "HistoryMainlineId": "00098880000002aa",
+              "HistoryId": "0004108000000125",
+              "TxnId": "4000000000010446",
+              "IntegrationTxnId": "00098880000002a9",
+              "CDOTypeId": "5080",
+              "Qty": "-1",
+              "Qty2": "",
+              "CloseWhenZero": "true",
+              "ThruputSummary": "false"
+            }
+          ],
+          "details": [
+            {
+              "QtyHistoryDetailsId": "001b148000000026",
+              "QtyHistoryId": "0013d88000000026",
+              "HistoryId": "0004108000000125",
+              "TxnId": "4000000000010446",
+              "IntegrationTxnId": "00098880000002a9",
+              "CDOTypeId": "6932",
+              "ContainerId": "0004108000000125",
+              "ProductId": "00062c80000000b8",
+              "OperationId": "00060e80000000b5",
+              "ChargeToStepId": "00074e80000000b5",
+              "ReasonCodeId": "00102c800000004f",
+              "ChangeQtyType": "2",
+              "QtyMultiplier": "-1",
+              "Qty": "1",
+              "Qty2": "",
+              "UOMId": "0008de8000000002",
+              "UOM2Id": "",
+              "AdjustThruput": "true",
+              "CountsAgainstProduction": "true",
+              "RecordAllQty": "false",
+              "CloseWhenZero": "true",
+              "ThisContainerClosed": "false",
+              "ThisContainerDisassociated": "false",
+              "IsRollup": "false"
+            }
+          ]
+        },
+        "summary": {
+          "CollectSamplingDataHistoryId": "00210d8000000003",
+          "HistoryId": "0004108000000125",
+          "HistoryMainlineId": "00098880000002a9",
+          "TxnId": "4000000000010446",
+          "CDOTypeId": "8461",
+          "SampleTestId": "0020f7800000001c",
+          "SamplingPlanId": "0020f8800000001c",
+          "ProductId": "00062c80000000b8",
+          "SpecId": "00071c80000000b5",
+          "InspectionLevelId": "0020ef8000000002",
+          "AQLLevelId": "0020ee8000000002",
+          "RequiredSamples": "2",
+          "SamplesTested": "1",
+          "TotalSamplesCompleted": "2",
+          "TotalRejects": "0",
+          "TotalPassedSamples": "2",
+          "AllowedRejects": "1",
+          "SamplingStatus": "Pass"
+        },
+        "samples": [
+          {
+            "sample_history": {
+              "InstanceID": "00210b8000000020",
+              "ParentId": "00210d8000000003",
+              "HistoryId": "0004108000000125",
+              "TxnId": "4000000000010446",
+              "SampleTestId": "0020f7800000001c",
+              "SampleTestName": "CDX-L6-20261109-SAMPLE",
+              "Rejected": "false",
+              "Rejects": "0",
+              "SampleTest": {
+                "InstanceID": "0020f7800000001c"
+              }
+            },
+            "points": []
+          }
+        ]
+      },
+      "current": {
+        "container": {
+          "ContainerId": "0004108000000125",
+          "ContainerName": "CDX-L6-20261109-S",
+          "CDOTypeId": 1040,
+          "Status": 1,
+          "CurrentHoldCount": 0,
+          "ChangeCount": 3,
+          "ProductId": "00062c80000000b8",
+          "SamplingLotId": "",
+          "ParentContainerId": "",
+          "ChildCount": 0,
+          "Qty": "8",
+          "Qty2": "",
+          "UOMId": "0008de8000000002",
+          "UOM2Id": "",
+          "CurrentStatusId": "00085c8000000125",
+          "StatusRecordId": "00085c8000000125",
+          "CarrierId": "",
+          "InRework": false,
+          "SpecId": "00071c80000000b5",
+          "WorkflowStepId": "00074e80000000b5"
+        },
+        "original_task": {
+          "ContainerSampleDataId": "002106800000001f",
+          "ContainerId": "0004108000000125",
+          "SamplingPlanId": "0020f8800000001c",
+          "SampleTestId": "0020f7800000001c",
+          "InspectionLevelId": "0020ef8000000002",
+          "AQLLevelId": "0020ee8000000002",
+          "TotalSamplesRequired": 2,
+          "CompletedSamples": 2,
+          "Rejects": 0,
+          "AllowedRejects": 1,
+          "InspectAllContQty": false,
+          "InspectAllQtyOnFailure": false,
+          "ChangeCount": 3
+        },
+        "task_missing": false,
+        "note": "原任务ID、完整累计及恰好一次版本变化核对；同值回读仍须唯一父子原生历史。"
+      }
+    },
+    "reject_groups": {
+      "snapshot": {
+        "kind": "inspection",
+        "action": "collect",
+        "inspection_input_version": 2,
+        "name": "CDX-L6-20261109-R",
+        "target_id": "0004108000000126",
+        "scope_key": "inspection-container:0004108000000126",
+        "before": {
+          "container": {
+            "ContainerId": "0004108000000126",
+            "ContainerName": "CDX-L6-20261109-R",
+            "ProductId": "00062c80000000b8",
+            "Status": 1,
+            "CurrentHoldCount": 0,
+            "InQualityControl": "0",
+            "SamplingRequired": true,
+            "SamplingPassed": false,
+            "SamplingLotId": "",
+            "Qty": "10",
+            "ChangeCount": 1
+          },
+          "task": {
+            "ContainerSampleDataId": "0021068000000023",
+            "ContainerId": "0004108000000126",
+            "SamplingPlanId": "0020f8800000001c",
+            "SampleTestId": "0020f7800000001d",
+            "InspectionLevelId": "0020ef8000000002",
+            "AQLLevelId": "0020ee800000001b",
+            "TotalSamplesRequired": 10,
+            "CompletedSamples": 0,
+            "Rejects": 0,
+            "AllowedRejects": 1,
+            "InspectAllContQty": false,
+            "InspectAllQtyOnFailure": false,
+            "ChangeCount": 1
+          },
+          "container_status": {
+            "Container": {
+              "InstanceId": "0004108000000126",
+              "CDOTypeName": "Container",
+              "Name": "CDX-L6-20261109-R"
+            },
+            "Spec": {
+              "InstanceId": "00071c80000000b5",
+              "CDOTypeName": "Spec",
+              "Name": "CDX-L6-20261109-SPEC",
+              "Revision": "1"
+            },
+            "Step": {
+              "InstanceId": "00074e80000000b5",
+              "CDOTypeName": "SpecStep",
+              "Name": "Inspect",
+              "Parent": {
+                "@odata.type": "#inquiry.RevisionedObjectRef",
+                "InstanceId": "0005aa80000000cd",
+                "CDOTypeName": "Workflow",
+                "Name": "CDX-L6-20261109-WF",
+                "Revision": "1"
+              }
+            },
+            "Workflow": {
+              "InstanceId": "0005aa80000000cd",
+              "CDOTypeName": "Workflow",
+              "Name": "CDX-L6-20261109-WF",
+              "Revision": "1"
+            },
+            "Operation": {
+              "InstanceId": "00060e80000000b5",
+              "CDOTypeName": "Operation",
+              "Name": "CDX-L6-20261109-OP"
+            },
+            "Product": {
+              "InstanceId": "00062c80000000b8",
+              "CDOTypeName": "Product",
+              "Name": "CDX-L6-20261109-PRODUCT",
+              "Revision": "1"
+            },
+            "Qty": 10.0,
+            "Status": 1
+          }
+        },
+        "definition": {
+          "test": {
+            "InstanceID": "0020f7800000001d",
+            "Name": "CDX-L6-20261109-REJECT",
+            "Revision": "1",
+            "Status": 1,
+            "IsFrozen": false,
+            "SampleType": 1,
+            "Instructions": null,
+            "AllowMoveOnFailure": false,
+            "AQLRejectReasons": {
+              "InstanceId": "0016588000000037",
+              "CDOTypeName": "LossReasonGroup",
+              "Name": "CDX-L6-20261109-GROUP"
+            },
+            "DecreaseByRejectCountReason": {
+              "InstanceId": "00102c800000004f",
+              "CDOTypeName": "LossReason",
+              "Name": "CDX-L6-20261109-A"
+            },
+            "DecreaseBySampleSizeReason": null,
+            "DefaultFailureMode": null,
+            "DefaultPEDescription": null,
+            "Classification": null,
+            "SubClassification": null,
+            "ScrapCountedRejectsByReason": false
+          },
+          "points": [],
+          "reject_reasons": [
+            {
+              "name": "CDX-L6-20261109-A",
+              "instanceId": "00102c800000004f"
+            },
+            {
+              "name": "CDX-L6-20261109-B",
+              "instanceId": "00102c8000000050"
+            }
+          ],
+          "reject_group": {
+            "Name": "CDX-L6-20261109-GROUP",
+            "InstanceID": "0016588000000037"
+          }
+        },
+        "service": "CollectSamplingData",
+        "body": {
+          "container": {
+            "name": "CDX-L6-20261109-R",
+            "instanceId": "0004108000000126"
+          },
+          "sampleTest": {
+            "name": "CDX-L6-20261109-REJECT",
+            "revision": "1",
+            "instanceId": "0020f7800000001d"
+          },
+          "sampleType": 1,
+          "serviceDetails": [
+            {
+              "sampleTest": {
+                "name": "CDX-L6-20261109-REJECT",
+                "revision": "1",
+                "instanceId": "0020f7800000001d"
+              },
+              "totalSamplesCollected": 2,
+              "rejects": 1,
+              "rejected": true,
+              "samplingDataPointDetails": [
+                {
+                  "dataValue": "1",
+                  "passed": false,
+                  "rejectReason": {
+                    "name": "CDX-L6-20261109-A",
+                    "instanceId": "00102c800000004f"
+                  }
+                }
+              ]
+            },
+            {
+              "sampleTest": {
+                "name": "CDX-L6-20261109-REJECT",
+                "revision": "1",
+                "instanceId": "0020f7800000001d"
+              },
+              "totalSamplesCollected": 3,
+              "rejects": 2,
+              "rejected": true,
+              "samplingDataPointDetails": [
+                {
+                  "dataValue": "2",
+                  "passed": false,
+                  "rejectReason": {
+                    "name": "CDX-L6-20261109-B",
+                    "instanceId": "00102c8000000050"
+                  }
+                }
+              ]
+            },
+            {
+              "sampleTest": {
+                "name": "CDX-L6-20261109-REJECT",
+                "revision": "1",
+                "instanceId": "0020f7800000001d"
+              },
+              "totalSamplesCollected": 1,
+              "rejects": 0,
+              "rejected": false
+            }
+          ],
+          "moveContainerOnCompletion": false,
+          "comments": "MCP-QUAL:2f82dc85ab044fa1a6dd8ec8459a10cb",
+          "samplesTested": 6
+        },
+        "marker": "MCP-QUAL:2f82dc85ab044fa1a6dd8ec8459a10cb",
+        "preview": {
+          "params": {
+            "execute": "false",
+            "$select": "Container,SampleTest,ServiceDetails,MoveContainerOnCompletion,Comments,RequiredSamples,SamplesTested,AllowedRejects,SampleType,SamplingStatus,ContainerSampleDataItem",
+            "$expand": "ServiceDetails($select=SampleTest,TotalSamplesCollected,Rejects,Rejected;$expand=SamplingDataPointDetails($select=SampleDataPoint,DataValue,Passed,RejectReason))"
+          },
+          "verified_input_echo": {
+            "container": {
+              "name": "CDX-L6-20261109-R",
+              "instanceId": "0004108000000126"
+            },
+            "sampleTest": {
+              "name": "CDX-L6-20261109-REJECT",
+              "revision": "1",
+              "instanceId": "0020f7800000001d"
+            },
+            "sampleType": 1,
+            "serviceDetails": [
+              {
+                "sampleTest": {
+                  "name": "CDX-L6-20261109-REJECT",
+                  "revision": "1",
+                  "instanceId": "0020f7800000001d"
+                },
+                "totalSamplesCollected": 2,
+                "rejects": 1,
+                "rejected": true,
+                "samplingDataPointDetails": [
+                  {
+                    "dataValue": "1",
+                    "passed": false,
+                    "rejectReason": {
+                      "name": "CDX-L6-20261109-A",
+                      "instanceId": "00102c800000004f"
+                    }
+                  }
+                ]
+              },
+              {
+                "sampleTest": {
+                  "name": "CDX-L6-20261109-REJECT",
+                  "revision": "1",
+                  "instanceId": "0020f7800000001d"
+                },
+                "totalSamplesCollected": 3,
+                "rejects": 2,
+                "rejected": true,
+                "samplingDataPointDetails": [
+                  {
+                    "dataValue": "2",
+                    "passed": false,
+                    "rejectReason": {
+                      "name": "CDX-L6-20261109-B",
+                      "instanceId": "00102c8000000050"
+                    }
+                  }
+                ]
+              },
+              {
+                "sampleTest": {
+                  "name": "CDX-L6-20261109-REJECT",
+                  "revision": "1",
+                  "instanceId": "0020f7800000001d"
+                },
+                "totalSamplesCollected": 1,
+                "rejects": 0,
+                "rejected": false
+              }
+            ],
+            "moveContainerOnCompletion": false,
+            "comments": "MCP-QUAL:2f82dc85ab044fa1a6dd8ec8459a10cb",
+            "samplesTested": 6
+          },
+          "task_context": {
+            "RequiredSamples": "10",
+            "SamplesTested": "6",
+            "AllowedRejects": "1",
+            "SampleType": "1",
+            "SamplingStatus": null
+          },
+          "dynamic_validation_verified": false,
+          "detail_contract": "shopfloor.CollectSamplingDataDetails",
+          "point_contract": "shopfloor.SamplingDataPointDetails",
+          "response_dynamic_type_verified": false,
+          "local_checks": [
+            {
+              "group_number": 1,
+              "samples_collected": 2,
+              "rejects": 1,
+              "reject_reason": {
+                "name": "CDX-L6-20261109-A",
+                "instanceId": "00102c800000004f"
+              },
+              "sample_partition_verified": false
+            },
+            {
+              "group_number": 2,
+              "samples_collected": 3,
+              "rejects": 2,
+              "reject_reason": {
+                "name": "CDX-L6-20261109-B",
+                "instanceId": "00102c8000000050"
+              },
+              "sample_partition_verified": false
+            },
+            {
+              "group_number": 3,
+              "samples_collected": 1,
+              "rejects": 0,
+              "reject_reason": null,
+              "sample_partition_verified": false
+            }
+          ],
+          "samples_this_submission": 6,
+          "rejects_this_submission": 3,
+          "result_semantics": "literal numeric precheck only; MES final result and release unverified",
+          "automatic_move": false,
+          "quantity_or_event_effects_supported": true,
+          "counted_groups_this_submission": 3,
+          "sample_partition_verified": false,
+          "counted_group_accumulation_verified": false,
+          "counted_reason_history_verified": false,
+          "counted_group_semantics": "explicit disjoint cohorts; per-group counts are never allocated from a global total",
+          "native_effects": {
+            "mode": "counted_reject_count_loss",
+            "allow_full_inspection": false,
+            "allow_automatic_quantity_loss": true,
+            "runtime_effects_verified": false,
+            "deployed_logic_overrides_verified": false,
+            "quality_verdict": null,
+            "separate_quantity_submission": false,
+            "unit": {
+              "name": "EACH",
+              "instanceId": "0008de8000000002"
+            },
+            "automatic_quantity_loss": {
+              "basis": "current counted reject detail accumulated as native FailedSamples",
+              "quantity": "3",
+              "projected_remaining_quantity": "7",
+              "reason": {
+                "name": "CDX-L6-20261109-A",
+                "instanceId": "00102c800000004f"
+              },
+              "native_child_defaults": {
+                "root": {
+                  "CloseWhenZero": true,
+                  "DisassociateWhenClosed": true,
+                  "GenerateRollups": true,
+                  "RecordAllQtySummaryOnly": true
+                },
+                "adjust_throughput": true,
+                "record_all_quantity": false,
+                "detail_type": 4030,
+                "quantity_multiplier": -1,
+                "counts_against_production": true,
+                "runtime_child_execution_verified": false
+              },
+              "allow_zero_quantity_loss": false,
+              "projected_close": false,
+              "projection_is_execution_result": false,
+              "note": "只提交一次CollectSamplingData，MES内部创建LossDetails；本工具不再提交ChangeQty。标准CLF内部把子服务ProcessESignatures设false，本工具不覆盖父事务签名；部署及签名链未验证。"
+            }
+          }
+        },
+        "arguments": {
+          "container_name": "CDX-L6-20261109-R",
+          "sample_test_name": "CDX-L6-20261109-REJECT",
+          "sample_test_revision": "1",
+          "container_instance_id": null,
+          "samples_collected": null,
+          "rejects": null,
+          "reject_reason_name": null,
+          "samples": null,
+          "comments": "",
+          "counted_groups": [
+            {
+              "samples_collected": 2,
+              "rejects": 1,
+              "reject_reason_name": "CDX-L6-20261109-A"
+            },
+            {
+              "samples_collected": 3,
+              "rejects": 2,
+              "reject_reason_name": "CDX-L6-20261109-B"
+            },
+            {
+              "samples_collected": 1,
+              "rejects": 0,
+              "reject_reason_name": null
+            }
+          ],
+          "allow_full_inspection": false,
+          "allow_automatic_quantity_loss": true,
+          "allow_zero_quantity_loss": false
+        },
+        "environment": {
+          "modeling": "https://test.invalid/Modeling",
+          "query": "https://test.invalid/Query",
+          "shopfloor": "https://test.invalid/Shopfloor"
+        },
+        "inspection_effects": {
+          "context": {
+            "mode": "counted_reject_count_loss",
+            "allow_full_inspection": false,
+            "allow_automatic_quantity_loss": true,
+            "runtime_effects_verified": false,
+            "deployed_logic_overrides_verified": false,
+            "quality_verdict": null,
+            "separate_quantity_submission": false,
+            "unit": {
+              "name": "EACH",
+              "instanceId": "0008de8000000002"
+            },
+            "automatic_quantity_loss": {
+              "basis": "current counted reject detail accumulated as native FailedSamples",
+              "quantity": "3",
+              "projected_remaining_quantity": "7",
+              "reason": {
+                "name": "CDX-L6-20261109-A",
+                "instanceId": "00102c800000004f"
+              },
+              "native_child_defaults": {
+                "root": {
+                  "CloseWhenZero": true,
+                  "DisassociateWhenClosed": true,
+                  "GenerateRollups": true,
+                  "RecordAllQtySummaryOnly": true
+                },
+                "adjust_throughput": true,
+                "record_all_quantity": false,
+                "detail_type": 4030,
+                "quantity_multiplier": -1,
+                "counts_against_production": true,
+                "runtime_child_execution_verified": false
+              },
+              "allow_zero_quantity_loss": false,
+              "projected_close": false,
+              "projection_is_execution_result": false,
+              "note": "只提交一次CollectSamplingData，MES内部创建LossDetails；本工具不再提交ChangeQty。标准CLF内部把子服务ProcessESignatures设false，本工具不覆盖父事务签名；部署及签名链未验证。"
+            }
+          },
+          "container": {
+            "ContainerId": "0004108000000126",
+            "ContainerName": "CDX-L6-20261109-R",
+            "CDOTypeId": 1040,
+            "Status": 1,
+            "CurrentHoldCount": 0,
+            "ChangeCount": 1,
+            "ProductId": "00062c80000000b8",
+            "SamplingLotId": "",
+            "ParentContainerId": "",
+            "ChildCount": 0,
+            "Qty": "10",
+            "Qty2": "",
+            "UOMId": "0008de8000000002",
+            "UOM2Id": "",
+            "CurrentStatusId": "00085c8000000126",
+            "StatusRecordId": "00085c8000000126",
+            "CarrierId": "",
+            "InRework": false,
+            "SpecId": "00071c80000000b5",
+            "WorkflowStepId": "00074e80000000b5"
+          },
+          "container_status": {
+            "Container": {
+              "InstanceId": "0004108000000126",
+              "CDOTypeName": "Container",
+              "Name": "CDX-L6-20261109-R"
+            },
+            "Spec": {
+              "InstanceId": "00071c80000000b5",
+              "CDOTypeName": "Spec",
+              "Name": "CDX-L6-20261109-SPEC",
+              "Revision": "1"
+            },
+            "Step": {
+              "InstanceId": "00074e80000000b5",
+              "CDOTypeName": "SpecStep",
+              "Name": "Inspect",
+              "Parent": {
+                "@odata.type": "#inquiry.RevisionedObjectRef",
+                "InstanceId": "0005aa80000000cd",
+                "CDOTypeName": "Workflow",
+                "Name": "CDX-L6-20261109-WF",
+                "Revision": "1"
+              }
+            },
+            "Workflow": {
+              "InstanceId": "0005aa80000000cd",
+              "CDOTypeName": "Workflow",
+              "Name": "CDX-L6-20261109-WF",
+              "Revision": "1"
+            },
+            "Operation": {
+              "InstanceId": "00060e80000000b5",
+              "CDOTypeName": "Operation",
+              "Name": "CDX-L6-20261109-OP"
+            },
+            "Product": {
+              "InstanceId": "00062c80000000b8",
+              "CDOTypeName": "Product",
+              "Name": "CDX-L6-20261109-PRODUCT",
+              "Revision": "1"
+            },
+            "Qty": 10.0,
+            "Status": 1,
+            "InProcess": true
+          },
+          "dependencies": [
+            {
+              "entity": "SampleTests",
+              "InstanceID": "0020f7800000001d",
+              "Name": "CDX-L6-20261109-REJECT",
+              "Revision": "1",
+              "ChangeCount": 1,
+              "content_digest": "b7bda693cf11c6ef0d6816b1e5ea3757edc3060b961498db3e257f125709b976"
+            },
+            {
+              "entity": "Specs",
+              "InstanceID": "00071c80000000b5",
+              "Name": "CDX-L6-20261109-SPEC",
+              "Revision": "1",
+              "ChangeCount": 1,
+              "content_digest": "437a1dcf3e3fb61f7c1f0c9e6fff18428ed8a4b97a2a1881ac91bed6e058d386"
+            },
+            {
+              "entity": "UOMs",
+              "InstanceID": "0008de8000000002",
+              "Name": "EACH",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "d4e20313edadb208753477627d189e41c946cc0d600103cf34820642eb2a6f23"
+            },
+            {
+              "entity": "Operations",
+              "InstanceID": "00060e80000000b5",
+              "Name": "CDX-L6-20261109-OP",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "d3ca7aee7b28de15fc9e1ead978bbd31ec2af72e391785be0420c017b2b1db87"
+            },
+            {
+              "entity": "LossReasons",
+              "InstanceID": "00102c800000004f",
+              "Name": "CDX-L6-20261109-A",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "993dc4b2ecdb4ed8e8fb55359585b4f52c3a9d1f57ddbaf87c5d940eb576d1c0"
+            },
+            {
+              "entity": "LossReasonGroups",
+              "InstanceID": "0016588000000037",
+              "Name": "CDX-L6-20261109-GROUP",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "3ee83b598e063ab96e1c200ecfab41e99dc790c214341aa6c764621640463bf3"
+            }
+          ],
+          "resource_reads": [
+            "modeling:LossReasonGroups:id:0016588000000037",
+            "modeling:LossReasonGroups:name:cdx-l6-20261109-group",
+            "modeling:LossReasons:id:00102c800000004f",
+            "modeling:LossReasons:name:cdx-l6-20261109-a",
+            "modeling:Operations:id:00060e80000000b5",
+            "modeling:Operations:name:cdx-l6-20261109-op",
+            "modeling:SampleTests:id:0020f7800000001d",
+            "modeling:SampleTests:name:cdx-l6-20261109-reject",
+            "modeling:Specs:id:00071c80000000b5",
+            "modeling:Specs:name:cdx-l6-20261109-spec",
+            "modeling:UOMs:id:0008de8000000002",
+            "modeling:UOMs:name:each"
+          ]
+        },
+        "resource_reads": [
+          "modeling:LossReasonGroups:id:0016588000000037",
+          "modeling:LossReasonGroups:name:cdx-l6-20261109-group",
+          "modeling:LossReasons:id:00102c800000004f",
+          "modeling:LossReasons:name:cdx-l6-20261109-a",
+          "modeling:Operations:id:00060e80000000b5",
+          "modeling:Operations:name:cdx-l6-20261109-op",
+          "modeling:SampleTests:id:0020f7800000001d",
+          "modeling:SampleTests:name:cdx-l6-20261109-reject",
+          "modeling:Specs:id:00071c80000000b5",
+          "modeling:Specs:name:cdx-l6-20261109-spec",
+          "modeling:UOMs:id:0008de8000000002",
+          "modeling:UOMs:name:each"
+        ],
+        "inspection_evidence_version": 1
+      },
+      "attempt": {
+        "attempt_id": "14a1e782002a4b61ab34f15b32a4a316",
+        "started": 1794223211.2197304,
+        "finished": 1794223211.43033
+      },
+      "root": {
+        "HistoryMainlineId": "00098880000002ab",
+        "HistoryId": "0004108000000126",
+        "TxnId": "4000000000010447",
+        "TxnDateGMT": "2026-11-09T11:20:10.413",
+        "TxnType": "8452",
+        "TxnTypeName": "CollectSamplingData",
+        "IntegrationTxnId": "00098880000002ab",
+        "ReversalStatus": "1",
+        "Comments": "MCP-QUAL:2f82dc85ab044fa1a6dd8ec8459a10cb",
+        "ContainerId": "0004108000000126",
+        "ContainerName": "CDX-L6-20261109-R",
+        "ContainerChangeCount": "1",
+        "ProductId": "00062c80000000b8",
+        "OperationId": "00060e80000000b5",
+        "SpecId": "00071c80000000b5",
+        "WorkflowStepId": "00074e80000000b5",
+        "Qty": "10",
+        "Qty2": "",
+        "ToQty": "7",
+        "ToQty2": "",
+        "InRework": "false"
+      },
+      "evidence": {
+        "native": {
+          "mainlines": [
+            {
+              "HistoryMainlineId": "00098880000002ab",
+              "HistoryId": "0004108000000126",
+              "TxnId": "4000000000010447",
+              "TxnDateGMT": "2026-11-09T11:20:10.413",
+              "TxnType": "8452",
+              "TxnTypeName": "CollectSamplingData",
+              "IntegrationTxnId": "00098880000002ab",
+              "ReversalStatus": "1",
+              "Comments": "MCP-QUAL:2f82dc85ab044fa1a6dd8ec8459a10cb",
+              "ContainerId": "0004108000000126",
+              "ContainerName": "CDX-L6-20261109-R",
+              "ContainerChangeCount": "1",
+              "ProductId": "00062c80000000b8",
+              "OperationId": "00060e80000000b5",
+              "SpecId": "00071c80000000b5",
+              "WorkflowStepId": "00074e80000000b5",
+              "Qty": "10",
+              "Qty2": "",
+              "ToQty": "7",
+              "ToQty2": "",
+              "InRework": "false"
+            },
+            {
+              "HistoryMainlineId": "00098880000002ac",
+              "HistoryId": "0004108000000126",
+              "TxnId": "4000000000010447",
+              "TxnDateGMT": "2026-11-09T11:20:10.413",
+              "TxnType": "4000",
+              "TxnTypeName": "ChangeQty",
+              "IntegrationTxnId": "00098880000002ab",
+              "ReversalStatus": "1",
+              "Comments": "",
+              "ContainerId": "0004108000000126",
+              "ContainerName": "CDX-L6-20261109-R",
+              "ContainerChangeCount": "1",
+              "ProductId": "00062c80000000b8",
+              "OperationId": "00060e80000000b5",
+              "SpecId": "00071c80000000b5",
+              "WorkflowStepId": "00074e80000000b5",
+              "Qty": "10",
+              "Qty2": "",
+              "ToQty": "7",
+              "ToQty2": "",
+              "InRework": "false"
+            }
+          ],
+          "summaries": [
+            {
+              "QtyHistoryId": "0013d88000000027",
+              "HistoryMainlineId": "00098880000002ac",
+              "HistoryId": "0004108000000126",
+              "TxnId": "4000000000010447",
+              "IntegrationTxnId": "00098880000002ab",
+              "CDOTypeId": "5080",
+              "Qty": "-3",
+              "Qty2": "",
+              "CloseWhenZero": "true",
+              "ThruputSummary": "false"
+            }
+          ],
+          "details": [
+            {
+              "QtyHistoryDetailsId": "001b148000000027",
+              "QtyHistoryId": "0013d88000000027",
+              "HistoryId": "0004108000000126",
+              "TxnId": "4000000000010447",
+              "IntegrationTxnId": "00098880000002ab",
+              "CDOTypeId": "6932",
+              "ContainerId": "0004108000000126",
+              "ProductId": "00062c80000000b8",
+              "OperationId": "00060e80000000b5",
+              "ChargeToStepId": "00074e80000000b5",
+              "ReasonCodeId": "00102c800000004f",
+              "ChangeQtyType": "2",
+              "QtyMultiplier": "-1",
+              "Qty": "3",
+              "Qty2": "",
+              "UOMId": "0008de8000000002",
+              "UOM2Id": "",
+              "AdjustThruput": "true",
+              "CountsAgainstProduction": "true",
+              "RecordAllQty": "false",
+              "CloseWhenZero": "true",
+              "ThisContainerClosed": "false",
+              "ThisContainerDisassociated": "false",
+              "IsRollup": "false"
+            }
+          ]
+        },
+        "summary": {
+          "CollectSamplingDataHistoryId": "00210d8000000004",
+          "HistoryId": "0004108000000126",
+          "HistoryMainlineId": "00098880000002ab",
+          "TxnId": "4000000000010447",
+          "CDOTypeId": "8461",
+          "SampleTestId": "0020f7800000001d",
+          "SamplingPlanId": "0020f8800000001c",
+          "ProductId": "00062c80000000b8",
+          "SpecId": "00071c80000000b5",
+          "InspectionLevelId": "0020ef8000000002",
+          "AQLLevelId": "0020ee800000001b",
+          "RequiredSamples": "10",
+          "SamplesTested": "6",
+          "TotalSamplesCompleted": "6",
+          "TotalRejects": "3",
+          "TotalPassedSamples": "3",
+          "AllowedRejects": "1",
+          "SamplingStatus": "Fail"
+        },
+        "samples": [
+          {
+            "sample_history": {
+              "InstanceID": "00210b8000000021",
+              "ParentId": "00210d8000000004",
+              "HistoryId": "0004108000000126",
+              "TxnId": "4000000000010447",
+              "SampleTestId": "0020f7800000001d",
+              "SampleTestName": "CDX-L6-20261109-REJECT",
+              "Rejected": "true",
+              "Rejects": "1",
+              "SampleTest": {
+                "InstanceID": "0020f7800000001d"
+              }
+            },
+            "points": [
+              {
+                "InstanceID": "00210c800000001f",
+                "ParentId": "00210b8000000021",
+                "HistoryId": "0004108000000126",
+                "TxnId": "4000000000010447",
+                "SampleDataPointId": "",
+                "DataType": "",
+                "DataValue": "1",
+                "Passed": "false",
+                "LowerLimit": "",
+                "UpperLimit": "",
+                "RejectReasonId": "00102c800000004f",
+                "EnteredQty": "",
+                "SampleDataPoint": null,
+                "RejectReason": {
+                  "InstanceID": "00102c800000004f"
+                }
+              }
+            ]
+          },
+          {
+            "sample_history": {
+              "InstanceID": "00210b8000000022",
+              "ParentId": "00210d8000000004",
+              "HistoryId": "0004108000000126",
+              "TxnId": "4000000000010447",
+              "SampleTestId": "0020f7800000001d",
+              "SampleTestName": "CDX-L6-20261109-REJECT",
+              "Rejected": "true",
+              "Rejects": "3",
+              "SampleTest": {
+                "InstanceID": "0020f7800000001d"
+              }
+            },
+            "points": [
+              {
+                "InstanceID": "00210c8000000020",
+                "ParentId": "00210b8000000022",
+                "HistoryId": "0004108000000126",
+                "TxnId": "4000000000010447",
+                "SampleDataPointId": "",
+                "DataType": "",
+                "DataValue": "2",
+                "Passed": "false",
+                "LowerLimit": "",
+                "UpperLimit": "",
+                "RejectReasonId": "00102c8000000050",
+                "EnteredQty": "",
+                "SampleDataPoint": null,
+                "RejectReason": {
+                  "InstanceID": "00102c8000000050"
+                }
+              }
+            ]
+          },
+          {
+            "sample_history": {
+              "InstanceID": "00210b8000000023",
+              "ParentId": "00210d8000000004",
+              "HistoryId": "0004108000000126",
+              "TxnId": "4000000000010447",
+              "SampleTestId": "0020f7800000001d",
+              "SampleTestName": "CDX-L6-20261109-REJECT",
+              "Rejected": "false",
+              "Rejects": "0",
+              "SampleTest": {
+                "InstanceID": "0020f7800000001d"
+              }
+            },
+            "points": []
+          }
+        ]
+      },
+      "current": {
+        "container": {
+          "ContainerId": "0004108000000126",
+          "ContainerName": "CDX-L6-20261109-R",
+          "CDOTypeId": 1040,
+          "Status": 1,
+          "CurrentHoldCount": 0,
+          "ChangeCount": 2,
+          "ProductId": "00062c80000000b8",
+          "SamplingLotId": "",
+          "ParentContainerId": "",
+          "ChildCount": 0,
+          "Qty": "7",
+          "Qty2": "",
+          "UOMId": "0008de8000000002",
+          "UOM2Id": "",
+          "CurrentStatusId": "00085c8000000126",
+          "StatusRecordId": "00085c8000000126",
+          "CarrierId": "",
+          "InRework": false,
+          "SpecId": "00071c80000000b5",
+          "WorkflowStepId": "00074e80000000b5"
+        },
+        "original_task": {
+          "ContainerSampleDataId": "0021068000000023",
+          "ContainerId": "0004108000000126",
+          "SamplingPlanId": "0020f8800000001c",
+          "SampleTestId": "0020f7800000001d",
+          "InspectionLevelId": "0020ef8000000002",
+          "AQLLevelId": "0020ee800000001b",
+          "TotalSamplesRequired": 10,
+          "CompletedSamples": 6,
+          "Rejects": 3,
+          "AllowedRejects": 1,
+          "InspectAllContQty": false,
+          "InspectAllQtyOnFailure": false,
+          "ChangeCount": 2
+        },
+        "task_missing": false,
+        "note": "原任务ID、完整累计及恰好一次版本变化核对；同值回读仍须唯一父子原生历史。"
+      }
+    },
+    "reason_groups": {
+      "snapshot": {
+        "kind": "inspection",
+        "action": "collect",
+        "inspection_input_version": 2,
+        "name": "CDX-L6-20261109-M",
+        "target_id": "0004108000000127",
+        "scope_key": "inspection-container:0004108000000127",
+        "before": {
+          "container": {
+            "ContainerId": "0004108000000127",
+            "ContainerName": "CDX-L6-20261109-M",
+            "ProductId": "00062c80000000b8",
+            "Status": 1,
+            "CurrentHoldCount": 0,
+            "InQualityControl": "0",
+            "SamplingRequired": true,
+            "SamplingPassed": false,
+            "SamplingLotId": "",
+            "Qty": "10",
+            "ChangeCount": 1
+          },
+          "task": {
+            "ContainerSampleDataId": "0021068000000027",
+            "ContainerId": "0004108000000127",
+            "SamplingPlanId": "0020f8800000001c",
+            "SampleTestId": "0020f7800000001e",
+            "InspectionLevelId": "0020ef8000000002",
+            "AQLLevelId": "0020ee800000001b",
+            "TotalSamplesRequired": 10,
+            "CompletedSamples": 0,
+            "Rejects": 0,
+            "AllowedRejects": 1,
+            "InspectAllContQty": false,
+            "InspectAllQtyOnFailure": false,
+            "ChangeCount": 1
+          },
+          "container_status": {
+            "Container": {
+              "InstanceId": "0004108000000127",
+              "CDOTypeName": "Container",
+              "Name": "CDX-L6-20261109-M"
+            },
+            "Spec": {
+              "InstanceId": "00071c80000000b5",
+              "CDOTypeName": "Spec",
+              "Name": "CDX-L6-20261109-SPEC",
+              "Revision": "1"
+            },
+            "Step": {
+              "InstanceId": "00074e80000000b5",
+              "CDOTypeName": "SpecStep",
+              "Name": "Inspect",
+              "Parent": {
+                "@odata.type": "#inquiry.RevisionedObjectRef",
+                "InstanceId": "0005aa80000000cd",
+                "CDOTypeName": "Workflow",
+                "Name": "CDX-L6-20261109-WF",
+                "Revision": "1"
+              }
+            },
+            "Workflow": {
+              "InstanceId": "0005aa80000000cd",
+              "CDOTypeName": "Workflow",
+              "Name": "CDX-L6-20261109-WF",
+              "Revision": "1"
+            },
+            "Operation": {
+              "InstanceId": "00060e80000000b5",
+              "CDOTypeName": "Operation",
+              "Name": "CDX-L6-20261109-OP"
+            },
+            "Product": {
+              "InstanceId": "00062c80000000b8",
+              "CDOTypeName": "Product",
+              "Name": "CDX-L6-20261109-PRODUCT",
+              "Revision": "1"
+            },
+            "Qty": 10.0,
+            "Status": 1
+          }
+        },
+        "definition": {
+          "test": {
+            "InstanceID": "0020f7800000001e",
+            "Name": "CDX-L6-20261109-REASONS",
+            "Revision": "1",
+            "Status": 1,
+            "IsFrozen": false,
+            "SampleType": 1,
+            "Instructions": null,
+            "AllowMoveOnFailure": false,
+            "AQLRejectReasons": {
+              "InstanceId": "0016588000000037",
+              "CDOTypeName": "LossReasonGroup",
+              "Name": "CDX-L6-20261109-GROUP"
+            },
+            "DecreaseByRejectCountReason": null,
+            "DecreaseBySampleSizeReason": null,
+            "DefaultFailureMode": null,
+            "DefaultPEDescription": null,
+            "Classification": null,
+            "SubClassification": null,
+            "ScrapCountedRejectsByReason": true
+          },
+          "points": [],
+          "reject_reasons": [
+            {
+              "name": "CDX-L6-20261109-A",
+              "instanceId": "00102c800000004f"
+            },
+            {
+              "name": "CDX-L6-20261109-B",
+              "instanceId": "00102c8000000050"
+            }
+          ],
+          "reject_group": {
+            "Name": "CDX-L6-20261109-GROUP",
+            "InstanceID": "0016588000000037"
+          }
+        },
+        "service": "CollectSamplingData",
+        "body": {
+          "container": {
+            "name": "CDX-L6-20261109-M",
+            "instanceId": "0004108000000127"
+          },
+          "sampleTest": {
+            "name": "CDX-L6-20261109-REASONS",
+            "revision": "1",
+            "instanceId": "0020f7800000001e"
+          },
+          "sampleType": 1,
+          "serviceDetails": [
+            {
+              "sampleTest": {
+                "name": "CDX-L6-20261109-REASONS",
+                "revision": "1",
+                "instanceId": "0020f7800000001e"
+              },
+              "totalSamplesCollected": 4,
+              "rejects": 3,
+              "rejected": true,
+              "samplingDataPointDetails": [
+                {
+                  "dataValue": "1",
+                  "passed": false,
+                  "rejectReason": {
+                    "name": "CDX-L6-20261109-A",
+                    "instanceId": "00102c800000004f"
+                  }
+                },
+                {
+                  "dataValue": "2",
+                  "passed": false,
+                  "rejectReason": {
+                    "name": "CDX-L6-20261109-B",
+                    "instanceId": "00102c8000000050"
+                  }
+                }
+              ]
+            }
+          ],
+          "moveContainerOnCompletion": false,
+          "comments": "MCP-QUAL:e106a7ed59e8441b8768d25e557f11c5",
+          "samplesTested": 4
+        },
+        "marker": "MCP-QUAL:e106a7ed59e8441b8768d25e557f11c5",
+        "preview": {
+          "params": {
+            "execute": "false",
+            "$select": "Container,SampleTest,ServiceDetails,MoveContainerOnCompletion,Comments,RequiredSamples,SamplesTested,AllowedRejects,SampleType,SamplingStatus,ContainerSampleDataItem",
+            "$expand": "ServiceDetails($select=SampleTest,TotalSamplesCollected,Rejects,Rejected;$expand=SamplingDataPointDetails($select=SampleDataPoint,DataValue,Passed,RejectReason))"
+          },
+          "verified_input_echo": {
+            "container": {
+              "name": "CDX-L6-20261109-M",
+              "instanceId": "0004108000000127"
+            },
+            "sampleTest": {
+              "name": "CDX-L6-20261109-REASONS",
+              "revision": "1",
+              "instanceId": "0020f7800000001e"
+            },
+            "sampleType": 1,
+            "serviceDetails": [
+              {
+                "sampleTest": {
+                  "name": "CDX-L6-20261109-REASONS",
+                  "revision": "1",
+                  "instanceId": "0020f7800000001e"
+                },
+                "totalSamplesCollected": 4,
+                "rejects": 3,
+                "rejected": true,
+                "samplingDataPointDetails": [
+                  {
+                    "dataValue": "1",
+                    "passed": false,
+                    "rejectReason": {
+                      "name": "CDX-L6-20261109-A",
+                      "instanceId": "00102c800000004f"
+                    }
+                  },
+                  {
+                    "dataValue": "2",
+                    "passed": false,
+                    "rejectReason": {
+                      "name": "CDX-L6-20261109-B",
+                      "instanceId": "00102c8000000050"
+                    }
+                  }
+                ]
+              }
+            ],
+            "moveContainerOnCompletion": false,
+            "comments": "MCP-QUAL:e106a7ed59e8441b8768d25e557f11c5",
+            "samplesTested": 4
+          },
+          "task_context": {
+            "RequiredSamples": "10",
+            "SamplesTested": "4",
+            "AllowedRejects": "1",
+            "SampleType": "1",
+            "SamplingStatus": null
+          },
+          "dynamic_validation_verified": false,
+          "detail_contract": "shopfloor.CollectSamplingDataDetails",
+          "point_contract": "shopfloor.SamplingDataPointDetails",
+          "response_dynamic_type_verified": false,
+          "local_checks": [],
+          "samples_this_submission": 4,
+          "rejects_this_submission": 3,
+          "result_semantics": "literal numeric precheck only; MES final result and release unverified",
+          "automatic_move": false,
+          "quantity_or_event_effects_supported": true,
+          "counted_reject_reason_count": 2,
+          "sample_partition_verified": false,
+          "counted_reason_history_verified": false,
+          "native_effects": {
+            "mode": "counted_reason_loss",
+            "allow_full_inspection": false,
+            "allow_automatic_quantity_loss": true,
+            "runtime_effects_verified": false,
+            "deployed_logic_overrides_verified": false,
+            "quality_verdict": null,
+            "separate_quantity_submission": false,
+            "unit": {
+              "name": "EACH",
+              "instanceId": "0008de8000000002"
+            },
+            "automatic_quantity_loss": {
+              "basis": "first counted service detail reject reason and quantity",
+              "quantity": "3",
+              "projected_remaining_quantity": "7",
+              "reason": null,
+              "native_child_defaults": {
+                "root": {
+                  "CloseWhenZero": true,
+                  "DisassociateWhenClosed": true,
+                  "GenerateRollups": true,
+                  "RecordAllQtySummaryOnly": true
+                },
+                "adjust_throughput": true,
+                "record_all_quantity": false,
+                "detail_type": 4030,
+                "quantity_multiplier": -1,
+                "counts_against_production": true,
+                "runtime_child_execution_verified": false
+              },
+              "allow_zero_quantity_loss": false,
+              "projected_close": false,
+              "projection_is_execution_result": false,
+              "note": "只提交一次CollectSamplingData，MES内部创建LossDetails；本工具不再提交ChangeQty。标准CLF内部把子服务ProcessESignatures设false，本工具不覆盖父事务签名；部署及签名链未验证。",
+              "reason_breakdown": [
+                {
+                  "reason": {
+                    "name": "CDX-L6-20261109-A",
+                    "instanceId": "00102c800000004f"
+                  },
+                  "quantity": 1
+                },
+                {
+                  "reason": {
+                    "name": "CDX-L6-20261109-B",
+                    "instanceId": "00102c8000000050"
+                  },
+                  "quantity": 2
+                }
+              ]
+            }
+          }
+        },
+        "arguments": {
+          "container_name": "CDX-L6-20261109-M",
+          "sample_test_name": "CDX-L6-20261109-REASONS",
+          "sample_test_revision": "1",
+          "container_instance_id": null,
+          "samples_collected": 4,
+          "rejects": null,
+          "reject_reason_name": null,
+          "samples": null,
+          "comments": "",
+          "counted_groups": null,
+          "allow_full_inspection": false,
+          "allow_automatic_quantity_loss": true,
+          "allow_zero_quantity_loss": false,
+          "counted_reject_reasons": [
+            {
+              "reject_reason_name": "CDX-L6-20261109-A",
+              "rejects": 1
+            },
+            {
+              "reject_reason_name": "CDX-L6-20261109-B",
+              "rejects": 2
+            }
+          ]
+        },
+        "environment": {
+          "modeling": "https://test.invalid/Modeling",
+          "query": "https://test.invalid/Query",
+          "shopfloor": "https://test.invalid/Shopfloor"
+        },
+        "inspection_effects": {
+          "context": {
+            "mode": "counted_reason_loss",
+            "allow_full_inspection": false,
+            "allow_automatic_quantity_loss": true,
+            "runtime_effects_verified": false,
+            "deployed_logic_overrides_verified": false,
+            "quality_verdict": null,
+            "separate_quantity_submission": false,
+            "unit": {
+              "name": "EACH",
+              "instanceId": "0008de8000000002"
+            },
+            "automatic_quantity_loss": {
+              "basis": "first counted service detail reject reason and quantity",
+              "quantity": "3",
+              "projected_remaining_quantity": "7",
+              "reason": null,
+              "native_child_defaults": {
+                "root": {
+                  "CloseWhenZero": true,
+                  "DisassociateWhenClosed": true,
+                  "GenerateRollups": true,
+                  "RecordAllQtySummaryOnly": true
+                },
+                "adjust_throughput": true,
+                "record_all_quantity": false,
+                "detail_type": 4030,
+                "quantity_multiplier": -1,
+                "counts_against_production": true,
+                "runtime_child_execution_verified": false
+              },
+              "allow_zero_quantity_loss": false,
+              "projected_close": false,
+              "projection_is_execution_result": false,
+              "note": "只提交一次CollectSamplingData，MES内部创建LossDetails；本工具不再提交ChangeQty。标准CLF内部把子服务ProcessESignatures设false，本工具不覆盖父事务签名；部署及签名链未验证。",
+              "reason_breakdown": [
+                {
+                  "reason": {
+                    "name": "CDX-L6-20261109-A",
+                    "instanceId": "00102c800000004f"
+                  },
+                  "quantity": 1
+                },
+                {
+                  "reason": {
+                    "name": "CDX-L6-20261109-B",
+                    "instanceId": "00102c8000000050"
+                  },
+                  "quantity": 2
+                }
+              ]
+            }
+          },
+          "container": {
+            "ContainerId": "0004108000000127",
+            "ContainerName": "CDX-L6-20261109-M",
+            "CDOTypeId": 1040,
+            "Status": 1,
+            "CurrentHoldCount": 0,
+            "ChangeCount": 1,
+            "ProductId": "00062c80000000b8",
+            "SamplingLotId": "",
+            "ParentContainerId": "",
+            "ChildCount": 0,
+            "Qty": "10",
+            "Qty2": "",
+            "UOMId": "0008de8000000002",
+            "UOM2Id": "",
+            "CurrentStatusId": "00085c8000000127",
+            "StatusRecordId": "00085c8000000127",
+            "CarrierId": "",
+            "InRework": false,
+            "SpecId": "00071c80000000b5",
+            "WorkflowStepId": "00074e80000000b5"
+          },
+          "container_status": {
+            "Container": {
+              "InstanceId": "0004108000000127",
+              "CDOTypeName": "Container",
+              "Name": "CDX-L6-20261109-M"
+            },
+            "Spec": {
+              "InstanceId": "00071c80000000b5",
+              "CDOTypeName": "Spec",
+              "Name": "CDX-L6-20261109-SPEC",
+              "Revision": "1"
+            },
+            "Step": {
+              "InstanceId": "00074e80000000b5",
+              "CDOTypeName": "SpecStep",
+              "Name": "Inspect",
+              "Parent": {
+                "@odata.type": "#inquiry.RevisionedObjectRef",
+                "InstanceId": "0005aa80000000cd",
+                "CDOTypeName": "Workflow",
+                "Name": "CDX-L6-20261109-WF",
+                "Revision": "1"
+              }
+            },
+            "Workflow": {
+              "InstanceId": "0005aa80000000cd",
+              "CDOTypeName": "Workflow",
+              "Name": "CDX-L6-20261109-WF",
+              "Revision": "1"
+            },
+            "Operation": {
+              "InstanceId": "00060e80000000b5",
+              "CDOTypeName": "Operation",
+              "Name": "CDX-L6-20261109-OP"
+            },
+            "Product": {
+              "InstanceId": "00062c80000000b8",
+              "CDOTypeName": "Product",
+              "Name": "CDX-L6-20261109-PRODUCT",
+              "Revision": "1"
+            },
+            "Qty": 10.0,
+            "Status": 1,
+            "InProcess": true
+          },
+          "dependencies": [
+            {
+              "entity": "SampleTests",
+              "InstanceID": "0020f7800000001e",
+              "Name": "CDX-L6-20261109-REASONS",
+              "Revision": "1",
+              "ChangeCount": 1,
+              "content_digest": "d9033650b8de2943bf523e2614369166cbadd14f339130b7370446bf845367fc"
+            },
+            {
+              "entity": "Specs",
+              "InstanceID": "00071c80000000b5",
+              "Name": "CDX-L6-20261109-SPEC",
+              "Revision": "1",
+              "ChangeCount": 1,
+              "content_digest": "437a1dcf3e3fb61f7c1f0c9e6fff18428ed8a4b97a2a1881ac91bed6e058d386"
+            },
+            {
+              "entity": "UOMs",
+              "InstanceID": "0008de8000000002",
+              "Name": "EACH",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "d4e20313edadb208753477627d189e41c946cc0d600103cf34820642eb2a6f23"
+            },
+            {
+              "entity": "Operations",
+              "InstanceID": "00060e80000000b5",
+              "Name": "CDX-L6-20261109-OP",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "d3ca7aee7b28de15fc9e1ead978bbd31ec2af72e391785be0420c017b2b1db87"
+            },
+            {
+              "entity": "LossReasons",
+              "InstanceID": "00102c800000004f",
+              "Name": "CDX-L6-20261109-A",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "993dc4b2ecdb4ed8e8fb55359585b4f52c3a9d1f57ddbaf87c5d940eb576d1c0"
+            },
+            {
+              "entity": "LossReasons",
+              "InstanceID": "00102c8000000050",
+              "Name": "CDX-L6-20261109-B",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "de486861da3f1670da930b64e861677499cb2d4e6b9f3b7e20b3cdcc6ca615c6"
+            },
+            {
+              "entity": "LossReasonGroups",
+              "InstanceID": "0016588000000037",
+              "Name": "CDX-L6-20261109-GROUP",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "3ee83b598e063ab96e1c200ecfab41e99dc790c214341aa6c764621640463bf3"
+            }
+          ],
+          "resource_reads": [
+            "modeling:LossReasonGroups:id:0016588000000037",
+            "modeling:LossReasonGroups:name:cdx-l6-20261109-group",
+            "modeling:LossReasons:id:00102c800000004f",
+            "modeling:LossReasons:id:00102c8000000050",
+            "modeling:LossReasons:name:cdx-l6-20261109-a",
+            "modeling:LossReasons:name:cdx-l6-20261109-b",
+            "modeling:Operations:id:00060e80000000b5",
+            "modeling:Operations:name:cdx-l6-20261109-op",
+            "modeling:SampleTests:id:0020f7800000001e",
+            "modeling:SampleTests:name:cdx-l6-20261109-reasons",
+            "modeling:Specs:id:00071c80000000b5",
+            "modeling:Specs:name:cdx-l6-20261109-spec",
+            "modeling:UOMs:id:0008de8000000002",
+            "modeling:UOMs:name:each"
+          ]
+        },
+        "resource_reads": [
+          "modeling:LossReasonGroups:id:0016588000000037",
+          "modeling:LossReasonGroups:name:cdx-l6-20261109-group",
+          "modeling:LossReasons:id:00102c800000004f",
+          "modeling:LossReasons:id:00102c8000000050",
+          "modeling:LossReasons:name:cdx-l6-20261109-a",
+          "modeling:LossReasons:name:cdx-l6-20261109-b",
+          "modeling:Operations:id:00060e80000000b5",
+          "modeling:Operations:name:cdx-l6-20261109-op",
+          "modeling:SampleTests:id:0020f7800000001e",
+          "modeling:SampleTests:name:cdx-l6-20261109-reasons",
+          "modeling:Specs:id:00071c80000000b5",
+          "modeling:Specs:name:cdx-l6-20261109-spec",
+          "modeling:UOMs:id:0008de8000000002",
+          "modeling:UOMs:name:each"
+        ],
+        "inspection_evidence_version": 1
+      },
+      "attempt": {
+        "attempt_id": "80454cdb396e442b8239b00b8cb0c984",
+        "started": 1794223218.3657448,
+        "finished": 1794223218.5403144
+      },
+      "root": {
+        "HistoryMainlineId": "00098880000002ad",
+        "HistoryId": "0004108000000127",
+        "TxnId": "4000000000010448",
+        "TxnDateGMT": "2026-11-09T11:20:17.540",
+        "TxnType": "8452",
+        "TxnTypeName": "CollectSamplingData",
+        "IntegrationTxnId": "00098880000002ad",
+        "ReversalStatus": "1",
+        "Comments": "MCP-QUAL:e106a7ed59e8441b8768d25e557f11c5",
+        "ContainerId": "0004108000000127",
+        "ContainerName": "CDX-L6-20261109-M",
+        "ContainerChangeCount": "1",
+        "ProductId": "00062c80000000b8",
+        "OperationId": "00060e80000000b5",
+        "SpecId": "00071c80000000b5",
+        "WorkflowStepId": "00074e80000000b5",
+        "Qty": "10",
+        "Qty2": "",
+        "ToQty": "7",
+        "ToQty2": "",
+        "InRework": "false"
+      },
+      "evidence": {
+        "native": {
+          "mainlines": [
+            {
+              "HistoryMainlineId": "00098880000002ad",
+              "HistoryId": "0004108000000127",
+              "TxnId": "4000000000010448",
+              "TxnDateGMT": "2026-11-09T11:20:17.540",
+              "TxnType": "8452",
+              "TxnTypeName": "CollectSamplingData",
+              "IntegrationTxnId": "00098880000002ad",
+              "ReversalStatus": "1",
+              "Comments": "MCP-QUAL:e106a7ed59e8441b8768d25e557f11c5",
+              "ContainerId": "0004108000000127",
+              "ContainerName": "CDX-L6-20261109-M",
+              "ContainerChangeCount": "1",
+              "ProductId": "00062c80000000b8",
+              "OperationId": "00060e80000000b5",
+              "SpecId": "00071c80000000b5",
+              "WorkflowStepId": "00074e80000000b5",
+              "Qty": "10",
+              "Qty2": "",
+              "ToQty": "7",
+              "ToQty2": "",
+              "InRework": "false"
+            },
+            {
+              "HistoryMainlineId": "00098880000002ae",
+              "HistoryId": "0004108000000127",
+              "TxnId": "4000000000010448",
+              "TxnDateGMT": "2026-11-09T11:20:17.540",
+              "TxnType": "4000",
+              "TxnTypeName": "ChangeQty",
+              "IntegrationTxnId": "00098880000002ad",
+              "ReversalStatus": "1",
+              "Comments": "",
+              "ContainerId": "0004108000000127",
+              "ContainerName": "CDX-L6-20261109-M",
+              "ContainerChangeCount": "1",
+              "ProductId": "00062c80000000b8",
+              "OperationId": "00060e80000000b5",
+              "SpecId": "00071c80000000b5",
+              "WorkflowStepId": "00074e80000000b5",
+              "Qty": "10",
+              "Qty2": "",
+              "ToQty": "7",
+              "ToQty2": "",
+              "InRework": "false"
+            }
+          ],
+          "summaries": [
+            {
+              "QtyHistoryId": "0013d88000000028",
+              "HistoryMainlineId": "00098880000002ae",
+              "HistoryId": "0004108000000127",
+              "TxnId": "4000000000010448",
+              "IntegrationTxnId": "00098880000002ad",
+              "CDOTypeId": "5080",
+              "Qty": "-3",
+              "Qty2": "",
+              "CloseWhenZero": "true",
+              "ThruputSummary": "false"
+            }
+          ],
+          "details": [
+            {
+              "QtyHistoryDetailsId": "001b148000000028",
+              "QtyHistoryId": "0013d88000000028",
+              "HistoryId": "0004108000000127",
+              "TxnId": "4000000000010448",
+              "IntegrationTxnId": "00098880000002ad",
+              "CDOTypeId": "6932",
+              "ContainerId": "0004108000000127",
+              "ProductId": "00062c80000000b8",
+              "OperationId": "00060e80000000b5",
+              "ChargeToStepId": "00074e80000000b5",
+              "ReasonCodeId": "00102c8000000050",
+              "ChangeQtyType": "2",
+              "QtyMultiplier": "-1",
+              "Qty": "2",
+              "Qty2": "",
+              "UOMId": "0008de8000000002",
+              "UOM2Id": "",
+              "AdjustThruput": "true",
+              "CountsAgainstProduction": "true",
+              "RecordAllQty": "false",
+              "CloseWhenZero": "true",
+              "ThisContainerClosed": "false",
+              "ThisContainerDisassociated": "false",
+              "IsRollup": "false"
+            },
+            {
+              "QtyHistoryDetailsId": "001b148000000029",
+              "QtyHistoryId": "0013d88000000028",
+              "HistoryId": "0004108000000127",
+              "TxnId": "4000000000010448",
+              "IntegrationTxnId": "00098880000002ad",
+              "CDOTypeId": "6932",
+              "ContainerId": "0004108000000127",
+              "ProductId": "00062c80000000b8",
+              "OperationId": "00060e80000000b5",
+              "ChargeToStepId": "00074e80000000b5",
+              "ReasonCodeId": "00102c800000004f",
+              "ChangeQtyType": "2",
+              "QtyMultiplier": "-1",
+              "Qty": "1",
+              "Qty2": "",
+              "UOMId": "0008de8000000002",
+              "UOM2Id": "",
+              "AdjustThruput": "true",
+              "CountsAgainstProduction": "true",
+              "RecordAllQty": "false",
+              "CloseWhenZero": "true",
+              "ThisContainerClosed": "false",
+              "ThisContainerDisassociated": "false",
+              "IsRollup": "false"
+            }
+          ]
+        },
+        "summary": {
+          "CollectSamplingDataHistoryId": "00210d8000000005",
+          "HistoryId": "0004108000000127",
+          "HistoryMainlineId": "00098880000002ad",
+          "TxnId": "4000000000010448",
+          "CDOTypeId": "8461",
+          "SampleTestId": "0020f7800000001e",
+          "SamplingPlanId": "0020f8800000001c",
+          "ProductId": "00062c80000000b8",
+          "SpecId": "00071c80000000b5",
+          "InspectionLevelId": "0020ef8000000002",
+          "AQLLevelId": "0020ee800000001b",
+          "RequiredSamples": "10",
+          "SamplesTested": "4",
+          "TotalSamplesCompleted": "4",
+          "TotalRejects": "3",
+          "TotalPassedSamples": "1",
+          "AllowedRejects": "1",
+          "SamplingStatus": "Fail"
+        },
+        "samples": [
+          {
+            "sample_history": {
+              "InstanceID": "00210b8000000024",
+              "ParentId": "00210d8000000005",
+              "HistoryId": "0004108000000127",
+              "TxnId": "4000000000010448",
+              "SampleTestId": "0020f7800000001e",
+              "SampleTestName": "CDX-L6-20261109-REASONS",
+              "Rejected": "true",
+              "Rejects": "3",
+              "SampleTest": {
+                "InstanceID": "0020f7800000001e"
+              }
+            },
+            "points": [
+              {
+                "InstanceID": "00210c8000000021",
+                "ParentId": "00210b8000000024",
+                "HistoryId": "0004108000000127",
+                "TxnId": "4000000000010448",
+                "SampleDataPointId": "",
+                "DataType": "",
+                "DataValue": "1",
+                "Passed": "false",
+                "LowerLimit": "",
+                "UpperLimit": "",
+                "RejectReasonId": "00102c800000004f",
+                "EnteredQty": "",
+                "SampleDataPoint": null,
+                "RejectReason": {
+                  "InstanceID": "00102c800000004f"
+                }
+              },
+              {
+                "InstanceID": "00210c8000000022",
+                "ParentId": "00210b8000000024",
+                "HistoryId": "0004108000000127",
+                "TxnId": "4000000000010448",
+                "SampleDataPointId": "",
+                "DataType": "",
+                "DataValue": "2",
+                "Passed": "false",
+                "LowerLimit": "",
+                "UpperLimit": "",
+                "RejectReasonId": "00102c8000000050",
+                "EnteredQty": "",
+                "SampleDataPoint": null,
+                "RejectReason": {
+                  "InstanceID": "00102c8000000050"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "current": {
+        "container": {
+          "ContainerId": "0004108000000127",
+          "ContainerName": "CDX-L6-20261109-M",
+          "CDOTypeId": 1040,
+          "Status": 1,
+          "CurrentHoldCount": 0,
+          "ChangeCount": 2,
+          "ProductId": "00062c80000000b8",
+          "SamplingLotId": "",
+          "ParentContainerId": "",
+          "ChildCount": 0,
+          "Qty": "7",
+          "Qty2": "",
+          "UOMId": "0008de8000000002",
+          "UOM2Id": "",
+          "CurrentStatusId": "00085c8000000127",
+          "StatusRecordId": "00085c8000000127",
+          "CarrierId": "",
+          "InRework": false,
+          "SpecId": "00071c80000000b5",
+          "WorkflowStepId": "00074e80000000b5"
+        },
+        "original_task": {
+          "ContainerSampleDataId": "0021068000000027",
+          "ContainerId": "0004108000000127",
+          "SamplingPlanId": "0020f8800000001c",
+          "SampleTestId": "0020f7800000001e",
+          "InspectionLevelId": "0020ef8000000002",
+          "AQLLevelId": "0020ee800000001b",
+          "TotalSamplesRequired": 10,
+          "CompletedSamples": 4,
+          "Rejects": 3,
+          "AllowedRejects": 1,
+          "InspectAllContQty": false,
+          "InspectAllQtyOnFailure": false,
+          "ChangeCount": 2
+        },
+        "task_missing": false,
+        "note": "原任务ID、完整累计及恰好一次版本变化核对；同值回读仍须唯一父子原生历史。"
+      }
+    },
+    "zero": {
+      "snapshot": {
+        "kind": "inspection",
+        "action": "collect",
+        "inspection_input_version": 2,
+        "name": "CDX-L6-20261109-Z",
+        "target_id": "0004108000000128",
+        "scope_key": "inspection-container:0004108000000128",
+        "before": {
+          "container": {
+            "ContainerId": "0004108000000128",
+            "ContainerName": "CDX-L6-20261109-Z",
+            "ProductId": "00062c80000000b8",
+            "Status": 1,
+            "CurrentHoldCount": 0,
+            "InQualityControl": "0",
+            "SamplingRequired": true,
+            "SamplingPassed": false,
+            "SamplingLotId": "",
+            "Qty": "3",
+            "ChangeCount": 1
+          },
+          "task": {
+            "ContainerSampleDataId": "0021068000000028",
+            "ContainerId": "0004108000000128",
+            "SamplingPlanId": "0020f8800000001c",
+            "SampleTestId": "0020f7800000001c",
+            "InspectionLevelId": "0020ef8000000002",
+            "AQLLevelId": "0020ee800000001b",
+            "TotalSamplesRequired": 10,
+            "CompletedSamples": 0,
+            "Rejects": 0,
+            "AllowedRejects": 1,
+            "InspectAllContQty": false,
+            "InspectAllQtyOnFailure": false,
+            "ChangeCount": 1
+          },
+          "container_status": {
+            "Container": {
+              "InstanceId": "0004108000000128",
+              "CDOTypeName": "Container",
+              "Name": "CDX-L6-20261109-Z"
+            },
+            "Spec": {
+              "InstanceId": "00071c80000000b5",
+              "CDOTypeName": "Spec",
+              "Name": "CDX-L6-20261109-SPEC",
+              "Revision": "1"
+            },
+            "Step": {
+              "InstanceId": "00074e80000000b5",
+              "CDOTypeName": "SpecStep",
+              "Name": "Inspect",
+              "Parent": {
+                "@odata.type": "#inquiry.RevisionedObjectRef",
+                "InstanceId": "0005aa80000000cd",
+                "CDOTypeName": "Workflow",
+                "Name": "CDX-L6-20261109-WF",
+                "Revision": "1"
+              }
+            },
+            "Workflow": {
+              "InstanceId": "0005aa80000000cd",
+              "CDOTypeName": "Workflow",
+              "Name": "CDX-L6-20261109-WF",
+              "Revision": "1"
+            },
+            "Operation": {
+              "InstanceId": "00060e80000000b5",
+              "CDOTypeName": "Operation",
+              "Name": "CDX-L6-20261109-OP"
+            },
+            "Product": {
+              "InstanceId": "00062c80000000b8",
+              "CDOTypeName": "Product",
+              "Name": "CDX-L6-20261109-PRODUCT",
+              "Revision": "1"
+            },
+            "Qty": 3.0,
+            "Status": 1
+          }
+        },
+        "definition": {
+          "test": {
+            "InstanceID": "0020f7800000001c",
+            "Name": "CDX-L6-20261109-SAMPLE",
+            "Revision": "1",
+            "Status": 1,
+            "IsFrozen": false,
+            "SampleType": 1,
+            "Instructions": null,
+            "AllowMoveOnFailure": false,
+            "AQLRejectReasons": {
+              "InstanceId": "0016588000000037",
+              "CDOTypeName": "LossReasonGroup",
+              "Name": "CDX-L6-20261109-GROUP"
+            },
+            "DecreaseByRejectCountReason": null,
+            "DecreaseBySampleSizeReason": {
+              "InstanceId": "00102c800000004f",
+              "CDOTypeName": "LossReason",
+              "Name": "CDX-L6-20261109-A"
+            },
+            "DefaultFailureMode": null,
+            "DefaultPEDescription": null,
+            "Classification": null,
+            "SubClassification": null,
+            "ScrapCountedRejectsByReason": false
+          },
+          "points": [],
+          "reject_reasons": [
+            {
+              "name": "CDX-L6-20261109-A",
+              "instanceId": "00102c800000004f"
+            },
+            {
+              "name": "CDX-L6-20261109-B",
+              "instanceId": "00102c8000000050"
+            }
+          ],
+          "reject_group": {
+            "Name": "CDX-L6-20261109-GROUP",
+            "InstanceID": "0016588000000037"
+          }
+        },
+        "service": "CollectSamplingData",
+        "body": {
+          "container": {
+            "name": "CDX-L6-20261109-Z",
+            "instanceId": "0004108000000128"
+          },
+          "sampleTest": {
+            "name": "CDX-L6-20261109-SAMPLE",
+            "revision": "1",
+            "instanceId": "0020f7800000001c"
+          },
+          "sampleType": 1,
+          "serviceDetails": [
+            {
+              "sampleTest": {
+                "name": "CDX-L6-20261109-SAMPLE",
+                "revision": "1",
+                "instanceId": "0020f7800000001c"
+              },
+              "totalSamplesCollected": 3,
+              "rejects": 0,
+              "rejected": false
+            }
+          ],
+          "moveContainerOnCompletion": false,
+          "comments": "MCP-QUAL:ef89e2a104ac4d338defdc4d584733bc",
+          "samplesTested": 3
+        },
+        "marker": "MCP-QUAL:ef89e2a104ac4d338defdc4d584733bc",
+        "preview": {
+          "params": {
+            "execute": "false",
+            "$select": "Container,SampleTest,ServiceDetails,MoveContainerOnCompletion,Comments,RequiredSamples,SamplesTested,AllowedRejects,SampleType,SamplingStatus,ContainerSampleDataItem",
+            "$expand": "ServiceDetails($select=SampleTest,TotalSamplesCollected,Rejects,Rejected;$expand=SamplingDataPointDetails($select=SampleDataPoint,DataValue,Passed,RejectReason))"
+          },
+          "verified_input_echo": {
+            "container": {
+              "name": "CDX-L6-20261109-Z",
+              "instanceId": "0004108000000128"
+            },
+            "sampleTest": {
+              "name": "CDX-L6-20261109-SAMPLE",
+              "revision": "1",
+              "instanceId": "0020f7800000001c"
+            },
+            "sampleType": 1,
+            "serviceDetails": [
+              {
+                "sampleTest": {
+                  "name": "CDX-L6-20261109-SAMPLE",
+                  "revision": "1",
+                  "instanceId": "0020f7800000001c"
+                },
+                "totalSamplesCollected": 3,
+                "rejects": 0,
+                "rejected": false
+              }
+            ],
+            "moveContainerOnCompletion": false,
+            "comments": "MCP-QUAL:ef89e2a104ac4d338defdc4d584733bc",
+            "samplesTested": 3
+          },
+          "task_context": {
+            "RequiredSamples": "10",
+            "SamplesTested": "3",
+            "AllowedRejects": "1",
+            "SampleType": "1",
+            "SamplingStatus": null
+          },
+          "dynamic_validation_verified": false,
+          "detail_contract": "shopfloor.CollectSamplingDataDetails",
+          "point_contract": "shopfloor.SamplingDataPointDetails",
+          "response_dynamic_type_verified": false,
+          "local_checks": [
+            {
+              "group_number": 1,
+              "samples_collected": 3,
+              "rejects": 0,
+              "reject_reason": null,
+              "sample_partition_verified": false
+            }
+          ],
+          "samples_this_submission": 3,
+          "rejects_this_submission": 0,
+          "result_semantics": "literal numeric precheck only; MES final result and release unverified",
+          "automatic_move": false,
+          "quantity_or_event_effects_supported": true,
+          "counted_groups_this_submission": 1,
+          "sample_partition_verified": false,
+          "counted_group_accumulation_verified": false,
+          "counted_reason_history_verified": false,
+          "counted_group_semantics": "explicit disjoint cohorts; per-group counts are never allocated from a global total",
+          "native_effects": {
+            "mode": "counted_sample_size_loss",
+            "allow_full_inspection": false,
+            "allow_automatic_quantity_loss": true,
+            "runtime_effects_verified": false,
+            "deployed_logic_overrides_verified": false,
+            "quality_verdict": null,
+            "separate_quantity_submission": false,
+            "unit": {
+              "name": "EACH",
+              "instanceId": "0008de8000000002"
+            },
+            "automatic_quantity_loss": {
+              "basis": "explicit current counted SamplesTested",
+              "quantity": "3",
+              "projected_remaining_quantity": "0",
+              "reason": {
+                "name": "CDX-L6-20261109-A",
+                "instanceId": "00102c800000004f"
+              },
+              "native_child_defaults": {
+                "root": {
+                  "CloseWhenZero": true,
+                  "DisassociateWhenClosed": true,
+                  "GenerateRollups": true,
+                  "RecordAllQtySummaryOnly": true
+                },
+                "adjust_throughput": true,
+                "record_all_quantity": false,
+                "detail_type": 4030,
+                "quantity_multiplier": -1,
+                "counts_against_production": true,
+                "runtime_child_execution_verified": false
+              },
+              "allow_zero_quantity_loss": true,
+              "projected_close": true,
+              "projection_is_execution_result": false,
+              "note": "只提交一次CollectSamplingData，MES内部创建LossDetails；本工具不再提交ChangeQty。标准CLF内部把子服务ProcessESignatures设false，本工具不覆盖父事务签名；部署及签名链未验证。"
+            }
+          }
+        },
+        "arguments": {
+          "container_name": "CDX-L6-20261109-Z",
+          "sample_test_name": "CDX-L6-20261109-SAMPLE",
+          "sample_test_revision": "1",
+          "container_instance_id": null,
+          "samples_collected": null,
+          "rejects": null,
+          "reject_reason_name": null,
+          "samples": null,
+          "comments": "",
+          "counted_groups": [
+            {
+              "samples_collected": 3,
+              "rejects": 0,
+              "reject_reason_name": null
+            }
+          ],
+          "allow_full_inspection": false,
+          "allow_automatic_quantity_loss": true,
+          "allow_zero_quantity_loss": true
+        },
+        "environment": {
+          "modeling": "https://test.invalid/Modeling",
+          "query": "https://test.invalid/Query",
+          "shopfloor": "https://test.invalid/Shopfloor"
+        },
+        "inspection_effects": {
+          "context": {
+            "mode": "counted_sample_size_loss",
+            "allow_full_inspection": false,
+            "allow_automatic_quantity_loss": true,
+            "runtime_effects_verified": false,
+            "deployed_logic_overrides_verified": false,
+            "quality_verdict": null,
+            "separate_quantity_submission": false,
+            "unit": {
+              "name": "EACH",
+              "instanceId": "0008de8000000002"
+            },
+            "automatic_quantity_loss": {
+              "basis": "explicit current counted SamplesTested",
+              "quantity": "3",
+              "projected_remaining_quantity": "0",
+              "reason": {
+                "name": "CDX-L6-20261109-A",
+                "instanceId": "00102c800000004f"
+              },
+              "native_child_defaults": {
+                "root": {
+                  "CloseWhenZero": true,
+                  "DisassociateWhenClosed": true,
+                  "GenerateRollups": true,
+                  "RecordAllQtySummaryOnly": true
+                },
+                "adjust_throughput": true,
+                "record_all_quantity": false,
+                "detail_type": 4030,
+                "quantity_multiplier": -1,
+                "counts_against_production": true,
+                "runtime_child_execution_verified": false
+              },
+              "allow_zero_quantity_loss": true,
+              "projected_close": true,
+              "projection_is_execution_result": false,
+              "note": "只提交一次CollectSamplingData，MES内部创建LossDetails；本工具不再提交ChangeQty。标准CLF内部把子服务ProcessESignatures设false，本工具不覆盖父事务签名；部署及签名链未验证。"
+            }
+          },
+          "container": {
+            "ContainerId": "0004108000000128",
+            "ContainerName": "CDX-L6-20261109-Z",
+            "CDOTypeId": 1040,
+            "Status": 1,
+            "CurrentHoldCount": 0,
+            "ChangeCount": 1,
+            "ProductId": "00062c80000000b8",
+            "SamplingLotId": "",
+            "ParentContainerId": "",
+            "ChildCount": 0,
+            "Qty": "3",
+            "Qty2": "",
+            "UOMId": "0008de8000000002",
+            "UOM2Id": "",
+            "CurrentStatusId": "00085c8000000128",
+            "StatusRecordId": "00085c8000000128",
+            "CarrierId": "",
+            "InRework": false,
+            "SpecId": "00071c80000000b5",
+            "WorkflowStepId": "00074e80000000b5"
+          },
+          "container_status": {
+            "Container": {
+              "InstanceId": "0004108000000128",
+              "CDOTypeName": "Container",
+              "Name": "CDX-L6-20261109-Z"
+            },
+            "Spec": {
+              "InstanceId": "00071c80000000b5",
+              "CDOTypeName": "Spec",
+              "Name": "CDX-L6-20261109-SPEC",
+              "Revision": "1"
+            },
+            "Step": {
+              "InstanceId": "00074e80000000b5",
+              "CDOTypeName": "SpecStep",
+              "Name": "Inspect",
+              "Parent": {
+                "@odata.type": "#inquiry.RevisionedObjectRef",
+                "InstanceId": "0005aa80000000cd",
+                "CDOTypeName": "Workflow",
+                "Name": "CDX-L6-20261109-WF",
+                "Revision": "1"
+              }
+            },
+            "Workflow": {
+              "InstanceId": "0005aa80000000cd",
+              "CDOTypeName": "Workflow",
+              "Name": "CDX-L6-20261109-WF",
+              "Revision": "1"
+            },
+            "Operation": {
+              "InstanceId": "00060e80000000b5",
+              "CDOTypeName": "Operation",
+              "Name": "CDX-L6-20261109-OP"
+            },
+            "Product": {
+              "InstanceId": "00062c80000000b8",
+              "CDOTypeName": "Product",
+              "Name": "CDX-L6-20261109-PRODUCT",
+              "Revision": "1"
+            },
+            "Qty": 3.0,
+            "Status": 1,
+            "InProcess": true
+          },
+          "dependencies": [
+            {
+              "entity": "SampleTests",
+              "InstanceID": "0020f7800000001c",
+              "Name": "CDX-L6-20261109-SAMPLE",
+              "Revision": "1",
+              "ChangeCount": 1,
+              "content_digest": "0c9efa1a9a462e878bab550c563ae48a74efa923abe7d424d4006aba26c7a138"
+            },
+            {
+              "entity": "Specs",
+              "InstanceID": "00071c80000000b5",
+              "Name": "CDX-L6-20261109-SPEC",
+              "Revision": "1",
+              "ChangeCount": 1,
+              "content_digest": "437a1dcf3e3fb61f7c1f0c9e6fff18428ed8a4b97a2a1881ac91bed6e058d386"
+            },
+            {
+              "entity": "UOMs",
+              "InstanceID": "0008de8000000002",
+              "Name": "EACH",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "d4e20313edadb208753477627d189e41c946cc0d600103cf34820642eb2a6f23"
+            },
+            {
+              "entity": "Operations",
+              "InstanceID": "00060e80000000b5",
+              "Name": "CDX-L6-20261109-OP",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "d3ca7aee7b28de15fc9e1ead978bbd31ec2af72e391785be0420c017b2b1db87"
+            },
+            {
+              "entity": "LossReasons",
+              "InstanceID": "00102c800000004f",
+              "Name": "CDX-L6-20261109-A",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "993dc4b2ecdb4ed8e8fb55359585b4f52c3a9d1f57ddbaf87c5d940eb576d1c0"
+            },
+            {
+              "entity": "LossReasonGroups",
+              "InstanceID": "0016588000000037",
+              "Name": "CDX-L6-20261109-GROUP",
+              "Revision": null,
+              "ChangeCount": 1,
+              "content_digest": "3ee83b598e063ab96e1c200ecfab41e99dc790c214341aa6c764621640463bf3"
+            }
+          ],
+          "resource_reads": [
+            "modeling:LossReasonGroups:id:0016588000000037",
+            "modeling:LossReasonGroups:name:cdx-l6-20261109-group",
+            "modeling:LossReasons:id:00102c800000004f",
+            "modeling:LossReasons:name:cdx-l6-20261109-a",
+            "modeling:Operations:id:00060e80000000b5",
+            "modeling:Operations:name:cdx-l6-20261109-op",
+            "modeling:SampleTests:id:0020f7800000001c",
+            "modeling:SampleTests:name:cdx-l6-20261109-sample",
+            "modeling:Specs:id:00071c80000000b5",
+            "modeling:Specs:name:cdx-l6-20261109-spec",
+            "modeling:UOMs:id:0008de8000000002",
+            "modeling:UOMs:name:each"
+          ]
+        },
+        "resource_reads": [
+          "modeling:LossReasonGroups:id:0016588000000037",
+          "modeling:LossReasonGroups:name:cdx-l6-20261109-group",
+          "modeling:LossReasons:id:00102c800000004f",
+          "modeling:LossReasons:name:cdx-l6-20261109-a",
+          "modeling:Operations:id:00060e80000000b5",
+          "modeling:Operations:name:cdx-l6-20261109-op",
+          "modeling:SampleTests:id:0020f7800000001c",
+          "modeling:SampleTests:name:cdx-l6-20261109-sample",
+          "modeling:Specs:id:00071c80000000b5",
+          "modeling:Specs:name:cdx-l6-20261109-spec",
+          "modeling:UOMs:id:0008de8000000002",
+          "modeling:UOMs:name:each"
+        ],
+        "inspection_evidence_version": 1
+      },
+      "attempt": {
+        "attempt_id": "f1a65d5ed3b04afba69da600fcd50f5c",
+        "started": 1794223224.5195835,
+        "finished": 1794223224.7381701
+      },
+      "root": {
+        "HistoryMainlineId": "00098880000002af",
+        "HistoryId": "0004108000000128",
+        "TxnId": "4000000000010449",
+        "TxnDateGMT": "2026-11-09T11:20:23.703",
+        "TxnType": "8452",
+        "TxnTypeName": "CollectSamplingData",
+        "IntegrationTxnId": "00098880000002af",
+        "ReversalStatus": "1",
+        "Comments": "MCP-QUAL:ef89e2a104ac4d338defdc4d584733bc",
+        "ContainerId": "0004108000000128",
+        "ContainerName": "CDX-L6-20261109-Z",
+        "ContainerChangeCount": "1",
+        "ProductId": "00062c80000000b8",
+        "OperationId": "00060e80000000b5",
+        "SpecId": "00071c80000000b5",
+        "WorkflowStepId": "00074e80000000b5",
+        "Qty": "3",
+        "Qty2": "",
+        "ToQty": "0",
+        "ToQty2": "0",
+        "InRework": "false"
+      },
+      "evidence": {
+        "native": {
+          "mainlines": [
+            {
+              "HistoryMainlineId": "00098880000002af",
+              "HistoryId": "0004108000000128",
+              "TxnId": "4000000000010449",
+              "TxnDateGMT": "2026-11-09T11:20:23.703",
+              "TxnType": "8452",
+              "TxnTypeName": "CollectSamplingData",
+              "IntegrationTxnId": "00098880000002af",
+              "ReversalStatus": "1",
+              "Comments": "MCP-QUAL:ef89e2a104ac4d338defdc4d584733bc",
+              "ContainerId": "0004108000000128",
+              "ContainerName": "CDX-L6-20261109-Z",
+              "ContainerChangeCount": "1",
+              "ProductId": "00062c80000000b8",
+              "OperationId": "00060e80000000b5",
+              "SpecId": "00071c80000000b5",
+              "WorkflowStepId": "00074e80000000b5",
+              "Qty": "3",
+              "Qty2": "",
+              "ToQty": "0",
+              "ToQty2": "0",
+              "InRework": "false"
+            },
+            {
+              "HistoryMainlineId": "00098880000002b0",
+              "HistoryId": "0004108000000128",
+              "TxnId": "4000000000010449",
+              "TxnDateGMT": "2026-11-09T11:20:23.703",
+              "TxnType": "4000",
+              "TxnTypeName": "ChangeQty",
+              "IntegrationTxnId": "00098880000002af",
+              "ReversalStatus": "1",
+              "Comments": "",
+              "ContainerId": "0004108000000128",
+              "ContainerName": "CDX-L6-20261109-Z",
+              "ContainerChangeCount": "1",
+              "ProductId": "00062c80000000b8",
+              "OperationId": "00060e80000000b5",
+              "SpecId": "00071c80000000b5",
+              "WorkflowStepId": "00074e80000000b5",
+              "Qty": "3",
+              "Qty2": "",
+              "ToQty": "0",
+              "ToQty2": "0",
+              "InRework": "false"
+            }
+          ],
+          "summaries": [
+            {
+              "QtyHistoryId": "0013d88000000029",
+              "HistoryMainlineId": "00098880000002b0",
+              "HistoryId": "0004108000000128",
+              "TxnId": "4000000000010449",
+              "IntegrationTxnId": "00098880000002af",
+              "CDOTypeId": "5080",
+              "Qty": "-3",
+              "Qty2": "0",
+              "CloseWhenZero": "true",
+              "ThruputSummary": "false"
+            }
+          ],
+          "details": [
+            {
+              "QtyHistoryDetailsId": "001b14800000002a",
+              "QtyHistoryId": "0013d88000000029",
+              "HistoryId": "0004108000000128",
+              "TxnId": "4000000000010449",
+              "IntegrationTxnId": "00098880000002af",
+              "CDOTypeId": "6932",
+              "ContainerId": "0004108000000128",
+              "ProductId": "00062c80000000b8",
+              "OperationId": "00060e80000000b5",
+              "ChargeToStepId": "00074e80000000b5",
+              "ReasonCodeId": "00102c800000004f",
+              "ChangeQtyType": "2",
+              "QtyMultiplier": "-1",
+              "Qty": "3",
+              "Qty2": "",
+              "UOMId": "0008de8000000002",
+              "UOM2Id": "",
+              "AdjustThruput": "true",
+              "CountsAgainstProduction": "true",
+              "RecordAllQty": "false",
+              "CloseWhenZero": "true",
+              "ThisContainerClosed": "true",
+              "ThisContainerDisassociated": "false",
+              "IsRollup": "false"
+            }
+          ]
+        },
+        "summary": {
+          "CollectSamplingDataHistoryId": "00210d8000000006",
+          "HistoryId": "0004108000000128",
+          "HistoryMainlineId": "00098880000002af",
+          "TxnId": "4000000000010449",
+          "CDOTypeId": "8461",
+          "SampleTestId": "0020f7800000001c",
+          "SamplingPlanId": "0020f8800000001c",
+          "ProductId": "00062c80000000b8",
+          "SpecId": "00071c80000000b5",
+          "InspectionLevelId": "0020ef8000000002",
+          "AQLLevelId": "0020ee800000001b",
+          "RequiredSamples": "10",
+          "SamplesTested": "3",
+          "TotalSamplesCompleted": "3",
+          "TotalRejects": "0",
+          "TotalPassedSamples": "3",
+          "AllowedRejects": "1",
+          "SamplingStatus": "In Process"
+        },
+        "samples": [
+          {
+            "sample_history": {
+              "InstanceID": "00210b8000000025",
+              "ParentId": "00210d8000000006",
+              "HistoryId": "0004108000000128",
+              "TxnId": "4000000000010449",
+              "SampleTestId": "0020f7800000001c",
+              "SampleTestName": "CDX-L6-20261109-SAMPLE",
+              "Rejected": "false",
+              "Rejects": "0",
+              "SampleTest": {
+                "InstanceID": "0020f7800000001c"
+              }
+            },
+            "points": []
+          }
+        ]
+      },
+      "current": {
+        "container": {
+          "ContainerId": "0004108000000128",
+          "ContainerName": "CDX-L6-20261109-Z",
+          "CDOTypeId": 1040,
+          "Status": 2,
+          "CurrentHoldCount": 0,
+          "ChangeCount": 2,
+          "ProductId": "00062c80000000b8",
+          "SamplingLotId": "",
+          "ParentContainerId": "",
+          "ChildCount": 0,
+          "Qty": "0",
+          "Qty2": "0",
+          "UOMId": "0008de8000000002",
+          "UOM2Id": "",
+          "CurrentStatusId": "00085c8000000128",
+          "StatusRecordId": "00085c8000000128",
+          "CarrierId": "",
+          "InRework": false,
+          "SpecId": "00071c80000000b5",
+          "WorkflowStepId": "00074e80000000b5"
+        },
+        "original_task": {
+          "ContainerSampleDataId": "0021068000000028",
+          "ContainerId": "0004108000000128",
+          "SamplingPlanId": "0020f8800000001c",
+          "SampleTestId": "0020f7800000001c",
+          "InspectionLevelId": "0020ef8000000002",
+          "AQLLevelId": "0020ee800000001b",
+          "TotalSamplesRequired": 10,
+          "CompletedSamples": 3,
+          "Rejects": 0,
+          "AllowedRejects": 1,
+          "InspectAllContQty": false,
+          "InspectAllQtyOnFailure": false,
+          "ChangeCount": 2
+        },
+        "task_missing": false,
+        "note": "原任务ID、完整累计及恰好一次版本变化核对；同值回读仍须唯一父子原生历史。"
+      }
+    }
+  }
+}

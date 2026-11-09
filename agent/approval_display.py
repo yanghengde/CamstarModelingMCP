@@ -51,6 +51,10 @@ LABELS = {
     'stored_required_samples': '当前任务要求样本数', 'current_whole_quantity': '容器总数量',
     'projected_quantity_after_loss': '预计扣量后容器数量',
     'conditional_required_samples_after_failure': 'MES判失败时的条件样本要求',
+    'separate_transaction': '原检验完成后独立创建事件', 'holdContainers': '挂起关联容器',
+    'briefDescription': '事件简述', 'priorityLevel': '优先级', 'classification': '分类',
+    'subClassification': '子分类', 'organization': '组织', 'reporter': '报告人', 'initiator': '发现人',
+    'reportedDate': '报告时间', 'occurrenceDate': '发生时间',
     'required': '需求数量', 'source': '来源', 'target': '目标',
     'net_required_before': '投料前剩余需求', 'quantity_this_request': '本次投料数量',
     'source_available_before': '来源可用数量', 'projected_source_quantity': '预计来源剩余数量',
@@ -67,6 +71,7 @@ VALUES = {
     'create': '创建', 'update': '修改', 'delete': '删除', 'ready': '待执行',
     'inspection_definition': '检验配置', 'sample_data_point': '检验指标',
     'sample_test': '检验项目', 'sampling_plan': '抽检计划', 'quantity_loss': '数量损失',
+    'inspection_event': '检验后的关联质量事件', 'create_followup': '创建后续事件',
     'pre_production': '生产前', 'post_production': '生产后',
     'SamplingPlans': '抽检计划', 'SampleTests': '检验项目', 'SampleDataPoints': '检验指标',
 }

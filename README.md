@@ -1,5 +1,7 @@
 # Camstar Modeling MCP Agent
 
+高级抽样检验组合：[第6部分进度与现场记录](docs/inspection-combinations-completion.md)。计数扣量、分组累计、逐原因损失及归零关闭已验收；独立后续质量事件等待管理员开通 MES 创建服务权限后完成最后一项现场验收。
+
 生产过站与报工：[第1部分完整流程、工具与限制](docs/production-reporting.md)。六项核心功能已完成独立现场闭环验收，包含MES人工分钟落账、两种不良处置和原生整单生产完成；原生MoveOut仍有服务端错误，使用明确分步生产流程，详见[验收记录](docs/production-acceptance.md)。
 
 共享只读查询：[通用编排、元数据缓存与工单日期模板](docs/read-orchestration.md)。复用原MCP工具，支持受控依赖、有限并发、分页和精确关联/汇总；生产写入流程保持独立。

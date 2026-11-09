@@ -180,7 +180,8 @@ def utc(value):
     ticks=timestamp_ticks(value);seconds,fraction=divmod(ticks,10000000)
     return (datetime(1970,1,1,tzinfo=timezone.utc)+timedelta(seconds=seconds)).strftime('%Y-%m-%dT%H:%M:%S')+f'.{fraction:07d}Z'
 
-async def numbering(org):
+async def numbering(org,category=1):
+    if type(category)is not int or category not in (1,3):raise ValueError('事件编号类别未支持。')
     ctx=ReadContext(3)
     data=await ctx.get('Organizations',org['InstanceID'],{'$select':'InstanceID,Name,NumberingRuleMap',
         '$expand':'NumberingRuleMap($select=InstanceID,Category,NumberingRule,IsFrozen)'})
@@ -191,7 +192,7 @@ async def numbering(org):
         key=iid(q.identifier(r))
         if key in seen:raise ValueError('编号映射重复。')
         seen.add(key)
-        if iint(r.get('Category'))==1:matching.append(r)
+        if iint(r.get('Category'))==category:matching.append(r)
     if len(matching)!=1 or u.i.wire_bool(matching[0].get('IsFrozen'),'编号映射冻结状态'):raise ValueError('没有唯一有效的Event自动编号规则。')
     key=iid(q.identifier(matching[0].get('NumberingRule')))
     state=await ctx.get('NumberingRules',key,{'$select':'InstanceID,Name,IsFrozen,IsRollover,NumberingRuleType,SequenceLength,Prefix,Suffix'})

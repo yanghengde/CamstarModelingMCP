@@ -247,12 +247,21 @@ def validate_transport(snap):
     mode = effects['context']['mode'] if effects else None
     counted_loss = mode in ('counted_sample_size_loss', *REJECT_LOSS_MODES)
     expected_fields = {'container', 'sampleTest', 'serviceDetails', 'moveContainerOnCompletion', 'comments'}
-    if counted_loss:
+    new_input=snap.get('inspection_input_version')==2
+    counted_input=snap['definition']['test']['SampleType']==1 if new_input else counted_loss
+    if new_input:expected_fields.add('sampleType')
+    if counted_input:
         expected_fields.add('samplesTested')
     if (snap.get('kind') != 'inspection' or snap.get('action') != 'collect'
             or set(body) != expected_fields
             or body['moveContainerOnCompletion'] is not False):
         raise ValueError('单容器检验仅固定CollectSamplingData、移站false和原检验字段，不接受扣量/全检/签名覆盖。')
+    if new_input:
+        dtype=snap['definition']['test']['SampleType']
+        if type(body['sampleType'])is not int or body['sampleType']!=dtype:raise ValueError('检验根采样类型与固定测试不符。')
+        if counted_input:
+            lines,_,count,_=i.counted_details(snap['definition'],snap['arguments'])
+            if type(body['samplesTested'])is not int or body['samplesTested']!=count or body['serviceDetails']!=lines:raise ValueError('计数检验根本次采样合计或分组不符。')
     if effects:
         arguments = snap['arguments']
         full, quantity = options(arguments)
@@ -304,7 +313,7 @@ async def inspect_snapshot(snap):
     cid = snap['target_id']
     tid = snap['before']['task']['ContainerSampleDataId']
     if not q.valid_id(cid) or not q.valid_id(tid): raise ValueError('原生检验原目标/任务ID无效。')
-    rows = await q.sql_rows(f"SELECT {i.TASK_COLUMNS} FROM ContainerSampleData WHERE ContainerSampleDataId='{tid}' AND ContainerId='{cid}'",1)
+    rows = await q.sql_rows(f"SELECT {i.TASK_SELECT} FROM ContainerSampleData WHERE ContainerSampleDataId='{tid}' AND ContainerId='{cid}'",1)
     i.check_tasks(rows,cid)
     if len(rows)>1 or rows and rows[0]['ContainerSampleDataId']!=tid: raise ValueError('原生检验原任务身份不符。')
     evidence = {'original_container_id': cid, 'current_quantity_record': await loss.record(cid),

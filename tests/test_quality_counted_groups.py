@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastmcp import Client
-from tests.test_quality_inspection import setup, definition
+from tests.test_quality_inspection import setup, definition, echo
 from tests.test_quality_lot_execution import env as lot_env
 from tools import mcp, quality_inspection as i, quality_lot_execution as e, quality_plans as p, quality_history as h
 
@@ -126,7 +126,7 @@ def test_counted_group_wire_matches_live_openapi(setup):
     import jsonschema
     setup[0]['definition']['reject_reasons'].append({'name':'Scratch','instanceId':SECOND})
     ready=result(i.prepare_container_inspection('C','Visual','A',counted_groups=groups()))
-    schemas=json.loads(Path('docs/quality-fixtures/phase2-contracts.json').read_text(encoding='utf-8'))['CollectSamplingData']['components']['schemas']
+    schemas=json.loads(Path('tests/fixtures/inspection_input_schema.json').read_text(encoding='utf-8'))['components']['schemas']
     jsonschema.Draft7Validator({'components':{'schemas':schemas},'$ref':'#/components/schemas/CollectSamplingData'}).validate(ready['request_preview']['body'])
 
 
@@ -149,12 +149,11 @@ def test_changed_child_reject_count_cannot_match_parent(request,family):
 
 
 @pytest.mark.parametrize('case',['canonical','passing'])
-def test_captured_live_child_projection_without_cdo_field_is_readable(monkeypatch,case):
-    contract=json.loads(Path('docs/quality-fixtures/counted-groups-contracts.json').read_text(encoding='utf-8'))
-    record=next(r for r in contract['wire_comparison_probes'] if r['case']==case)
-    # The no-target probe omits move/task/context fields. Check only the
-    # explicitly echoed fields; this is not a complete transaction preview.
-    body=copy.deepcopy({k:v for k,v in record['body'].items() if k!='moveContainerOnCompletion'})
+def test_projected_child_without_cdo_field_is_readable(monkeypatch,case):
+    # Portable parser unit input. Actual nonempty history captures are replayed
+    # by test_quality_inspection_native; an input echo is never final evidence.
+    record=projection(case)
+    body=copy.deepcopy(record['body'])
     for detail in body['serviceDetails']:
         if detail.get('samplingDataPointDetails')==[]:detail.pop('samplingDataPointDetails')
     monkeypatch.setattr(i,'request',AsyncMock(return_value=json.dumps(record['response'])))
@@ -163,13 +162,20 @@ def test_captured_live_child_projection_without_cdo_field_is_readable(monkeypatc
     assert all(v is None for v in preview['task_context'].values())
 
 
-def test_no_target_live_probe_does_not_approve_a_real_plan(setup,monkeypatch):
-    contract=json.loads(Path('docs/quality-fixtures/counted-groups-contracts.json').read_text(encoding='utf-8'))
-    record=next(r for r in contract['wire_comparison_probes'] if r['case']=='canonical')
+def test_no_task_projection_does_not_approve_a_real_plan(setup,monkeypatch):
+    record=projection('canonical')
     monkeypatch.setattr(i,'request',AsyncMock(return_value=json.dumps(record['response'])))
     out=result(i.prepare_container_inspection('C','Visual','A',samples_collected=3,rejects=1,reject_reason_name='Crack'))
     assert 'error' in out
     setup[2].request.assert_not_awaited()
+
+
+def projection(case):
+    test={'name':'Visual','revision':'A','instanceId':'0000000000000201'}
+    line=dict(sampleTest=test,totalSamplesCollected=3,rejects=1 if case=='canonical'else 0,rejected=case=='canonical',samplingDataPointDetails=[])
+    if case=='canonical':line['samplingDataPointDetails']=[dict(dataValue='1',passed=False,rejectReason={'name':'Crack','instanceId':'0000000000000501'})]
+    body=dict(sampleTest=test,serviceDetails=[line])
+    return dict(body=body,response={'data':echo(body)})
 
 
 def test_previous_shortcut_plan_is_stale_instead_of_replayed(setup):

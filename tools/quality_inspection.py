@@ -13,6 +13,7 @@ from core.http_client import request
 from config import CAMSTAR_SHOPFLOOR_BASE_URL
 
 TASK_COLUMNS='ContainerSampleDataId,ContainerId,SamplingPlanId,SampleTestId,InspectionLevelId,AQLLevelId,TotalSamplesRequired,CompletedSamples,Rejects,AllowedRejects,InspectAllContQty,InspectAllQtyOnFailure,ChangeCount'
+TASK_SELECT=','.join('COALESCE('+name+',0) AS '+name if name in ('CompletedSamples','Rejects') else name for name in TASK_COLUMNS.split(','))
 CONTAINER_COLUMNS='ContainerId,ContainerName,ProductId,Status,COALESCE(CurrentHoldCount,0) AS CurrentHoldCount,InQualityControl,SamplingRequired,SamplingPassed,SamplingLotId,Qty,ChangeCount'
 TEST_FIELDS=('InstanceID','Name','Revision','Status','IsFrozen','SampleType','Instructions','AllowMoveOnFailure',
     'AQLRejectReasons','DecreaseByRejectCountReason','DecreaseBySampleSizeReason','DefaultFailureMode',
@@ -236,7 +237,7 @@ async def get_container_inspection_tasks(container_name:str,container_instance_i
         reads.paging(offset,limit)
         if limit>20:raise ValueError('检验任务每页最多20条。')
         ref,state,_=await container_snapshot(container_name,container_instance_id)
-        rows=await reads.sql_rows(f"SELECT {TASK_COLUMNS} FROM ContainerSampleData WHERE ContainerId='{ref['instanceId']}' ORDER BY ContainerSampleDataId OFFSET {offset} ROWS FETCH NEXT {limit+1} ROWS ONLY",limit+1)
+        rows=await reads.sql_rows(f"SELECT {TASK_SELECT} FROM ContainerSampleData WHERE ContainerId='{ref['instanceId']}' ORDER BY ContainerSampleDataId OFFSET {offset} ROWS FETCH NEXT {limit+1} ROWS ONLY",limit+1)
         check_tasks(rows,ref['instanceId']);tasks=[];ctx=ReadContext(20)
         for row in rows[:limit]:
             test=await ctx.resolve('SampleTests',{'InstanceID':row['SampleTestId']})
@@ -329,7 +330,7 @@ async def build_inspection(args,marker):
             or before['CurrentHoldCount']!=0 or before.get('SamplingRequired') is not True):
         raise ValueError('当前容器不是已确认需检验、有效且无冻结状态。')
     if before.get('SamplingLotId'):raise ValueError('该容器属于抽样批，必须使用单独批抽样流程，不能按单容器提交。')
-    rows=await reads.sql_rows(f"SELECT TOP 2 {TASK_COLUMNS} FROM ContainerSampleData WHERE ContainerId='{cid}' AND SampleTestId='{test_ref['instanceId']}' ORDER BY ContainerSampleDataId",2)
+    rows=await reads.sql_rows(f"SELECT TOP 2 {TASK_SELECT} FROM ContainerSampleData WHERE ContainerId='{cid}' AND SampleTestId='{test_ref['instanceId']}' ORDER BY ContainerSampleDataId",2)
     check_tasks(rows,cid)
     if len(rows)!=1 or rows[0]['SampleTestId']!=test_ref['instanceId']:raise ValueError('当前容器没有唯一的该版本检验任务。')
     task=rows[0]
@@ -339,23 +340,23 @@ async def build_inspection(args,marker):
     details,checks,count,rejects=collection_details(definition,args,effects_validated=quantity);dtype=test['SampleType']
     if count>100 or count>task['TotalSamplesRequired']-task['CompletedSamples']:raise ValueError('本次采样超过100或MES要求剩余数，不自动截断。')
     comment=inspection_comment(args.get('comments',''))
-    body={'container':ref,'sampleTest':test_ref,'serviceDetails':details,'moveContainerOnCompletion':False,
+    body={'container':ref,'sampleTest':test_ref,'sampleType':dtype,'serviceDetails':details,'moveContainerOnCompletion':False,
         'comments':marker+(' '+comment if comment else '')}
     counted_loss = quantity and dtype == 1
-    if counted_loss:
+    if dtype==1:
         body['samplesTested'] = count
     if len(json.dumps(body,ensure_ascii=False))>22000:raise ValueError('检验请求超过安全预览长度，请缩小样本批次。')
     native_effects=await effects.prepare_effects(definition,before,status,task,args,mode,count,rejects)
     preview=(await inspection_preview(body,expected_task_id=task['ContainerSampleDataId'])
              if native_effects else await inspection_preview(body))
     # The loaded service's numeric totals must agree with the persisted task.
-    for field,expected in (('RequiredSamples',task['TotalSamplesRequired']),('SamplesTested',count if counted_loss else task['CompletedSamples']),
+    for field,expected in (('RequiredSamples',task['TotalSamplesRequired']),('SamplesTested',count if dtype==1 else task['CompletedSamples']),
                            ('AllowedRejects',task['AllowedRejects'])):
         if type(preview['task_context'].get(field)) not in (str,int) or str(preview['task_context'][field])!=str(expected):
             raise ValueError('MES检验回显与任务快照不一致：'+field)
     if str(preview['task_context'].get('SampleType'))!=str(dtype):raise ValueError('MES回显采样类型与测试定义不符。')
     if (await container_snapshot(name,cid))[1]!=before:raise ValueError('准备检验期间容器状态已变化。')
-    current=await reads.sql_rows(f"SELECT TOP 2 {TASK_COLUMNS} FROM ContainerSampleData WHERE ContainerId='{cid}' AND SampleTestId='{test_ref['instanceId']}' ORDER BY ContainerSampleDataId",2)
+    current=await reads.sql_rows(f"SELECT TOP 2 {TASK_SELECT} FROM ContainerSampleData WHERE ContainerId='{cid}' AND SampleTestId='{test_ref['instanceId']}' ORDER BY ContainerSampleDataId",2)
     check_tasks(current,cid)
     if current!=rows:raise ValueError('准备检验期间任务计数已变化。')
     if native_effects and await test_definition(test_name,args['sample_test_revision'])!=definition:
@@ -365,7 +366,7 @@ async def build_inspection(args,marker):
         'result_semantics':'literal numeric precheck only; MES final result and release unverified',
         'automatic_move':False,'quantity_or_event_effects_supported':False})
     preview.update(counted_group_context(args))
-    result={'kind':'inspection','action':'collect','name':name,'target_id':cid,'scope_key':'inspection-container:'+cid,
+    result={'kind':'inspection','action':'collect','inspection_input_version':2,'name':name,'target_id':cid,'scope_key':'inspection-container:'+cid,
         'before':{'container':before,'task':task,'container_status':{k:status[k] for k in (
             'Container','Spec','Step','Workflow','Operation','Resource','Product','Qty','Status') if k in status}},
         'definition':definition,'service':'CollectSamplingData',
@@ -374,6 +375,7 @@ async def build_inspection(args,marker):
         result['inspection_effects']=native_effects
         result['resource_reads']=native_effects['resource_reads']
         preview.update(native_effects=native_effects['context'],quantity_or_event_effects_supported=quantity)
+        if quantity and dtype==1 and not full:result['inspection_evidence_version']=1
     return result
 
 
@@ -420,7 +422,7 @@ async def prepare_container_inspection(container_name:str,sample_test_name:str,s
         allow_full_inspection:bool=False,allow_automatic_quantity_loss:bool=False,allow_zero_quantity_loss:bool=False,
         counted_reject_reasons:Annotated[list[CountedRejectReason]|None,Field(min_length=1,max_length=20,
             description='同一计数样本组的互不重叠拒收原因及件数。明确samples_collected，省略rejects/reject_reason_name/counted_groups，仅用于原生按原因报废。')]=None)->str:
-    """准备单容器CollectSamplingData，固定版本及当前任务，计数/显式不重叠counted_groups或测量samples逐样本完整点值。默认拒绝全检和自动扣量；allow_full_inspection=true允许MES已有全检/失败转全检规则，要求数和标志不由客户端修改；allow_automatic_quantity_loss=true仅允许一种扣量配置：DecreaseBySampleSizeReason按本次测量或计数样本合计扣量，DecreaseByRejectCountReason按本次计数正数拒收合计扣量；仅配置ScrapCountedRejectsByReason时，单个计数检验组按其明确拒收原因和数量扣量，可用counted_reject_reasons提供最多20个互不重叠原因计数。MES内部扣量，不另发ChangeQty；allow_zero_quantity_loss=true可允许扣至零，须原生默认CloseWhenZero为true并显示关闭投影。全检与扣量可同时明确允许，组合须保留正整数余额；高级模式仅基础Container、单位明确、无冻结/层级/载具/第二单位/抽样批，核对原任务ID及配置重读。计数扣量使用单组samples_collected或明确互不重叠的counted_groups，核对根SamplesTested与本次样本合计及完整分组回显；按原因报废支持同组多原因，输入samples_collected和counted_reject_reasons，省略根rejects/reject_reason_name且不混用counted_groups；多组、自动事件及批抽样仍不支持，移站false。实际转换、扣量、签名和父子历史待验收；确认单次提交，unknown不补发扣量。"""
+    """准备单容器CollectSamplingData，固定版本及当前任务，计数/显式不重叠counted_groups或测量samples逐样本完整点值。默认拒绝全检和自动扣量；allow_full_inspection=true允许MES已有全检/失败转全检规则，要求数和标志不由客户端修改；allow_automatic_quantity_loss=true仅允许一种扣量配置：DecreaseBySampleSizeReason按本次测量或计数样本合计扣量，DecreaseByRejectCountReason按本次计数正数拒收合计扣量；仅配置ScrapCountedRejectsByReason时，单个计数检验组按其明确拒收原因和数量扣量，可用counted_reject_reasons提供最多20个互不重叠原因计数。MES内部扣量，不另发ChangeQty；allow_zero_quantity_loss=true可允许扣至零，须原生默认CloseWhenZero为true并显示关闭投影。全检与扣量可同时明确允许，组合须保留正整数余额；高级模式仅基础Container、单位明确、无冻结/层级/载具/第二单位/抽样批，核对原任务ID及配置重读。计数扣量使用单组samples_collected或明确互不重叠的counted_groups，核对根SamplesTested与本次样本合计及完整分组回显；按原因报废支持同组多原因，输入samples_collected和counted_reject_reasons，省略根rejects/reject_reason_name且不混用counted_groups；多组按原因报废、检验内自动事件及批抽样仍不支持，移站false。新版本非全检计数扣量支持原生父子历史、逐原因增量与原任务累计核对，再resolve_history结案；样本分区为用户声明。旧快照/全检/测量组合保留原核对范围；独立后续事件用prepare_inspection_quality_event。确认单次提交，unknown不补发扣量。"""
     from tools import quality_plans as plans
     try:
         normalized=None if samples is None else [InspectionSample.model_validate(s).model_dump() for s in samples]

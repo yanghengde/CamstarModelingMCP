@@ -23,6 +23,10 @@ def balance_matches(current, member):
 
 
 async def current_evidence(snap,txn_id=None):
+    from tools.quality_inspection_event import supported as event_supported,current_evidence as event_current
+    if event_supported(snap):return await event_current(snap,txn_id)
+    from tools.quality_inspection_history import supported as inspection_supported,current_evidence as inspection_current
+    if inspection_supported(snap):return await inspection_current(snap,txn_id)
     if snap.get('complex_version'):
         from tools.quantity_loss_complex import current_evidence as current_complex
         return await current_complex(snap,txn_id)
@@ -68,17 +72,22 @@ async def current_evidence(snap,txn_id=None):
 
 
 async def verified_evidence(snap, attempt, txn_id):
-    if snap['kind'] not in SUPPORTED:
+    from tools.quality_inspection_history import supported as inspection_supported,verify as inspection_verify
+    inspection=inspection_supported(snap)
+    from tools.quality_inspection_event import supported as event_supported,verify as event_verify
+    event=event_supported(snap)
+    verifier=event_verify if event else inspection_verify if inspection else history.verify
+    if snap['kind'] not in SUPPORTED and not inspection and not event:
         raise ValueError('该事务的最终效果须以人工服务端审计证据结案。')
-    proof = await history.verify(snap, attempt, txn_id)
+    proof = await verifier(snap,attempt,txn_id)
     if not (proof.get('request_correlation_verified') and proof.get('recorded_business_effects_verified')):
         raise ValueError('指定事务未通过原生历史核对，继续保留待审占用。')
-    checks, current = await current_evidence(snap,txn_id) if snap.get('complex_version') else await current_evidence(snap)
+    checks, current = await current_evidence(snap,txn_id) if snap.get('complex_version')or event else await current_evidence(snap)
     if not all(checks.values()):
         raise ValueError('当前原对象的状态、数量、路线或任务清理未全部匹配，继续保留待审占用。')
-    repeated=await current_evidence(snap,txn_id) if snap.get('complex_version') else await current_evidence(snap)
-    if repeated != (checks, current) or await history.verify(snap, attempt, txn_id) != proof:
+    repeated=await current_evidence(snap,txn_id) if snap.get('complex_version')or event else await current_evidence(snap)
+    if repeated != (checks, current) or await verifier(snap,attempt,txn_id) != proof:
         raise ValueError('审计期间历史或当前证据发生变化，继续保留待审占用。')
     return {'candidate_txn_id': txn_id, 'attempt': attempt, 'history_checks': proof['checks'],
             'current_checks': checks, 'evidence_digest': plans.digest({'history': proof['evidence'], 'current': current}),
-            **({'native_scope_evidence':current} if snap.get('complex_version') else {})}
+            **({'native_scope_evidence':current} if snap.get('complex_version')or inspection or event else {})}

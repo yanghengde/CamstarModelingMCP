@@ -111,6 +111,10 @@ async def trace(summary_id):
 
 
 def history_mode(snap):
+    from tools.quality_inspection_event import supported as event_supported
+    if event_supported(snap):return 'inspection_event'
+    from tools.quality_inspection_history import supported
+    if supported(snap):return 'inspection_native'
     if snap.get('inspection_effects'):
         return 'manual'
     kind = snap.get('kind')
@@ -132,10 +136,10 @@ def attempted_plan(plan_id, fingerprint, *, allow_manual=False):
             return snap, row[2], {'attempt_id': attempt[0], 'started': attempt[1], 'finished': attempt[2]}
         raise ValueError('当前计划须用inspect_quality_transaction取证，再用review_quality_transaction人工审核。')
     kind = snap['kind']
-    service = SERVICES.get(kind) or disposition.SERVICE_TYPES.get(kind,(None,None))[0]
+    service = 'CreateProductionEvent' if kind=='inspection_event' else SERVICES.get(kind) or disposition.SERVICE_TYPES.get(kind,(None,None))[0]
     if snap.get('service') != service:
         raise ValueError('原计划种类与实际服务不一致。')
-    if snap['kind'] == 'inspection':
+    if snap['kind'] == 'inspection' and snap.get('inspection_input_version')!=2:
         # Older evidence snapshots may omit the move option. Keep that unknown
         # on this read-only path; never synthesize false or relax write transport.
         body = snap.get('body')
@@ -326,7 +330,11 @@ async def find_quality_execution_candidates(plan_id: str, plan_digest: str, offs
     try:
         with attempt_lock(p.PLAN_DB, plan_id):
             snap, state, attempt = attempted_plan(plan_id, plan_digest)
-            reader = disposition.roots if snap['kind'] in disposition.SERVICE_TYPES else candidates
+            if history_mode(snap)=='inspection_native':
+                from tools.quality_inspection_history import roots as reader
+            elif history_mode(snap)=='inspection_event':
+                from tools.quality_inspection_event import roots as reader
+            else:reader = disposition.roots if snap['kind'] in disposition.SERVICE_TYPES else candidates
             rows, more = await reader(snap, offset, limit)
             return q.encode({'plan_id': plan_id, 'state': state, 'attempt': attempt, 'rows': rows,
                              'page_complete': True, 'complete': False, 'has_more': more,
@@ -346,6 +354,13 @@ async def reconcile_quality_execution(plan_id: str, plan_digest: str, candidate_
         with attempt_lock(p.PLAN_DB, plan_id):
             snap, state, attempt = attempted_plan(plan_id, plan_digest, allow_manual=True)
             mode = history_mode(snap)
+            if mode in ('inspection_native','inspection_event'):
+                if mode=='inspection_native':from tools.quality_inspection_history import verify
+                else:from tools.quality_inspection_event import verify
+                proof=await verify(snap,attempt,candidate_txn_id)
+                return q.encode({'plan_id':plan_id,'state':state,'attempt':attempt,**FLAGS,**proof,
+                    'review_action':'resolve_history'if proof.get('recorded_business_effects_verified')else'resolve',
+                    'review_tool':'review_quality_transaction'})
             if mode == 'manual':
                 return q.encode({'plan_id': plan_id, 'state': state, 'attempt': attempt, **FLAGS,
                                  'comparison': 'manual_review_required', 'complete': False,

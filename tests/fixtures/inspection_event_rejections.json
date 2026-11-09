@@ -1,0 +1,1343 @@
+{
+  "capture_date": "2026-11-09",
+  "origin": "actual native validation/security rejection responses and repeated unchanged source/configuration readback; no credentials",
+  "cases": {
+    "missing_category": {
+      "snapshot": {
+        "kind": "inspection_event",
+        "inspection_event_version": 1,
+        "action": "create_followup",
+        "service": "CreateProductionEvent",
+        "name": "CDX-L6-20261109-M",
+        "target_id": "0004108000000127",
+        "event_org_id": "001d778000000035",
+        "scope_key": "quality-inspection-event:4000000000010448",
+        "source": {
+          "plan_id": "d45e511fd4dc4616b0a6f0ef99030cc5",
+          "plan_digest": "25960a269451e7e8755f4ff8f146a1ffa81e1936f7f81705ade280e8d5f80ab5",
+          "txn_id": "4000000000010448",
+          "key": "MCP-INSPECTION:d45e511fd4dc4616b0a6f0ef99030cc5:4000000000010448",
+          "container_id": "0004108000000127",
+          "container_name": "CDX-L6-20261109-M",
+          "sample_test_id": "0020f7800000001e",
+          "summary_id": "00210d8000000005",
+          "root_id": "00098880000002ad",
+          "occurrence_utc": "2026-11-09T11:20:17.540Z",
+          "samples": 4,
+          "rejects": 3,
+          "evidence_digest": "bd6ad5ff85f194b26e653a2378593e1d2755df7a4cbd7ed84d7ea30e6578155d",
+          "current": {
+            "container": {
+              "ContainerId": "0004108000000127",
+              "ContainerName": "CDX-L6-20261109-M",
+              "CDOTypeId": 1040,
+              "Status": 1,
+              "CurrentHoldCount": 0,
+              "ChangeCount": 2,
+              "ProductId": "00062c80000000b8",
+              "SamplingLotId": "",
+              "ParentContainerId": "",
+              "ChildCount": 0,
+              "Qty": "7",
+              "Qty2": "",
+              "UOMId": "0008de8000000002",
+              "UOM2Id": "",
+              "CurrentStatusId": "00085c8000000127",
+              "StatusRecordId": "00085c8000000127",
+              "CarrierId": "",
+              "InRework": false,
+              "SpecId": "00071c80000000b5",
+              "WorkflowStepId": "00074e80000000b5"
+            },
+            "original_task": {
+              "ContainerSampleDataId": "0021068000000027",
+              "ContainerId": "0004108000000127",
+              "SamplingPlanId": "0020f8800000001c",
+              "SampleTestId": "0020f7800000001e",
+              "InspectionLevelId": "0020ef8000000002",
+              "AQLLevelId": "0020ee800000001b",
+              "TotalSamplesRequired": 10,
+              "CompletedSamples": 4,
+              "Rejects": 3,
+              "AllowedRejects": 1,
+              "InspectAllContQty": false,
+              "InspectAllQtyOnFailure": false,
+              "ChangeCount": 2
+            },
+            "task_missing": false,
+            "note": "原任务ID、完整累计及恰好一次版本变化核对；同值回读仍须唯一父子原生历史。"
+          }
+        },
+        "before": {
+          "complete": true,
+          "static_valid": true,
+          "ready_for_execution": false,
+          "created_event_verified": false,
+          "native_preview_requested": false,
+          "errors": [],
+          "unverified_checks": [
+            "当前部署CreateEvent预校验与execute=false的实际交互",
+            "归属回退规则及通知收件人/实际发送行为",
+            "原生动态权限、审批和签名",
+            "创建后的持久ID及最终历史关联"
+          ],
+          "existing_name_record": null,
+          "references": {
+            "organization": {
+              "Name": "CDX-L6-20261109-ORG",
+              "InstanceID": "001d778000000035",
+              "IsFrozen": false,
+              "ChangeCount": 1
+            },
+            "classification": {
+              "Name": "Product",
+              "InstanceID": "001fe88000000001",
+              "IsFrozen": false,
+              "ChangeCount": 1
+            },
+            "subclassification": {
+              "Name": "FieldEvent",
+              "InstanceID": "001feb8000000004",
+              "IsFrozen": false,
+              "ChangeCount": 1
+            },
+            "priority": {
+              "Name": "CDX-L6-20261109-PRIORITY",
+              "InstanceID": "001d318000000002",
+              "IsFrozen": false,
+              "ChangeCount": 1
+            }
+          },
+          "reporter": {
+            "entity": "Employees",
+            "InstanceID": "0004748000000004",
+            "Name": "CamstarAdmin",
+            "IsFrozen": false,
+            "ChangeCount": 2
+          },
+          "classification_mapping": {
+            "instance_id": "001f418000000002",
+            "is_frozen": false,
+            "Owner": "0004748000000004",
+            "Role": "001bda8000000006",
+            "ChecklistTemplate": null,
+            "FailureModeGroup": "001d348000000002"
+          },
+          "notification_policy": {
+            "smtp_configured": false,
+            "entries": [],
+            "notification_effect_verified": false
+          },
+          "signature_required": false,
+          "proposal": {
+            "event_name": null,
+            "submit": false,
+            "brief_description": "Part 6 counted inspection rejects",
+            "description": "Isolated Part 6: one verified failed inspection, two reject reasons, one separate linked quality event.",
+            "discovery_area": "",
+            "occurrence_date": "2026-11-09T11:20:17.540Z",
+            "reported_date": "2026-11-09T15:41:19Z"
+          },
+          "execution_blockers": [
+            "本核验入口不执行创建；原生保存未提交事件仍可能分派并发送待分派通知。",
+            "原生PreValidate修改Transaction::IsExecute，未核实部署行为前不调用创建服务预览。"
+          ],
+          "validation_digest": "adb8aec144d8043959718ab91a47dd51c5895d35e31f5159e77c7fbd35a949ba"
+        },
+        "references": {
+          "organization": {
+            "Name": "CDX-L6-20261109-ORG",
+            "InstanceID": "001d778000000035",
+            "IsFrozen": false,
+            "ChangeCount": 1
+          },
+          "classification": {
+            "Name": "Product",
+            "InstanceID": "001fe88000000001",
+            "IsFrozen": false,
+            "ChangeCount": 1
+          },
+          "subclassification": {
+            "Name": "FieldEvent",
+            "InstanceID": "001feb8000000004",
+            "IsFrozen": false,
+            "ChangeCount": 1
+          },
+          "priority": {
+            "Name": "CDX-L6-20261109-PRIORITY",
+            "InstanceID": "001d318000000002",
+            "IsFrozen": false,
+            "ChangeCount": 1
+          },
+          "reporter": {
+            "entity": "Employees",
+            "InstanceID": "0004748000000004",
+            "Name": "CamstarAdmin",
+            "IsFrozen": false,
+            "ChangeCount": 2
+          },
+          "initiator": {
+            "entity": "Employees",
+            "InstanceID": "0004748000000004",
+            "Name": "CamstarAdmin",
+            "IsFrozen": false,
+            "ChangeCount": 2
+          },
+          "owner": {
+            "entity": "Employees",
+            "InstanceID": "0004748000000004",
+            "Name": "CamstarAdmin",
+            "IsFrozen": false,
+            "ChangeCount": 2
+          },
+          "role": {
+            "entity": "Roles",
+            "InstanceID": "001bda8000000006",
+            "Name": "Default Quality",
+            "IsFrozen": false,
+            "ChangeCount": 1
+          }
+        },
+        "organization": {
+          "entity": "Organizations",
+          "InstanceID": "001d778000000035",
+          "Name": "CDX-L6-20261109-ORG",
+          "IsFrozen": false,
+          "ChangeCount": 1,
+          "CollectESigForAllQualityTxns": false,
+          "UserRequiredForEsig": false,
+          "QualityESigTxns": []
+        },
+        "numbering": {
+          "rule": {
+            "@odata.context": "https://172.31.93.167/Modeling/api/$metadata#NumberingRules(InstanceID,Name,IsFrozen,IsRollover,NumberingRuleType,SequenceLength,Prefix,Suffix)/$entity",
+            "IsRollover": false,
+            "Name": "CDX-L6-20261109-EVENTRULE",
+            "NumberingRuleType": 1,
+            "Prefix": "CDX-L6-E-",
+            "SequenceLength": 4,
+            "Suffix": null,
+            "InstanceID": "001e2a8000000068",
+            "IsFrozen": false
+          },
+          "ChangeCount": 1,
+          "persistent_mapping": {
+            "NumberingRuleMapId": "001e2e8000000002",
+            "OrganizationId": "001d778000000035",
+            "Category": "1",
+            "NumberingRuleId": "001e2a8000000068",
+            "IsFrozen": "false",
+            "ChangeCount": "1"
+          }
+        },
+        "failure_group": {
+          "@odata.context": "https://172.31.93.167/Modeling/api/$metadata#FailureModeGroups(Name,InstanceID,IsFrozen)/$entity",
+          "Name": "CDX-L6-20261109-FAILGROUP",
+          "InstanceID": "001d348000000002",
+          "IsFrozen": false,
+          "ChangeCount": "1"
+        },
+        "organization_extras": {
+          "QualityProcessingMap": [],
+          "CategoryMap": [],
+          "PEDisallowedTxns": []
+        },
+        "body": {
+          "organization": {
+            "name": "CDX-L6-20261109-ORG",
+            "instanceId": "001d778000000035"
+          },
+          "classification": {
+            "name": "Product",
+            "instanceId": "001fe88000000001"
+          },
+          "subClassification": {
+            "name": "FieldEvent",
+            "instanceId": "001feb8000000004"
+          },
+          "containers": [
+            {
+              "name": "CDX-L6-20261109-M",
+              "instanceId": "0004108000000127"
+            }
+          ],
+          "submit": true,
+          "holdContainers": false,
+          "isManuallyPrintLabels": true,
+          "printLabels": false,
+          "comments": "MCP-QUAL:14046e7de297418e8d48fbb75b4eacc5 MCP-INSPECTION:d45e511fd4dc4616b0a6f0ef99030cc5:4000000000010448",
+          "serviceDetail": {
+            "briefDescription": "Part 6 counted inspection rejects",
+            "description": "Isolated Part 6: one verified failed inspection, two reject reasons, one separate linked quality event.\n容器 CDX-L6-20261109-M：本次检验 4，不良 3\nMCP-INSPECTION:d45e511fd4dc4616b0a6f0ef99030cc5:4000000000010448\nInspection digest: 25960a269451e7e8755f4ff8f146a1ffa81e1936f7f81705ade280e8d5f80ab5\nNative summary: 00210d8000000005",
+            "reporter": {
+              "name": "CamstarAdmin",
+              "instanceId": "0004748000000004"
+            },
+            "reporterOrganization": {
+              "name": "CDX-L6-20261109-ORG",
+              "instanceId": "001d778000000035"
+            },
+            "initiator": {
+              "name": "CamstarAdmin",
+              "instanceId": "0004748000000004"
+            },
+            "initiatorOrganization": {
+              "name": "CDX-L6-20261109-ORG",
+              "instanceId": "001d778000000035"
+            },
+            "priorityLevel": {
+              "name": "CDX-L6-20261109-PRIORITY",
+              "instanceId": "001d318000000002"
+            },
+            "occurrenceDate": "2026-11-09T11:20:17.540Z",
+            "occurrenceDateGMT": "2026-11-09T11:20:17.540Z",
+            "reportedDate": "2026-11-09T15:41:19.0000000Z",
+            "reportedDateGMT": "2026-11-09T15:41:19.0000000Z",
+            "eventDataDetail": {
+              "problemDescription": "MCP-INSPECTION:d45e511fd4dc4616b0a6f0ef99030cc5:4000000000010448",
+              "sampleQuantity": "4"
+            }
+          }
+        },
+        "arguments": {
+          "inspection_plan_id": "d45e511fd4dc4616b0a6f0ef99030cc5",
+          "inspection_plan_digest": "25960a269451e7e8755f4ff8f146a1ffa81e1936f7f81705ade280e8d5f80ab5",
+          "organization_name": "CDX-L6-20261109-ORG",
+          "classification_name": "Product",
+          "subclassification_name": "FieldEvent",
+          "priority_level_name": "CDX-L6-20261109-PRIORITY",
+          "brief_description": "Part 6 counted inspection rejects",
+          "reporter_name": "CamstarAdmin",
+          "initiator_name": "CamstarAdmin",
+          "reported_date": "2026-11-09T15:41:19Z",
+          "description": "Isolated Part 6: one verified failed inspection, two reject reasons, one separate linked quality event."
+        },
+        "marker": "MCP-QUAL:14046e7de297418e8d48fbb75b4eacc5",
+        "environment": {
+          "modeling": "https://test.invalid/Modeling",
+          "query": "https://test.invalid/Query",
+          "shopfloor": "https://test.invalid/Shopfloor"
+        },
+        "preview": {
+          "contract_digest": "3cc602299345ef5d6ad3b48aa10640684e293ca486f8706d03c047e2e102d104",
+          "native_preview_requested": false,
+          "source_inspection_verified": true,
+          "separate_transaction": true,
+          "automatic_numbering": true,
+          "notifications_enabled": false,
+          "native_event_creation_verified": false,
+          "note": "只准备独立后续事件；原检验已完成，不重发检验或扣量，不修改账号主组织。事件原生提交为Active，保留原生签名校验。"
+        },
+        "resource_reads": [
+          "modeling:Classifications:id:001fe88000000001",
+          "modeling:Classifications:name:product",
+          "modeling:Employees:id:0004748000000004",
+          "modeling:Employees:name:camstaradmin",
+          "modeling:FailureModeGroups:id:001d348000000002",
+          "modeling:FailureModeGroups:name:cdx-l6-20261109-failgroup",
+          "modeling:NumberingRules:id:001e2a8000000068",
+          "modeling:NumberingRules:name:cdx-l6-20261109-eventrule",
+          "modeling:Organizations:id:001d778000000035",
+          "modeling:Organizations:name:cdx-l6-20261109-org",
+          "modeling:PriorityLevels:id:001d318000000002",
+          "modeling:PriorityLevels:name:cdx-l6-20261109-priority",
+          "modeling:Roles:id:001bda8000000006",
+          "modeling:Roles:name:default quality",
+          "modeling:SubClassifications:id:001feb8000000004",
+          "modeling:SubClassifications:name:fieldevent"
+        ],
+        "resource_writes": [
+          "runtime:container:id:0004108000000127",
+          "runtime:quality-event:org:001d778000000035",
+          "runtime:inspection-event:source:4000000000010448"
+        ]
+      },
+      "outcome": {
+        "state": "unknown",
+        "submission_attempted": true,
+        "attempt_id": "e41bada050854827a726701ba3d09265",
+        "verified_success": false,
+        "retry_allowed": false,
+        "http_status": 400,
+        "raw_response": "{\"ErrorCode\":\"13501022\",\"Message\":\"A server error occurred.\",\"Target\":null,\"Details\":[{\"ErrorCode\":\"13501022\",\"Message\":\"A numbering rule was not found for Organization \\u0027CDX-L6-20261109-ORG\\u0027 to use in auto generation of names for category \\u0027Nonconformance\\u0027.\",\"Target\":null}],\"InnerError\":null,\"InstanceAnnotations\":[],\"TypeAnnotation\":null}",
+        "response_truncated": false
+      },
+      "evidence": {
+        "exact_native_validation_rejection": true,
+        "organization": {
+          "entity": "Organizations",
+          "InstanceID": "001d778000000035",
+          "Name": "CDX-L6-20261109-ORG",
+          "IsFrozen": false,
+          "ChangeCount": 1,
+          "CollectESigForAllQualityTxns": false,
+          "UserRequiredForEsig": false,
+          "QualityESigTxns": []
+        },
+        "numbering_maps": [
+          {
+            "NumberingRuleMapId": "001e2e8000000002",
+            "OrganizationId": "001d778000000035",
+            "Category": "1",
+            "NumberingRuleId": "001e2a8000000068",
+            "IsFrozen": "false",
+            "ChangeCount": "1"
+          }
+        ],
+        "original_source": {
+          "plan_id": "d45e511fd4dc4616b0a6f0ef99030cc5",
+          "plan_digest": "25960a269451e7e8755f4ff8f146a1ffa81e1936f7f81705ade280e8d5f80ab5",
+          "txn_id": "4000000000010448",
+          "key": "MCP-INSPECTION:d45e511fd4dc4616b0a6f0ef99030cc5:4000000000010448",
+          "container_id": "0004108000000127",
+          "container_name": "CDX-L6-20261109-M",
+          "sample_test_id": "0020f7800000001e",
+          "summary_id": "00210d8000000005",
+          "root_id": "00098880000002ad",
+          "occurrence_utc": "2026-11-09T11:20:17.540Z",
+          "samples": 4,
+          "rejects": 3,
+          "evidence_digest": "bd6ad5ff85f194b26e653a2378593e1d2755df7a4cbd7ed84d7ea30e6578155d",
+          "current": {
+            "container": {
+              "ContainerId": "0004108000000127",
+              "ContainerName": "CDX-L6-20261109-M",
+              "CDOTypeId": 1040,
+              "Status": 1,
+              "CurrentHoldCount": 0,
+              "ChangeCount": 2,
+              "ProductId": "00062c80000000b8",
+              "SamplingLotId": "",
+              "ParentContainerId": "",
+              "ChildCount": 0,
+              "Qty": "7",
+              "Qty2": "",
+              "UOMId": "0008de8000000002",
+              "UOM2Id": "",
+              "CurrentStatusId": "00085c8000000127",
+              "StatusRecordId": "00085c8000000127",
+              "CarrierId": "",
+              "InRework": false,
+              "SpecId": "00071c80000000b5",
+              "WorkflowStepId": "00074e80000000b5"
+            },
+            "original_task": {
+              "ContainerSampleDataId": "0021068000000027",
+              "ContainerId": "0004108000000127",
+              "SamplingPlanId": "0020f8800000001c",
+              "SampleTestId": "0020f7800000001e",
+              "InspectionLevelId": "0020ef8000000002",
+              "AQLLevelId": "0020ee800000001b",
+              "TotalSamplesRequired": 10,
+              "CompletedSamples": 4,
+              "Rejects": 3,
+              "AllowedRejects": 1,
+              "InspectAllContQty": false,
+              "InspectAllQtyOnFailure": false,
+              "ChangeCount": 2
+            },
+            "task_missing": false,
+            "note": "原任务ID、完整累计及恰好一次版本变化核对；同值回读仍须唯一父子原生历史。"
+          }
+        },
+        "no_event_for_organization": true,
+        "no_native_creation_history": true,
+        "no_source_event": true,
+        "basis": "Original complete native 13501022 rejection for the exact Organization and Nonconformance category, together with unchanged original inspection/configuration and bounded absence checks; not a generic absence-of-history conclusion."
+      },
+      "state": "native_configuration_rejected"
+    },
+    "literal_expression": {
+      "snapshot": {
+        "kind": "inspection_event",
+        "inspection_event_version": 1,
+        "action": "create_followup",
+        "service": "CreateProductionEvent",
+        "name": "CDX-L6-20261109-M",
+        "target_id": "0004108000000127",
+        "event_org_id": "001d778000000035",
+        "scope_key": "quality-inspection-event:4000000000010448",
+        "source": {
+          "plan_id": "d45e511fd4dc4616b0a6f0ef99030cc5",
+          "plan_digest": "25960a269451e7e8755f4ff8f146a1ffa81e1936f7f81705ade280e8d5f80ab5",
+          "txn_id": "4000000000010448",
+          "key": "MCP-INSPECTION:d45e511fd4dc4616b0a6f0ef99030cc5:4000000000010448",
+          "container_id": "0004108000000127",
+          "container_name": "CDX-L6-20261109-M",
+          "sample_test_id": "0020f7800000001e",
+          "summary_id": "00210d8000000005",
+          "root_id": "00098880000002ad",
+          "occurrence_utc": "2026-11-09T11:20:17.540Z",
+          "samples": 4,
+          "rejects": 3,
+          "evidence_digest": "bd6ad5ff85f194b26e653a2378593e1d2755df7a4cbd7ed84d7ea30e6578155d",
+          "current": {
+            "container": {
+              "ContainerId": "0004108000000127",
+              "ContainerName": "CDX-L6-20261109-M",
+              "CDOTypeId": 1040,
+              "Status": 1,
+              "CurrentHoldCount": 0,
+              "ChangeCount": 2,
+              "ProductId": "00062c80000000b8",
+              "SamplingLotId": "",
+              "ParentContainerId": "",
+              "ChildCount": 0,
+              "Qty": "7",
+              "Qty2": "",
+              "UOMId": "0008de8000000002",
+              "UOM2Id": "",
+              "CurrentStatusId": "00085c8000000127",
+              "StatusRecordId": "00085c8000000127",
+              "CarrierId": "",
+              "InRework": false,
+              "SpecId": "00071c80000000b5",
+              "WorkflowStepId": "00074e80000000b5"
+            },
+            "original_task": {
+              "ContainerSampleDataId": "0021068000000027",
+              "ContainerId": "0004108000000127",
+              "SamplingPlanId": "0020f8800000001c",
+              "SampleTestId": "0020f7800000001e",
+              "InspectionLevelId": "0020ef8000000002",
+              "AQLLevelId": "0020ee800000001b",
+              "TotalSamplesRequired": 10,
+              "CompletedSamples": 4,
+              "Rejects": 3,
+              "AllowedRejects": 1,
+              "InspectAllContQty": false,
+              "InspectAllQtyOnFailure": false,
+              "ChangeCount": 2
+            },
+            "task_missing": false,
+            "note": "原任务ID、完整累计及恰好一次版本变化核对；同值回读仍须唯一父子原生历史。"
+          }
+        },
+        "before": {
+          "complete": true,
+          "static_valid": true,
+          "ready_for_execution": false,
+          "created_event_verified": false,
+          "native_preview_requested": false,
+          "errors": [],
+          "unverified_checks": [
+            "当前部署CreateEvent预校验与execute=false的实际交互",
+            "归属回退规则及通知收件人/实际发送行为",
+            "原生动态权限、审批和签名",
+            "创建后的持久ID及最终历史关联"
+          ],
+          "existing_name_record": null,
+          "references": {
+            "organization": {
+              "Name": "CDX-L6-20261109-ORG",
+              "InstanceID": "001d778000000035",
+              "IsFrozen": false,
+              "ChangeCount": 1
+            },
+            "classification": {
+              "Name": "Product",
+              "InstanceID": "001fe88000000001",
+              "IsFrozen": false,
+              "ChangeCount": 1
+            },
+            "subclassification": {
+              "Name": "FieldEvent",
+              "InstanceID": "001feb8000000004",
+              "IsFrozen": false,
+              "ChangeCount": 1
+            },
+            "priority": {
+              "Name": "CDX-L6-20261109-PRIORITY",
+              "InstanceID": "001d318000000002",
+              "IsFrozen": false,
+              "ChangeCount": 1
+            }
+          },
+          "reporter": {
+            "entity": "Employees",
+            "InstanceID": "0004748000000004",
+            "Name": "CamstarAdmin",
+            "IsFrozen": false,
+            "ChangeCount": 2
+          },
+          "classification_mapping": {
+            "instance_id": "001f418000000002",
+            "is_frozen": false,
+            "Owner": "0004748000000004",
+            "Role": "001bda8000000006",
+            "ChecklistTemplate": null,
+            "FailureModeGroup": "001d348000000002"
+          },
+          "notification_policy": {
+            "smtp_configured": false,
+            "entries": [],
+            "notification_effect_verified": false
+          },
+          "signature_required": false,
+          "proposal": {
+            "event_name": null,
+            "submit": false,
+            "brief_description": "Part 6 counted inspection rejects",
+            "description": "Isolated Part 6: one verified failed inspection, two reject reasons, one separate linked quality event.",
+            "discovery_area": "",
+            "occurrence_date": "2026-11-09T11:20:17.540Z",
+            "reported_date": "2026-11-09T15:45:38Z"
+          },
+          "execution_blockers": [
+            "本核验入口不执行创建；原生保存未提交事件仍可能分派并发送待分派通知。",
+            "原生PreValidate修改Transaction::IsExecute，未核实部署行为前不调用创建服务预览。"
+          ],
+          "validation_digest": "a6829a103f1c95580b2388947ebcbbc92a5ae85d3bf3683471b7ae114f753fde"
+        },
+        "references": {
+          "organization": {
+            "Name": "CDX-L6-20261109-ORG",
+            "InstanceID": "001d778000000035",
+            "IsFrozen": false,
+            "ChangeCount": 1
+          },
+          "classification": {
+            "Name": "Product",
+            "InstanceID": "001fe88000000001",
+            "IsFrozen": false,
+            "ChangeCount": 1
+          },
+          "subclassification": {
+            "Name": "FieldEvent",
+            "InstanceID": "001feb8000000004",
+            "IsFrozen": false,
+            "ChangeCount": 1
+          },
+          "priority": {
+            "Name": "CDX-L6-20261109-PRIORITY",
+            "InstanceID": "001d318000000002",
+            "IsFrozen": false,
+            "ChangeCount": 1
+          },
+          "reporter": {
+            "entity": "Employees",
+            "InstanceID": "0004748000000004",
+            "Name": "CamstarAdmin",
+            "IsFrozen": false,
+            "ChangeCount": 2
+          },
+          "initiator": {
+            "entity": "Employees",
+            "InstanceID": "0004748000000004",
+            "Name": "CamstarAdmin",
+            "IsFrozen": false,
+            "ChangeCount": 2
+          },
+          "owner": {
+            "entity": "Employees",
+            "InstanceID": "0004748000000004",
+            "Name": "CamstarAdmin",
+            "IsFrozen": false,
+            "ChangeCount": 2
+          },
+          "role": {
+            "entity": "Roles",
+            "InstanceID": "001bda8000000006",
+            "Name": "Default Quality",
+            "IsFrozen": false,
+            "ChangeCount": 1
+          }
+        },
+        "organization": {
+          "entity": "Organizations",
+          "InstanceID": "001d778000000035",
+          "Name": "CDX-L6-20261109-ORG",
+          "IsFrozen": false,
+          "ChangeCount": 1,
+          "CollectESigForAllQualityTxns": false,
+          "UserRequiredForEsig": false,
+          "QualityESigTxns": []
+        },
+        "numbering": {
+          "rule": {
+            "@odata.context": "https://172.31.93.167/Modeling/api/$metadata#NumberingRules(InstanceID,Name,IsFrozen,IsRollover,NumberingRuleType,SequenceLength,Prefix,Suffix)/$entity",
+            "IsRollover": false,
+            "Name": "CDX-L6-20261109-EVENTRULE",
+            "NumberingRuleType": 1,
+            "Prefix": "CDX-L6-E-",
+            "SequenceLength": 4,
+            "Suffix": null,
+            "InstanceID": "001e2a8000000068",
+            "IsFrozen": false
+          },
+          "ChangeCount": 1,
+          "persistent_mapping": {
+            "NumberingRuleMapId": "001e2e8000000002",
+            "OrganizationId": "001d778000000035",
+            "Category": "3",
+            "NumberingRuleId": "001e2a8000000068",
+            "IsFrozen": "false",
+            "ChangeCount": "2"
+          }
+        },
+        "failure_group": {
+          "@odata.context": "https://172.31.93.167/Modeling/api/$metadata#FailureModeGroups(Name,InstanceID,IsFrozen)/$entity",
+          "Name": "CDX-L6-20261109-FAILGROUP",
+          "InstanceID": "001d348000000002",
+          "IsFrozen": false,
+          "ChangeCount": "1"
+        },
+        "organization_extras": {
+          "QualityProcessingMap": [],
+          "CategoryMap": [],
+          "PEDisallowedTxns": []
+        },
+        "body": {
+          "organization": {
+            "name": "CDX-L6-20261109-ORG",
+            "instanceId": "001d778000000035"
+          },
+          "classification": {
+            "name": "Product",
+            "instanceId": "001fe88000000001"
+          },
+          "subClassification": {
+            "name": "FieldEvent",
+            "instanceId": "001feb8000000004"
+          },
+          "containers": [
+            {
+              "name": "CDX-L6-20261109-M",
+              "instanceId": "0004108000000127"
+            }
+          ],
+          "submit": true,
+          "holdContainers": false,
+          "isManuallyPrintLabels": true,
+          "printLabels": false,
+          "comments": "MCP-QUAL:d0a1ed6447914df587de88fb32b42a30 MCP-INSPECTION:d45e511fd4dc4616b0a6f0ef99030cc5:4000000000010448",
+          "serviceDetail": {
+            "briefDescription": "Part 6 counted inspection rejects",
+            "description": "Isolated Part 6: one verified failed inspection, two reject reasons, one separate linked quality event.\n容器 CDX-L6-20261109-M：本次检验 4，不良 3\nMCP-INSPECTION:d45e511fd4dc4616b0a6f0ef99030cc5:4000000000010448\nInspection digest: 25960a269451e7e8755f4ff8f146a1ffa81e1936f7f81705ade280e8d5f80ab5\nNative summary: 00210d8000000005",
+            "reporter": {
+              "name": "CamstarAdmin",
+              "instanceId": "0004748000000004"
+            },
+            "reporterOrganization": {
+              "name": "CDX-L6-20261109-ORG",
+              "instanceId": "001d778000000035"
+            },
+            "initiator": {
+              "name": "CamstarAdmin",
+              "instanceId": "0004748000000004"
+            },
+            "initiatorOrganization": {
+              "name": "CDX-L6-20261109-ORG",
+              "instanceId": "001d778000000035"
+            },
+            "priorityLevel": {
+              "name": "CDX-L6-20261109-PRIORITY",
+              "instanceId": "001d318000000002"
+            },
+            "occurrenceDate": "2026-11-09T11:20:17.540Z",
+            "occurrenceDateGMT": "2026-11-09T11:20:17.540Z",
+            "reportedDate": "2026-11-09T15:45:38.0000000Z",
+            "reportedDateGMT": "2026-11-09T15:45:38.0000000Z",
+            "eventDataDetail": {
+              "problemDescription": "MCP-INSPECTION:d45e511fd4dc4616b0a6f0ef99030cc5:4000000000010448",
+              "sampleQuantity": "4"
+            }
+          }
+        },
+        "arguments": {
+          "inspection_plan_id": "d45e511fd4dc4616b0a6f0ef99030cc5",
+          "inspection_plan_digest": "25960a269451e7e8755f4ff8f146a1ffa81e1936f7f81705ade280e8d5f80ab5",
+          "organization_name": "CDX-L6-20261109-ORG",
+          "classification_name": "Product",
+          "subclassification_name": "FieldEvent",
+          "priority_level_name": "CDX-L6-20261109-PRIORITY",
+          "brief_description": "Part 6 counted inspection rejects",
+          "reporter_name": "CamstarAdmin",
+          "initiator_name": "CamstarAdmin",
+          "reported_date": "2026-11-09T15:45:38Z",
+          "description": "Isolated Part 6: one verified failed inspection, two reject reasons, one separate linked quality event."
+        },
+        "marker": "MCP-QUAL:d0a1ed6447914df587de88fb32b42a30",
+        "environment": {
+          "modeling": "https://test.invalid/Modeling",
+          "query": "https://test.invalid/Query",
+          "shopfloor": "https://test.invalid/Shopfloor"
+        },
+        "preview": {
+          "contract_digest": "3cc602299345ef5d6ad3b48aa10640684e293ca486f8706d03c047e2e102d104",
+          "native_preview_requested": false,
+          "source_inspection_verified": true,
+          "separate_transaction": true,
+          "automatic_numbering": true,
+          "notifications_enabled": false,
+          "native_event_creation_verified": false,
+          "note": "只准备独立后续事件；原检验已完成，不重发检验或扣量，不修改账号主组织。事件原生提交为Active，保留原生签名校验。"
+        },
+        "resource_reads": [
+          "modeling:Classifications:id:001fe88000000001",
+          "modeling:Classifications:name:product",
+          "modeling:Employees:id:0004748000000004",
+          "modeling:Employees:name:camstaradmin",
+          "modeling:FailureModeGroups:id:001d348000000002",
+          "modeling:FailureModeGroups:name:cdx-l6-20261109-failgroup",
+          "modeling:NumberingRules:id:001e2a8000000068",
+          "modeling:NumberingRules:name:cdx-l6-20261109-eventrule",
+          "modeling:Organizations:id:001d778000000035",
+          "modeling:Organizations:name:cdx-l6-20261109-org",
+          "modeling:PriorityLevels:id:001d318000000002",
+          "modeling:PriorityLevels:name:cdx-l6-20261109-priority",
+          "modeling:Roles:id:001bda8000000006",
+          "modeling:Roles:name:default quality",
+          "modeling:SubClassifications:id:001feb8000000004",
+          "modeling:SubClassifications:name:fieldevent"
+        ],
+        "resource_writes": [
+          "runtime:container:id:0004108000000127",
+          "runtime:quality-event:org:001d778000000035",
+          "runtime:inspection-event:source:4000000000010448"
+        ]
+      },
+      "outcome": {
+        "state": "unknown",
+        "submission_attempted": true,
+        "attempt_id": "fe5a0c1ed29d41588cb229cacf393a4c",
+        "verified_success": false,
+        "retry_allowed": false,
+        "http_status": 400,
+        "raw_response": "{\"ErrorCode\":\"2424841\",\"Message\":\"A server error occurred.\",\"Target\":null,\"Details\":[{\"ErrorCode\":\"2424841\",\"Message\":\"Syntax error: \\u003Cexpression\\u003E is expected after \\u0027\\u002B\\u0027 or \\u0027-\\u0027 in \\u0027CDX-L6-E-\\u0027\",\"Target\":null}],\"InnerError\":null,\"InstanceAnnotations\":[],\"TypeAnnotation\":null}",
+        "response_truncated": false
+      },
+      "evidence": {
+        "exact_native_validation_rejection": true,
+        "organization": {
+          "entity": "Organizations",
+          "InstanceID": "001d778000000035",
+          "Name": "CDX-L6-20261109-ORG",
+          "IsFrozen": false,
+          "ChangeCount": 1,
+          "CollectESigForAllQualityTxns": false,
+          "UserRequiredForEsig": false,
+          "QualityESigTxns": []
+        },
+        "numbering_maps": [
+          {
+            "NumberingRuleMapId": "001e2e8000000002",
+            "OrganizationId": "001d778000000035",
+            "Category": "3",
+            "NumberingRuleId": "001e2a8000000068",
+            "IsFrozen": "false",
+            "ChangeCount": "2"
+          }
+        ],
+        "original_source": {
+          "plan_id": "d45e511fd4dc4616b0a6f0ef99030cc5",
+          "plan_digest": "25960a269451e7e8755f4ff8f146a1ffa81e1936f7f81705ade280e8d5f80ab5",
+          "txn_id": "4000000000010448",
+          "key": "MCP-INSPECTION:d45e511fd4dc4616b0a6f0ef99030cc5:4000000000010448",
+          "container_id": "0004108000000127",
+          "container_name": "CDX-L6-20261109-M",
+          "sample_test_id": "0020f7800000001e",
+          "summary_id": "00210d8000000005",
+          "root_id": "00098880000002ad",
+          "occurrence_utc": "2026-11-09T11:20:17.540Z",
+          "samples": 4,
+          "rejects": 3,
+          "evidence_digest": "bd6ad5ff85f194b26e653a2378593e1d2755df7a4cbd7ed84d7ea30e6578155d",
+          "current": {
+            "container": {
+              "ContainerId": "0004108000000127",
+              "ContainerName": "CDX-L6-20261109-M",
+              "CDOTypeId": 1040,
+              "Status": 1,
+              "CurrentHoldCount": 0,
+              "ChangeCount": 2,
+              "ProductId": "00062c80000000b8",
+              "SamplingLotId": "",
+              "ParentContainerId": "",
+              "ChildCount": 0,
+              "Qty": "7",
+              "Qty2": "",
+              "UOMId": "0008de8000000002",
+              "UOM2Id": "",
+              "CurrentStatusId": "00085c8000000127",
+              "StatusRecordId": "00085c8000000127",
+              "CarrierId": "",
+              "InRework": false,
+              "SpecId": "00071c80000000b5",
+              "WorkflowStepId": "00074e80000000b5"
+            },
+            "original_task": {
+              "ContainerSampleDataId": "0021068000000027",
+              "ContainerId": "0004108000000127",
+              "SamplingPlanId": "0020f8800000001c",
+              "SampleTestId": "0020f7800000001e",
+              "InspectionLevelId": "0020ef8000000002",
+              "AQLLevelId": "0020ee800000001b",
+              "TotalSamplesRequired": 10,
+              "CompletedSamples": 4,
+              "Rejects": 3,
+              "AllowedRejects": 1,
+              "InspectAllContQty": false,
+              "InspectAllQtyOnFailure": false,
+              "ChangeCount": 2
+            },
+            "task_missing": false,
+            "note": "原任务ID、完整累计及恰好一次版本变化核对；同值回读仍须唯一父子原生历史。"
+          }
+        },
+        "no_event_for_organization": true,
+        "no_native_creation_history": true,
+        "no_source_event": true,
+        "native_error_code": "2424841",
+        "basis": "Exact original native pre-name numbering validation/expression rejection, unchanged original inspection/configuration and bounded absence checks; not a generic absence-of-history conclusion."
+      },
+      "state": "native_configuration_rejected"
+    },
+    "authorization": {
+      "snapshot": {
+        "kind": "inspection_event",
+        "inspection_event_version": 1,
+        "action": "create_followup",
+        "service": "CreateProductionEvent",
+        "name": "CDX-L6-20261109-M",
+        "target_id": "0004108000000127",
+        "event_org_id": "001d778000000035",
+        "scope_key": "quality-inspection-event:4000000000010448",
+        "source": {
+          "plan_id": "d45e511fd4dc4616b0a6f0ef99030cc5",
+          "plan_digest": "25960a269451e7e8755f4ff8f146a1ffa81e1936f7f81705ade280e8d5f80ab5",
+          "txn_id": "4000000000010448",
+          "key": "MCP-INSPECTION:d45e511fd4dc4616b0a6f0ef99030cc5:4000000000010448",
+          "container_id": "0004108000000127",
+          "container_name": "CDX-L6-20261109-M",
+          "sample_test_id": "0020f7800000001e",
+          "summary_id": "00210d8000000005",
+          "root_id": "00098880000002ad",
+          "occurrence_utc": "2026-11-09T11:20:17.540Z",
+          "samples": 4,
+          "rejects": 3,
+          "evidence_digest": "bd6ad5ff85f194b26e653a2378593e1d2755df7a4cbd7ed84d7ea30e6578155d",
+          "current": {
+            "container": {
+              "ContainerId": "0004108000000127",
+              "ContainerName": "CDX-L6-20261109-M",
+              "CDOTypeId": 1040,
+              "Status": 1,
+              "CurrentHoldCount": 0,
+              "ChangeCount": 2,
+              "ProductId": "00062c80000000b8",
+              "SamplingLotId": "",
+              "ParentContainerId": "",
+              "ChildCount": 0,
+              "Qty": "7",
+              "Qty2": "",
+              "UOMId": "0008de8000000002",
+              "UOM2Id": "",
+              "CurrentStatusId": "00085c8000000127",
+              "StatusRecordId": "00085c8000000127",
+              "CarrierId": "",
+              "InRework": false,
+              "SpecId": "00071c80000000b5",
+              "WorkflowStepId": "00074e80000000b5"
+            },
+            "original_task": {
+              "ContainerSampleDataId": "0021068000000027",
+              "ContainerId": "0004108000000127",
+              "SamplingPlanId": "0020f8800000001c",
+              "SampleTestId": "0020f7800000001e",
+              "InspectionLevelId": "0020ef8000000002",
+              "AQLLevelId": "0020ee800000001b",
+              "TotalSamplesRequired": 10,
+              "CompletedSamples": 4,
+              "Rejects": 3,
+              "AllowedRejects": 1,
+              "InspectAllContQty": false,
+              "InspectAllQtyOnFailure": false,
+              "ChangeCount": 2
+            },
+            "task_missing": false,
+            "note": "原任务ID、完整累计及恰好一次版本变化核对；同值回读仍须唯一父子原生历史。"
+          }
+        },
+        "before": {
+          "complete": true,
+          "static_valid": true,
+          "ready_for_execution": false,
+          "created_event_verified": false,
+          "native_preview_requested": false,
+          "errors": [],
+          "unverified_checks": [
+            "当前部署CreateEvent预校验与execute=false的实际交互",
+            "归属回退规则及通知收件人/实际发送行为",
+            "原生动态权限、审批和签名",
+            "创建后的持久ID及最终历史关联"
+          ],
+          "existing_name_record": null,
+          "references": {
+            "organization": {
+              "Name": "CDX-L6-20261109-ORG",
+              "InstanceID": "001d778000000035",
+              "IsFrozen": false,
+              "ChangeCount": 1
+            },
+            "classification": {
+              "Name": "Product",
+              "InstanceID": "001fe88000000001",
+              "IsFrozen": false,
+              "ChangeCount": 1
+            },
+            "subclassification": {
+              "Name": "FieldEvent",
+              "InstanceID": "001feb8000000004",
+              "IsFrozen": false,
+              "ChangeCount": 1
+            },
+            "priority": {
+              "Name": "CDX-L6-20261109-PRIORITY",
+              "InstanceID": "001d318000000002",
+              "IsFrozen": false,
+              "ChangeCount": 1
+            }
+          },
+          "reporter": {
+            "entity": "Employees",
+            "InstanceID": "0004748000000004",
+            "Name": "CamstarAdmin",
+            "IsFrozen": false,
+            "ChangeCount": 2
+          },
+          "classification_mapping": {
+            "instance_id": "001f418000000002",
+            "is_frozen": false,
+            "Owner": "0004748000000004",
+            "Role": "001bda8000000006",
+            "ChecklistTemplate": null,
+            "FailureModeGroup": "001d348000000002"
+          },
+          "notification_policy": {
+            "smtp_configured": false,
+            "entries": [],
+            "notification_effect_verified": false
+          },
+          "signature_required": false,
+          "proposal": {
+            "event_name": null,
+            "submit": false,
+            "brief_description": "Part 6 counted inspection rejects",
+            "description": "Isolated Part 6: one verified failed inspection, two reject reasons, one separate linked quality event.",
+            "discovery_area": "",
+            "occurrence_date": "2026-11-09T11:20:17.540Z",
+            "reported_date": "2026-11-09T15:47:52Z"
+          },
+          "execution_blockers": [
+            "本核验入口不执行创建；原生保存未提交事件仍可能分派并发送待分派通知。",
+            "原生PreValidate修改Transaction::IsExecute，未核实部署行为前不调用创建服务预览。"
+          ],
+          "validation_digest": "54b4153ef298fe327b570bb3d7ba2ac1c5b95f559eeab5a24ffd4800ce1f9f6c"
+        },
+        "references": {
+          "organization": {
+            "Name": "CDX-L6-20261109-ORG",
+            "InstanceID": "001d778000000035",
+            "IsFrozen": false,
+            "ChangeCount": 1
+          },
+          "classification": {
+            "Name": "Product",
+            "InstanceID": "001fe88000000001",
+            "IsFrozen": false,
+            "ChangeCount": 1
+          },
+          "subclassification": {
+            "Name": "FieldEvent",
+            "InstanceID": "001feb8000000004",
+            "IsFrozen": false,
+            "ChangeCount": 1
+          },
+          "priority": {
+            "Name": "CDX-L6-20261109-PRIORITY",
+            "InstanceID": "001d318000000002",
+            "IsFrozen": false,
+            "ChangeCount": 1
+          },
+          "reporter": {
+            "entity": "Employees",
+            "InstanceID": "0004748000000004",
+            "Name": "CamstarAdmin",
+            "IsFrozen": false,
+            "ChangeCount": 2
+          },
+          "initiator": {
+            "entity": "Employees",
+            "InstanceID": "0004748000000004",
+            "Name": "CamstarAdmin",
+            "IsFrozen": false,
+            "ChangeCount": 2
+          },
+          "owner": {
+            "entity": "Employees",
+            "InstanceID": "0004748000000004",
+            "Name": "CamstarAdmin",
+            "IsFrozen": false,
+            "ChangeCount": 2
+          },
+          "role": {
+            "entity": "Roles",
+            "InstanceID": "001bda8000000006",
+            "Name": "Default Quality",
+            "IsFrozen": false,
+            "ChangeCount": 1
+          }
+        },
+        "organization": {
+          "entity": "Organizations",
+          "InstanceID": "001d778000000035",
+          "Name": "CDX-L6-20261109-ORG",
+          "IsFrozen": false,
+          "ChangeCount": 1,
+          "CollectESigForAllQualityTxns": false,
+          "UserRequiredForEsig": false,
+          "QualityESigTxns": []
+        },
+        "numbering": {
+          "rule": {
+            "@odata.context": "https://172.31.93.167/Modeling/api/$metadata#NumberingRules(InstanceID,Name,IsFrozen,IsRollover,NumberingRuleType,SequenceLength,Prefix,Suffix)/$entity",
+            "IsRollover": false,
+            "Name": "CDX-L6-20261109-EVENTRULE",
+            "NumberingRuleType": 1,
+            "Prefix": "\"CDX-L6-E-\"",
+            "SequenceLength": 4,
+            "Suffix": null,
+            "InstanceID": "001e2a8000000068",
+            "IsFrozen": false
+          },
+          "ChangeCount": 2,
+          "persistent_mapping": {
+            "NumberingRuleMapId": "001e2e8000000002",
+            "OrganizationId": "001d778000000035",
+            "Category": "3",
+            "NumberingRuleId": "001e2a8000000068",
+            "IsFrozen": "false",
+            "ChangeCount": "2"
+          }
+        },
+        "failure_group": {
+          "@odata.context": "https://172.31.93.167/Modeling/api/$metadata#FailureModeGroups(Name,InstanceID,IsFrozen)/$entity",
+          "Name": "CDX-L6-20261109-FAILGROUP",
+          "InstanceID": "001d348000000002",
+          "IsFrozen": false,
+          "ChangeCount": "1"
+        },
+        "organization_extras": {
+          "QualityProcessingMap": [],
+          "CategoryMap": [],
+          "PEDisallowedTxns": []
+        },
+        "body": {
+          "organization": {
+            "name": "CDX-L6-20261109-ORG",
+            "instanceId": "001d778000000035"
+          },
+          "classification": {
+            "name": "Product",
+            "instanceId": "001fe88000000001"
+          },
+          "subClassification": {
+            "name": "FieldEvent",
+            "instanceId": "001feb8000000004"
+          },
+          "containers": [
+            {
+              "name": "CDX-L6-20261109-M",
+              "instanceId": "0004108000000127"
+            }
+          ],
+          "submit": true,
+          "holdContainers": false,
+          "isManuallyPrintLabels": true,
+          "printLabels": false,
+          "comments": "MCP-QUAL:161b72f53ce54f03aeef03fafe5b8776 MCP-INSPECTION:d45e511fd4dc4616b0a6f0ef99030cc5:4000000000010448",
+          "serviceDetail": {
+            "briefDescription": "Part 6 counted inspection rejects",
+            "description": "Isolated Part 6: one verified failed inspection, two reject reasons, one separate linked quality event.\n容器 CDX-L6-20261109-M：本次检验 4，不良 3\nMCP-INSPECTION:d45e511fd4dc4616b0a6f0ef99030cc5:4000000000010448\nInspection digest: 25960a269451e7e8755f4ff8f146a1ffa81e1936f7f81705ade280e8d5f80ab5\nNative summary: 00210d8000000005",
+            "reporter": {
+              "name": "CamstarAdmin",
+              "instanceId": "0004748000000004"
+            },
+            "reporterOrganization": {
+              "name": "CDX-L6-20261109-ORG",
+              "instanceId": "001d778000000035"
+            },
+            "initiator": {
+              "name": "CamstarAdmin",
+              "instanceId": "0004748000000004"
+            },
+            "initiatorOrganization": {
+              "name": "CDX-L6-20261109-ORG",
+              "instanceId": "001d778000000035"
+            },
+            "priorityLevel": {
+              "name": "CDX-L6-20261109-PRIORITY",
+              "instanceId": "001d318000000002"
+            },
+            "occurrenceDate": "2026-11-09T11:20:17.540Z",
+            "occurrenceDateGMT": "2026-11-09T11:20:17.540Z",
+            "reportedDate": "2026-11-09T15:47:52.0000000Z",
+            "reportedDateGMT": "2026-11-09T15:47:52.0000000Z",
+            "eventDataDetail": {
+              "problemDescription": "MCP-INSPECTION:d45e511fd4dc4616b0a6f0ef99030cc5:4000000000010448",
+              "sampleQuantity": "4"
+            }
+          }
+        },
+        "arguments": {
+          "inspection_plan_id": "d45e511fd4dc4616b0a6f0ef99030cc5",
+          "inspection_plan_digest": "25960a269451e7e8755f4ff8f146a1ffa81e1936f7f81705ade280e8d5f80ab5",
+          "organization_name": "CDX-L6-20261109-ORG",
+          "classification_name": "Product",
+          "subclassification_name": "FieldEvent",
+          "priority_level_name": "CDX-L6-20261109-PRIORITY",
+          "brief_description": "Part 6 counted inspection rejects",
+          "reporter_name": "CamstarAdmin",
+          "initiator_name": "CamstarAdmin",
+          "reported_date": "2026-11-09T15:47:52Z",
+          "description": "Isolated Part 6: one verified failed inspection, two reject reasons, one separate linked quality event."
+        },
+        "marker": "MCP-QUAL:161b72f53ce54f03aeef03fafe5b8776",
+        "environment": {
+          "modeling": "https://test.invalid/Modeling",
+          "query": "https://test.invalid/Query",
+          "shopfloor": "https://test.invalid/Shopfloor"
+        },
+        "preview": {
+          "contract_digest": "3cc602299345ef5d6ad3b48aa10640684e293ca486f8706d03c047e2e102d104",
+          "native_preview_requested": false,
+          "source_inspection_verified": true,
+          "separate_transaction": true,
+          "automatic_numbering": true,
+          "notifications_enabled": false,
+          "native_event_creation_verified": false,
+          "note": "只准备独立后续事件；原检验已完成，不重发检验或扣量，不修改账号主组织。事件原生提交为Active，保留原生签名校验。"
+        },
+        "resource_reads": [
+          "modeling:Classifications:id:001fe88000000001",
+          "modeling:Classifications:name:product",
+          "modeling:Employees:id:0004748000000004",
+          "modeling:Employees:name:camstaradmin",
+          "modeling:FailureModeGroups:id:001d348000000002",
+          "modeling:FailureModeGroups:name:cdx-l6-20261109-failgroup",
+          "modeling:NumberingRules:id:001e2a8000000068",
+          "modeling:NumberingRules:name:cdx-l6-20261109-eventrule",
+          "modeling:Organizations:id:001d778000000035",
+          "modeling:Organizations:name:cdx-l6-20261109-org",
+          "modeling:PriorityLevels:id:001d318000000002",
+          "modeling:PriorityLevels:name:cdx-l6-20261109-priority",
+          "modeling:Roles:id:001bda8000000006",
+          "modeling:Roles:name:default quality",
+          "modeling:SubClassifications:id:001feb8000000004",
+          "modeling:SubClassifications:name:fieldevent"
+        ],
+        "resource_writes": [
+          "runtime:container:id:0004108000000127",
+          "runtime:quality-event:org:001d778000000035",
+          "runtime:inspection-event:source:4000000000010448"
+        ]
+      },
+      "outcome": {
+        "state": "unknown",
+        "submission_attempted": true,
+        "attempt_id": "949da7bfa53d45e8bb053b3fecc7edf4",
+        "verified_success": false,
+        "retry_allowed": false,
+        "http_status": 400,
+        "raw_response": "{\"ErrorCode\":\"13369354\",\"Message\":\"A server error occurred.\",\"Target\":null,\"Details\":[{\"ErrorCode\":\"13369354\",\"Message\":\"The user \\u0022Camstar Administrator\\u0022 is not authorized to perform the service \\u0022Create Production Event\\u0022\",\"Target\":null}],\"InnerError\":null,\"InstanceAnnotations\":[],\"TypeAnnotation\":null}",
+        "response_truncated": false
+      },
+      "evidence": {
+        "exact_native_validation_rejection": true,
+        "organization": {
+          "entity": "Organizations",
+          "InstanceID": "001d778000000035",
+          "Name": "CDX-L6-20261109-ORG",
+          "IsFrozen": false,
+          "ChangeCount": 1,
+          "CollectESigForAllQualityTxns": false,
+          "UserRequiredForEsig": false,
+          "QualityESigTxns": []
+        },
+        "numbering_maps": [
+          {
+            "NumberingRuleMapId": "001e2e8000000002",
+            "OrganizationId": "001d778000000035",
+            "Category": "3",
+            "NumberingRuleId": "001e2a8000000068",
+            "IsFrozen": "false",
+            "ChangeCount": "2"
+          }
+        ],
+        "original_source": {
+          "plan_id": "d45e511fd4dc4616b0a6f0ef99030cc5",
+          "plan_digest": "25960a269451e7e8755f4ff8f146a1ffa81e1936f7f81705ade280e8d5f80ab5",
+          "txn_id": "4000000000010448",
+          "key": "MCP-INSPECTION:d45e511fd4dc4616b0a6f0ef99030cc5:4000000000010448",
+          "container_id": "0004108000000127",
+          "container_name": "CDX-L6-20261109-M",
+          "sample_test_id": "0020f7800000001e",
+          "summary_id": "00210d8000000005",
+          "root_id": "00098880000002ad",
+          "occurrence_utc": "2026-11-09T11:20:17.540Z",
+          "samples": 4,
+          "rejects": 3,
+          "evidence_digest": "bd6ad5ff85f194b26e653a2378593e1d2755df7a4cbd7ed84d7ea30e6578155d",
+          "current": {
+            "container": {
+              "ContainerId": "0004108000000127",
+              "ContainerName": "CDX-L6-20261109-M",
+              "CDOTypeId": 1040,
+              "Status": 1,
+              "CurrentHoldCount": 0,
+              "ChangeCount": 2,
+              "ProductId": "00062c80000000b8",
+              "SamplingLotId": "",
+              "ParentContainerId": "",
+              "ChildCount": 0,
+              "Qty": "7",
+              "Qty2": "",
+              "UOMId": "0008de8000000002",
+              "UOM2Id": "",
+              "CurrentStatusId": "00085c8000000127",
+              "StatusRecordId": "00085c8000000127",
+              "CarrierId": "",
+              "InRework": false,
+              "SpecId": "00071c80000000b5",
+              "WorkflowStepId": "00074e80000000b5"
+            },
+            "original_task": {
+              "ContainerSampleDataId": "0021068000000027",
+              "ContainerId": "0004108000000127",
+              "SamplingPlanId": "0020f8800000001c",
+              "SampleTestId": "0020f7800000001e",
+              "InspectionLevelId": "0020ef8000000002",
+              "AQLLevelId": "0020ee800000001b",
+              "TotalSamplesRequired": 10,
+              "CompletedSamples": 4,
+              "Rejects": 3,
+              "AllowedRejects": 1,
+              "InspectAllContQty": false,
+              "InspectAllQtyOnFailure": false,
+              "ChangeCount": 2
+            },
+            "task_missing": false,
+            "note": "原任务ID、完整累计及恰好一次版本变化核对；同值回读仍须唯一父子原生历史。"
+          }
+        },
+        "no_event_for_organization": true,
+        "no_native_creation_history": true,
+        "no_source_event": true,
+        "native_error_code": "13369354",
+        "basis": "Exact original native pre-name numbering validation/expression rejection, unchanged original inspection/configuration and bounded absence checks; not a generic absence-of-history conclusion."
+      },
+      "state": "native_authorization_rejected"
+    }
+  }
+}

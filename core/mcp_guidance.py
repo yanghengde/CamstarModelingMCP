@@ -38,5 +38,16 @@ ExecuteSamplingLot结果3，不循环成员扣量。核对原生父子历史、�
 关闭、原批归属和批级任务保留、成员采样任务清理，再resolve_history结案。
 冻结成员拒绝已在隔离批核实未见部分提交；HTTP错误/超时仍保持unknown，
 不能凭错误码或无历史自动解除占用，也不推断所有故障均能原子回滚。
+11. 单容器计数检验/扣量用prepare_container_inspection；按样本数、拒收数或单组逐原因
+由原生测试配置决定，必须明确allow_automatic_quantity_loss，归零另需allow_zero_quantity_loss。
+只发一次CollectSamplingData，不补发ChangeQty。新版本非全检计数扣量已有原生父子历史、
+全部原因增量及原任务累计核对，reconcile_quality_execution后resolve_history重读结案。
+带原因组的历史Rejects为运行累计，不能相加当本次不良；各原因DataValue才是增量。
+12. 已核实失败检验的关联事件用prepare_inspection_quality_event，绑定原计划ID/摘要，
+明确组织/分类/子分类/优先级/报告人/发现人及带时区报告时间，发生时间取原检验GMT。
+独立后续CreateProductionEvent，不重做检验，不修改账号主组织，不挂起/打印/通知。
+当前正向验收被MES服务权限拒绝13369354阻止，须管理员开通后新计划继续，未创建成功。
+拒绝、错误、超时不得直接当未提交；resolve_rejection仅对覆盖的明确原生拒绝重读完整
+原响应、原检验/配置及事件/历史证据，不是通用解锁或权限绕过，不重放原计划。
 这些是工具使用建议，不是客户端必然遵循的服务端强制路由；准确性优先于省略必要检查。
 """

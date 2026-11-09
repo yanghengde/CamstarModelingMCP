@@ -245,20 +245,24 @@
       ],
       "status": "partial",
       "priority": "P1",
-      "current": "单容器可显式允许已有全检规则或自动扣量。测量可按本次样本数扣量，单组及分组计数可按本次样本合计或拒收合计扣量。",
-      "missing": "分组扣量的实际累计、库存变化和父子历史待隔离验收。逐拒收原因报废、抽样批自动处置、扣至零和事件组合仍受限。",
+      "current": "第6部分计数按样本/不良扣量、跨次累计、三组原因累计、单组多原因扣量及扣至零关闭已完成5笔原生父子历史和原任务最终核对。独立关联事件计划/防重及拒绝取证已接入，保留账号设置。",
+      "missing": "最后1个关联事件正向验收被MES权限拒绝13369354阻止；用户将请管理员开通Create Production Event。当前没有事件创建成功证据。全检转换、测量组合、批自动处置及检验内自动事件不在本次已验收范围。",
       "contracts": [
         "Shopfloor/CollectSamplingData",
         "Shopfloor/CollectLotSamplingData",
         "Modeling/SampleTests",
-        "Modeling/SamplingPlans"
+        "Modeling/SamplingPlans",
+        "Shopfloor/CreateProductionEvent"
       ],
       "code": [
         "tools/quality_inspection.py",
         "tools/quality_inspection_effects.py",
-        "tools/quality_lot_execution.py"
+        "tools/quality_lot_execution.py",
+        "tools/quality_inspection_history.py",
+        "tools/quality_inspection_event.py",
+        "tools/quality_inspection_event_rejection.py"
       ],
-      "next_step": "核验原生父子事务和业务副作用，再分场景开放。"
+      "next_step": "管理员确认Create Production Event权限开通后，新计划创建最后1个隔离Event并核对事件历史、容器关联和原检验保持一致；不重放被拒绝计划。见inspection-combinations-completion.md。"
     },
     {
       "id": "G12",
@@ -14802,6 +14806,210 @@
           "path": "/api/ContainerDefect/{key}"
         }
       ]
+    },
+    "Shopfloor/CreateProductionEvent": {
+      "source_path": "/swagger/CreateProductionEvent/swagger.json",
+      "http_status": 200,
+      "listed_in_catalog": true,
+      "sha256": "ce8aae16afb10ea96c99396bc5a35a1ceedee90b8dbc7ece32c94c2cb3069041",
+      "sha256_format": "canonical parsed JSON capture",
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/api/CreateProductionEvent",
+          "body_refs": [
+            "#/components/schemas/CreateProductionEvent"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/api/CreateProductionEvent/PerformEvent",
+          "body_refs": [
+            "#/components/schemas/CreateProductionEventShopfloorPerformEventModel"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/api/CreateProductionEvent({key})/AdvancedPerformEvent",
+          "body_refs": [
+            "#/components/schemas/CreateProductionEventAdvancedPerformEventModel"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/api/CreateProductionEvent/{key}/AdvancedPerformEvent",
+          "body_refs": [
+            "#/components/schemas/CreateProductionEventAdvancedPerformEventModel"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/api/CreateProductionEvent/AdvancedPerformEvent",
+          "body_refs": [
+            "#/components/schemas/CreateProductionEventAdvancedPerformEventModel"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/api/CreateProductionEvent/RequestSelectionValues",
+          "body_refs": [
+            "#/components/schemas/CreateProductionEvent"
+          ]
+        },
+        {
+          "method": "PUT",
+          "path": "/api/CreateProductionEvent({key})",
+          "body_refs": [
+            "#/components/schemas/CreateProductionEvent"
+          ]
+        },
+        {
+          "method": "PUT",
+          "path": "/api/CreateProductionEvent/{key}",
+          "body_refs": [
+            "#/components/schemas/CreateProductionEvent"
+          ]
+        }
+      ],
+      "request_schemas": {
+        "CreateProductionEvent": {
+          "required": [
+            "classification",
+            "subClassification"
+          ],
+          "fields": [
+            "aceMessage",
+            "aceStatus",
+            "actionDetails",
+            "actionSource",
+            "additionalESigReqs",
+            "alertMsgList",
+            "alertMsgListDelimiter",
+            "availableActions",
+            "calledByTransactionTask",
+            "classification",
+            "comments",
+            "completionMsg",
+            "computationDetail",
+            "containerName",
+            "containers",
+            "currentDay",
+            "currentMonth",
+            "currentWeekOfYear",
+            "currentYear",
+            "dataCollectionDef",
+            "dispatchItem",
+            "dispatchRule",
+            "displayName",
+            "eSigDetails",
+            "eSigRequirement",
+            "effectivityDate",
+            "emailGroup",
+            "employee",
+            "enableRPT",
+            "enforceDispatch",
+            "eventName",
+            "factory",
+            "hasDPCollection",
+            "hasDataCollection",
+            "hasUserDataCollection",
+            "holdContainers",
+            "holdReason",
+            "ignoreProcessModel",
+            "instanceID",
+            "isExternalAppTxnExecution",
+            "isManuallyPrintLabels",
+            "isRemoteService",
+            "labelSummaries",
+            "liveRelayInfo",
+            "mfgCalendar",
+            "mfgOrder",
+            "mfgProcessOverrides",
+            "organization",
+            "parametricData",
+            "parametricDataControl",
+            "parametricDataDefType",
+            "password",
+            "printLabels",
+            "printQueue",
+            "printingResult",
+            "processActiveMfgOrder",
+            "processEProcedures",
+            "processESignatures",
+            "processMaintMgmt",
+            "processMasterRecipe",
+            "processNCRs",
+            "processResourceStatusModel",
+            "processTrainingReqs",
+            "qualityESigDetail",
+            "qualityObject",
+            "qualityObjectDetail",
+            "remainingProcessTime",
+            "sampleQty",
+            "samplingPlan",
+            "samplingPlanDetails",
+            "serverName",
+            "serviceDetail",
+            "smartBarcode",
+            "smartScanParseError",
+            "smartScanParseResults",
+            "smartScanRule",
+            "specFilter",
+            "ss_SPCRecipe",
+            "strSplitResult",
+            "subClassification",
+            "submit",
+            "taskContainer",
+            "taskTime",
+            "trainingRequirements",
+            "txnDate",
+            "txnDateGMT",
+            "txnParentServiceName",
+            "txnServiceSequence",
+            "useDispatch",
+            "user",
+            "webPart",
+            "wipMsgMgr"
+          ],
+          "read_only_fields": [
+            "aceMessage",
+            "aceStatus",
+            "actionDetails",
+            "availableActions",
+            "displayName",
+            "enforceDispatch",
+            "hasDPCollection",
+            "hasDataCollection",
+            "hasUserDataCollection",
+            "instanceID",
+            "labelSummaries",
+            "parametricDataControl",
+            "parametricDataDefType",
+            "processESignatures",
+            "processMaintMgmt",
+            "trainingRequirements",
+            "useDispatch"
+          ]
+        },
+        "CreateProductionEventAdvancedPerformEventModel": {
+          "required": [],
+          "fields": [
+            "afterEventData",
+            "beforeEventData",
+            "firstEvent",
+            "secondEvent"
+          ],
+          "read_only_fields": []
+        },
+        "CreateProductionEventShopfloorPerformEventModel": {
+          "required": [],
+          "fields": [
+            "event",
+            "inputData"
+          ],
+          "read_only_fields": []
+        }
+      }
     }
   },
   "checked_at": "2026-11-01T11:38:39.466069+08:00",

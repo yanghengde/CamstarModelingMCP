@@ -87,7 +87,7 @@ def test_measured_native_sample_size_loss_is_one_parent_write(env):
     assert quantity['native_child_defaults']['adjust_throughput'] is True
     assert not quantity['native_child_defaults']['record_all_quantity']
     body=ready['request_preview']['body']
-    assert set(body)=={'container','sampleTest','serviceDetails','moveContainerOnCompletion','comments'}
+    assert set(body)=={'container','sampleTest','sampleType','serviceDetails','moveContainerOnCompletion','comments'}
     assert not body['moveContainerOnCompletion'] and 'changeQty' not in body
     assert len(snap(ready)['inspection_effects']['dependencies'])==7
     assert execute(ready)['state']=='unknown';env['client'].request.assert_awaited_once()
