@@ -12,6 +12,31 @@ TYPES = {1: 'Integer', 2: 'Float', 3: 'Fixed', 4: 'String', 5: 'Object', 6: 'Tim
 NOTE = '仅静态定义；未验证当前事务动态必填、权限或质量判定。null/缺失约束为未知，不推断无限制。'
 
 
+async def complete_groups(ctx, entity, obj, expanded):
+    """Nested expansion synthesizes group Changes IDs and omits its scalars on this server."""
+    shallow=await ctx.get(entity,obj['InstanceID'],{'$expand':'Groups'})
+    if any(shallow.get(k)!=obj.get(k) for k in ('InstanceID','Name','Revision')) or _has_next_link(shallow):
+        raise ValueError('组标量读取身份不符/分页不完整。')
+    left,right=shallow.get('Groups'),expanded.get('Groups')
+    if not isinstance(left,list) or not isinstance(right,list) or len(left)>200 or len(left)!=len(right):
+        raise ValueError('分组标量和采集点展开未完整对应。')
+    def indexed(rows):
+        result={}
+        for group in rows:
+            if not isinstance(group,dict) or not isinstance(group.get('Name'),str) or not group['Name'] or group['Name'].casefold() in result:
+                raise ValueError('分组名缺失/重复，不能按顺序猜测。')
+            result[group['Name'].casefold()]=group
+        return result
+    shallow_rows,deep_rows=indexed(left),indexed(right)
+    if shallow_rows.keys()!=deep_rows.keys(): raise ValueError('分组集合在读取期间变化。')
+    result=[]
+    for key,group in shallow_rows.items():
+        points=deep_rows[key].get('Points')
+        if not isinstance(points,list) or len(points)>200: raise ValueError('分组采集点未完整展开。')
+        result.append({**group,'Points':points})
+    return result
+
+
 async def definition(ctx, ref, kind, offset, limit):
     entity = {'user': 'UserDataCollectionDefs', 'point': 'DataPointCollectionDefs', 'base': 'DataCollectionDefs'}[kind]
     obj = await ctx.resolve(entity, ref)
@@ -23,7 +48,7 @@ async def definition(ctx, ref, kind, offset, limit):
     expanded = await ctx.get(entity, obj['InstanceID'], {'$expand': field if kind == 'user' else 'Groups($expand=Points)'})
     if any(expanded.get(k) != obj.get(k) for k in ('InstanceID', 'Name', 'Revision')):
         raise ValueError('展开响应定义与已定位版本不一致。')
-    rows = expanded.get(field)
+    rows = await complete_groups(ctx,entity,obj,expanded) if kind=='point' else expanded.get(field)
     result['definition'] = {k: v for k, v in expanded.items() if k != field}
     if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
         result['warnings'].append(f'{field} 未返回有效列表。')

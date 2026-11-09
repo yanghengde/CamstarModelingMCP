@@ -24,7 +24,7 @@ Modeling 586 个分组、Shopfloor 249 个分组、Query 61 个分组；针对�
 | G04 | 完整物料投料模式 | 部分支持 | P1 | 模式2批量来源和模式5数量投料已接入计划及核对。 | 模式1序列容器、3批号、4库存点仅意图预览；替代料、第二数量未形成执行闭环。 |
 | G05 | 退料、替换与分配物料 | 未接入 | P1 | 已有需求查询和投料历史。 | ComponentRemove/Replace/Distribute无专用执行工具，不能用负数投料模拟退料。 |
 | G06 | BOM维护 | 已实现并限定验收 | P1 | 标准BOM创建、基本信息、明细增删改/重命名、数量/单位/发料控制、复制升版且旧版保留、固定产品版本关联/换绑/解绑及查询比较已完成2026-11-09独立现场验收。 | ResourceBOM、幻影BOM/替代料表、整BOM删除和既有工单/容器批量迁移不在本次范围；不能把发料控制建模当作全部实际投料模式已开放。 |
-| G07 | 设备主数据与资源生产事务 | 部分支持 | P1 | 支持资源/资源组读取和Spec资源上下文。 | 尚无专用设备主数据维护、激活、设置转换、资源吞吐和资源采集执行工具。 |
+| G07 | 设备主数据与资源生产事务 | 已实现并限定验收 | P1 | 第3部分五项核心能力已完成2026-11-09独立现场验收：主数据、维护要求启停、设置/模型转换、主副单位吞吐、普通采集及实际历史。 | 分组资源采集未保存样本，执行关闭；层级/零件/HV、删除、已有模型迁移及维修任务不在本轮；另两类维护触发规则未验收。 |
 | G08 | 设备保养及维修闭环 | 未接入 | P2 | 资源上下文可供只读检查。 | 尚无保养请求、保养完成及维护状态专项工具；不是已支持的OEE/排程。 |
 | G09 | 容器数量损失的复杂场景 | 部分支持 | P1 | 基础单容器单/双单位部分损失及单单位明确全量LossDetails计划已有实现。 | Batch子类型、层级及载具受限，实际生产数量及最终历史仍待验收。 |
 | G10 | 多成员抽样批报废 | 验收与自动核对待补 | P1 | 已有显式LossReason ID绑定、完整成员/原因组和原生默认值核对的整批结果3计划，正式单次ExecuteSamplingLot。 | 真实多成员报废、原子性/回滚、采样清理、关闭与最终父子历史尚待现场验收。 |
@@ -95,9 +95,9 @@ Swagger分组：`Modeling/BOMs`、`Modeling/ResourceBOMs`。
 
 Swagger分组：`Modeling/Resources`、`Modeling/ResourceGroups`、`Shopfloor/ResourceActivation`、`Shopfloor/ResourceSetup`、`Shopfloor/ResourceSetupTransition`、`Shopfloor/ResourceThruput`、`Shopfloor/CollectResourceData`。
 
-代码依据：[resources.py](../tools/resources.py)、[tool_catalog.py](../core/tool_catalog.py)。
+代码依据：[资源操作](../tools/resource_operations.py)、[资源计划与核实](../tools/resource_execution.py)、[验收脚本](../scripts/resource_acceptance.py)。
 
-下一步：先核实资源状态模型、当前设置及允许转换。
+2026-11-09核心五项已完成独立现场验收，详见[第3部分说明](resource-maintenance.md)。分组资源采集执行门禁关闭；unknown不重放。
 
 ### G08 设备保养及维修闭环
 

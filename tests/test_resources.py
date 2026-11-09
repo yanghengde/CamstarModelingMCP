@@ -129,7 +129,7 @@ def test_registry_discovery_and_routing():
     registered = {t.name for t in asyncio.run(mcp.list_tools())}
     assert names <= registered
     assert all(get_tool_func(n) and TOOL_POLICIES[n].effect == 'read' for n in names)
-    assert set(run(load_tool_group('resource'))['tools']) == names
+    assert names <= set(run(load_tool_group('resource'))['tools'])
     assert run(get_capabilities(group='resource'))['groups'][0]['group'] == 'resource'
     tools = [{'function': {'name': n}} for n in TOOL_POLICIES]
     picked = select_tools(tools, [{'role': 'user', 'content': '这个工序配置了哪些设备资源？'}])

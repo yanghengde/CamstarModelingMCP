@@ -3,7 +3,7 @@ from tools import mcp
 from tools.process_context import ReadContext
 from tools.modeling_details import raw_json, _has_next_link
 
-NOTE = "配置候选不代表允许开工；未返回/null 不等于未配置。非空资源现场样本尚待验收。"
+NOTE = "配置候选不代表允许开工；运行状态优先get_resource_operational_state核实。独立非空设备主数据/启停维护要求/设置转换/吞吐/普通采集已完成2026-11-09现场验收；层级、维护任务执行及分组资源采集不在该验收结论中。"
 
 
 def reference(name, instance_id, revision=None):

@@ -22,7 +22,8 @@ REPORT = ROOT / 'docs/core-capability-gaps.json'
 
 def render_document(report):
     labels = {'not_integrated': '未接入', 'partial': '部分支持', 'blocked': '执行门禁关闭',
-              'contract_unconfirmed': '业务契约待确认', 'validation_pending': '验收与自动核对待补'}
+              'contract_unconfirmed': '业务契约待确认', 'validation_pending': '验收与自动核对待补',
+              'implemented': '已实现并限定验收'}
     good = sum(c.get('http_status') == 200 and 'operations' in c for c in report['contracts'].values())
     lines = ['# 核心能力缺口与支持边界', '',
         f"核查时间：{report['checked_at']}（Asia/Shanghai）。", '',

@@ -144,10 +144,10 @@
       "groups": [
         "resource"
       ],
-      "status": "partial",
+      "status": "implemented",
       "priority": "P1",
-      "current": "支持资源/资源组读取和Spec资源上下文。",
-      "missing": "尚无专用设备主数据维护、激活、设置转换、资源吞吐和资源采集执行工具。",
+      "current": "第3部分五项核心能力已于2026-11-09完成独立现场验收：设备主数据创建/修改，日期维护要求启停，设置与模型Down-Up-Down转换，明确主副数量/单位吞吐，普通设备采集实际落账；提供状态、事务及吞吐/采集明细查询。",
+      "missing": "分组资源采集在本环境返回成功但未保存样本，执行门禁关闭；父子设备级联、零件/HV、删除、已有设备状态模型迁移及维修任务执行不在本轮范围。周期日期/吞吐维护触发规则未验收。",
       "contracts": [
         "Modeling/Resources",
         "Modeling/ResourceGroups",
@@ -159,9 +159,12 @@
       ],
       "code": [
         "tools/resources.py",
+        "tools/resource_operations.py",
+        "tools/resource_execution.py",
+        "scripts/resource_acceptance.py",
         "core/tool_catalog.py"
       ],
-      "next_step": "先核实资源状态模型、当前设置及允许转换。"
+      "next_step": "使用专用计划单次执行并核实；分组采集保持关闭。激活核实使用原成功确认与维护关联，不能伪称存在通用主历史。"
     },
     {
       "id": "G08",

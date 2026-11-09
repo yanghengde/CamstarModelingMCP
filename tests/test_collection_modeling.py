@@ -80,6 +80,8 @@ def test_group_nested_changes_and_create(setup):
     assert result['body']['groups'][0]['points'][0]['@odata.type']=='#modeling.DataPointCollectionPointChgs'
     assert result['expected']['Groups'][0]['Points'][0]['OuterUpperLimit']=='10'
     assert result['expected']['Groups'][0]['Points'][0]['MinimumSamples']==2
+    point=result['body']['groups'][0]['points'][0]
+    assert not {'rowPosition','columnPosition','isRequired'} & point.keys()
 
 
 def test_binding_uses_collect_data_own_cdo_and_preserves_other_rows(setup,monkeypatch):

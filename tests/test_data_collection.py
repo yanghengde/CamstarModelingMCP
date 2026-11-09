@@ -16,6 +16,17 @@ def point(kind=3):
     return {'Name': 'Thickness', 'DataType': kind, 'IsRequired': False, 'LowerLimit': 0, 'UpperLimit': 10}
 
 
+def test_nested_group_reads_keep_persistent_group_identity_and_scalars():
+    obj={'InstanceID':'d','Name':'D','Revision':'1'}
+    shallow={**obj,'Groups':[{'Name':'G','InstanceID':'real-group','MinimumSamples':2,'Sequence':1}]}
+    deep={**obj,'Groups':[{'Name':'G','InstanceID':'temporary-changes','MinimumSamples':None,'Sequence':None,
+                          'Points':[{'Name':'P','InstanceID':'real-point','DataType':9}]}]}
+    ctx=type('Context',(),{'get':AsyncMock(return_value=shallow)})()
+    rows=asyncio.run(dc.complete_groups(ctx,'DataPointCollectionDefs',obj,deep))
+    assert rows[0]['InstanceID']=='real-group' and rows[0]['MinimumSamples']==2 and rows[0]['Sequence']==1
+    assert rows[0]['Points'][0]['InstanceID']=='real-point'
+
+
 def setup(monkeypatch, points=None):
     obj = {'InstanceID': 'd', 'Name': 'D', 'Revision': '1', 'DataPoints': points if points is not None else [point()]}
     mock = AsyncMock(return_value=json.dumps(obj))
@@ -84,7 +95,7 @@ def test_group_points_limits_and_missing(monkeypatch):
     mock.return_value = json.dumps(obj)
     result = run(dc.get_data_collection_details(instance_id='d', kind='point'))
     assert result['complete'] and result['groups'][0]['points'][0]['warning_limits']['lower'] == 'x+1'
-    assert mock.call_args.kwargs['params']['$expand'] == 'Groups($expand=Points)'
+    assert {'Groups($expand=Points)','Groups'} <= {(call.kwargs.get('params') or {}).get('$expand') for call in mock.call_args_list}
     obj['Groups'][0].pop('Points')
     mock.return_value = json.dumps(obj)
     assert not run(dc.get_data_collection_details(instance_id='d', kind='point'))['complete']

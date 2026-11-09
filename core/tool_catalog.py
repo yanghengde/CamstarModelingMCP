@@ -19,6 +19,19 @@ DISABLED_MODELING_PATCH_TOOLS = {
 }
 
 TOOL_POLICIES = {
+    'prepare_resource_change': ToolPolicy('resource'),
+    'prepare_resource_activation': ToolPolicy('resource'),
+    'prepare_resource_setup': ToolPolicy('resource'),
+    'prepare_resource_throughput': ToolPolicy('resource'),
+    'prepare_resource_collection': ToolPolicy('resource'),
+    'get_resource_operational_state': ToolPolicy('resource'),
+    'get_resource_history': ToolPolicy('resource'),
+    'get_resource_throughput_history': ToolPolicy('resource'),
+    'get_resource_collection_history': ToolPolicy('resource'),
+    'get_resource_change_plan': ToolPolicy('resource'),
+    'execute_resource_change': ToolPolicy('resource', 'update', True, True),
+    'reconcile_resource_change': ToolPolicy('resource', 'update'),
+    'review_resource_change': ToolPolicy('resource', 'update', True, True),
     'prepare_bom_change': ToolPolicy('material'),
     'prepare_product_bom_binding': ToolPolicy('material'),
     'get_bom_change_plan': ToolPolicy('material'),

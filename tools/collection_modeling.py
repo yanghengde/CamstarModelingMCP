@@ -117,7 +117,10 @@ async def read_definition(kind, definition_name, revision):
     if expanded.get('InstanceID') != root['InstanceID'] or _has_next_link(expanded) or not isinstance(expanded.get(field),list):
         raise ValueError('定义展开不完整或身份不符，不能维护。')
     if len(expanded[field]) > 200: raise ValueError('一次最多维护200项。')
-    root[field] = expanded[field]
+    if kind=='point':
+        from tools.data_collection import complete_groups
+        root[field]=await complete_groups(ctx,entity,root,expanded)
+    else: root[field] = expanded[field]
     if kind=='point' and any(not isinstance(g.get('Points'),list) or len(g['Points'])>200 for g in root[field]):
         raise ValueError('分组点未完整返回。')
     return root
@@ -146,8 +149,13 @@ async def point_payload(item, kind, existing=None, position=1):
     result = {'@odata.type':'#modeling.'+subtype,'name':point_name,'dataType':dtype,
               'rowPosition':existing.get('RowPosition',position) if existing else position,
               'columnPosition':existing.get('ColumnPosition',1) if existing else 1}
+    if kind=='point':
+        # Native grouped Changes CDO denies inherited user-point layout fields,
+        # despite Swagger marking ColumnPosition/RowPosition as required.
+        result.pop('rowPosition');result.pop('columnPosition')
     permitted = ((set(POINT_FIELDS)-{'minimum_samples','sequence','inner_lower_limit','inner_upper_limit','outer_lower_limit','outer_upper_limit'}) if kind=='user' else {'required','row_position','column_position','decimal_scale','rounding_rule',
-        'minimum_samples','sequence','inner_lower_limit','inner_upper_limit','outer_lower_limit','outer_upper_limit'})
+              'minimum_samples','sequence','inner_lower_limit','inner_upper_limit','outer_lower_limit','outer_upper_limit'})
+    if kind=='point': permitted-={'required','row_position','column_position'}
     object_fields = {'object_type','object_selection_type','display_mode','list_field_expression','query_name','query_type','validate_resource'}
     if dtype==5: permitted = {'required','row_position','column_position','decimal_scale','rounding_rule','attribute_name','map_to_user_attribute'} | object_fields
     else: permitted -= object_fields
@@ -164,7 +172,7 @@ async def point_payload(item, kind, existing=None, position=1):
             else:
                 obj = await ReadContext(max_requests=2).resolve(entity,{'Name':name(item[key])},revisioned=False)
                 result[field] = {'name':obj['Name'],'instanceId':obj['InstanceID']}
-    if not existing: result.setdefault('isRequired', False)
+    if not existing and kind=='user': result.setdefault('isRequired', False)
     return result
 
 
@@ -453,6 +461,9 @@ def matches(expected, actual):
 
 
 def assert_no_pending_submissions(snap):
+    from tools.resource_execution import assert_no_pending_definition
+    if snap.get('target_id'):
+        assert_no_pending_definition(snap['target_id'])
     from tools.collection_submission import PLAN_DB as path, db_connect as submission_db
     if not path.exists():return
     with submission_db() as db:

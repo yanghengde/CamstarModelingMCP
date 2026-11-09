@@ -17,5 +17,10 @@ ProductionComplete、InProcess与单位；有分页时不得用片段冒充全�
 7. BOM创建/明细维护/升版用prepare_bom_change，产品关联用prepare_product_bom_binding，
 核对计划后execute_bom_change，再reconcile_bom_change。升版须明确当前ROR源版本，
 新版本显式复制源明细并成为ROR，旧版保留；unknown不重放，审计用review_bom_change。
+8. 设备资料用prepare_resource_change；维护要求启停用prepare_resource_activation（不是Up/Down）；
+设置/可用性/状态模型转换用prepare_resource_setup。设备吞吐/普通采集用
+prepare_resource_throughput / prepare_resource_collection，核对后execute_resource_change，
+再reconcile_resource_change。分组资源采集在本环境不保存样本，执行已关闭，不能把预览成功当落账。
+设备吞吐与容器报工分别统计；状态、吞吐及采集历史使用resource分组专用读取工具。
 这些是工具使用建议，不是客户端必然遵循的服务端强制路由；准确性优先于省略必要检查。
 """

@@ -315,6 +315,18 @@ def plan_preview(calls):
                 if not row or row[0]!=args.get('plan_digest') or digest(json.loads(row[1])['snapshot'])!=row[0]:raise ValueError('摘要不符')
                 lines.append('核实采集提交，仅保存本地审计与终态：'+row[1]+'；当前状态：'+row[2])
             except (ValueError,TypeError,KeyError,AttributeError):lines.append('采集核实计划无法读取，不应继续。')
+        if function.get('name') in {'execute_resource_change','review_resource_change'}:
+            try:
+                from tools.resource_execution import confirmation_summary,checked,db_connect,load
+                args=json.loads(arguments)
+                if function['name']=='execute_resource_change':
+                    lines.append(confirmation_summary(args.get('plan_id'),args.get('plan_digest')))
+                else:
+                    with db_connect() as db: row=load(db,args.get('plan_id'))
+                    lines.append('设备资源本地审计：'+json.dumps(checked(row,args.get('plan_digest')),ensure_ascii=False))
+                    lines.append('证据/结论：'+json.dumps(args,ensure_ascii=False))
+            except (ValueError,TypeError,KeyError,AttributeError):
+                lines.append('资源计划无法读取，不应继续。')
         if function.get('name') in {'execute_bom_change','review_bom_change'}:
             try:
                 from tools.bom_modeling import confirmation_summary,checked,db_connect,load_row
