@@ -122,6 +122,13 @@ def test_compare_rejects_ambiguous_or_partial(monkeypatch):
         assert not result['complete'] and 'added' not in result
 
 
+def test_compare_ignores_reference_ids_but_keeps_revision_and_ror(monkeypatch):
+    graph(monkeypatch, [{'Name':'x','Product':{'Name':'P','Revision':'1','UseROR':None,'InstanceId':'old'}}],
+          [{'Name':'x','Product':{'Name':'P','Revision':'1','UseROR':False,'InstanceId':'new'}}])
+    result = run(boms.compare_bom_versions('B','A','B','B'))
+    assert result['complete'] and result['changed'] == []
+
+
 def test_registry_loading_and_routing():
     names = {'get_bom_details', 'get_product_material_requirements', 'compare_bom_versions'}
     assert names <= {t.name for t in asyncio.run(mcp.list_tools())}

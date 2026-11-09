@@ -83,6 +83,8 @@ TITLES = {
     'execute_quality_transaction': '提交质量业务操作',
     'review_quality_transaction': '登记质量事务的本地审计结果',
     'execute_data_collection_change': '维护采集配置',
+    'execute_bom_change': '维护BOM及产品关联',
+    'review_bom_change': '审计BOM维护结果',
     'collect_container_data': '提交容器采集数据', 'verify_collection_submission': '核实采集结果',
     'issue_components': '提交物料投料', 'execute_mfgorder_task_result': '提交工单任务结果',
     'execute_container_disassociation': '拆箱', 'execute_container_association': '装箱',

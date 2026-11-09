@@ -14,5 +14,8 @@ ProductionComplete、InProcess与单位；有分页时不得用片段冒充全�
 5. 无错误且complete=true、覆盖本次问题时即可回答，不为相同事实反复读回；出现缺值、
 分页、身份不符或冲突仍须核实。查询失败/空日期不等于没有记录或未开工。
 6. 写入继续使用现有专用事务及原授权/计划/结果核实流程，不使用查询编排执行写入。
+7. BOM创建/明细维护/升版用prepare_bom_change，产品关联用prepare_product_bom_binding，
+核对计划后execute_bom_change，再reconcile_bom_change。升版须明确当前ROR源版本，
+新版本显式复制源明细并成为ROR，旧版保留；unknown不重放，审计用review_bom_change。
 这些是工具使用建议，不是客户端必然遵循的服务端强制路由；准确性优先于省略必要检查。
 """

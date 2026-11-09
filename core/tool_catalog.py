@@ -19,6 +19,12 @@ DISABLED_MODELING_PATCH_TOOLS = {
 }
 
 TOOL_POLICIES = {
+    'prepare_bom_change': ToolPolicy('material'),
+    'prepare_product_bom_binding': ToolPolicy('material'),
+    'get_bom_change_plan': ToolPolicy('material'),
+    'execute_bom_change': ToolPolicy('material', 'update', True, True),
+    'reconcile_bom_change': ToolPolicy('material', 'update'),
+    'review_bom_change': ToolPolicy('material', 'update', True, True),
     'search_camstar_read_tools': ToolPolicy('query'),
     'get_camstar_read_metadata': ToolPolicy('query'),
     'execute_camstar_read_plan': ToolPolicy('query'),

@@ -63,6 +63,7 @@ from tools import component_issue_reasons
 from tools import production_readiness
 from tools import data_collection
 from tools import boms
+from tools import bom_modeling
 from tools import resources
 from tools import production_basics
 from tools import production_reporting
@@ -103,6 +104,9 @@ def get_tool_func(name: str):
     """
     if name not in TOOL_POLICIES:
         return None
+    bom_tool = getattr(bom_modeling, name, None)
+    if bom_tool is not None:
+        return bom_tool
     orchestration_tool = getattr(read_orchestration, name, None)
     if orchestration_tool is not None:
         return orchestration_tool

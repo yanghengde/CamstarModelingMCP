@@ -122,19 +122,21 @@
         "material",
         "product"
       ],
-      "status": "partial",
+      "status": "implemented",
       "priority": "P1",
-      "current": "支持BOM详情、产品物料需求和版本比较。",
-      "missing": "尚无专用BOM创建/明细维护/升版工具；产品引用维护不等于维护BOM明细。",
+      "current": "第2部分标准BOM维护已实现并于2026-11-09完成独立现场验收：创建、基本信息、明细增删改/重命名、数量/单位/发料控制、显式复制升版且旧版保留、固定版本产品关联/换绑/解绑、需求查询和版本比较。",
+      "missing": "ResourceBOM、幻影BOM与替代料表维护、整BOM删除及批量迁移既有工单/容器不在本次范围；源含未支持复制配置时阻断升版。发料控制1..6可建模，不代表六种实际投料均已接入。",
       "contracts": [
         "Modeling/BOMs",
         "Modeling/ResourceBOMs"
       ],
       "code": [
         "tools/boms.py",
-        "core/tool_catalog.py"
+        "tools/bom_modeling.py",
+        "core/tool_catalog.py",
+        "scripts/bom_acceptance.py"
       ],
-      "next_step": "补明细身份、版本和替代料契约，明确变更影响。"
+      "next_step": "使用专用计划入口；unknown先核实，不重发。扩展ResourceBOM/幻影BOM/替代料需另行核对契约。"
     },
     {
       "id": "G07",

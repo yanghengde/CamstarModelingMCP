@@ -6,7 +6,7 @@ from tools.process_context import ReadContext
 from tools.modeling_details import raw_json, read_envelope
 from tools.resources import reference
 
-NOTE = '标准 BOM 与工单物料清单分别展示，不推断覆盖规则、库存充足或总需求数量。非空 BOM 现场验收待补。'
+NOTE = '标准 BOM 与工单物料清单分别展示，不推断覆盖规则、库存充足或总需求数量。BOM维护和固定版本产品关联已完成独立对象现场验收（2026-11-09）；不代表实际投料已执行。'
 
 
 def output(source):
@@ -105,8 +105,18 @@ def named_rows(view):
         if not isinstance(name, str) or not name.strip() or name in indexed:
             raise ValueError('物料明细名称缺失或重复，无法唯一匹配；不按物料名或数组位置猜测。')
         # Named subentity Name is the within-BOM business identity, not its per-version ID.
-        indexed[name] = {k: v for k, v in row.items() if k not in {'InstanceID', 'Parent', 'DisplayName'}}
+        indexed[name] = comparison_value({k: v for k, v in row.items() if k not in {'InstanceID', 'Parent', 'DisplayName', 'ParentRevision'}})
     return indexed
+
+
+def comparison_value(value):
+    if isinstance(value, list): return [comparison_value(item) for item in value]
+    if not isinstance(value, dict): return value
+    if 'Name' in value and set(value) <= {'Name','Revision','UseROR','InstanceId','InstanceID','CDOTypeName','CdoTypeName'}:
+        result = {k: value[k] for k in ('Name','Revision','UseROR') if k in value}
+        if result.get('Revision') and result.get('UseROR') is not True: result['UseROR'] = False
+        return result
+    return {k: comparison_value(v) for k,v in value.items()}
 
 
 @mcp.tool
@@ -114,7 +124,7 @@ async def compare_bom_versions(left_name: str, left_revision: str,
                                right_name: str, right_revision: str) -> str:
     """比较两份明确版本的 BOM 物料清单，按唯一明细 Name 匹配，保留数量/单位/工序差异。上限各200条；缺页或重复名称时不输出误导性增删结果。"""
     out = output('Modeling/BOMs version comparison')
-    out['scope'] = 'MaterialList 返回字段；排除行 InstanceID/Parent/DisplayName，不证明全部 BOM 配置等价。改名表现为删除+新增。'
+    out['scope'] = 'MaterialList 返回字段；排除行身份/父版本及引用临时ID，按引用名称/版本/ROR比较，不证明全部 BOM 配置等价。改名表现为删除+新增。'
     if not left_revision.strip() or not right_revision.strip():
         out['error'] = '两侧均须明确版本。'
         return encode(out)

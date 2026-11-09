@@ -23,7 +23,7 @@ Modeling 586 个分组、Shopfloor 249 个分组、Query 61 个分组；针对�
 | G03 | 容器关闭与非标准移站 | 未接入 | P1 | 支持正常进出站、返工、基础容器追溯。 | 无Close/MoveNonStd专用工具；独立容器关闭/任意目标移站未开放（数量损失计划中的显式归零关闭选项另见G09）。 |
 | G04 | 完整物料投料模式 | 部分支持 | P1 | 模式2批量来源和模式5数量投料已接入计划及核对。 | 模式1序列容器、3批号、4库存点仅意图预览；替代料、第二数量未形成执行闭环。 |
 | G05 | 退料、替换与分配物料 | 未接入 | P1 | 已有需求查询和投料历史。 | ComponentRemove/Replace/Distribute无专用执行工具，不能用负数投料模拟退料。 |
-| G06 | BOM维护 | 部分支持 | P1 | 支持BOM详情、产品物料需求和版本比较。 | 尚无专用BOM创建/明细维护/升版工具；产品引用维护不等于维护BOM明细。 |
+| G06 | BOM维护 | 已实现并限定验收 | P1 | 标准BOM创建、基本信息、明细增删改/重命名、数量/单位/发料控制、复制升版且旧版保留、固定产品版本关联/换绑/解绑及查询比较已完成2026-11-09独立现场验收。 | ResourceBOM、幻影BOM/替代料表、整BOM删除和既有工单/容器批量迁移不在本次范围；不能把发料控制建模当作全部实际投料模式已开放。 |
 | G07 | 设备主数据与资源生产事务 | 部分支持 | P1 | 支持资源/资源组读取和Spec资源上下文。 | 尚无专用设备主数据维护、激活、设置转换、资源吞吐和资源采集执行工具。 |
 | G08 | 设备保养及维修闭环 | 未接入 | P2 | 资源上下文可供只读检查。 | 尚无保养请求、保养完成及维护状态专项工具；不是已支持的OEE/排程。 |
 | G09 | 容器数量损失的复杂场景 | 部分支持 | P1 | 基础单容器单/双单位部分损失及单单位明确全量LossDetails计划已有实现。 | Batch子类型、层级及载具受限，实际生产数量及最终历史仍待验收。 |
@@ -87,9 +87,9 @@ Swagger分组：`Shopfloor/ComponentRemove`、`Shopfloor/ComponentReplace`、`Sh
 
 Swagger分组：`Modeling/BOMs`、`Modeling/ResourceBOMs`。
 
-代码依据：[boms.py](../tools/boms.py)、[tool_catalog.py](../core/tool_catalog.py)。
+代码依据：[boms.py](../tools/boms.py)、[bom_modeling.py](../tools/bom_modeling.py)、[tool_catalog.py](../core/tool_catalog.py)、[现场验收脚本](../scripts/bom_acceptance.py)。
 
-下一步：补明细身份、版本和替代料契约，明确变更影响。
+2026-11-09完成标准BOM维护现场验收，见[第2部分说明](bom-maintenance.md)。集合PATCH只创建空版本，工具显式复制源明细和支持配置；源存在未支持复制的非空字段则阻断。unknown不重放。
 
 ### G07 设备主数据与资源生产事务
 
