@@ -22,15 +22,37 @@ function setup() {
         detachRunView() {}, sessionId: 's', username: 'u', viewVersion: 0, loading: false,
         activeRun: {id: 'r', session_id: 's', status: 'running'}, activeRunStates: new Set(['queued','running','cancelling']),
         statusLabels: {completed: '任务已完成'}, runClock: null,
-        AbortController, TextDecoder, setTimeout, clearTimeout, clearInterval,
+        AbortController, TextDecoder, setTimeout, clearTimeout, clearInterval, setInterval,
         runIsActive() { return context.activeRunStates.has(context.activeRun.status); }
     });
     vm.runInContext(section('function appendMessage(', 'let scrollFrame'), context);
     vm.runInContext(section('function createWorkSummary(', 'async function refreshWorkflow'), context);
     vm.runInContext(section('async function loadHistory(', 'function clearAttachment'), context);
     vm.runInContext(section('async function observeRun(', 'function requestIdentity'), context);
+    vm.runInContext(section('function attachRun(', 'async function observeRun('), context);
     return {context, elements};
 }
+
+test('execution seconds tick while running and restore the saved finished duration', () => {
+    const {context, elements} = setup();
+    let now = 105000, tick;
+    const cleared = [];
+    context.Date = {now: () => now};
+    context.setInterval = callback => { tick = callback; return 42; };
+    context.clearInterval = id => cleared.push(id);
+    context.observeRun = async () => {};
+    context.attachRun({id:'r',session_id:'s',status:'running',started_at:100,message:'查询'}, 0);
+    const work = elements.msgs.children.find(el => el.tagName === 'details');
+    assert.match(work.children[0].textContent, /后台执行中 · 5 秒/);
+    now = 108000; tick();
+    assert.match(work.children[0].textContent, /后台执行中 · 8 秒/);
+    context.attachRun({id:'finished',session_id:'s',status:'completed',started_at:100,finished_at:107,message:'查询'}, 0);
+    const finished = elements.msgs.children.filter(el => el.tagName === 'details').at(-1);
+    assert.equal(finished.children[0].textContent, '任务已完成 · 7 秒');
+    assert.ok(cleared.includes(42));
+    now = 500000;
+    assert.equal(finished.children[0].textContent, '任务已完成 · 7 秒');
+});
 test('history puts tool-call narration in closed details and keeps the answer visible', async () => {
     const {context, elements} = setup();
     context.api = async () => ({messages: [
