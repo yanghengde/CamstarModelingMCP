@@ -22,7 +22,7 @@ from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCT
 from agent.prompts import deduplicate_runtime_rules, BUSINESS_PRESENTATION_RULE, BUSINESS_RESPONSE_CHECK
 from agent.experience import build_runtime_experience_context, record_tool_outcome
 from agent.learning import record_feedback
-from agent.capability_query import capability_tool_choice
+from agent.capability_query import read_capability_directory, capability_context
 from agent.safety import MutationCounts, classify_tool, count_tool_calls, evaluate_mutations, approval_prompt, is_explicit_confirmation
 from agent.safety import requests_execution_review
 from core.perf_logger import record_perf
@@ -113,6 +113,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
     turn_update_count = 0
     turn_delete_count = 0
     blocked_movement_targets = set()
+    directory = ''
 
     while True:
         loops += 1
@@ -126,7 +127,13 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
         try:
             llm_start_time = time.time()
             selected_tools = select_tools(openai_tools, chat_messages)
+            if not directory:
+                directory = await read_capability_directory(chat_messages, selected_tools, get_tool_func)
+                if directory:
+                    yield f"data: {json.dumps({'type': 'step', 'func': 'get_capabilities', 'args': '{}'}, ensure_ascii=False)}\n\n"
             model_messages, context_metrics = budget_history(chat_messages)
+            if directory:
+                model_messages.append({'role': 'system', 'content': capability_context(directory)})
             tool_names = {m.get('name') for m in chat_messages[-8:] if m.get('role') == 'tool'}
             try:
                 learned = await asyncio.to_thread(build_runtime_experience_context, message,
@@ -147,7 +154,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
                 model=LLM_MODEL,
                 messages=model_messages,
                 tools=selected_tools,
-                tool_choice=capability_tool_choice(chat_messages, selected_tools),
+                tool_choice="auto",
                 stream=True,
                 **stream_options(),
             )

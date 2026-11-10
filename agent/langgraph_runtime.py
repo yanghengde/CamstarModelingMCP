@@ -30,7 +30,7 @@ from agent.experience import (
     record_tool_outcome,
 )
 from agent.learning import record_feedback
-from agent.capability_query import capability_tool_choice
+from agent.capability_query import read_capability_directory, capability_context
 from agent.prompts import USER_FACING_LANGUAGE_RULE, QUERY_EFFICIENCY_RULE, APPROVAL_FLOW_RULE, BUSINESS_PRESENTATION_RULE, BUSINESS_RESPONSE_CHECK, deduplicate_runtime_rules
 from agent.safety import (
     MutationCounts,
@@ -79,6 +79,7 @@ class AgentState(TypedDict, total=False):
     revising_approval: bool
     read_failures: int
     blocked_movement_targets: list[str]
+    capability_directory: str
 
 
 _client: Any = None
@@ -159,6 +160,11 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
             print(f'[WARN] Learned context unavailable: {type(exc).__name__}')
             experience_context = ''
         selected_tools = select_tools(_openai_tools, state.get("messages", []))
+        directory = state.get('capability_directory', '')
+        if not directory and int(state.get('read_failures', 0)) < MAX_READ_FAILURES:
+            directory = await read_capability_directory(state.get('messages', []), selected_tools, get_tool_func)
+            if directory:
+                writer({'type': 'step', 'func': 'get_capabilities', 'args': '{}'})
         model_messages, context_metrics = budget_history(state.get("messages", []))
         from agent.memory import session_auto_confirm, AUTO_CONFIRM_INSTRUCTION
         language_message = {
@@ -176,6 +182,8 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
                 "content": experience_context,
             }
             model_messages.insert(insert_at + 1, context_message)
+        if directory:
+            model_messages.append({'role': 'system', 'content': capability_context(directory)})
 
         if state.get('revising_approval'):
             model_messages.append({'role': 'system', 'content':
@@ -194,7 +202,7 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
             model=LLM_MODEL,
             messages=model_messages,
             tools=selected_tools,
-            tool_choice="none" if exhausted else capability_tool_choice(state.get('messages', []), selected_tools),
+            tool_choice="none" if exhausted else "auto",
             stream=True,
             **stream_options(),
         )
@@ -266,6 +274,7 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
             assistant_message["reasoning_content"] = reasoning_content
 
     update: dict[str, Any] = {
+        'capability_directory': directory,
         "messages": state.get("messages", []) + [assistant_message],
         "loop_count": loops,
         "pending_tool_calls": ordered_calls,
@@ -655,6 +664,7 @@ async def langgraph_chat_stream(
             "revising_approval": revising_approval,
             "read_failures": 0,
             "blocked_movement_targets": [],
+            "capability_directory": "",
         }
         try:
             async for event in _stream_graph(initial_state, graph_config):
