@@ -29,6 +29,7 @@ from agent.experience import (
     build_runtime_experience_context,
     record_tool_outcome,
 )
+from agent.learning import record_feedback
 from agent.prompts import USER_FACING_LANGUAGE_RULE, QUERY_EFFICIENCY_RULE, APPROVAL_FLOW_RULE, BUSINESS_PRESENTATION_RULE, BUSINESS_RESPONSE_CHECK, deduplicate_runtime_rules
 from agent.safety import (
     MutationCounts,
@@ -148,9 +149,14 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
             for message in state.get("messages", [])[-8:]
             if message.get("role") == "tool" and message.get("name")
         }
-        experience_context = await asyncio.to_thread(build_runtime_experience_context,
-            state.get("request_message", ""), tool_names
-        )
+        try:
+            experience_context = await asyncio.to_thread(build_runtime_experience_context,
+                state.get("request_message", ""), tool_names,
+                state.get('username', ''), state.get('session_id', '')
+            )
+        except Exception as exc:
+            print(f'[WARN] Learned context unavailable: {type(exc).__name__}')
+            experience_context = ''
         selected_tools = select_tools(_openai_tools, state.get("messages", []))
         model_messages, context_metrics = budget_history(state.get("messages", []))
         from agent.memory import session_auto_confirm, AUTO_CONFIRM_INSTRUCTION
@@ -560,6 +566,11 @@ async def langgraph_chat_stream(
 
     chat_messages = await asyncio.to_thread(get_user_messages, username, session_id)
     actual_session_id = _actual_session_id(username, session_id)
+    try:
+        await asyncio.to_thread(record_feedback, username, actual_session_id, message, chat_messages)
+    except Exception as exc:
+        # Learning telemetry must not prevent an answer or approval resumption.
+        print(f'[WARN] Failed to capture answer feedback: {type(exc).__name__}')
     is_first_message = len(chat_messages) == 1
     graph_config = _graph_config(username, actual_session_id)
 

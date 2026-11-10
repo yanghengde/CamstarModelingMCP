@@ -20,6 +20,8 @@ from tools import mcp, get_tool_func
 from core.tool_catalog import TOOL_POLICIES
 from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCTION, routing_instructions
 from agent.prompts import deduplicate_runtime_rules, BUSINESS_PRESENTATION_RULE, BUSINESS_RESPONSE_CHECK
+from agent.experience import build_runtime_experience_context, record_tool_outcome
+from agent.learning import record_feedback
 from agent.safety import MutationCounts, classify_tool, count_tool_calls, evaluate_mutations, approval_prompt, is_explicit_confirmation
 from agent.safety import requests_execution_review
 from core.perf_logger import record_perf
@@ -82,6 +84,10 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
         actual_session_id = user_memories.get(username, {}).get("active_session", "unknown")
         
     is_first_message = (len(chat_messages) == 1) # 只有 system prompt
+    try:
+        await asyncio.to_thread(record_feedback, username, actual_session_id, message, chat_messages)
+    except Exception as exc:
+        logger.warning('Failed to capture answer feedback: %s', type(exc).__name__)
         
     chat_messages.append({"role": "user", "content": message})
     await durable_io(save_user_session, username, actual_session_id)
@@ -120,6 +126,15 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             llm_start_time = time.time()
             selected_tools = select_tools(openai_tools, chat_messages)
             model_messages, context_metrics = budget_history(chat_messages)
+            tool_names = {m.get('name') for m in chat_messages[-8:] if m.get('role') == 'tool'}
+            try:
+                learned = await asyncio.to_thread(build_runtime_experience_context, message,
+                    tool_names, username, actual_session_id)
+            except Exception as exc:
+                logger.warning('Learned context unavailable: %s', type(exc).__name__)
+                learned = ''
+            if learned:
+                model_messages.insert(1, {'role': 'system', 'content': learned})
             model_messages.insert(1, {"role": "system", "content":
                 deduplicate_runtime_rules(model_messages, routing_instructions(selected_tools) + "\n" + BUSINESS_PRESENTATION_RULE)})
             from agent.memory import session_auto_confirm, AUTO_CONFIRM_INSTRUCTION
@@ -276,6 +291,11 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
                 result = f"Error executing {func_name}: {e}"
             
             tool_duration = time.time() - tool_start_time
+            try:
+                await asyncio.to_thread(record_tool_outcome, session_id=actual_session_id,
+                    tool_name=func_name, arguments=func_args, result=result)
+            except Exception as exc:
+                logger.warning('Failed to record learning event: %s', type(exc).__name__)
             if movement_failed(result):
                 blocked_movement_targets.update(movement_targets(func_name, func_args))
             await durable_io(record_perf,f"Tool_Execute", tool_duration, username, actual_session_id, {"tool": func_name, "prompt": message})

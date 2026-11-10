@@ -1,0 +1,26 @@
+{
+  "model": "deepseek-flash",
+  "method": "current production LangGraph and real model; shortened historical context retains misleading TMO empty container listing; tools replay captured current live read, no business mutations; runtime experiences disabled",
+  "query": "这5张工单的开工日期是多少",
+  "tool_trace": [
+    {
+      "name": "run_camstar_read_template",
+      "arguments": {
+        "template": "order_dates",
+        "parameters": {
+          "order_names": [
+            "CDX-P1-20261108-END2",
+            "CDX-P1-20261108-COMPLETE",
+            "CDX-P1-20261108-REPORT",
+            "CDX-C4-20261104-TMO",
+            "CDX-C4-20261104-QMO"
+          ],
+          "timezone": "Asia/Shanghai"
+        }
+      },
+      "source": "captured live read on 2026-11-10"
+    }
+  ],
+  "final_reply": "## 这 5 张工单的开工日期\n\n系统内工单本身未记录计划开工日期和生产开始日期，实际的开工时间以各工单首批容器投产时间为准：\n\n| 工单 | 计划开工 | 工单生产开始 | 实际首箱开工 |\n|---|---|---|---|\n| CDX-P1-20261108-END2 | 未记录 | 未记录 | 2026-11-08 17:40:21 |\n| CDX-P1-20261108-COMPLETE | 未记录 | 未记录 | 2026-11-08 17:28:05 |\n| CDX-P1-20261108-REPORT | 未记录 | 未记录 | 2026-11-08 17:28:03 |\n| CDX-C4-20261104-TMO | 未记录 | 未记录 | 2026-11-04 22:50:48 |\n| CDX-C4-20261104-QMO | 未记录 | 未记录 | 2026-11-04 22:50:47 |\n\n（时间均为北京时间；实际开工取当前关联容器中最早的投产时间，含已关闭容器。）\n\n补充：END2 已记录生产完成时间 2026-11-08 17:40:26，其余 4 张工单没有生产完成时间。日期为空表示未写入，不等于未开工。另外，本次按当前关联容器范围统计，容器若曾改绑其他工单，本表不回溯该历史。",
+  "stop_reason": "complete"
+}

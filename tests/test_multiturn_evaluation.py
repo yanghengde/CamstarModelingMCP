@@ -121,6 +121,7 @@ def execute_replay(tmp_path,monkeypatch,schemas,case,client):
     monkeypatch.setattr(runtime,'plan_preview',lambda calls:ev.CURRENT.get().summary(calls))
     monkeypatch.setattr(runtime,'record_perf',lambda *a,**k:None)
     monkeypatch.setattr(runtime,'record_tool_outcome',lambda **k:None)
+    monkeypatch.setattr(runtime,'record_feedback',lambda *a,**k:None)
     monkeypatch.setattr(runtime,'build_runtime_experience_context',lambda *a,**k:'')
     async def run():
         await runtime.init_langgraph_runtime(client,[])

@@ -499,6 +499,7 @@ async def evaluate(args):
               patch.object(memory,'SESSIONS_DIR',str((work/'sessions').resolve())),
               patch.object(runtime,'get_tool_func',lookup),patch.object(runtime,'plan_preview',plan_display),
               patch.object(runtime,'record_perf',metrics),patch.object(runtime,'record_tool_outcome',lambda **kw:None),
+              patch.object(runtime,'record_feedback',lambda *a,**kw:None),
               patch.object(runtime,'build_runtime_experience_context',lambda *a,**kw:''),
               patch.object(httpx.AsyncHTTPTransport,'handle_async_request',guarded),patch.object(httpx.HTTPTransport,'handle_request',blocked_sync)):
             await runtime.init_langgraph_runtime(RecordedClient(oai_client,args.max_tokens),tools)

@@ -126,6 +126,7 @@ LLM_MODEL=deepseek-chat
 AGENT_ENGINE=langgraph
 LANGGRAPH_CHECKPOINT_DB=data/langgraph_checkpoints.sqlite
 EXPERIENCE_DB=data/agent_experience.sqlite
+MEMORY_CONTRACT_VERSION=1
 
 # 对外提供 MCP Streamable HTTP 时启用；必须设置访问令牌
 ENABLE_MCP_HTTP=True
@@ -136,6 +137,8 @@ MCP_ALLOWED_HOSTS=localhost:*,127.0.0.1:*,[::1]:*,172.25.23.19:*
 ```
 
 ### 3. 启动服务
+
+学习库的审核、过期、撤销、替代、用户纠错捕获与兼容迁移见 [学习与记忆生命周期](docs/learning-and-memory.md)。
 
 ```bash
 python main.py

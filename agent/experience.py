@@ -117,12 +117,21 @@ def prune_events(days):
 
 
 def _sanitize(text: str, limit: int = 1200) -> str:
-    value = _SECRET_PATTERN.sub(r"\1=<redacted>", text)
+    from core.user_errors import diagnostic_text
+    value = _SECRET_PATTERN.sub(r"\1=<redacted>", diagnostic_text(text))
     value = _URL_PATTERN.sub("<url>", value)
     return value[:limit]
 
 
 def _is_failure(result: str) -> bool:
+    try:
+        value = json.loads(result)
+        if isinstance(value, dict):
+            return bool(value.get('error')) or value.get('success') is False
+        if isinstance(value, list):
+            return False
+    except (ValueError, TypeError):
+        pass
     normalized = result.casefold()
     return any(marker.casefold() in normalized for marker in _ERROR_MARKERS)
 
@@ -211,32 +220,19 @@ def review_candidate(
     resolution: str | None = None,
     evidence: str | None = None,
     revalidate: bool = True,
+    topics: list[str] | None = None,
 ) -> None:
     """Approve or reject a candidate through an explicit administrative action."""
     if status not in {"approved", "rejected"}:
         raise ValueError("status must be approved or rejected")
     if status == "approved" and not (resolution or "").strip():
         raise ValueError("resolution is required when approving a candidate")
+    if status == 'approved' and not (evidence or '').strip():
+        raise ValueError('evidence is required when approving a candidate')
 
-    with _connect() as connection:
-        cursor = connection.execute(
-            """
-            UPDATE experience_candidates
-            SET status = ?, resolution = ?, evidence = ?, revalidate = ?,
-                reviewed_at = ?
-            WHERE id = ?
-            """,
-            (
-                status,
-                (resolution or "").strip() or None,
-                (evidence or "").strip() or None,
-                int(revalidate),
-                _now(),
-                candidate_id,
-            ),
-        )
-        if cursor.rowcount != 1:
-            raise ValueError(f"candidate {candidate_id} was not found")
+    from agent.learning import review_legacy_candidate
+    review_legacy_candidate(candidate_id, status=status, resolution=resolution,
+                            evidence=evidence, revalidate=revalidate, topics=topics)
 
 
 def get_experience_status() -> dict[str, int]:
@@ -285,6 +281,8 @@ def _read_skill_reference(name: str) -> str:
 def build_runtime_experience_context(
     message: str,
     tool_names: set[str] | None = None,
+    username: str = '',
+    session_id: str = '',
 ) -> str:
     """Build reviewed, relevant context without changing persisted chat history."""
     tool_names = tool_names or set()
@@ -300,24 +298,10 @@ def build_runtime_experience_context(
                 f"{contract}\n{failures}"
             )
 
-    approved = list_candidates("approved", limit=50)
-    relevant_rules = []
-    for item in approved:
-        tool_name = item["tool_name"]
-        if tool_names and tool_name not in tool_names:
-            continue
-        if not tool_names:
-            if not (is_start_context and tool_name == "container_start"):
-                continue
-        relevant_rules.append(
-            f"- Tool {tool_name}, approved candidate #{item['id']}: "
-            f"{item['resolution']}"
-            + (" and revalidate it in the live context." if item["revalidate"] else ".")
-        )
-    if relevant_rules:
-        sections.append(
-            "Human-approved operational experience:\n" + "\n".join(relevant_rules)
-        )
+    from agent.learning import runtime_context
+    learned = runtime_context(message, tool_names, username, session_id)
+    if learned:
+        sections.append(learned)
     return "\n\n".join(sections)
 
 
@@ -345,7 +329,8 @@ def main() -> None:
     approve_parser = subparsers.add_parser("approve")
     approve_parser.add_argument("candidate_id", type=int)
     approve_parser.add_argument("--resolution", required=True)
-    approve_parser.add_argument("--evidence")
+    approve_parser.add_argument("--evidence", required=True)
+    approve_parser.add_argument("--topic", action='append', default=[])
     approve_parser.add_argument("--no-revalidate", action="store_true")
 
     reject_parser = subparsers.add_parser("reject")
@@ -362,6 +347,7 @@ def main() -> None:
             resolution=args.resolution,
             evidence=args.evidence,
             revalidate=not args.no_revalidate,
+            topics=args.topic,
         )
         print(f"Approved experience candidate #{args.candidate_id}.")
     else:

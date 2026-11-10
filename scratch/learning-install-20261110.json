@@ -1,0 +1,11 @@
+{
+  "backup": "D:\\Deepseek\\camstar\\CamstarModelingMCP\\data\\agent_experience.before-learning-20261110T021450Z.sqlite",
+  "knowledge_id": 2,
+  "feedback_id": 1,
+  "knowledge_state": "active",
+  "scope": "current configured MES environment and memory contract version",
+  "mes_write_performed": false,
+  "note": "Installed reviewed query method, not a reusable current production quantity/date answer.",
+  "retired_previous_id": 1,
+  "knowledge_key": "order_dates.actual_start_basis"
+}

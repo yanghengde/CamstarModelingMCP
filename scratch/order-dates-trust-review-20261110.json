@@ -1,0 +1,232 @@
+{
+  "complete": true,
+  "all_requested_orders_found": true,
+  "rows": [
+    {
+      "order_name": "CDX-P1-20261108-END2",
+      "order_id": "00065480000000b3",
+      "found": true,
+      "container_count": 1,
+      "containers_with_missing_start": 0,
+      "actual_start_basis": "earliest FactoryStartDateGMT among all currently order-linked containers; all statuses",
+      "actual_start_state": "earliest_recorded_date",
+      "timezone": "Asia/Shanghai",
+      "planned_start": {
+        "source": "MfgOrder.PlannedStartDateGMT",
+        "utc_raw": "",
+        "display": null
+      },
+      "native_production_start": {
+        "source": "MfgOrder.ProductionStartDateGMT",
+        "utc_raw": "",
+        "display": null
+      },
+      "native_production_complete": {
+        "source": "MfgOrder.ProductionCompleteDateGMT",
+        "utc_raw": "2026-11-08T09:40:26.000",
+        "display": "2026-11-08T17:40:26.000+08:00"
+      },
+      "actual_first_container_start": {
+        "source": "Container.FactoryStartDateGMT",
+        "utc_raw": "2026-11-08T09:40:21.797",
+        "display": "2026-11-08T17:40:21.797+08:00"
+      }
+    },
+    {
+      "order_name": "CDX-P1-20261108-COMPLETE",
+      "order_id": "00065480000000b2",
+      "found": true,
+      "container_count": 2,
+      "containers_with_missing_start": 0,
+      "actual_start_basis": "earliest FactoryStartDateGMT among all currently order-linked containers; all statuses",
+      "actual_start_state": "earliest_recorded_date",
+      "timezone": "Asia/Shanghai",
+      "planned_start": {
+        "source": "MfgOrder.PlannedStartDateGMT",
+        "utc_raw": "",
+        "display": null
+      },
+      "native_production_start": {
+        "source": "MfgOrder.ProductionStartDateGMT",
+        "utc_raw": "",
+        "display": null
+      },
+      "native_production_complete": {
+        "source": "MfgOrder.ProductionCompleteDateGMT",
+        "utc_raw": "",
+        "display": null
+      },
+      "actual_first_container_start": {
+        "source": "Container.FactoryStartDateGMT",
+        "utc_raw": "2026-11-08T09:28:05.897",
+        "display": "2026-11-08T17:28:05.897+08:00"
+      }
+    },
+    {
+      "order_name": "CDX-P1-20261108-REPORT",
+      "order_id": "00065480000000b1",
+      "found": true,
+      "container_count": 1,
+      "containers_with_missing_start": 0,
+      "actual_start_basis": "earliest FactoryStartDateGMT among all currently order-linked containers; all statuses",
+      "actual_start_state": "earliest_recorded_date",
+      "timezone": "Asia/Shanghai",
+      "planned_start": {
+        "source": "MfgOrder.PlannedStartDateGMT",
+        "utc_raw": "",
+        "display": null
+      },
+      "native_production_start": {
+        "source": "MfgOrder.ProductionStartDateGMT",
+        "utc_raw": "",
+        "display": null
+      },
+      "native_production_complete": {
+        "source": "MfgOrder.ProductionCompleteDateGMT",
+        "utc_raw": "",
+        "display": null
+      },
+      "actual_first_container_start": {
+        "source": "Container.FactoryStartDateGMT",
+        "utc_raw": "2026-11-08T09:28:03.987",
+        "display": "2026-11-08T17:28:03.987+08:00"
+      }
+    },
+    {
+      "order_name": "CDX-C4-20261104-TMO",
+      "order_id": "000654800000009a",
+      "found": true,
+      "container_count": 1,
+      "containers_with_missing_start": 0,
+      "actual_start_basis": "earliest FactoryStartDateGMT among all currently order-linked containers; all statuses",
+      "actual_start_state": "earliest_recorded_date",
+      "timezone": "Asia/Shanghai",
+      "planned_start": {
+        "source": "MfgOrder.PlannedStartDateGMT",
+        "utc_raw": "",
+        "display": null
+      },
+      "native_production_start": {
+        "source": "MfgOrder.ProductionStartDateGMT",
+        "utc_raw": "",
+        "display": null
+      },
+      "native_production_complete": {
+        "source": "MfgOrder.ProductionCompleteDateGMT",
+        "utc_raw": "",
+        "display": null
+      },
+      "actual_first_container_start": {
+        "source": "Container.FactoryStartDateGMT",
+        "utc_raw": "2026-11-04T14:50:48.337",
+        "display": "2026-11-04T22:50:48.337+08:00"
+      }
+    },
+    {
+      "order_name": "CDX-C4-20261104-QMO",
+      "order_id": "0006548000000099",
+      "found": true,
+      "container_count": 1,
+      "containers_with_missing_start": 0,
+      "actual_start_basis": "earliest FactoryStartDateGMT among all currently order-linked containers; all statuses",
+      "actual_start_state": "earliest_recorded_date",
+      "timezone": "Asia/Shanghai",
+      "planned_start": {
+        "source": "MfgOrder.PlannedStartDateGMT",
+        "utc_raw": "",
+        "display": null
+      },
+      "native_production_start": {
+        "source": "MfgOrder.ProductionStartDateGMT",
+        "utc_raw": "",
+        "display": null
+      },
+      "native_production_complete": {
+        "source": "MfgOrder.ProductionCompleteDateGMT",
+        "utc_raw": "",
+        "display": null
+      },
+      "actual_first_container_start": {
+        "source": "Container.FactoryStartDateGMT",
+        "utc_raw": "2026-11-04T14:50:47.993",
+        "display": "2026-11-04T22:50:47.993+08:00"
+      }
+    }
+  ],
+  "metrics": {
+    "elapsed_ms": 502.63,
+    "tool_calls": 0,
+    "model_rounds_inside_executor": 0,
+    "dataset_queries": 2
+  },
+  "mes_write_performed": false,
+  "source": "order_dates v1 via shared deterministic read plan",
+  "atomic_snapshot": false,
+  "warnings": [
+    "当前关联范围，历史改绑未回溯；无当前容器不等于历史未开工。",
+    "原生工单日期与实际首箱日期分别保留；日期缺失不解释为未开工。"
+  ],
+  "evidence": {
+    "steps": {
+      "orders": {
+        "status": "ok",
+        "complete": true,
+        "source": {
+          "dataset": "orders",
+          "table": "MfgOrder",
+          "schema_digest": "00f3d0690311085e794df4bf2de253910d4bd8092129a5d3f1d7710706fc9db4",
+          "metadata_cached": false
+        },
+        "page": {
+          "offset": 0,
+          "limit": 20,
+          "pages_read": 1,
+          "has_more": false,
+          "next_offset": null
+        },
+        "elapsed_ms": 439.36
+      },
+      "containers": {
+        "status": "ok",
+        "complete": true,
+        "source": {
+          "dataset": "containers",
+          "table": "Container",
+          "schema_digest": "f29cd4b90aa48c808d8b77ae0a15aaf5e8d06ad477832eb91c2a8a34080c21d6",
+          "metadata_cached": false
+        },
+        "page": {
+          "offset": 0,
+          "limit": 100,
+          "pages_read": 1,
+          "has_more": false,
+          "next_offset": null
+        },
+        "elapsed_ms": 62.48
+      },
+      "first_start": {
+        "status": "ok",
+        "complete": true,
+        "source": {
+          "operation": "group",
+          "dependencies": [
+            "containers"
+          ]
+        },
+        "elapsed_ms": 0.38
+      },
+      "dates": {
+        "status": "ok",
+        "complete": true,
+        "source": {
+          "operation": "join",
+          "dependencies": [
+            "first_start",
+            "orders"
+          ]
+        },
+        "elapsed_ms": 0.06
+      }
+    }
+  }
+}

@@ -81,6 +81,8 @@ EXPERIENCE_DB = os.getenv(
     "EXPERIENCE_DB",
     os.path.join("data", "agent_experience.sqlite"),
 )
+# Bump when MES contracts/business semantics change; old learned rules require review.
+MEMORY_CONTRACT_VERSION = os.getenv("MEMORY_CONTRACT_VERSION", "1").strip() or "1"
 CHAT_RUN_DB = os.getenv("CHAT_RUN_DB", os.path.join("data", "chat_runs.sqlite"))
 
 # ---------------------------------------------------------------------------
