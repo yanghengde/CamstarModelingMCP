@@ -142,6 +142,8 @@ MCP_ALLOWED_HOSTS=localhost:*,127.0.0.1:*,[::1]:*,172.25.23.19:*
 
 能力介绍的即时读取、源码变更检测和生效边界见 [能力目录即时刷新](docs/capability-refresh.md)。
 
+本轮目录直接呈现、历史目录压缩、受控并发读取及实测对比见 [回复性能优化与验证](docs/response-performance-round.md)。
+
 ```bash
 python main.py
 ```

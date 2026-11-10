@@ -117,6 +117,7 @@ def test_current_tool_exchange_keeps_provider_metadata():
 def test_disabled_budget_preserves_large_conversation_and_full_directory(monkeypatch):
     from agent import context_budget
     monkeypatch.setattr(context_budget, 'AGENT_HISTORY_TOKEN_BUDGET', 0)
+    monkeypatch.setattr(context_budget, 'AGENT_PROJECT_DISCOVERY', False)
     catalog = asyncio.run(get_capabilities())
     messages = [{'role':'user','content':'批量操作计划和对象引用不要省略。'*10000},
                 {'role':'assistant','tool_calls':[{'id':'c','function':{'name':'get_capabilities','arguments':'{}'}}]},

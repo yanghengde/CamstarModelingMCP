@@ -56,6 +56,9 @@ LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.deepseek.com/v1")
 LLM_MODEL = os.getenv("LLM_MODEL", "deepseek-chat")
 LLM_TIMEOUT = float(os.getenv("LLM_TIMEOUT", "45"))
 MAX_READ_FAILURES = max(1, int(os.getenv("MAX_READ_FAILURES", "3")))
+READ_QUERY_CONCURRENCY = max(1, min(4, int(os.getenv('READ_QUERY_CONCURRENCY', '4'))))
+AGENT_PROJECT_DISCOVERY = os.getenv('AGENT_PROJECT_DISCOVERY', 'true').lower() in ('true', '1', 'yes')
+AGENT_CAPABILITY_FAST_REPLY = os.getenv('AGENT_CAPABILITY_FAST_REPLY', 'true').lower() in ('true', '1', 'yes')
 
 # ---------------------------------------------------------------------------
 # Agent 配置

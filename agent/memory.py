@@ -55,7 +55,16 @@ def _atomic_json(path, data):
     try:
         with temporary.open('w', encoding='utf-8') as stream:
             json.dump(data, stream, ensure_ascii=False)
-        os.replace(temporary, path)
+        # Windows readers/scanners can briefly hold the destination open.
+        # Retry only this local atomic replacement, never a business operation.
+        for attempt, delay in enumerate((.01, .03, .06, 0)):
+            try:
+                os.replace(temporary, path)
+                break
+            except PermissionError as exc:
+                if os.name != 'nt' or getattr(exc, 'winerror', None) not in (5, 32, 33) or attempt == 3:
+                    raise
+                time.sleep(delay)
     finally:
         temporary.unlink(missing_ok=True)
 

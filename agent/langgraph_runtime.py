@@ -30,7 +30,7 @@ from agent.experience import (
     record_tool_outcome,
 )
 from agent.learning import record_feedback
-from agent.capability_query import read_capability_directory, capability_context
+from agent.capability_query import read_capability_directory, capability_context, render_capability_overview
 from agent.prompts import USER_FACING_LANGUAGE_RULE, QUERY_EFFICIENCY_RULE, APPROVAL_FLOW_RULE, BUSINESS_PRESENTATION_RULE, BUSINESS_RESPONSE_CHECK, deduplicate_runtime_rules
 from agent.safety import (
     MutationCounts,
@@ -145,7 +145,34 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
         }
 
     started = time.time()
+    preparation_started = time.perf_counter()
     try:
+        messages = state.get('messages', [])
+        selected_tools = select_tools(_openai_tools, messages)
+        directory = state.get('capability_directory', '')
+        if not directory and int(state.get('read_failures', 0)) < MAX_READ_FAILURES:
+            directory_started = time.time()
+            directory = await read_capability_directory(messages, selected_tools, get_tool_func)
+            if directory:
+                writer({'type': 'step', 'func': 'get_capabilities', 'args': '{}'})
+                await durable_io(record_perf, 'Tool_Execute', time.time() - directory_started,
+                    state.get('username', 'unknown'), state.get('session_id', 'unknown'),
+                    {'tool': 'get_capabilities', 'source': 'local_prefetch', 'engine': 'langgraph',
+                     'prompt': state.get('request_message', '')})
+        current_message = state.get('request_message') or next(
+            (str(m.get('content', '')) for m in reversed(messages) if m.get('role') == 'user'), '')
+        quick_reply = render_capability_overview(current_message, directory) if directory else None
+        if quick_reply is not None:
+            writer({'type': 'stream_start'})
+            writer({'type': 'stream_chunk', 'content': quick_reply})
+            writer({'type': 'stream_end', 'audience': 'answer'})
+            await durable_io(record_perf, 'Capability_Overview', time.time() - started,
+                state.get('username', 'unknown'), state.get('session_id', 'unknown'),
+                {'source': 'live_registry_renderer', 'model_calls': 0, 'engine': 'langgraph',
+                 'prompt': current_message})
+            return {'messages': messages + [{'role': 'assistant', 'content': quick_reply}],
+                'capability_directory': directory, 'loop_count': loops, 'pending_tool_calls': [],
+                'approved_plan': '', 'final_reply': quick_reply, 'stop_reason': 'complete'}
         tool_names = {
             str(message.get("name"))
             for message in state.get("messages", [])[-8:]
@@ -159,12 +186,6 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
         except Exception as exc:
             print(f'[WARN] Learned context unavailable: {type(exc).__name__}')
             experience_context = ''
-        selected_tools = select_tools(_openai_tools, state.get("messages", []))
-        directory = state.get('capability_directory', '')
-        if not directory and int(state.get('read_failures', 0)) < MAX_READ_FAILURES:
-            directory = await read_capability_directory(state.get('messages', []), selected_tools, get_tool_func)
-            if directory:
-                writer({'type': 'step', 'func': 'get_capabilities', 'args': '{}'})
         model_messages, context_metrics = budget_history(state.get("messages", []))
         from agent.memory import session_auto_confirm, AUTO_CONFIRM_INSTRUCTION
         language_message = {
@@ -198,6 +219,7 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
                 "本轮查询连续失败，停止调用工具。请立即用中文总结已取得的数据和失败原因，不得声称查询完整或成功。"})
         model_messages.append({'role': 'system', 'content': BUSINESS_RESPONSE_CHECK})
         metrics = InferenceMetrics()
+        model_started = time.perf_counter()
         response_stream = await _client.chat.completions.create(
             model=LLM_MODEL,
             messages=model_messages,
@@ -261,6 +283,9 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
             **context_metrics,
             **selection_metrics(selected_tools, len(_openai_tools)),
             "engine": "langgraph",
+            'preparation_seconds': model_started - preparation_started,
+            'model_stream_seconds': time.perf_counter() - model_started,
+            'model_message_chars': sum(len(str(m.get('content', ''))) for m in model_messages),
         },
     )
 

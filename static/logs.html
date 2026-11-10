@@ -489,7 +489,7 @@ body{display:block;} .trace-sidebar{width:320px;min-width:0;} .app-layout{min-he
                     `<svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`;
 
                 const isRun = step.action === 'Run_Total';
-                const title = isRun ? '任务总耗时（包含排队）' : isLLM ? 'LLM Inference 核心推理' : 'Tool Execute 工具分发';
+                const title = isRun ? '任务总耗时（包含排队）' : isLLM ? 'LLM Inference 核心推理' : step.action === 'Capability_Overview' ? '能力目录直接呈现' : 'Tool Execute 工具分发';
 
                 let metaHtml = '';
                 if (step.details.run_id) {
@@ -505,6 +505,12 @@ body{display:block;} .trace-sidebar{width:320px;min-width:0;} .app-layout{min-he
                 }
                 if (isLLM && step.details.model) {
                     metaHtml += `<div class="meta-row"><div class="meta-label">Model</div><div class="meta-value">${step.details.model}</div></div>`;
+                }
+                if (isLLM) {
+                    for (const [key, label] of [['preparation_seconds', '请求准备'], ['first_event_seconds', '首个模型事件'], ['first_delta_seconds', '首个正文/工具事件'], ['model_stream_seconds', '模型响应']]) {
+                        const value = step.details[key];
+                        if (Number.isFinite(value)) metaHtml += `<div class="meta-row"><div class="meta-label">${label}</div><div class="meta-value">${value.toFixed(2)}s</div></div>`;
+                    }
                 }
                 if (!isLLM && step.details.tool) {
                     metaHtml += `<div class="meta-row"><div class="meta-label">Target Name</div><div class="meta-value">${step.details.tool}</div></div>`;

@@ -22,7 +22,7 @@ from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCT
 from agent.prompts import deduplicate_runtime_rules, BUSINESS_PRESENTATION_RULE, BUSINESS_RESPONSE_CHECK
 from agent.experience import build_runtime_experience_context, record_tool_outcome
 from agent.learning import record_feedback
-from agent.capability_query import read_capability_directory, capability_context
+from agent.capability_query import read_capability_directory, capability_context, render_capability_overview
 from agent.safety import MutationCounts, classify_tool, count_tool_calls, evaluate_mutations, approval_prompt, is_explicit_confirmation
 from agent.safety import requests_execution_review
 from core.perf_logger import record_perf
@@ -126,11 +126,23 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
 
         try:
             llm_start_time = time.time()
+            preparation_started = time.perf_counter()
             selected_tools = select_tools(openai_tools, chat_messages)
             if not directory:
+                directory_started = time.time()
                 directory = await read_capability_directory(chat_messages, selected_tools, get_tool_func)
                 if directory:
                     yield f"data: {json.dumps({'type': 'step', 'func': 'get_capabilities', 'args': '{}'}, ensure_ascii=False)}\n\n"
+                    await durable_io(record_perf, 'Tool_Execute', time.time() - directory_started,
+                        username, actual_session_id, {'tool': 'get_capabilities', 'source': 'local_prefetch', 'prompt': message})
+            quick_reply = render_capability_overview(message, directory) if directory else None
+            if quick_reply is not None:
+                chat_messages.append({'role': 'assistant', 'content': quick_reply})
+                await durable_io(save_user_session, username, actual_session_id)
+                await durable_io(record_perf, 'Capability_Overview', time.time() - llm_start_time,
+                    username, actual_session_id, {'source': 'live_registry_renderer', 'model_calls': 0, 'prompt': message})
+                yield f"data: {json.dumps({'type': 'done', 'reply': quick_reply}, ensure_ascii=False)}\n\n"
+                break
             model_messages, context_metrics = budget_history(chat_messages)
             if directory:
                 model_messages.append({'role': 'system', 'content': capability_context(directory)})
@@ -150,6 +162,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
                 model_messages.insert(2, {'role': 'system', 'content': AUTO_CONFIRM_INSTRUCTION})
             model_messages.append({'role': 'system', 'content': BUSINESS_RESPONSE_CHECK})
             metrics = InferenceMetrics()
+            model_started = time.perf_counter()
             response_stream = await oai_client.chat.completions.create(
                 model=LLM_MODEL,
                 messages=model_messages,
@@ -200,7 +213,10 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
                                 tool_calls_dict[idx]["function"]["arguments"] += tc.function.arguments
 
             llm_duration = time.time() - llm_start_time
-            await durable_io(record_perf,"LLM_Inference", llm_duration, username, actual_session_id, {"model": LLM_MODEL, "prompt": message, "streamed": True, **metrics.result(), **context_metrics, **selection_metrics(selected_tools, len(openai_tools))})
+            await durable_io(record_perf,"LLM_Inference", llm_duration, username, actual_session_id, {"model": LLM_MODEL, "prompt": message, "streamed": True, **metrics.result(), **context_metrics, **selection_metrics(selected_tools, len(openai_tools)),
+                'preparation_seconds': model_started - preparation_started,
+                'model_stream_seconds': time.perf_counter() - model_started,
+                'model_message_chars': sum(len(str(m.get('content', ''))) for m in model_messages)})
         except asyncio.CancelledError:
             print(f"[WARN] [中止] 用户取消了请求 [@{username}]")
             raise

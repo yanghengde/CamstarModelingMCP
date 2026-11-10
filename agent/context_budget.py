@@ -1,13 +1,15 @@
-"""Opt-in history budget without rewriting business evidence/checkpoints.
+"""Bounded history with lightweight directory views, without rewriting checkpoints.
 
 Use a local BPE token estimate, not UTF-8 bytes counted as tokens. This is not
 the provider's exact usage. Tool exchanges, user instructions and the latest two
 turns are never truncated. If that evidence does not fit, stop before inference.
+Directory projection is independently enabled by default even with no token cap;
+it changes only navigation metadata supplied to the model, never business receipts.
 """
 import json
 import re
 from functools import lru_cache
-from config import AGENT_HISTORY_TOKEN_BUDGET
+from config import AGENT_HISTORY_TOKEN_BUDGET, AGENT_PROJECT_DISCOVERY
 
 
 class ContextBudgetExceeded(ValueError):
@@ -33,11 +35,16 @@ def initialize_context_budget():
         raise RuntimeError('历史预算分词器不可用，请在服务 Python 环境安装 requirements.txt 并检查 tiktoken 编码缓存。')
 
 
-def estimate_tokens(message):
-    text = json.dumps(message, ensure_ascii=False, separators=(',', ':'))
+@lru_cache(maxsize=256)
+def _text_tokens(text):
     encoding = _encoding()
     return (len(encoding.encode(text, disallowed_special=())) if encoding is not None
             else len(text.encode('utf-8'))) + 16
+
+
+def estimate_tokens(message):
+    text = json.dumps(message, ensure_ascii=False, separators=(',', ':'))
+    return _text_tokens(text)
 
 
 def _discovery_view(message, completed=False):
@@ -95,21 +102,10 @@ def _discovery_view(message, completed=False):
 def budget_history(messages, budget=None):
     budget = AGENT_HISTORY_TOKEN_BUDGET if budget is None else budget
     original_cost = sum(estimate_tokens(m) for m in messages if m.get('role') != 'system')
-    if budget <= 0:
-        turn_start = max((i for i, m in enumerate(messages) if m.get('role') == 'user'), default=0)
-        # Provider continuation metadata is only required within its own turn.
-        # All user-facing history, directory details and business evidence stay.
-        result = [{k: v for k, v in m.items() if k != 'reasoning_content'}
-                  if i < turn_start and 'reasoning_content' in m else m
-                  for i, m in enumerate(messages)]
-        return result, {'history_budget_enabled': False,
-                        'history_estimated_tokens': sum(estimate_tokens(m) for m in result if m.get('role') != 'system'),
-                        'history_original_estimated_tokens': original_cost,
-                        'history_removed_messages': 0, 'history_projected_discovery_messages': 0,
-                        'history_token_estimator': 'cl100k_base' if _encoding() else 'utf8_fallback'}
     source_messages = messages
     turn_start = max((i for i, m in enumerate(messages) if m.get('role') == 'user'), default=0)
-    messages = [_discovery_view(m, completed=i < turn_start) for i, m in enumerate(messages)]
+    if budget > 0 or AGENT_PROJECT_DISCOVERY:
+        messages = [_discovery_view(m, completed=i < turn_start) for i, m in enumerate(messages)]
     # Reasoning is provider continuation metadata, not user-visible evidence.
     # Retain it inside the active tool exchange; do not carry old-turn metadata.
     messages = [{k: v for k, v in m.items() if k != 'reasoning_content'}
@@ -131,6 +127,11 @@ def budget_history(messages, budget=None):
                           and '"directory_projection"' in str(m.get('content', '')))
     costs = [0 if m.get('role') == 'system' else estimate_tokens(m) for m in messages]
     total = sum(costs)
+    if budget <= 0:
+        return list(messages), {'history_budget_enabled': False,
+            'history_estimated_tokens': total, 'history_original_estimated_tokens': original_cost,
+            'history_removed_messages': 0, 'history_projected_discovery_messages': projected_count,
+            'history_token_estimator': 'cl100k_base' if _encoding() else 'utf8_fallback'}
     if total <= budget:
         return list(messages), {'history_estimated_tokens': total, 'history_removed_messages': 0,
                                 'history_token_estimator': 'cl100k_base' if _encoding() else 'utf8_fallback',

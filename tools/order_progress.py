@@ -1,13 +1,14 @@
 """Order-linked WIP evidence, kept separate from procedure-task inquiries."""
 import json
 import re
+import asyncio
 
 from tools import mcp
 from tools.process_context import ReadContext
 from tools.container_inquiry import get_container_details, get_container_history
 from tools.modeling_details import raw_json
 from core.http_client import request
-from config import CAMSTAR_QUERY_BASE_URL
+from config import CAMSTAR_QUERY_BASE_URL, READ_QUERY_CONCURRENCY
 from tools.workflow_steps import _read_steps
 
 
@@ -69,9 +70,13 @@ async def get_mfgorder_progress(mfgorder_name: str, offset: int = 0, limit: int 
             raise ValueError("容器关联查询返回格式异常")
         result["page"] = {"offset": offset, "limit": limit, "has_more": len(rows) > limit,
                           "next_offset": offset + limit if len(rows) > limit else None, "total_count": None}
-        for row in rows[:limit]:
+        semaphore = asyncio.Semaphore(READ_QUERY_CONCURRENCY)
+        async def enrich(row):
+            async with semaphore:
+                return await read_container(row)
+
+        async def read_container(row):
             item = {"name": row["ContainerName"], "instance_id": row["ContainerId"]}
-            result["containers"].append(item)
             try:
                 status = json.loads(await get_container_details(item["name"], item["instance_id"]))
                 details = status.get("data", {}).get("ContainerStatusDetails")
@@ -89,6 +94,8 @@ async def get_mfgorder_progress(mfgorder_name: str, offset: int = 0, limit: int 
                     item["recent_history"] = json.loads(await get_container_history(item["name"], item["instance_id"], limit=3, history_source="mainline"))
             except (ValueError, TypeError) as exc:
                 item["error"] = str(exc)
+            return item
+        result['containers'] = list(await asyncio.gather(*(enrich(row) for row in rows[:limit])))
         result["returned_container_count"] = len(result["containers"])
         steps = {}
         for item in result["containers"]:
