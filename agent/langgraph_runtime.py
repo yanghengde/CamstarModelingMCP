@@ -30,6 +30,7 @@ from agent.experience import (
     record_tool_outcome,
 )
 from agent.learning import record_feedback
+from agent.capability_query import capability_tool_choice
 from agent.prompts import USER_FACING_LANGUAGE_RULE, QUERY_EFFICIENCY_RULE, APPROVAL_FLOW_RULE, BUSINESS_PRESENTATION_RULE, BUSINESS_RESPONSE_CHECK, deduplicate_runtime_rules
 from agent.safety import (
     MutationCounts,
@@ -193,7 +194,7 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
             model=LLM_MODEL,
             messages=model_messages,
             tools=selected_tools,
-            tool_choice="none" if exhausted else "auto",
+            tool_choice="none" if exhausted else capability_tool_choice(state.get('messages', []), selected_tools),
             stream=True,
             **stream_options(),
         )

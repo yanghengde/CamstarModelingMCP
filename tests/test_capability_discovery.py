@@ -33,7 +33,7 @@ def test_discovery_always_available():
 
 def test_core_gap_snapshot_is_scoped_and_not_a_live_health_claim():
     overview = json.loads(asyncio.run(get_capabilities()))['capability_gaps']
-    assert overview['checked_at'] and overview['live_health_check'] is False
+    assert 'checked_at' not in overview and overview['live_health_check'] is False
     items = {g['id']: g for g in overview['items']}
     assert items['G09']['status'] == 'partial'  # Restricted Container loss is implemented.
     assert items['G10']['status'] == 'implemented' and '2026-11-09' in items['G10']['current']

@@ -1,6 +1,9 @@
 """Guidance delivered to external clients during MCP initialization."""
 
 MCP_INSTRUCTIONS = """Camstar Modeling, Shopfloor and Query MCP.
+每次介绍本系统能力都重新调用get_capabilities，以本次注册目录和最新资料为准，不沿用旧对话结论。
+能力介绍不展示停留/处理时长、历史盘点或核查日期。若freshness.reload_required=true，
+说明相关代码尚待服务重新加载；不能把源码存在视为当前运行已接入，也不能把目录更新当成现场验收。
 只读查询优先规则（适用于WorkBuddy等外部客户端，不仅是本地Agent）：
 1. 已知工单名的开工/计划/完工日期，直接run_camstar_read_template(template="order_dates",
 parameters={"order_names":["MO-..."],"timezone":"Asia/Shanghai"})。参数schema已完整提供，

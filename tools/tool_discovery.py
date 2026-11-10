@@ -5,22 +5,29 @@ from typing import Literal
 
 from core.tool_catalog import TOOL_POLICIES, DISABLED_MODELING_PATCH_TOOLS
 from tools import mcp
+from core.capability_freshness import catalog_freshness
+
+CAPABILITY_GAP_FILE = Path(__file__).resolve().parents[1] / 'docs/core-capability-gaps.json'
 
 
-def capability_gap_summary(group=None):
+def capability_gap_summary(group=None, freshness=None):
     """Read the reviewed snapshot, never infer support from a Swagger name."""
-    path = Path(__file__).resolve().parents[1] / 'docs/core-capability-gaps.json'
     try:
-        data = json.loads(path.read_text(encoding='utf-8'))
+        data = json.loads(CAPABILITY_GAP_FILE.read_text(encoding='utf-8'))
         labels = {'not_integrated': '未接入', 'partial': '部分支持', 'blocked': '执行门禁关闭',
                   'contract_unconfirmed': '业务契约待确认', 'validation_pending': '验收与自动核对待补', 'implemented': '已实现并完成限定范围验收'}
         gaps = [g for g in data['gaps'] if group is None or group in g['groups']]
-        return {'checked_at': data.get('checked_at'), 'source': 'docs/core-capability-gaps.json',
+        changed = set((freshness or {}).get('changed_source_files', []))
+        def entry(g):
+            item = {**{k: g[k] for k in ('id', 'title', 'groups', 'status', 'priority', 'current', 'missing')},
+                    'status_label': labels[g['status']], 'swagger_contracts': g['contracts']}
+            if changed.intersection(g['code']):
+                item.update(status='validation_pending', status_label='实现变更待加载与复核',
+                            current='相关实现已修改，当前进程尚未重新加载；可调用范围以运行工具目录为准。')
+            return item
+        return {'source': 'docs/core-capability-gaps.json',
                 'document': 'docs/core-capability-gaps.md', 'scope': data['scope'],
-                'live_health_check': False, 'items': [
-                    {**{k: g[k] for k in ('id', 'title', 'groups', 'status', 'priority', 'current', 'missing')},
-                     'status_label': labels[g['status']], 'swagger_contracts': g['contracts']}
-                    for g in gaps]}
+                'live_health_check': False, 'items': [entry(g) for g in gaps]}
     except (OSError, ValueError, KeyError, TypeError):
         return {'available': False, 'note': '能力缺口盘点快照不可用，请核对项目文档；不能推断没有缺口。'}
 
@@ -48,7 +55,8 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
     """查询本系统真实能力目录。回答你能做什么、支持哪些操作、参数和限制时先调用。
     Omit arguments for a grouped overview; use group for tools in that domain,
     or exact tool_name for its actual description and complete input schema.
-    Includes reviewed Swagger capability gaps and audit date for overview/group queries.
+    Reads current registered tools and latest local capability records on every call.
+    Do not display audit dates or processing durations in capability introductions.
     Distinguish missing/partial/blocked/unvalidated capabilities in Chinese.
     Read-only local registry and audit snapshot inspection, never executes a business tool.
     """
@@ -215,12 +223,15 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
     result = {'source': 'live MCP registry + explicit tool policies',
               'presentation': {'title': '当前能力说明',
                                'inventory_basis': '本次读取的工具注册表与显式策略；不是现场健康检查或事务验收。',
-                               'gap_date_scope': 'capability_gaps.checked_at仅为人工缺口盘点日期，不是当前能力目录的核查日期。',
+                               'display_rule': '能力介绍不显示处理时长、停留时间或历史盘点/核查日期。只说明当前支持范围、限制与待核实项。',
                                'coverage': '概览覆盖全部非空业务分组，按实际工具及限制归纳；重点呈现近期质量、审批签名、SPC、采集、投料及开工准备入口。'},
               'limitations': ['工具已注册不代表现场事务验收通过；权限、配置和状态由产品校验。',
                               '独立工单下发未核实；第1部分生产与整单完工已限定验收。数量损失的基础单/双单位及同产品单单位层级/跟踪载具已限定验收，真实Batch被MES原生禁止。',
                               '确认方式取决于当前对话设置和执行层策略，不能笼统声称所有写入都需逐项确认；缺失选择/参数或用户明确要求先确认时仍等待用户。',
                               '目录查询不加载业务工具，不授予写入权限。']}
+    result['freshness'] = catalog_freshness()
+    if result['freshness']['reload_required']:
+        result['limitations'].append('部署源码有修改尚未加载；需要重启服务后再查询，不能把磁盘上的新代码当作当前已可调用能力。')
     if group is not None and group not in labels:
         return json.dumps({'error': '未知分组', 'groups': labels}, ensure_ascii=False)
     if tool_name:
@@ -234,7 +245,7 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
                           'always_confirm_in_app': policy.always_confirm,
                           'limitations': disabled.get(tool_name) or caveats.get(tool_name)}
     else:
-        result['capability_gaps'] = capability_gap_summary(group)
+        result['capability_gaps'] = capability_gap_summary(group, result['freshness'])
         entries = []
         for name, policy in TOOL_POLICIES.items():
             if name not in registered or not policy.default_visible or (group and policy.group != group):

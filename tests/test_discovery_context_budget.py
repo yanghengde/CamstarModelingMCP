@@ -25,7 +25,8 @@ def test_real_catalog_fits_and_preserves_all_groups_and_gap_constraints():
     assert {g['group'] for g in view['groups']} == {g['group'] for g in data['groups']}
     assert sum(g['tool_count'] for g in view['groups']) == sum(len(g['tools']) for g in data['groups'])
     assert view['limitations'] == data['limitations']
-    assert view['capability_gaps']['checked_at'] == data['capability_gaps']['checked_at']
+    assert 'checked_at' not in view['capability_gaps']
+    assert view['freshness'] == data['freshness']
     for actual, source in zip(view['capability_gaps']['items'], data['capability_gaps']['items']):
         for key in ('id','title','status','status_label','current','missing'):
             assert actual[key] == source[key]

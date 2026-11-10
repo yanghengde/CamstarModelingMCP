@@ -22,6 +22,7 @@ from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCT
 from agent.prompts import deduplicate_runtime_rules, BUSINESS_PRESENTATION_RULE, BUSINESS_RESPONSE_CHECK
 from agent.experience import build_runtime_experience_context, record_tool_outcome
 from agent.learning import record_feedback
+from agent.capability_query import capability_tool_choice
 from agent.safety import MutationCounts, classify_tool, count_tool_calls, evaluate_mutations, approval_prompt, is_explicit_confirmation
 from agent.safety import requests_execution_review
 from core.perf_logger import record_perf
@@ -146,7 +147,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
                 model=LLM_MODEL,
                 messages=model_messages,
                 tools=selected_tools,
-                tool_choice="auto",
+                tool_choice=capability_tool_choice(chat_messages, selected_tools),
                 stream=True,
                 **stream_options(),
             )

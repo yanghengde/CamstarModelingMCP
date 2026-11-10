@@ -140,6 +140,8 @@ MCP_ALLOWED_HOSTS=localhost:*,127.0.0.1:*,[::1]:*,172.25.23.19:*
 
 学习库的审核、过期、撤销、替代、用户纠错捕获与兼容迁移见 [学习与记忆生命周期](docs/learning-and-memory.md)。
 
+能力介绍的即时读取、源码变更检测和生效边界见 [能力目录即时刷新](docs/capability-refresh.md)。
+
 ```bash
 python main.py
 ```

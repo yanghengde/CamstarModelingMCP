@@ -4,7 +4,7 @@ const $ = id => document.getElementById(id);
 const initialDraft = new URLSearchParams(location.search).get('draft');
 let username = '', sessionId = null, sessions = [], attachment = null;
 let busy = false, loading = false, controller = null, pendingApproval = false, initialized = false;
-let activeRun = null, viewVersion = 0, runClock = null;
+let activeRun = null, viewVersion = 0;
 const activeRunStates = new Set(['queued','running','cancelling']);
 const runIsActive = () => !!activeRun && activeRunStates.has(activeRun.status);
 let view = location.pathname === '/records' ? 'records' : 'chat';
@@ -223,7 +223,7 @@ async function refreshWorkflow() {
 }
 function detachRunView() {
     ++viewVersion;
-    controller?.abort(); controller = null; clearInterval(runClock); activeRun = null;
+    controller?.abort(); controller = null; activeRun = null;
     pendingApproval = false; $('approvalCard').hidden = true;
 }
 async function loadHistory() {
@@ -273,20 +273,17 @@ function attachRun(run, token) {
     activeRun = run;
     appendMessage('user', run.message);
     const work = createWorkSummary('后台执行中…');
-    const updateClock = () => {
-        const end = activeRun?.finished_at || Date.now() / 1000;
-        const seconds = Math.max(0, Math.floor(end - run.started_at));
-        work.summary.textContent = `${activeRunStates.has(activeRun?.status) ? '后台执行中' : statusLabels[activeRun?.status] || '执行记录'} · ${seconds} 秒`;
+    const updateSummary = () => {
+        work.summary.textContent = activeRunStates.has(activeRun?.status) ? '后台执行中' : statusLabels[activeRun?.status] || '执行记录';
     };
-    updateClock();
-    if (runIsActive()) runClock = setInterval(updateClock, 1000);
+    updateSummary();
     status(statusLabels[run.status] || '正在恢复执行记录…');
     setBusy(false);
-    observeRun(run, token, work, updateClock).catch(error => {
+    observeRun(run, token, work, updateSummary).catch(error => {
         if (token === viewVersion) { notice(error.message); setBusy(loading); }
     });
 }
-async function observeRun(run, token, work, updateClock) {
+async function observeRun(run, token, work, updateSummary) {
     let cursor = 0, streamBubble = null, streamText = '';
     const current = () => token === viewVersion && sessionId === run.session_id;
     let renderTimer = null, dirty = false;
@@ -339,9 +336,8 @@ async function observeRun(run, token, work, updateClock) {
         else if (data.type === 'run_state') {
             if (!activeRunStates.has(data.status)) flushStream();
             activeRun.status = data.status;
-            if (!activeRunStates.has(data.status)) activeRun.finished_at ||= Date.now() / 1000;
             if (data.message) appendMessage('agent', data.message);
-            status(statusLabels[data.status] || '正在执行…'); updateClock(); setBusy(loading);
+            status(statusLabels[data.status] || '正在执行…'); updateSummary(); setBusy(loading);
         }
         const id = lines.find(line => line.startsWith('id:'));
         if (id) cursor = Number(id.slice(3).trim());
@@ -368,7 +364,7 @@ async function observeRun(run, token, work, updateClock) {
             if (!current()) return;
             activeRun = latest;
             if (!runIsActive()) {
-                clearInterval(runClock); updateClock();
+                updateSummary();
                 if (work.steps.textContent === '正在处理请求…') work.steps.textContent = '本次执行未记录工具调用。';
                 controller = null; setBusy(loading);
                 await refreshSessions();
