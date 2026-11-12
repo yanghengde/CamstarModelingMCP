@@ -111,6 +111,8 @@ async def trace(summary_id):
 
 
 def history_mode(snap):
+    from tools.quality_spc_evidence import supported as spc_supported
+    if spc_supported(snap):return 'spc_native'
     from tools.quality_inspection_event import supported as event_supported
     if event_supported(snap):return 'inspection_event'
     from tools.quality_inspection_history import supported
@@ -136,7 +138,11 @@ def attempted_plan(plan_id, fingerprint, *, allow_manual=False):
             return snap, row[2], {'attempt_id': attempt[0], 'started': attempt[1], 'finished': attempt[2]}
         raise ValueError('当前计划须用inspect_quality_transaction取证，再用review_quality_transaction人工审核。')
     kind = snap['kind']
-    service = 'CreateProductionEvent' if kind=='inspection_event' else SERVICES.get(kind) or disposition.SERVICE_TYPES.get(kind,(None,None))[0]
+    if history_mode(snap)=='spc_native':
+        from tools.quality_spc_evidence import SERVICES as spc_services
+        service = spc_services[kind][0]
+    else:
+        service = 'CreateProductionEvent' if kind=='inspection_event' else SERVICES.get(kind) or disposition.SERVICE_TYPES.get(kind,(None,None))[0]
     if snap.get('service') != service:
         raise ValueError('原计划种类与实际服务不一致。')
     if snap['kind'] == 'inspection' and snap.get('inspection_input_version')!=2:
@@ -326,11 +332,13 @@ async def get_inspection_result_history(summary_history_id: str) -> str:
 
 @mcp.tool
 async def find_quality_execution_candidates(plan_id: str, plan_digest: str, offset: StrictInt = 0, limit: StrictInt = 20) -> str:
-    """只读查有尝试记录的unknown/in_flight检验、批采样、整批OK、批维护、单容器损失、整批报废及返工候选历史。校验摘要及环境，精确匹配完整评论。采样还约束容器/测试/批ID，单容器损失和整批处置使用主历史候选。分页不能证明候选唯一，不改本地审计状态。"""
+    """只读查已尝试的质量计划候选历史，包括新版本SPC注释/明确报告违例。校验摘要及环境，精确匹配完整评论。SPC全局匹配不隐藏异点/异服务同标记。分页不能证明候选唯一，不改本地审计状态。"""
     try:
         with attempt_lock(p.PLAN_DB, plan_id):
             snap, state, attempt = attempted_plan(plan_id, plan_digest)
-            if history_mode(snap)=='inspection_native':
+            if history_mode(snap)=='spc_native':
+                from tools.quality_spc_evidence import roots as reader
+            elif history_mode(snap)=='inspection_native':
                 from tools.quality_inspection_history import roots as reader
             elif history_mode(snap)=='inspection_event':
                 from tools.quality_inspection_event import roots as reader
@@ -339,7 +347,7 @@ async def find_quality_execution_candidates(plan_id: str, plan_digest: str, offs
             return q.encode({'plan_id': plan_id, 'state': state, 'attempt': attempt, 'rows': rows,
                              'page_complete': True, 'complete': False, 'has_more': more,
                              'next_offset': offset+limit if more else None,
-                             'target_linkage_available': snap['kind'] not in disposition.LOT_RESULTS,
+                             'target_linkage_available': snap['kind'] not in disposition.LOT_RESULTS and history_mode(snap) != 'spc_native',
                              **FLAGS})
     except (ValueError, TypeError, KeyError, AttributeError, AttemptBusy) as error:
         return q.encode({'complete': False, **FLAGS, 'error': str(error)})
@@ -347,19 +355,20 @@ async def find_quality_execution_candidates(plan_id: str, plan_digest: str, offs
 
 @mcp.tool
 async def reconcile_quality_execution(plan_id: str, plan_digest: str, candidate_txn_id: str | None = None) -> str:
-    """只读核对已尝试的质量计划。损失、整批处置、批维护及带系统标记的普通检验可自动定位。整批OK只核对父批结果，批计数核对历史本次总采样数和逐组拒收原因。旧检验仍须明确候选ID。其他事务给出人工取证入口。只有独立确认的本地审计可结束占用。"""
+    """只读核对已尝试的质量计划。新版本SPC注释/明确报告违例核对全局唯一标记、尝试时间、完整父子历史和原点保持，只认证登记、不认证引擎/报告来源/控制限。损失、整批处置、批维护和部分检验沿各自契约。旧快照及未覆盖组合保留人工取证，独立确认的本地审计才结束占用。"""
     try:
         if candidate_txn_id is not None:
             iid(candidate_txn_id, '候选事务ID')
         with attempt_lock(p.PLAN_DB, plan_id):
             snap, state, attempt = attempted_plan(plan_id, plan_digest, allow_manual=True)
             mode = history_mode(snap)
-            if mode in ('inspection_native','inspection_event'):
-                if mode=='inspection_native':from tools.quality_inspection_history import verify
+            if mode in ('inspection_native','inspection_event','spc_native'):
+                if mode=='spc_native':from tools.quality_spc_evidence import verify
+                elif mode=='inspection_native':from tools.quality_inspection_history import verify
                 else:from tools.quality_inspection_event import verify
                 proof=await verify(snap,attempt,candidate_txn_id)
                 return q.encode({'plan_id':plan_id,'state':state,'attempt':attempt,**FLAGS,**proof,
-                    'review_action':'resolve_history'if proof.get('recorded_business_effects_verified')else'resolve',
+                    'review_action':'recover' if state=='in_flight' else 'resolve_history'if proof.get('recorded_business_effects_verified')else'resolve',
                     'review_tool':'review_quality_transaction'})
             if mode == 'manual':
                 return q.encode({'plan_id': plan_id, 'state': state, 'attempt': attempt, **FLAGS,

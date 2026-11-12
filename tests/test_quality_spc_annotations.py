@@ -90,6 +90,7 @@ def test_context_proves_original_source_and_group_and_reads_all_chart_history(en
     queries=[c.args[0] for c in a.q.sql_rows.await_args_list]
     h=next(q for q in queries if ' FROM AddSPCAnnotationHistory a ' in q)
     assert 'm.ReversalStatus=1' in h and 'a.SPCChartDefId=' not in h and 'TOP 101' in h
+    assert 'LEFT JOIN HistoryMainline' in h and 'm.HistoryMainlineId IS NULL' in h
     a.request.assert_not_awaited();env['client'].request.assert_not_awaited();assert not p.PLAN_DB.exists()
 
 

@@ -842,7 +842,7 @@ async def inspect_quality_transaction(plan_id:str,plan_digest:str)->str:
 async def review_quality_transaction(plan_id:str,plan_digest:str,action:Literal['recover','resolve','resolve_history','resolve_rejection'],evidence_reference:str,
         review_note:str,conclusion:Literal['committed','not_committed','unknown']='unknown')->str:
     """须确认的本地质量事务审计。recover把已停的in_flight转为unknown；resolve登记人工最终证据。
-    resolve_history对已覆盖的数量损失、整批处置、计数检验扣量及关联事件核对原生TxnId和全部最终效果，conclusion=committed。
+    resolve_history对已覆盖的数量损失、整批处置、计数检验扣量及关联事件核对原生TxnId和全部最终效果，conclusion=committed。新版本SPC仅核对注释或明确报告违例的完整登记及原始点保持，不认证引擎、控制限、报告来源或放行。
     resolve_rejection仅对关联事件原生明确编号配置/字面值语法/服务权限拒绝，完整原响应与原检验/组织配置及事件/历史均重读核对，conclusion=not_committed、evidence_reference=native:原错误码；不是按HTTP错误或无历史通用解锁。
     证据不足保留占用；结案不授权重放原计划、绕过权限或更改账号。"""
     try:

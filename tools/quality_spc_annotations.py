@@ -93,8 +93,8 @@ async def annotation_history(point_id):
                'a.DataCollectionDefId,a.SPCChartDefId,a.Annotation,a.Exclude,a.CustomSPCDataId,a.ExternalDataId,'
                'm.HistoryId AS MainlineHistoryId,m.TxnId AS MainlineTxnId,m.ReversalStatus,m.TxnType,m.TxnDateGMT,m.Comments')
     rows = await q.sql_rows('SELECT TOP 101 '+columns+' FROM AddSPCAnnotationHistory a '
-                            'INNER JOIN HistoryMainline m ON m.HistoryMainlineId=a.HistoryMainlineId '
-                            f"WHERE a.DataPointId='{key}' AND m.ReversalStatus=1 ORDER BY a.AddSPCAnnotationHistoryId", 101)
+                            'LEFT JOIN HistoryMainline m ON m.HistoryMainlineId=a.HistoryMainlineId '
+                            f"WHERE a.DataPointId='{key}' AND (m.ReversalStatus=1 OR m.HistoryMainlineId IS NULL) ORDER BY a.AddSPCAnnotationHistoryId", 101)
     if len(rows) > 100: raise ValueError('原始点注释超过100条，不能用部分历史准备写入。')
     result = []; seen = set()
     for raw in rows:
@@ -221,7 +221,7 @@ async def build_annotation(args, marker):
             'annotation':annotation,'exclude':False,'comments':marker}
     echo = await preview(body,before)
     if await context(args) != before: raise ValueError('准备期间原始数据、容器归属、SPC配置或注释历史发生变化。')
-    return {'kind':'spc_annotation','action':'annotate','service':'AddSPCAnnotation',
+    return {'kind':'spc_annotation','spc_evidence_version':1,'action':'annotate','service':'AddSPCAnnotation',
             'name':cfg['chart']['Name']+'/'+source['DataPointHistoryDetailId'],'target_id':source['DataPointHistoryDetailId'],
             'scope_key':'spc:point:'+source['DataPointHistoryDetailId'],'before':before,'body':body,'preview':echo,
             'resource_reads':sorted(resources('SPCChartDefs',cfg['chart']) | resources('UserDataCollectionDefs',cfg['definition'])
@@ -302,7 +302,7 @@ async def prepare_spc_annotation(container_name: str, data_point_history_id: str
     """准备原生AddSPCAnnotation注释计划，不写MES。只支持原容器直接数值采集的持久历史点、Active普通定义及完整SPC组内的非自定义图。
     明确原始DataPointHistoryDetail ID、图和1..2000字符注释；Exclude固定false，任何图已有有效排除记录则拒绝，不做排除/恢复。
     不把本地SPC信号写成MES违例，不调用内联SPC/邮件/冻结/资源状态。非执行预览必须回显原点/父引用和派生定义版本；签名要求未知或非空则拒绝。
-    execute_quality_transaction确认后仅一次提交；unknown用inspect_quality_transaction看原点历史，最终证据人工review，不重试。
+    execute_quality_transaction确认后仅一次提交；unknown可用reconcile_quality_execution核对完整原生登记，resolve_history确认后重读结案。旧计划保留人工取证，不重试，不认证引擎或放行。
     """
     return await p.prepare('spc_annotation',dict(container_name=container_name,data_point_history_id=data_point_history_id,
         spc_chart_name=spc_chart_name,annotation=annotation,container_instance_id=container_instance_id,

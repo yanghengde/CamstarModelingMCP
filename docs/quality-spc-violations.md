@@ -1,5 +1,7 @@
 # SPC明确报告结果登记：受限首版
 
+2026-11-12更新：新计划可按全局唯一请求、实际尝试时间、完整三层违例历史和原始点/配置/既有历史保持核对登记；独立确认 `resolve_history` 后本地结案。只核实登记，不认证报告来源、SPC引擎、规则或控制限。旧快照人工取证，真实业务尚未验收。最新范围见[C6登记闭环](c6-spc-registration.md)，下文旧版人工review限制按原日期保留。
+
 C6 按现场 EDM 修正了违例预览查询，并增加精确标记与请求内容匹配的历史候选。匹配候选用于人工审计。详见[C6 现场与写入证据](quality-spc-history.md#现场与写入证据)。
 
 2026-10-29。新增 `get_spc_violation_context`、`prepare_spc_violation`，该阶段quality分组55个工具；后续新增[基础Event首次分流](quality-event-triage.md)，当前68个工具。在原始历史点注释之外，提供原生 `RecordSPCViolation` 的单点结果登记计划。

@@ -1,5 +1,7 @@
 # SPC原始历史点注释：受限首版
 
+2026-11-12更新：新准备的计划保存证据版本，支持 `reconcile_quality_execution` 核对完整登记，再经确认 `review_quality_transaction(action="resolve_history")` 重读后本地结案。原始点、配置及旧历史须保持，孤立父历史不再被内连接隐藏；旧快照仍人工取证。最新范围及未验收项见[C6登记闭环](c6-spc-registration.md)。下文人工review描述保留为旧版记录，不表示新版不能历史结案。
+
 2026-10-29。在[SPC本地计算与判异](quality-spc-analysis.md)之外，新增两个MCP工具，该阶段quality分组为53个工具；后续新增[明确报告的单点SPC违例登记](quality-spc-violations.md)，SPC扩展阶段55个工具；当前68个工具，另有[事件文字资料维护](quality-event-update.md)，另有[基础Event首次分流](quality-event-triage.md)：
 
 | 工具 | 功能 |

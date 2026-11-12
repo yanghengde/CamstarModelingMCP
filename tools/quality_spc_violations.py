@@ -250,7 +250,7 @@ async def build_violation(args, marker):
     if await context(args)!=before:raise ValueError('准备期间原始点、规则、配置或历史发生变化。')
     echo['reported_result']=report
     source=before['source'];cfg=before['configuration'];rules=before['rules']
-    return {'kind':'spc_violation','action':'record_reported','service':'RecordSPCViolation','name':cfg['chart']['Name']+'/'+source['DataPointHistoryDetailId'],
+    return {'kind':'spc_violation','spc_evidence_version':1,'action':'record_reported','service':'RecordSPCViolation','name':cfg['chart']['Name']+'/'+source['DataPointHistoryDetailId'],
             'target_id':source['DataPointHistoryDetailId'],'scope_key':'spc:point:'+source['DataPointHistoryDetailId'],
             'before':before,'body':body,'preview':echo,'marker':marker,'arguments':args,'environment':p.environment(),
             'resource_reads':sorted(resources('SPCChartDefs',cfg['chart'])|resources('UserDataCollectionDefs',cfg['definition'])
@@ -318,7 +318,7 @@ async def prepare_spc_violation(container_name:str,data_point_history_id:str,spc
     这是调用方明确报告结果的登记，不计算或认证现场引擎；不得将本地WECO输出/规格限/模型猜定值当外部SPC报告。
     仅未排除直接数值历史点、配置清单内明确违例、原值严格越限、图变量等于原点名；不支持区内运行规则/派生值/批量/自定义源。
     图有通知、冻结、资源状态、OCAP或未知签名要求则拒绝，不自动关闭配置。完整非执行回显及原关联重读后保存计划。
-    execute_quality_transaction系统确认单次提交，unknown不重试；inspect只给原点历史证据，最终事务证据人工review。
+    execute_quality_transaction系统确认单次提交，unknown不重试；新计划用reconcile_quality_execution核对完整登记，再resolve_history确认重读结案。旧快照人工取证；登记成功不认证报告来源、引擎或控制限。
     """
     report=reported_result.model_dump() if isinstance(reported_result,BaseModel) else reported_result
     return await p.prepare('spc_violation',dict(container_name=container_name,data_point_history_id=data_point_history_id,
