@@ -2,6 +2,8 @@
 
 2026-11-12，Asia/Shanghai。**C6整体未完成，原生闭环受外部条件阻塞。**用户本轮要求完整完成，随后明确确认仍没有可用引擎或安装资源。不能把本地算法、问答图片或代码回归替代原生计算、登记与处置的现场验收。
 
+同日后续用户授权写入Modeling中的SPC测试资料：已通过实际MCP调用创建并核实六类独立示例及其关联，另保留首次名称超长批次已创建的一个图类型。当前类型/规则/查询已非空，但均为未编译、未绑定生产的建模示例，连接仍缺失，不能替代可运行原生配置。当前名称、边界和完整执行记录见[SPC建模测试](c6-spc-modeling-test.md)。
+
 ## 当前交付范围
 
 | 范围 | 实际状态 | 证据与边界 |
@@ -11,19 +13,19 @@
 | Xbar-R与p/np/c/u | 代码及离线验证；p图另有真实LLM链路验证 | 计数数据明确为人工合成，不是MES实绩；不判合格或放行 |
 | 异步出图与历史恢复 | 已有真实端到端验证 | 三组图片实际可见；刷新后快照保持、工具不重执行；Worker/PNG/交互安静期保持 |
 | 原生注释与明确报告的单点越限登记 | 受限代码、离线证据闭环存在；现场未验收 | 本轮原生注释execute=false仍缺签名要求字段，未准备计划、未提交 |
-| 原生引擎、编译规则及有效控制限 | 外部资源缺失，未接通 | 现场图类型、规则、查询、引擎连接集合仍为空；隔离测试图不是可运行的原生控制图 |
+| 原生引擎、编译规则及有效控制限 | 外部资源缺失，未接通 | 已有独立测试类型、查询、未编译规则及图组；未创建连接，无有效原生控制限，示例不是可运行的原生控制图 |
 | 原生结果适配及自动处置 | 未完成 | 需匹配部署的引擎输入/输出契约、结果来源和版本；通知、冻结、设备状态及OCAP尚未联调/验收 |
 | 更多图型、自定义/批量来源、排除与恢复等 | 保留为未开放范围 | 原有声明没有因本次收尾被删除，也不能声称覆盖Camstar全部图型或统计问答 |
 
-当前8030运行服务已核对：九个C6入口、图表接口及LangGraph均已加载，已加载业务源码无需重载，原活动聊天已恢复。此次没有重启或停止服务。应用加载检查不改变以上原生验收状态。
+此前8030运行服务已核对九个C6入口、图表接口及LangGraph均已加载，原活动聊天已恢复；当时已加载业务源码无需重载。本次后续新增的三个建模测试入口由独立MCP客户端实际加载调用，未重启或停止8030，其长驻进程使用新增入口仍需重新加载。应用加载检查不改变原生验收状态。
 
 ## 本轮现场核对
 
-`spc_acceptance_readonly.py`重新读取实际MES，确认SPCChartDefs和DataPointHistoryDetail非空，SPCChartTypes、SPCRules、SPCQueries和SPCConnection为空；47个登记历史列存在，三个事务Swagger可读。列或接口存在不代表可执行。
+建模测试之前，`spc_acceptance_readonly.py`重新读取实际MES，确认SPCChartDefs和DataPointHistoryDetail非空，SPCChartTypes、SPCRules、SPCQueries和SPCConnection为空；47个登记历史列存在，三个事务Swagger可读。该空集合结论保留对应检查时刻，后续新增模型见上文；列、接口或示例存在不代表可执行。
 
 `spc_signature_readonly.py`在原隔离点上仅调用一次AddSPCAnnotation的execute=false。真实响应有Annotation、Comments、DataCollectionDef、DataPoint、Exclude和SPCChartDef，但没有ESigRequirement/AdditionalESigReqs。读取前后原始点、配置及注释历史一致，注释历史为0；没有客户端注入空签名字段，没有生成执行计划或执行业务写入。
 
-最新证据在本地`tmp/c6-completion/readiness-current.json`与`signature-current.json`。这些检查不依赖历史环境结论。
+本次建模之前的只读及签名证据在本地`tmp/c6-completion/readiness-current.json`与`signature-current.json`。后续建模保存/读回证据在`tmp/c6-modeling-test/`，不混用不同阶段状态。
 
 ## 真实问答到页面的验收
 
