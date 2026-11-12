@@ -324,6 +324,10 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
                 blocked_movement_targets.update(movement_targets(func_name, func_args))
             await durable_io(record_perf,f"Tool_Execute", tool_duration, username, actual_session_id, {"tool": func_name, "prompt": message})
 
+            from core.chat_charts import publish_async as publish_chart
+            chart = await publish_chart(username, actual_session_id, tool_call['id'], message, func_name, str(result))
+            if chart:
+                yield f"data: {json.dumps({'type': 'chart', 'chart': chart}, ensure_ascii=False)}\n\n"
             diagnostic = tool_diagnostic(result)
             if diagnostic:
                 yield f"data: {json.dumps({'type': 'tool_diagnostic', 'func': func_name, 'details': diagnostic}, ensure_ascii=False)}\n\n"

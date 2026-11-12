@@ -7,7 +7,7 @@ from fastapi import APIRouter, File, Query, UploadFile, HTTPException
 from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel, Field, StrictBool
 
-from config import CAMSTAR_USERNAME, ENABLE_PERFORMANCE_LOG, AGENT_ENGINE, UPLOAD_MAX_BYTES
+from config import CAMSTAR_USERNAME, ENABLE_PERFORMANCE_LOG, AGENT_ENGINE, UPLOAD_MAX_BYTES, ENABLE_CHAT_CHARTS
 from core.async_io import durable_io
 from agent.memory import get_user_messages, get_sessions, create_session, set_active_session, get_active_session, user_memories
 from agent.llm_client import chat_stream
@@ -52,7 +52,7 @@ def index():
 @router.get("/config")
 def config_endpoint():
     """返回前端所需的配置（如当前绑定用户名）。"""
-    return {"username": CAMSTAR_USERNAME, "agent_engine": AGENT_ENGINE}
+    return {"username": CAMSTAR_USERNAME, "agent_engine": AGENT_ENGINE, 'chat_charts': ENABLE_CHAT_CHARTS}
 
 
 @router.get("/workflow/{username}/{session_id}")
@@ -80,12 +80,47 @@ def new_session_endpoint(username: str):
 
 
 @router.get("/history/{username}")
-def history_endpoint(username: str, session_id: str = None):
+async def history_endpoint(username: str, session_id: str = None, presentation: bool = False):
     """获取指定用户的聊天历史。"""
-    if session_id:
-        set_active_session(username, session_id)
-    messages = get_user_messages(username, session_id)
-    return {"messages": messages, "run": RUNS.latest(username, session_id or get_active_session(username))}
+    def read_history():
+        if session_id: set_active_session(username, session_id)
+        target = session_id or get_active_session(username)
+        messages = list(get_user_messages(username, session_id))
+        if presentation:
+            # The browser never renders tool JSON or tool-call arguments. Keep
+            # message positions and call IDs for journals/charts, without shipping
+            # hundreds of historical measurement arrays to the UI JSON parser.
+            messages = [{
+                'role': m.get('role'),
+                **({'content': m.get('content') or ''} if m.get('role') in ('user','assistant') else {}),
+                **({'tool_call_id': m.get('tool_call_id')} if m.get('role') == 'tool' else {}),
+                **({'tool_calls': [{'id': c.get('id'), 'function': {'name': c.get('function', {}).get('name')}}
+                                  for c in m.get('tool_calls', [])]} if m.get('tool_calls') else {})
+            } for m in messages]
+        return messages, RUNS.latest(username, target), target
+    messages, run, target = await durable_io(read_history)
+    from core.chat_charts import STORE
+    charts = []
+    if ENABLE_CHAT_CHARTS:
+        try:
+            charts = await asyncio.wait_for(asyncio.to_thread(STORE.list, username, target, messages), .2)
+        except Exception:
+            pass  # Optional chart storage cannot prevent loading the conversation.
+    return {"messages": messages, "run": run, 'charts': charts}
+
+
+@router.get('/api/chat/charts/{chart_id}')
+async def chart_snapshot(chart_id: str, username: str, session_id: str):
+    if (not ENABLE_CHAT_CHARTS or username != CAMSTAR_USERNAME
+            or session_id not in user_memories.get(username, {}).get('sessions', {})):
+        raise HTTPException(404, '图表不存在。')
+    from core.chat_charts import STORE
+    try:
+        payload = await durable_io(STORE.get, username, session_id, chart_id)
+    except (ValueError, TypeError):
+        raise HTTPException(409, '图表快照暂时无法读取，原文字结果仍可查看。') from None
+    if payload is None: raise HTTPException(404, '图表不存在。')
+    return payload
 
 
 def _chat_identity(req):

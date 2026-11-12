@@ -467,6 +467,11 @@ async def _execute_tool_node(state: AgentState) -> dict[str, Any]:
         "name": func_name,
         "content": str(result),
     }
+    from core.chat_charts import publish_async as publish_chart
+    chart = await publish_chart(state.get('username', 'unknown'), state.get('session_id', 'unknown'),
+                             tool_message['tool_call_id'], state.get('request_message', ''), func_name, str(result))
+    if chart:
+        writer({'type': 'chart', 'chart': chart})
     read_failures = int(state.get("read_failures", 0))
     blocked_targets = set(state.get("blocked_movement_targets", []))
     if movement_failed(result):

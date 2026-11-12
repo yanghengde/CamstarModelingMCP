@@ -372,4 +372,17 @@
 [aria-checked="true"] > .mode-check { visibility:visible; }
 .confirmation-menu-note { margin:6px 10px 4px; padding-top:10px; border-top:1px solid var(--border); font-size:12px; line-height:1.7; color:var(--muted); }
 #notice { pointer-events:none; }
+.chat-chart { margin:14px 0 20px; padding:16px; border:1px solid var(--border); border-radius:14px; background:#fff; contain:layout paint; }
+.chat-chart h3 { margin:0 0 8px; font-size:15px; font-weight:500; }
+.chart-status,.chart-reference,.chart-note { margin:6px 0; font-size:12px; line-height:1.7; color:#667080; overflow-wrap:anywhere; }
+.chart-body { width:100%; min-height:250px; overflow:hidden; background:#fbfcfe; border-radius:8px; }
+.chart-body:empty { background:linear-gradient(100deg,#f7f9fc,#eef2f7,#f7f9fc); }
+.chart-actions,.chart-table-controls { display:flex; align-items:center; gap:12px; padding:10px 0; flex-wrap:wrap; font-size:12px; }
+.chart-actions button,.chart-actions select,.chart-table-controls button { padding:5px 9px; border:1px solid #d8dfe8; border-radius:7px; background:#fff; color:#42617e; }
+.chart-point-tip { display:block; padding:8px; background:#f2f6fb; color:#31485f; font-size:12px; overflow-wrap:anywhere; }
+.chart-point-tip[hidden],.chart-table-wrap[hidden] { display:none; }
+.chart-table-wrap { max-height:380px; overflow:auto; font-size:11px; }
+.chart-data-table { border-collapse:collapse; width:100%; }
+.chart-data-table th,.chart-data-table td { padding:6px; border:1px solid #e7ebf1; white-space:nowrap; }
+@supports(field-sizing:content) { .composer textarea { field-sizing:content; height:auto; overflow-y:auto; } }
 @media(max-width:480px) { .composer-tools { gap:3px; flex-wrap:wrap; } .confirmation-mode { padding:6px; } }

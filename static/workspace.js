@@ -12,6 +12,11 @@ const RECORD_PAGE_SIZE = 50;
 let recordLimit = RECORD_PAGE_SIZE;
 function resizeComposer() {
     const input = $('inputBox');
+    // Native sizing avoids resetting height and forcing synchronous layout of
+    // the entire conversation on every keystroke (especially long histories).
+    if (globalThis.CSS?.supports('field-sizing','content')) {
+        input.style.height=''; input.style.overflowY=''; return;
+    }
     if (!input.getClientRects().length) return;
     input.style.height = 'auto';
     input.style.height = `${input.scrollHeight}px`;
@@ -223,6 +228,7 @@ async function refreshWorkflow() {
 }
 function detachRunView() {
     ++viewVersion;
+    globalThis.ChatCharts?.reset(username,sessionId);
     controller?.abort(); controller = null; clearInterval(runClock); runClock = null; activeRun = null;
     pendingApproval = false; $('approvalCard').hidden = true;
 }
@@ -230,19 +236,25 @@ async function loadHistory() {
     detachRunView();
     const target = sessionId, token = viewVersion;
     setBusy(true);
-    const data = await api(`/history/${encodeURIComponent(username)}?session_id=${encodeURIComponent(target)}`);
+    const data = await api(`/history/${encodeURIComponent(username)}?session_id=${encodeURIComponent(target)}&presentation=true`);
     if (token !== viewVersion || target !== sessionId) return;
     $('msgs').replaceChildren();
     let historyWork = null;
     const messages = data.run ? (data.messages || []).slice(0, data.run.history_start) : data.messages || [];
+    const chartCalls = new Map((data.charts || []).map(chart => [chart.tool_call_id,chart]));
+    let batchCount=0;
     for (const message of messages) {
+        if (++batchCount % 8 === 0 && messages.length > 40) {
+            await new Promise(resolve => requestAnimationFrame(resolve));
+            if (token !== viewVersion || target !== sessionId) return;
+        }
         if (message.role === 'user') { appendMessage('user', message.content || ''); historyWork = null; }
         else if (message.role === 'assistant' && message.content) {
             if (message.tool_calls?.length) {
                 historyWork ||= createWorkSummary('查看处理详情');
                 appendWorkDetail(historyWork, message.content);
             } else appendMessage('agent', message.content);
-        }
+        } else if (message.role==='tool' && chartCalls.has(message.tool_call_id)) globalThis.ChatCharts?.append(chartCalls.get(message.tool_call_id));
     }
     if (data.run) {
         const key = `modeling.pending.${username}.${target}`;
@@ -329,6 +341,7 @@ async function observeRun(run, token, work, updateSummary) {
             if (work.steps.textContent === '正在处理请求…') work.steps.textContent = '';
             const step = document.createElement('div'); step.textContent = data.func || '工具调用'; work.steps.append(step);
         } else if (data.type === 'stream_start') {
+            globalThis.ChatCharts?.streaming(true);
             flushStream();
             streamBubble = appendMessage('agent', ''); streamText = '';
         } else if (data.type === 'stream_chunk') {
@@ -337,7 +350,9 @@ async function observeRun(run, token, work, updateSummary) {
         } else if (data.type === 'stream_end') {
             if (data.audience === 'activity') archiveActivity();
             else { flushStream(); streamBubble = null; }
+            globalThis.ChatCharts?.streaming(false);
         }
+        else if (data.type === 'chart') globalThis.ChatCharts?.append(data.chart);
         else if (data.type === 'tool_diagnostic') appendWorkDetail(work, data.details, `技术详情 · ${data.func || '工具调用'}`);
         else if (data.type === 'done' && data.reply) appendMessage('agent', data.reply);
         else if (data.type === 'error') { archiveActivity(); appendTaskError(data.message, data.details); }
@@ -345,6 +360,7 @@ async function observeRun(run, token, work, updateSummary) {
             if (!activeRunStates.has(data.status)) flushStream();
             activeRun.status = data.status;
             if (!activeRunStates.has(data.status)) {
+                globalThis.ChatCharts?.streaming(false);
                 activeRun.finished_at ||= Date.now() / 1000;
                 clearInterval(runClock); runClock = null;
             }
@@ -539,7 +555,7 @@ $('msgs').onclick = event => {
 };
 async function initialize() {
     setBusy(true); setView(view,false);
-    try { const config = await api('/config'); username = config.username; $('username').textContent = username; $('connectionText').textContent = '服务已连接'; $('connection').classList.add('connected'); await refreshSessions(); if (!sessionId) { await newSession(); await refreshSessions(); } await loadHistory(); initialized = true; }
+    try { const config = await api('/config'); username = config.username; globalThis.ChatCharts?.configure(config.chat_charts); $('username').textContent = username; $('connectionText').textContent = '服务已连接'; $('connection').classList.add('connected'); await refreshSessions(); if (!sessionId) { await newSession(); await refreshSessions(); } await loadHistory(); initialized = true; }
     catch(error) { $('connectionText').textContent = '连接失败'; $('connection').classList.add('error'); notice(`加载失败，请刷新重试：${error.message}`); }
     finally { setBusy(false); }
 }
