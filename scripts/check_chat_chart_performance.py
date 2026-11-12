@@ -30,6 +30,16 @@ def payload():
         source_digest='a'*64, panels=[dict(title='I · 合成曲线',kind='line',rows=rows),dict(title='MR · 合成曲线',kind='line',rows=rows)])
 
 
+def trend_payload(count=100):
+    data=payload()
+    rows=[dict(id=f'H{i}',label=f'2026-11-12T08:{i//60:02}:{i%60:02}.0000001',value=str(10+i%3),
+               signal=False,excluded=i%5==0,detail='合成测试原值；存在排除记录时仍显示，不判异。') for i in range(count)]
+    data.update(title='合成参数走势（非MES数据）',subtitle='仅展示原始走势，不计算控制限或判异',
+                reference='隔离合成数据',note='测试数据；GMT按观测先后等距，存在未冲销排除记录不等于当前排除状态。',
+                panels=[dict(title='原始值（GMT先后，观测等距）',kind='trend',rows=rows)])
+    return data
+
+
 def fixture_app():
     app = FastAPI()
     app.mount('/static',StaticFiles(directory=ROOT/'static'),name='static')
@@ -41,7 +51,7 @@ def fixture_app():
     @app.get('/sessions/{username}')
     def sessions(username):
         return dict(active_session='plain',sessions=[dict(id=s,title=t,has_messages=True,auto_confirm=False,created_at=time.time())
-            for s,t in [('plain','普通聊天'),('charts','100张历史图表'),('slow','慢图表加载'),('failure','图表加载失败'),('stream','流式回复')]])
+            for s,t in [('plain','普通聊天'),('charts','100张历史图表'),('slow','慢图表加载'),('failure','图表加载失败'),('stream','流式回复'),('trend','原始参数趋势'),('single','单点原始参数')]])
     @app.get('/workflow/{username}/{session_id}')
     def workflow(username,session_id): return dict(status='complete')
     @app.get('/history/{username}')
@@ -60,6 +70,7 @@ def fixture_app():
         hits.append((session_id,chart_id))
         if session_id=='slow': await asyncio.sleep(3)
         if session_id=='failure': raise HTTPException(503,'injected failure')
+        if session_id in ('trend','single'): return trend_payload(1 if session_id=='single' else 100)
         return payload()
     state={'status':'running'}
     def run(): return dict(id='run-fixture',session_id='stream',username='chart-fixture',message='请出图并流式回复',
@@ -195,6 +206,32 @@ def main():
             page.locator('.chat-chart').evaluate("el=>el.scrollIntoView({block:'start'})")
             page.wait_for_function('ChatCharts.metrics().mounted>0',timeout=30000)
             summary['stream_text_before_chart_mount']=True
+            open_session('trend')
+            page.wait_for_function("document.querySelector('.chart-body img')",polling=100)
+            assert page.evaluate("""() => {
+                const image=document.querySelector('.chart-body img'),canvas=document.createElement('canvas');
+                canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;
+                const context=canvas.getContext('2d');context.drawImage(image,0,0);
+                const pixels=context.getImageData(0,0,canvas.width,canvas.height).data;
+                for(let i=0;i<pixels.length;i+=4)if(Math.abs(pixels[i]-125)<3&&Math.abs(pixels[i+1]-135)<3&&Math.abs(pixels[i+2]-145)<3&&pixels[i+3]>240)return true;
+                return false;
+            }"""),'exclusion markers must be visible in the actual Worker PNG'
+            card=page.locator('.chat-chart')
+            card.get_by_text('查看原始数据',exact=True).click()
+            assert card.locator('tbody tr').count()==30
+            headers=card.locator('thead th').all_text_contents()
+            assert headers==['图','原始GMT','原始观测ID','原值','说明'],headers
+            assert '2026-11-12T08:00:00.0000001' in card.locator('tbody').inner_text()
+            with page.expect_download() as download:
+                card.get_by_text('导出SVG',exact=True).click()
+            path=OUT/f'trend-export-cpu{args.cpu}.svg';download.value.save_as(str(path))
+            svg=path.read_text(encoding='utf8')
+            assert '灰菱形' in svg and '#7d8791' in svg and '不计算控制限或判异' in svg and 'CL / UCL / LCL' not in svg
+            page.screenshot(path=str(OUT/f'trend-cpu{args.cpu}.png'))
+            open_session('single')
+            page.wait_for_function("document.querySelector('.chart-body img')",polling=100)
+            assert page.evaluate('ChatCharts.metrics().mounted')==1
+            summary['raw_trend_without_controls_and_single_point']=True
             # Simulate an unavailable Worker bundle, independently of HTTP data failures.
             page.route('**/chart-worker.js?*',lambda route:route.abort())
             open_session('charts')

@@ -1,6 +1,6 @@
 /* All ECharts parsing, layout and SVG generation stays off the chat UI thread. */
 'use strict';
-importScripts('/static/chart-spec.js?v=1', '/static/vendor/echarts-6.0.0.common.min.js');
+importScripts('/static/chart-spec.js?v=2', '/static/vendor/echarts-6.0.0.common.min.js');
 self.onmessage = async event => {
     const {id,payload,width,count} = event.data || {};
     let chart, raster, canvas;

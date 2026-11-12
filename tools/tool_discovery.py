@@ -114,6 +114,7 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
         'analyze_spc_series': '本地i_mr/xbar_r计算及显式WECO四规则，独立基线或有版本固定控制配置二选一；保留原ID/顺序/摘要，不核实MES来源，不把规格限当控制限，不写入、不放行。',
         'analyze_spc_attributes': '本地p/np/c/u计数图，明确不合格品件数或缺陷个数及每点检查单位；np/c固定单位，p/u允许变化。独立基线或有版本rate二选一，仅显式逐点beyond_3sigma，精确边界判定；不查写MES、不生成登记计划、不认证引擎或放行。',
         'analyze_spc_history': '用MES原始采集历史点ID核对同一工艺、单位、区间完整性和排除状态，最多100点，计算本地i_mr/xbar_r及WECO信号并保留源摘要。需要独立历史基线或有版本控制配置。',
+        'get_spc_parameter_trend': '只读同一参数完整区间的原始值走势，最多100个按GMT先后给定的采集历史ID；默认container同一容器，明确process才可跨容器。不要求基线/控制限/引擎；保留原值、GMT和未冲销排除记录，不删点、不判异、不放行。',
         'get_spc_native_readiness': '只读区分SPC图、类型、规则、查询、连接与原始采集历史可见、为空或不可用。可按图名或持久ID核对依赖、动态参数、规则成员及副作用配置，不返回连接凭据或参数值。',
         'execute_quality_transaction': '质量计划单次提交；用户明确执行时，已核实有效计划的新建检验指标/项目/抽检计划免逐项确认。其他质量维护、生产关联、检验提交及处置仍须确认；结果先unknown，最终证据人工审计后才解占用，不重放。',
         'inspect_quality_transaction': '仅当前记录/历史证据，不做成功归因、不解除占用；未验证非空请求到历史链。',

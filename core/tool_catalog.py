@@ -101,6 +101,7 @@ TOOL_POLICIES = {
     'analyze_spc_series': ToolPolicy('quality'),
     'analyze_spc_attributes': ToolPolicy('quality'),
     'analyze_spc_history': ToolPolicy('quality'),
+    'get_spc_parameter_trend': ToolPolicy('quality'),
     'get_spc_native_readiness': ToolPolicy('quality'),
     'prepare_quality_ncr_closure': ToolPolicy('quality'),
     'prepare_sampling_lot_scrap': ToolPolicy('quality'),

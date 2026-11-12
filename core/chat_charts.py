@@ -14,13 +14,13 @@ from tools.collection_submission import digest
 
 MAX_POINTS = 500
 MAX_BYTES = 512 * 1024
-SUPPORTED = {'analyze_spc_series', 'analyze_spc_history', 'analyze_spc_attributes', 'get_mfgorder_progress'}
+SUPPORTED = {'analyze_spc_series', 'analyze_spc_history', 'analyze_spc_attributes', 'get_mfgorder_progress', 'get_spc_parameter_trend'}
 
 
 def requested(question):
     if not isinstance(question, str) or re.search(r'(?:不要|无需|不用|不需要).{0,8}(?:图|可视化)', question):
         return False
-    return bool(re.search(r'出图|画.{0,15}图|绘图|图形|控制图|趋势|柱状|柱形|折线|图表|可视化|spc|chart|plot', question, re.I))
+    return bool(re.search(r'出图|画.{0,15}图|绘图|图形|控制图|趋势|走势|柱状|柱形|折线|图表|可视化|spc|chart|plot', question, re.I))
 
 
 def text(value, maximum=256):
@@ -73,6 +73,45 @@ def build(tool, raw):
                    'source_digest': digest(data), 'complete': complete, 'tool': tool,
                    'note': '保存当次查询快照；打开历史图表不会重新查询MES。',
                    'panels': [panel('工序分布', rows, 'bar')]}
+    elif tool == 'get_spc_parameter_trend':
+        if (data.get('version') != 'spc-parameter-trend-v1' or data.get('complete') is not True
+                or data.get('data_verified_against_mes') is not True or data.get('source_window_verified') is not True
+                or data.get('source_kind') != 'mes_persisted_direct_collection'
+                or data.get('analysis_performed') is not False or data.get('native_spc_result') is not False
+                or data.get('ready_for_mes_write') is not False or data.get('release_authorized') is not False
+                or 'control_limits' not in data or data['control_limits'] is not None):
+            return None
+        evidence = data['source_history']
+        if digest(evidence) != data.get('source_history_digest'):
+            raise ValueError('趋势来源摘要不一致。')
+        ctx, points = data['context'], data['points']
+        if (not 1 <= len(points) <= 100 or len(points) != len(evidence['points'])
+                or ctx['characteristic'] != evidence['scope']['DataName']
+                or ctx['unit'] != evidence['unit']['name'] or evidence['unit']['id'] != evidence['scope']['UOMId']
+                or evidence['scope_kind'] not in ('container', 'process')
+                or evidence['scope_kind'] == 'container' and any(
+                    p['ContainerId'] != evidence['scope']['ContainerId'] for p in evidence['points'])):
+            raise ValueError('趋势范围或单位与来源不一致。')
+        excluded = {r['point_id'] for r in evidence['active_exclusion_records']}
+        rows = []
+        for i, (point, source) in enumerate(zip(points, evidence['points']), 1):
+            pid = text(point['observation_id'], 128)
+            if (pid != source['DataPointHistoryDetailId'] or point['value'] != source['DataValue']
+                    or point['timestamp_gmt'] != source['TxnDateGMT'] or type(point['sequence']) is not int
+                    or point['sequence'] != i or type(point['has_active_exclusion_record']) is not bool
+                    or point['has_active_exclusion_record'] != (pid in excluded)):
+                raise ValueError('趋势点与原始历史不一致。')
+            rows.append({'id': pid, 'label': text(point['timestamp_gmt']), 'value': number(point['value']),
+                         'signal': False, 'excluded': point['has_active_exclusion_record'],
+                         'detail': '原始GMT：'+point['timestamp_gmt']+'；'+
+                                   ('存在未冲销的排除记录，原值仍显示。' if pid in excluded else '未发现未冲销的排除记录。')})
+        if [row['id'] for row in rows] != evidence['history_ids'] or not excluded.issubset(evidence['history_ids']):
+            raise ValueError('趋势观测ID与来源清单不一致。')
+        payload = {'version': 1, 'title': text(ctx['characteristic'])+' · 原始参数走势',
+                   'subtitle': 'MES原始历史 · '+('同一容器' if evidence['scope_kind']=='container' else '同一过程跨容器范围')+' · 仅展示，不判异', 'unit': text(ctx['unit']),
+                   'reference': 'MES原始历史点及GMT顺序', 'source_digest': data['source_history_digest'],
+                   'complete': True, 'tool': tool, 'note': text(data['note'], 1600),
+                   'panels': [panel('原始值（GMT先后，观测等距）', rows, 'trend')]}
     else:
         if (data.get('native_spc_result') is not False or data.get('ready_for_mes_write') is not False
                 or not isinstance(data.get('input_snapshot'), dict)

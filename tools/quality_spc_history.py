@@ -2,7 +2,7 @@
 import asyncio
 from datetime import datetime
 import re
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import Field, StrictStr
 
@@ -120,9 +120,9 @@ def interval_where(scope, first_mainline, last_mainline):
     return ' AND '.join(clauses)
 
 
-async def read_window(keys, groups):
+async def read_window(keys, groups, *, container_scope=False):
     points = await read_points(keys)
-    scope = {key: points[keys[0]][key] for key in SCOPE_FIELDS}
+    scope = {key: points[keys[0]][key] for key in SCOPE_FIELDS + (('ContainerId',) if container_scope else ())}
     if any(any(row[key] != value for key, value in scope.items()) for row in points.values()):
         raise ValueError('历史点的采集定义、特性、单位或生产过程不一致。')
     times = [[timestamp(points[key]['TxnDateGMT']) for key in group] for group in groups]
@@ -130,6 +130,8 @@ async def read_window(keys, groups):
         raise ValueError('各组须按原始GMT时间排列，相邻组的时间范围不能重叠或并列。')
     where = interval_where(scope, points[groups[0][0]]['HistoryMainlineId'],
                            points[groups[-1][-1]]['HistoryMainlineId'])
+    if container_scope:
+        where += ' AND m.ContainerId='+q.literal(scope['ContainerId'])
     interval = await q.sql_rows('SELECT TOP 101 d.DataPointHistoryDetailId'+HISTORY_JOIN
                                 +' WHERE '+where+' ORDER BY m.TxnDateGMT,d.DataPointHistoryDetailId', MAX_POINTS+1)
     interval_ids = [annotations.iid(row.get('DataPointHistoryDetailId')) for row in interval]
@@ -138,7 +140,7 @@ async def read_window(keys, groups):
     return points, scope
 
 
-async def active_annotations(keys):
+async def active_annotations(keys, *, include_exclusion_records=False):
     clause = ','.join(q.literal(key) for key in keys)
     rows = await q.sql_rows(
         'SELECT TOP 101 a.AddSPCAnnotationHistoryId,a.DataPointId,a.HistoryId,a.TxnId,a.Exclude,'
@@ -159,10 +161,77 @@ async def active_annotations(keys):
                 or inspection.wire_int(row.get('TxnType'), '注释事务类型') != 8393
                 or inspection.wire_int(row.get('ReversalStatus'), '冲销状态') != 1):
             raise ValueError('原始点注释历史关联不完整。')
-        if inspection.wire_bool(row.get('Exclude'), '原始点排除标志'):
+        if inspection.wire_bool(row.get('Exclude'), '原始点排除标志') and not include_exclusion_records:
             raise ValueError('区间包含具有有效排除记录的原始点，请选择独立连续区间。')
         seen.add(identity)
     return rows
+
+
+async def verified_window(groups, *, include_exclusion_records=False, container_scope=False):
+    """Shared source verification; trend display never relaxes SPC analysis."""
+    keys = [key for group in groups for key in group]
+    await annotations.schema_check(SCHEMA)
+    points, scope = await read_window(keys, groups, container_scope=container_scope)
+    notes = await active_annotations(keys, include_exclusion_records=include_exclusion_records)
+    ctx = ReadContext(2)
+    unit = await ctx.resolve('UOMs', {'InstanceID': scope['UOMId']}, False)
+    unit_name = q.text(unit.get('Name'), '单位名称')
+    if annotations.iid(unit.get('InstanceID')) != scope['UOMId']:
+        raise ValueError('单位身份与历史点不一致。')
+    if (await read_window(keys, groups, container_scope=container_scope) != (points, scope)
+            or await active_annotations(keys, include_exclusion_records=include_exclusion_records) != notes):
+        raise ValueError('读取期间原始历史点、连续区间或排除记录已变化。')
+    if await ctx.get('UOMs', scope['UOMId']) != unit:
+        raise ValueError('读取期间单位定义发生变化。')
+    return points, scope, unit_name, notes
+
+
+@mcp.tool
+async def get_spc_parameter_trend(
+    history_ids: Annotated[list[StrictStr], Field(min_length=1, max_length=100)],
+    scope_kind: Literal['container', 'process'] = 'container',
+) -> str:
+    """只读MES某个数值参数的原始历史走势，无需基线、控制限或SPC引擎。
+
+    history_ids为get_container_collection_history返回的原始DataPointHistoryDetailId，
+    按原始GMT严格先后提供，最多100点。同一定义版本/参数/单位/生产过程，完整覆盖首末点间区间。
+    默认container只读同一容器；明确跨容器过程趋势时选process，仍要求同一过程完整区间。
+    保留原值、原始ID、GMT及未冲销排除记录；不删排除点、不换算、不推断当前恢复状态。
+    横轴按观测顺序等距显示，GMT标签不表示采样间隔相等。不计算控制限/判异，不登记、不放行。
+    """
+    try:
+        if scope_kind not in ('container', 'process'):
+            raise ValueError('趋势范围须明确为container或process。')
+        groups = point_groups([[key] for key in history_ids], 'i_mr', 1)
+        keys = [group[0] for group in groups]
+        if len(set(keys)) != len(keys):
+            raise ValueError('原始历史点ID不得重复。')
+        points, scope, unit_name, notes = await verified_window(groups, include_exclusion_records=True,
+                                                               container_scope=scope_kind == 'container')
+        exclusions = [row for row in notes if inspection.wire_bool(row['Exclude'], '排除记录')]
+        evidence = {'scope': scope, 'scope_kind': scope_kind, 'history_ids': keys,
+                    'unit': {'id': scope['UOMId'], 'name': unit_name},
+                    'points': [{field: points[key][field] for field in EVIDENCE_FIELDS} for key in keys],
+                    'active_annotation_ids': [row['AddSPCAnnotationHistoryId'] for row in notes],
+                    'active_exclusion_records': [{'annotation_id': row['AddSPCAnnotationHistoryId'],
+                                                  'point_id': row['DataPointId']} for row in exclusions]}
+        excluded_points = {row['DataPointId'] for row in exclusions}
+        return q.encode({
+            'version': 'spc-parameter-trend-v1', 'complete': True,
+            'data_verified_against_mes': True, 'source_window_verified': True,
+            'source_kind': 'mes_persisted_direct_collection', 'source_history': evidence,
+            'source_history_digest': digest(evidence),
+            'context': {'characteristic': scope['DataName'], 'unit': unit_name},
+            'points': [{'observation_id': key, 'sequence': i, 'timestamp_gmt': points[key]['TxnDateGMT'],
+                        'value': points[key]['DataValue'], 'has_active_exclusion_record': key in excluded_points}
+                       for i, key in enumerate(keys, 1)],
+            'analysis_performed': False, 'control_limits': None, 'native_spc_result': False,
+            'ready_for_mes_write': False, 'release_authorized': False,
+            'note': '原始值走势，不是控制图，不进行判异或合格判定。横轴按观测先后等距排列，保留原始GMT；'
+                    '采样间隔不保证相等。含未冲销排除记录的点仍显示并单独标记，不推断当前排除/恢复状态。'
+        })
+    except (ValueError, TypeError, KeyError, AttributeError) as exc:
+        return q.encode({'complete': False, 'error': str(exc)})
 
 
 async def analyze_history(chart_type, groups, rules, baseline_groups, controls):
@@ -176,18 +245,7 @@ async def analyze_history(chart_type, groups, rules, baseline_groups, controls):
     keys = [key for group in groups for key in group]
     if len(keys) > MAX_POINTS or len(set(keys)) != len(keys):
         raise ValueError('基线及评估段合计最多100个不同的原始历史点。')
-    await annotations.schema_check(SCHEMA)
-    points, scope = await read_window(keys, groups)
-    existing_annotations = await active_annotations(keys)
-    ctx = ReadContext(2)
-    unit = await ctx.resolve('UOMs', {'InstanceID': scope['UOMId']}, False)
-    unit_name = q.text(unit.get('Name'), '单位名称')
-    if annotations.iid(unit.get('InstanceID')) != scope['UOMId']:
-        raise ValueError('单位身份与历史点不一致。')
-    if await read_window(keys, groups) != (points, scope) or await active_annotations(keys) != existing_annotations:
-        raise ValueError('读取期间原始历史点、连续区间或排除状态已变化。')
-    if await ctx.get('UOMs', scope['UOMId']) != unit:
-        raise ValueError('读取期间单位定义发生变化。')
+    points, scope, unit_name, existing_annotations = await verified_window(groups)
 
     evidence = {'scope': scope, 'groups': groups, 'baseline_group_count': len(baseline),
                 'points': [{field: points[key][field] for field in EVIDENCE_FIELDS} for key in keys],

@@ -12,8 +12,9 @@ from config import CAMSTAR_QUERY_BASE_URL
 
 @mcp.tool
 async def get_container_collection_history(container_name: str, container_instance_id: str | None = None,
-                                            txn_id: str | None = None, offset: int = 0, limit: int = 20) -> str:
-    """只读容器 DataPointHistory/Detail 采集历史，支持已知16位 txn_id 精确筛选。返回原始值、限值和事务标识，不判质量，不证明某次提交结果；非空现场关联尚待验收，不涵盖自定义 ParametricData 或分组采样历史。"""
+                                            txn_id: str | None = None, offset: int = 0, limit: int = 20,
+                                            parameter_name: str | None = None) -> str:
+    """只读容器 DataPointHistory/Detail 采集历史，支持已知16位txn_id和parameter_name精确筛选。返回原始值、原始GMT、限值和事务标识，不判质量，不证明某次提交结果；不涵盖自定义ParametricData或分组采样历史。参数走势可用返回的原始ID及GMT调用get_spc_parameter_trend。"""
     out = {'complete': False, 'source': 'Query/AdHoc DataPointHistoryDetail -> DataPointHistory -> HistoryMainline',
            'scope': 'user_data_collection_history', 'submission_outcome': 'unknown',
            'nonempty_linkage_verified': False,
@@ -25,6 +26,9 @@ async def get_container_collection_history(container_name: str, container_instan
         for identifier in (container_instance_id, txn_id):
             if identifier is not None and not re.fullmatch(r'[0-9a-fA-F]{16}', identifier):
                 raise ValueError('显式容器ID和事务ID必须为16位十六进制字符串。')
+        if parameter_name is not None and (not isinstance(parameter_name, str) or not parameter_name.strip()
+                                           or len(parameter_name)>256 or '\x00' in parameter_name):
+            raise ValueError('参数名须为1..256字符的非空名称。')
         info = json.loads(await get_container_details(container_name.strip(), container_instance_id, view='info'))
         data = info.get('data')
         ref = data.get('Container') if isinstance(data, dict) else None
@@ -40,13 +44,15 @@ async def get_container_collection_history(container_name: str, container_instan
             'd.FloatValue,d.FixedValue,d.DecimalValue,d.BooleanValue,d.TimestampValue,'
             'd.NDOValueId,d.RDOValueId,d.EnumerationValue,d.UOMId,d.LowerLimit,d.UpperLimit,'
             'd.IsRequired,d.IsLimitViolation,d.IsLimitOverride,d.IsLimitOverrideAllowed,'
-            'h.HistoryMainlineId,m.ContainerId,m.TxnDate,m.TxnType '
+            'h.HistoryMainlineId,m.ContainerId,m.TxnDate,m.TxnDateGMT,m.TxnType '
             'FROM DataPointHistoryDetail d JOIN DataPointHistory h '
             'ON d.DataPointHistoryId=h.DataPointHistoryId AND d.TxnId=h.TxnId AND d.HistoryId=h.HistoryId '
             'JOIN HistoryMainline m ON h.HistoryMainlineId=m.HistoryMainlineId AND h.TxnId=m.TxnId AND h.HistoryId=m.HistoryId '
             f"WHERE m.ContainerId='{identifier}' ")
         if txn_id is not None:
             query += f"AND d.TxnId='{txn_id}' "
+        if parameter_name is not None:
+            query += "AND d.DataName=N'"+parameter_name.replace("'", "''")+"' "
         query += (f'ORDER BY m.TxnDate DESC,d.DataPointHistoryDetailId '
                   f'OFFSET {offset} ROWS FETCH NEXT {limit + 1} ROWS ONLY')
         raw = await request('POST', '/api/AdHoc', base_url=CAMSTAR_QUERY_BASE_URL,
@@ -58,13 +64,14 @@ async def get_container_collection_history(container_name: str, container_instan
         for row in rows:
             if (not isinstance(row, dict) or not row.get('DataPointHistoryDetailId')
                     or row.get('ContainerId') != identifier
-                    or (txn_id is not None and row.get('TxnId') != txn_id)):
-                raise ValueError('历史记录身份或事务筛选不匹配。')
+                    or (txn_id is not None and row.get('TxnId') != txn_id)
+                    or (parameter_name is not None and row.get('DataName') != parameter_name)):
+                raise ValueError('历史记录身份、事务或参数筛选不匹配。')
             keys.append(row['DataPointHistoryDetailId'])
         if len(set(keys)) != len(keys):
             raise ValueError('历史关联返回重复明细，不能确认分页。')
         more = len(rows) > limit
-        out.update(container=ref, txn_id_filter=txn_id, rows=rows[:limit], offset=offset,
+        out.update(container=ref, txn_id_filter=txn_id, parameter_name_filter=parameter_name, rows=rows[:limit], offset=offset,
                    has_more=more, next_offset=offset + limit if more else None, page_complete=True)
     except (ValueError, TypeError, AttributeError) as error:
         out['error'] = str(error)

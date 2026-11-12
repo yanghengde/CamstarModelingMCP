@@ -27,7 +27,7 @@
     }
     function setupWorker() {
         if (worker) return worker;
-        const instance = new Worker('/static/chart-worker.js?v=1'); worker=instance;
+        const instance = new Worker('/static/chart-worker.js?v=2'); worker=instance;
         instance.onmessage = event => {
             if (worker!==instance || !active || event.data.id!==active.request) return;
             const task=active; active=null;
@@ -145,12 +145,14 @@
         const start=Math.max(0,Math.min(page*size,Math.max(0,Math.floor((rows.length-1)/size)*size)));
         const table=element('table','chart-data-table'), head=element('tr');
         const idTitle=card.data.panels.every(p=>p.kind==='bar')?'类别序号':'原始观测ID';
-        for (const title of ['图','序号/类别',idTitle,'值','CL','LCL','UCL','说明']) head.append(element('th','',title));
+        const isTrend=card.data.panels.every(p=>p.kind==='trend');
+        for (const title of (isTrend?['图','原始GMT',idTitle,'原值','说明']:['图','序号/类别',idTitle,'值','CL','LCL','UCL','说明'])) head.append(element('th','',title));
         const thead=element('thead'); thead.append(head); table.append(thead);
         const body=element('tbody');
         for (const row of rows.slice(start,start+size)) {
             const tr=element('tr');
-            for (const value of [row.panel,row.label,row.id,row.value,row.center??'—',row.lcl??'—',row.ucl??'—',row.detail]) tr.append(element('td','',value));
+            const values=isTrend?[row.panel,row.label,row.id,row.value,row.detail]:[row.panel,row.label,row.id,row.value,row.center??'—',row.lcl??'—',row.ucl??'—',row.detail];
+            for (const value of values) tr.append(element('td','',value));
             body.append(tr);
         }
         table.append(body);
@@ -195,7 +197,7 @@
                 if (!p || localY-(110+pi*260)>180 || localY<110 || localX<66 || localX>width-26) { tip.hidden=true; return; }
                 const rows=ChartSpec.visibleRows(p,card.mountedCount), fraction=(localX-66)/(width-92);
                 const index=Math.min(rows.length-1,Math.max(0,p.kind==='bar'?Math.floor(fraction*rows.length):Math.round(fraction*(rows.length-1))));
-                const r=rows[index]; tip.textContent=`${r.label} · ${r.value} ${card.data.unit} · ${r.id} · ${r.detail}`+(r.signal?' · 后端判异点':''); tip.hidden=false;
+                const r=rows[index]; tip.textContent=`${r.label} · ${r.value} ${card.data.unit} · ${r.id} · ${r.detail}`+(r.signal?' · 后端判异点':'')+(r.excluded?' · 存在未冲销的排除记录':''); tip.hidden=false;
             });
         };
         body.onpointerleave=()=>{ tip.hidden=true; };

@@ -64,3 +64,25 @@ def test_malformed_or_mismatched(monkeypatch, rows):
     setup(monkeypatch, rows)
     r = run(txn_id=TID)
     assert 'error' in r and 'rows' not in r
+
+
+def test_parameter_filter_is_exact_escaped_and_includes_original_gmt(monkeypatch):
+    name="Diameter' OR 1=1--"
+    _,req=setup(monkeypatch,[row(DataName=name,DataValue='9',TxnDateGMT='2026-11-12T00:00:00.0000001')])
+    out=run(parameter_name=name)
+    assert out['parameter_name_filter']==name and out['rows'][0]['DataName']==name
+    query=req.call_args.kwargs['body']['queryText']
+    assert "AND d.DataName=N'Diameter'' OR 1=1--'" in query
+    assert 'm.TxnDateGMT' in query
+
+
+@pytest.mark.parametrize('name',['', ' ', '\x00', 'x'*257])
+def test_invalid_parameter_before_io(monkeypatch,name):
+    info,req=setup(monkeypatch)
+    assert 'error' in run(parameter_name=name)
+    info.assert_not_called();req.assert_not_called()
+
+
+def test_parameter_mismatch_is_not_silently_plotted(monkeypatch):
+    setup(monkeypatch,[row(DataName='other')])
+    assert 'error' in run(parameter_name='Diameter')

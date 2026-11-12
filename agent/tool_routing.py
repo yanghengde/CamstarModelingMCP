@@ -25,6 +25,7 @@ WRITE_TERMS = re.compile(r"保存草稿|补齐|补充资料|正式提交|提交�
 # Empty domains are global discovery/safety rules. Keep the full constant for
 # diagnostics and compatibility; runtime requests use routing_instructions().
 ROUTING_SECTIONS = [
+    (('quality',), '参数原始走势图用get_spc_parameter_trend：先get_container_collection_history(parameter_name=明确参数名)定位原始历史ID/GMT，再按GMT先后选择同参数/定义版本/单位/过程的完整首末区间，最多100点。scope_kind默认container同一容器；仅明确跨容器过程范围时选process，不能为凑连续窗口跨容器补点。不要求基线或控制限，不为画图编造控制配置。值、GMT和未冲销排除记录均保留；存在排除记录不等于已核实当前排除/恢复状态。该趋势无控制限、不判异、不登记、不放行；明确要求控制图/判异时仍用原SPC分析及其独立基线/控制配置门禁。'),
     (('container', 'mfgorder', 'query', 'product', 'workflow', 'spec', 'operation', 'resource'),
      '批量/跨对象只读优先共享查询层：search_camstar_read_tools跨组发现工具，get_camstar_read_metadata查看现场字段/类型及受控计划schema。工单开工/日期优先run_camstar_read_template(template=order_dates,parameters={order_names:[明确工单名],timezone:Asia/Shanghai})，覆盖已关闭容器并分别返回计划/工单生产/实际首箱日期，不用Modeling Containers空数组判断未开工。其它组合查询execute_camstar_read_plan用dataset/call/select/group/join，复用审核工具，明确结果引用、依赖、分页。数据集字段与API字段分开，不猜StartDate/DueDate等名称。上游不完整禁止汇总，零内部模型回合不等于零HTTP请求。不以InstanceID排序冒充创建时间排序，生产写入仍走原专用工具。'),
     (('container', 'mfgorder'), '报工先独立Thruput=良品+不良，单次提交后用verify_production_transaction按唯一标记和原生主/明细历史核实。再prepare_production_reject明确record保留在制或scrap扣量；record分别指定不良件数/检查数/缺陷次数，scrap明确归零关闭/吞吐调整选项。原事务已核实后record_production_report关联原计划保存声明的良品/不良，一个原生计划只入账一次。get_production_reports按工序/单位统计，不把缺陷次数当不良件数。人工工时record_production_labor明确员工/工单/容器/带时区区间及实际分钟，重叠拒绝；要落MES使用prepare_production_labor_submission -> execute_production_labor_submission -> verify_production_labor_submission，以专用CollectData七点定义保存实际分钟，不猜TaskTime单位或执行作业任务。get_production_worktime分别返回人工实报、MES落账情况、唯一真实MoveInHistory配对的MoveHistory自动历时，不相加。'),
@@ -144,6 +145,10 @@ def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
     approval_decision_submission = re.search(r"^(?:(?:请|帮我|提交|执行)\s*)*(?:批准|拒绝|签批)", current)
     throughput_submission = re.search(r'上报|报工|带吞吐移站|(?:记录|提交|写入|落账|核实|复核).*(?:工时|人时)|(?:工时|人时).*(?:填报|记录|提交|写入|落账|核实|复核)|整单收尾|整单完工|工单完工', current)
     wants_write = bool(WRITE_TERMS.search(current) or task_submission or collection_submission or inspection_submission or triage_submission or event_text_clear or event_draft_save or level_reset or approval_decision_submission or throughput_submission)
+    parameter_trend = bool(re.search(r'趋势|走势|折线|出图|画.{0,20}图|图形|图表', current)
+                           and re.search(r'参数|测量|采集', context))
+    if parameter_trend and not re.search(r'执行|写入|提交|登记|录入|上报|删除|修改|维护|绑定|创建|新增', current):
+        wants_write = False
     if (re.search(r'分析|计算|判异', current) and re.search(r'spc|控制图|控制限|weco|xbar|i_mr', context, re.I)
             and not WRITE_TERMS.search(current.replace('不良', ''))
             and not re.search(r'记录|录入|写入|保存|执行|提交|上报', current)):
@@ -171,6 +176,8 @@ def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
     if approval_preflight or (re.search(r"审批|角色替代|capa|转派|受委托",context,re.I) and re.search(r"(?:不要|无需|禁止|不准)\s*(?:执行|提交|路由|签批)",current)):
         wants_write = False
     groups = {group for group, pattern in GROUP_TERMS.items() if re.search(pattern, context)}
+    if parameter_trend:
+        groups.add('quality')
     if re.search(r"抽样批|批采样|批检验|samplinglot|collectlotsampling", context, re.I) and not re.search(
         r"普通采集|数据采集定义|datacollectiondef|userdatacollection", context, re.I
     ):
@@ -207,6 +214,8 @@ def select_tools(all_tools: list[dict], messages: list[dict]) -> list[dict]:
         base.update({'get_camstar_read_metadata', 'execute_camstar_read_plan', 'run_camstar_read_template'})
     if re.search(r"spc|控制图|判异", context, re.I) and re.search(r"历史|history|MES", context, re.I):
         base.add("get_container_collection_history")
+    if parameter_trend:
+        base.update({'get_spc_parameter_trend', 'get_container_collection_history'})
     if not groups:
         base.update({"list_workflows", "list_specs", "list_products", "list_mfgorders"})
     selected = []
