@@ -201,13 +201,14 @@ def test_inventory_does_not_offer_container_scrap():
 
 def test_quality_registry_loading_routing_and_confirmations():
     names={n for n,p in TOOL_POLICIES.items() if p.group=='quality'}
-    assert len(names)==82
+    catalog=result(get_capabilities(group='quality'))
+    assert names=={tool['name'] for tool in catalog['groups'][0]['tools']}
     registered={t.name for t in asyncio.run(mcp.list_tools())}
     assert names<=registered and all(get_tool_func(n) for n in names)
     reads={n for n in names if TOOL_POLICIES[n].effect=='read'}
     assert set(result(load_tool_group('quality'))['tools'])==reads
     assert all(TOOL_POLICIES[n].always_confirm for n in names-reads)
-    assert result(get_capabilities(group='quality'))['groups'][0]['group']=='quality'
+    assert catalog['groups'][0]['group']=='quality'
     tools=[{'function':{'name':n}} for n in TOOL_POLICIES]
     for question,tool in [('查询不合格NCR历史','get_quality_history'),('查看CAPA质量对象','get_quality_object_details'),
                           ('查询抽检状态','get_container_quality_context'),('查询SPC控制配置','list_quality_references'),

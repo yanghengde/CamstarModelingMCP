@@ -60,3 +60,12 @@ test('raw exclusion marker is rendered above the original line and symbols',()=>
     const chart=echarts.init(null,null,{renderer:'svg',ssr:true,width:600,height:spec.height(p)});
     try{chart.setOption(option);assert.match(chart.renderToSVGString(),/fill="#7d8791"[^>]*ecmeta_series_index="1"/);}finally{chart.dispose();}
 });
+test('a single evaluated SPC point still displays all three control reference lines',()=>{
+    const p=fixture(1),option=spec.option(p,600);
+    const chart=echarts.init(null,null,{renderer:'svg',ssr:true,width:600,height:spec.height(p)});
+    try{
+        chart.setOption(option);const svg=chart.renderToSVGString();
+        for(const name of ['CL','UCL','LCL'])assert.match(svg,new RegExp('>'+name+'<'));
+        assert.equal(option.series[0].data.length,1); // No fabricated observations.
+    }finally{chart.dispose();}
+});

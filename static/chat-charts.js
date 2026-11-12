@@ -27,7 +27,7 @@
     }
     function setupWorker() {
         if (worker) return worker;
-        const instance = new Worker('/static/chart-worker.js?v=2'); worker=instance;
+        const instance = new Worker('/static/chart-worker.js?v=3'); worker=instance;
         instance.onmessage = event => {
             if (worker!==instance || !active || event.data.id!==active.request) return;
             const task=active; active=null;

@@ -49,7 +49,10 @@
             if (panel.kind==='line') {
                 for (const [key,name,color] of [['center','CL','#6b7e89'],['ucl','UCL','#b25d38'],['lcl','LCL','#b25d38']]) {
                     series.push({name,type:'line',xAxisIndex:index,yAxisIndex:index,data:rows.map(row=>numeric(row[key])),
-                        showSymbol:false,silent:true,lineStyle:{type:'dashed',width:1,color},itemStyle:{color},animation:false});
+                        showSymbol:false,silent:true,lineStyle:{type:'dashed',width:1,color},itemStyle:{color},animation:false,
+                        ...(rows.length===1?{markLine:{silent:true,symbol:'none',animation:false,
+                            label:{show:true,formatter:name,position:'insideEndTop',fontSize:10},
+                            lineStyle:{type:'dashed',width:1,color},data:[{yAxis:numeric(rows[0][key])}]}}:{})});
                 }
                 const signals = rows.map((row,i)=>row.signal?[i,numeric(row.value)]:null).filter(Boolean);
                 series.push({name:'后端判异点',type:'scatter',xAxisIndex:index,yAxisIndex:index,data:signals,

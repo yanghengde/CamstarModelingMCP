@@ -213,8 +213,9 @@ def test_mcp_context_closed_schema_proposal_is_read_only_and_no_classification_w
     asyncio.run(check());assert not p.PLAN_DB.exists() and not env['draft_posts'] and not env['submission_posts']
 
 
-def test_capabilities_and_inventory_disclose_native_write_dependency_without_new_tool_count():
+def test_capabilities_and_inventory_disclose_native_write_dependency_without_extra_classification_tool():
     capability=result(get_capabilities(tool_name='get_quality_event_update_context'))
     assert 'classify_pending_draft' in json.dumps(capability) and '分类修改尚无已核实原生写入' in json.dumps(capability,ensure_ascii=False)
     assert '标准UpdateEvent这两字段只读' in json.dumps(result(c.q.get_quality_api_inventory()),ensure_ascii=False)
-    assert len([x for x in TOOL_POLICIES.values() if x.group=='quality'])==82
+    assert 'get_quality_event_update_context' in TOOL_POLICIES
+    assert 'prepare_quality_event_classification' not in TOOL_POLICIES
