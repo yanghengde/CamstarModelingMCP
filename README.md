@@ -6,22 +6,64 @@
 
 **能力范围以当前注册工具、现场 API 契约及对应验收记录为准。** 工具已实现、离线测试通过和真实 MES 业务验收是不同状态；本文不将其合并为“全部可用”。
 
-## 业务能力
+## 功能特性
 
-| 领域 | 当前实现范围 | 详细说明 |
+以下根据实际调用 `get_capabilities()` 及各分组返回的工具说明、限制和能力缺口整理，覆盖当前 14 个非空分组（含系统与能力发现）。目录来自本次独立进程加载的当前源码注册表，不代表既有 Web 进程已经加载相同版本，也不执行 MES 健康检查。
+
+### 生产执行与工单管理
+
+| 业务功能 | 现在可以做什么 | 范围与限制 |
 | --- | --- | --- |
-| 主数据与工艺建模 | Spec、Operation、Workflow、Product、MfgOrder、MfgLine、ProductType，以及 UOM、ContainerLevel、编号规则等查询与维护 | [建模更新契约](docs/modeling-updates.md)、[层级建模](docs/container-level-modeling.md)、[计量单位](docs/uoms.md) |
-| 建模工具台 | 路线可视化、完整性检查、版本比较、线性路线模板、Excel/CSV 映射预览 | [建模工具台](docs/modeling-workbench.md) |
-| 工单与生产执行 | 开工准备检查、Container Start、进出站、吞吐、良品/不良报工、人工工时及原生生产完成后的应用收尾 | [开工准备](docs/production-readiness-tools.md)、[生产过站与报工](docs/production-reporting.md) |
-| 容器与追溯 | 状态和历史、工单关联、父子关系、谱系、拆分/合并及关联/解关联的预览与受控执行 | [谱系与恢复](docs/genealogy-and-recovery.md)、[容器转移](docs/container-transfer-development.md) |
-| 物料与设备 | BOM 查询和维护、产品绑定、用料需求、投料计划、设备状态及配置变更 | [BOM 维护](docs/bom-maintenance.md)、[投料计划](docs/component-issue-plans.md)、[设备维护](docs/resource-maintenance.md) |
-| 数据采集与作业任务 | 采集定义、点和组维护、工序绑定、值校验、提交与历史核实；工单前后置任务及作业文档 | [数据采集工具链](docs/collection-workflow-tools.md)、[工单任务](docs/mfgorder-task-development.md)、[作业文档](docs/spec-documents-development.md) |
-| 检验与质量处置 | 检验定义、抽样计划、单容器/批检验、采样状态、数量损失、受限批返工与批报废 | [质量工具入口](docs/quality-mcp-tools.md)、[检验组合验收](docs/inspection-combinations-completion.md) |
-| 质量事件与审批 | NCR/CAPA、事件草稿和生命周期、审批表与决策、角色替代、受限电子签名和审计 | [质量闭环状态](docs/quality-completion-plan.md)、[审批周期](docs/quality-approval-cycle.md)、[电子签名](docs/quality-electronic-signature.md) |
-| SPC 与问答图表 | 原始参数趋势、本地 SPC 计算和判异、历史点分析、异步图表，以及受限原生注释/违例计划和测试建模 | [SPC 当前状态](docs/c6-completion-status.md)、[问答图表](docs/chat-charts.md) |
-| 通用查询 | OData、Inquiry、Advanced/User Query、受限只读 AdHoc SELECT；跨工具依赖编排、分页、关联和汇总 | [共享只读查询层](docs/read-orchestration.md) |
+| 工单维护与开工检查 | 创建、查询、修改和删除工单；检查产品工艺、设备资源、物料、采集要求，可附带前后置任务和作业文档检查 | 配置检查会列出缺失和未知项；独立“工单下发”事务尚未核实，修改工单状态不能当作下发 |
+| 容器开工与编号 | 按工单、固定产品版本、数量和层级启动容器；使用显式序列号或核实后的上下文自动编号规则 | Owner、开工原因和自动编号需按实际 Start 上下文校验；不包含开工后自动打印标签 |
+| 进出站与加工量上报 | 按实际路线进站，支持分次上报加工量、核对剩余量、出站及移入生产完成节点 | 基础容器的 MoveIn → 独立 Thruput → 独立 MoveStd 已完成限定现场验收；原生复合 MoveOut 仍有服务端错误，不自动换事务重试 |
+| 良品、不良与工单进度 | 区分不良登记保留在制和报废扣量；关联已核实事务登记良品/不良；查询工单在制、工序分布、原生完工量及完成日期 | 声明的良品/不良保存在应用台账；多工序吞吐不相加作为工单产量。MES 生产完成后的应用收尾不等于关闭 MES 工单 |
+| 人工工时与生产历时 | 登记员工实际分钟，通过专用采集定义落 MES；从原生进出站历史计算经过时间，分别查询两种口径 | 限定流程已验收；人工分钟与自动历时分别统计，不相加，也不猜测 TaskTime 单位 |
+| 工单过程任务 | 查询前后置任务、前置阻塞和历史；预览通过/失败结果，保存计划并单次提交 | 受限执行已接入，任务状态映射及非空现场执行仍待验收；不明结果保留整个工单占用 |
 
-工具目录不在 README 中逐个复制。运行时使用 `get_capabilities()` 查看领域概览，使用 `get_capabilities(group="quality")` 查看某一领域，或指定 `tool_name` 获取实际参数和限制。Web Agent 可通过 `load_tool_group` 按需补充下一轮模型可见工具；加载工具不构成写入授权。
+主要能力入口：`check_mfgorder_readiness`、`container_start`、`prepare_production_station_transition`、`prepare_container_throughput`、`get_mfgorder_production_summary`、`get_production_worktime`。详见[生产过站与报工](docs/production-reporting.md)、[工单任务](docs/mfgorder-task-development.md)。
+
+### 建模、物料、设备与采集
+
+| 业务功能 | 现在可以做什么 | 范围与限制 |
+| --- | --- | --- |
+| 产品与工艺配置 | 维护 Spec、Operation、Workflow 和 Product；查看产品完整工艺链、路线步骤、普通/返工路径、子流程和关联配置；检查引用完整性、比较版本 | 普通字段使用实例 ID 和最小 PUT 更新；部分集合 PATCH 兼容入口已禁用。条件表达式可读取，不执行求值 |
+| 路线工具台与表格导入 | 可视化路线、比较版本；从已有线性路线生成新路线模板；解析 Excel/CSV、映射字段、校验全部行，预览后执行保存的导入计划 | 模板和导入限定线性路线；分支、子流程、返工及复杂调度配置会阻止复制/覆盖，不是全部主数据的通用导入 |
+| 基础资料 | 维护产线、产品类型和容器层级；查询层级完整字段及编号规则；新建和修改计量单位，查询生产原因码 | 层级复杂配置仍需现场核实；无 UOM 删除及单位换算闭环，原因码可查询不代表全部可维护 |
+| BOM 维护与产品绑定 | 创建 BOM，修改基本信息，增删改和重命名明细，配置数量、单位及发料控制；显式复制升版并保留旧版；固定版本关联、换绑或解绑产品 | 标准 BOM 已完成限定现场验收；不支持整 BOM 删除、ResourceBOM、幻影 BOM 和替代料表维护；发料控制可建模不代表对应投料模式均可执行 |
+| 用料需求与投料 | 查询产品/BOM 需求、已投量、净剩余和历史；模式 5 按本次增量投料/补投；模式 2 从一个来源容器扣减并投料 | 模式 2 限首次完整需求；模式 1/3/4 仅意图预览，替代料及第二数量未形成执行闭环；退料、替换和分配物料未接入 |
+| 设备主数据与生产事务 | 创建设备和修改主数据；启停明确的维护要求；执行设置、状态模型 Up/Down 转换、主副数量吞吐及普通设备采集；查询实际状态和历史 | 五项核心能力已完成限定现场验收；日期维护要求启停已验收，周期/吞吐触发规则待验收。分组设备采集执行门禁关闭，维修保养任务闭环未接入 |
+| 数据采集配置与执行 | 维护普通/分组采集定义、点、类型、单位、限值和采样数；升版/删除定义，绑定或解绑指定 Spec；校验普通值和分组样本、提交单次计划并核对历史 | 采集配置维护及完整提交链仍有非空现场验收待补；生产人工工时落账有独立验收，不能据此推断全部采集类型已验收 |
+| 作业文档 | 查询 Spec 关联文档和文档集，并按受限路径下载正式文件 | 文档/文档集维护及现场附件上传、挂接/移除尚未接入 |
+
+主要能力入口：`get_product_process`、`get_workflow_structure`、`preview_workflow_import`、`prepare_bom_change`、`prepare_component_issue`、`prepare_resource_setup`、`prepare_data_collection_definition`。详见[建模工具台](docs/modeling-workbench.md)、[BOM 维护](docs/bom-maintenance.md)、[设备维护](docs/resource-maintenance.md)、[采集工具链](docs/collection-workflow-tools.md)。
+
+### 质量、抽样检验与 SPC
+
+| 业务功能 | 现在可以做什么 | 范围与限制 |
+| --- | --- | --- |
+| NCR、CAPA 与质量事件 | 查询质量对象和历史；准备 NCR 创建/更新/关闭及升级事件，CAPA 草稿/提交/关闭；受限事件创建、草稿补齐、正式提交、文字和标准扩展资料修改、日志追加、开启、分派与关闭 | 各入口按对象、组织、状态和签名要求限制执行；既有草稿分类修改、任意自定义 EventData、复杂检查表及通用生命周期未完整开放，不能概括为完整 QMS |
+| 审批、角色替代与单次委托 | 查询模板、审批表、条目、允许决策和周期历史；挂表路由、批准/拒绝、受限取消及修订重提；原生授权下角色替代；指定审批人将一个条目委托给明确新员工 | 角色/身份和原生权限必须核实；单次委托及多类审批现场验收待补。日期自动委托、连续转委托、批量转派和撤销委托未开放 |
+| 电子签名 | 在受支持的直接 Event/CAPA 审批中，由实际当前员工通过独立本机页面输入单人质量签名口令 | 受限链路已实现，真实 MES 签名验收待补；通用多签/协签受原生认证契约限制，执行门禁关闭，普通确认不能替代签名 |
+| 检验与抽样配置 | 创建、更新、升版检验点、检验项目和抽样计划；绑定固定产品版本；查询抽样表、当前频率、计数器和检验水平并准备受限维护 | 不自动回填已有容器任务；当前采样状态不用于推算下一容器必检/免检；配置维护本身仍有现场验收待补 |
+| 单容器和批检验 | 准备计数/测量检验，读取任务和历史；管理抽样批、批检验及完成计划；显式选择已有规则下的全检/自动扣量分支 | 计数按样本/不良扣量、跨次及分组累计、单组多原因扣量和归零关闭已有现场验收；全检转换、测量组合和批自动处置不属于该验收。失败检验关联事件的正向验收仍受 MES 创建服务权限阻塞 |
+| 数量损失与批处置 | 基础单/双单位损失；同产品、同主单位、同步骤的父子树及跟踪载具损失；准备整批返工；对符合条件的失败抽样批执行一次原生整批报废并核实父子历史 | 父子/载具损失及多成员整批报废已完成限定现场验收；真实 Batch 的 ChangeQty 被 MES 禁止，父容器部分分摊未开放；整批返工的路由及最终历史仍有待验收项 |
+| 原始趋势与本地 SPC | 从 MES 原始采集历史读取参数趋势；本地计算 I-MR、Xbar-R 和 p/np/c/u 图，按对应基线/控制配置分析信号并显示聊天图表；诊断原生 SPC 配置，准备受限注释/违例计划及独立测试模型 | 原始趋势不判异；本地分析不等于原生引擎结果。原生计算链、有效控制限、正式登记和自动处置尚未完成闭环；注释准备仍会被缺少签名回显拦截，测试模型及显示设置不等于原生已出图 |
+
+主要能力入口：`prepare_nonconformance_report`、`prepare_quality_approval_decision`、`prepare_quality_approval_delegation`、`prepare_container_inspection`、`prepare_related_container_quantity_loss`、`prepare_sampling_lot_scrap`、`get_spc_parameter_trend`、`analyze_spc_history`。详见[质量完成清单](docs/quality-completion-plan.md)、[数量损失](docs/quantity-loss-complex.md)、[批报废](docs/lot-scrap-completion.md)、[SPC 状态](docs/c6-completion-status.md)。
+
+### 查询、追溯与使用支持
+
+| 功能 | 现在可以做什么 | 范围与限制 |
+| --- | --- | --- |
+| 跨对象查询与汇总 | 查询工单、容器、产品、工艺及历史；用已审核工具编排依赖、分页、关联与精确汇总；工单日期模板区分计划开工、原生生产开工及实际首箱开工 | 分页不完整时不输出完整汇总；元数据可缓存，生产结果不作为元数据缓存；跨查询不保证事务快照 |
+| 通用 MES 查询 | 发现 Query 服务和参数，执行标准 Inquiry、Advanced Query、User Query 和受限单条只读 SELECT | 自定义 Inquiry 事件按实际效果纳入安全策略；通用查询不能绕过专用生产工具执行写入 |
+| 容器追溯与拆合 | 查询状态、直接历史、父子/谱系及跨对象追溯；预览和单次执行受限拆分、合并、装箱/拆箱计划 | 复杂多层装箱、跨产品/工序/单位合批和复杂双数量未通用开放；多个拆合入口现场验收待补 |
+| 后台聊天与记录恢复 | 流式查看回复和工具进度；多用户名称下组织多个会话；切页、刷新、返回原聊天时恢复后台输出、确认卡和记录 | 服务进程存活时后台执行继续；主动停止不回滚，重启不自动重放事务；用户名分组不等于独立登录认证 |
+| 受控执行与经验复用 | 按策略预览和确认原计划，单次提交后核实历史；失败经验脱敏进入候选库，人工审核后用于相关任务；查看推理和工具耗时 | 确认取决于当前会话设置及执行策略，不是每个写操作均逐项确认；不明结果不自动重试或解锁 |
+| Web 与外部 MCP 接入 | Web 工作台使用配置的 OpenAI 兼容模型；外部客户端通过带 Bearer 鉴权的 Streamable HTTP 调用同一工具集，查询目录、参数和服务状态 | 模型须支持项目使用的工具调用和流式协议；MCP 直接调用不经过 Web Agent 确认节点，客户端须落实授权 |
+
+能力目录会随工具注册及限制更新。使用 `get_capabilities()` 查看概览，`get_capabilities(group="material")` 查看领域工具，或 `get_capabilities(tool_name="prepare_bom_change")` 查看完整参数和该工具的具体限制。`load_tool_group` 只补充 Web Agent 下一轮可见定义，不执行业务，也不授予写入权限。
 
 ## 整体架构
 
