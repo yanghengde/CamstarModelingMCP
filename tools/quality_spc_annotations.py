@@ -128,6 +128,22 @@ async def token(table, column, key, extra=''):
     return row
 
 
+GROUP_COLUMNS = 'NamedObjectGroupId,NamedObjectGroupName,CDOTypeId,ChangeCount,IsFrozen'
+
+
+async def persisted_group_state(group_key, group_name):
+    await schema_check({'NamedObjectGroup': GROUP_COLUMNS})
+    rows = await q.sql_rows('SELECT TOP 2 '+GROUP_COLUMNS+' FROM NamedObjectGroup WHERE NamedObjectGroupId='
+                            +q.literal(group_key), 2)
+    if (len(rows) != 1 or iid(rows[0]['NamedObjectGroupId']) != group_key
+            or rows[0]['NamedObjectGroupName'] != group_name
+            or i.wire_int(rows[0]['CDOTypeId'], 'SPC组类型') != 8198
+            or i.wire_int(rows[0]['ChangeCount'], 'SPC组版本') < 0
+            or i.wire_bool(rows[0]['IsFrozen'], 'SPC组持久冻结状态') is not False):
+        raise ValueError('SPC组持久身份、类型、版本或冻结状态未核实。')
+    return {**rows[0], 'ChangeCount': i.wire_int(rows[0]['ChangeCount'], 'SPC组版本'), 'IsFrozen': False}
+
+
 async def configuration(point, chart_name, chart_id=None):
     ctx = ReadContext(12)
     ref = {'Name': q.text(chart_name, 'SPC图名称')}
@@ -143,12 +159,23 @@ async def configuration(point, chart_name, chart_id=None):
         raise ValueError('仅支持Active且未冻结的普通数值采集定义，暂不支持分组/自定义源。')
     q.text(definition.get('Name'), '采集定义名'); q.text(definition.get('Revision'), '采集定义版本')
     dc_token = await token('DataCollectionDef','DataCollectionDefId',point['DataCollectionDefId'],'SPCChartDefGroupId')
-    group_key = iid(q.identifier(definition.get('SPCChartDefGroup')), '采集定义SPC组')
-    if dc_token.get('SPCChartDefGroupId') != group_key: raise ValueError('原始采集定义SPC组与持久记录不一致。')
+    # OData can project an unexpanded navigation property as null despite a
+    # persisted FK. Use the already verified SQL FK, then resolve that exact
+    # group; a nonempty wire reference must still agree with the persisted ID.
+    group_key = iid(dc_token.get('SPCChartDefGroupId'), '采集定义SPC组')
+    group_ref = definition.get('SPCChartDefGroup')
+    if group_ref is not None and iid(q.identifier(group_ref), '采集定义SPC组') != group_key:
+        raise ValueError('原始采集定义SPC组与持久记录不一致。')
     group = await ctx.get('SPCChartDefGroups', group_key, {'$expand':'ResolvedEntries'})
     entries = group.get('ResolvedEntries')
+    persistent_group = None
+    if group.get('IsFrozen') is None:
+        # Generic group maintenance can omit inherited scalars even when its
+        # ResolvedEntries navigation is expanded. Verify the actual persisted
+        # named-group type, name, version and frozen flag instead of guessing.
+        persistent_group = await persisted_group_state(group_key, q.text(group.get('Name'), 'SPC组名称'))
     if (q.identifier(group) != group_key or _has_next_link(group) or not isinstance(entries,list) or len(entries) > 100
-            or i.wire_bool(group.get('IsFrozen'), 'SPC组冻结状态') is not False):
+            or persistent_group is None and i.wire_bool(group.get('IsFrozen'), 'SPC组冻结状态') is not False):
         raise ValueError('SPC组未完整展开、超过100项或已冻结。')
     normalized = []
     for row in entries:
@@ -156,12 +183,14 @@ async def configuration(point, chart_name, chart_id=None):
     if len({r['InstanceID'] for r in normalized}) != len(normalized): raise ValueError('SPC组成员重复。')
     if {'InstanceID':chart_key,'Name':chart['Name']} not in normalized: raise ValueError('所选SPC图不属于原采集定义的完整SPC组。')
     if (await token('SPCChartDef','SPCChartDefId',chart_key) != chart_token
-            or await token('DataCollectionDef','DataCollectionDefId',point['DataCollectionDefId'],'SPCChartDefGroupId') != dc_token):
+            or await token('DataCollectionDef','DataCollectionDefId',point['DataCollectionDefId'],'SPCChartDefGroupId') != dc_token
+            or persistent_group is not None and await persisted_group_state(group_key, group['Name']) != persistent_group):
         raise ValueError('SPC配置读取期间发生变化。')
     return {'chart': {'InstanceID':chart_key,'Name':chart['Name'],'ChangeCount':chart_token['ChangeCount'],'content_digest':p.digest(chart)},
             'definition': {'InstanceID':point['DataCollectionDefId'],'Name':definition['Name'],'Revision':definition['Revision'],
                            'ChangeCount':dc_token['ChangeCount'],'content_digest':p.digest(definition)},
-            'group': {'InstanceID':group_key,'content_digest':p.digest(group),'entries':sorted(normalized,key=lambda r:r['InstanceID'])}}
+            'group': {'InstanceID':group_key,'content_digest':p.digest(group),'entries':sorted(normalized,key=lambda r:r['InstanceID']),
+                      **({'persistent_state': persistent_group} if persistent_group is not None else {})}}
 
 
 async def context(args, original=None):
@@ -199,8 +228,11 @@ async def preview(body, before):
     if (q.identifier(dref) != definition['InstanceID'] or not isinstance(dref,dict)
             or dref.get('Name') != definition['Name'] or dref.get('Revision') != definition['Revision']):
         raise ValueError('MES根据原始点派生的采集定义版本不符。')
-    if ('ESigRequirement' not in data or data['ESigRequirement'] is not None
-            or 'AdditionalESigReqs' not in data or data['AdditionalESigReqs'] not in (None,[])):
+    missing_signature_fields = [field for field in ('ESigRequirement', 'AdditionalESigReqs') if field not in data]
+    if missing_signature_fields:
+        raise ValueError('SPC注释预览缺少签名要求字段：'+','.join(missing_signature_fields)
+                         +'；省略字段不能证明无签名要求，未生成执行计划。')
+    if (data['ESigRequirement'] is not None or data['AdditionalESigReqs'] not in (None,[])):
         raise ValueError('SPC注释签名要求非空或未知，本受限入口不覆盖电子签名。')
     return {'params':params,'verified_input_echo':body,'derived_definition':dref,
             'signature_requirement':None,'additional_signature_requirements':[],

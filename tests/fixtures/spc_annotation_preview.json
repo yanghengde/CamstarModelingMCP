@@ -1,0 +1,34 @@
+{
+  "provenance": "Actual isolated AddSPCAnnotation execute=false response; explicit select+expand still omitted signature requirement fields",
+  "response": {
+    "value": "Update completed successfully",
+    "data": {
+      "DataPoint": {
+        "Parent": {
+          "Parent": {
+            "InstanceId": "00098880000002b7"
+          },
+          "InstanceId": "001c6a8000000008"
+        },
+        "InstanceId": "001c6b8000000012"
+      },
+      "SPCChartDef": {
+        "Name": "CDX-C6-20261112-CHART",
+        "InstanceId": "0020048000000002"
+      },
+      "Annotation": "C6 isolated synthetic-data investigation; local calculation only, no native SPC engine or release decision.",
+      "Exclude": "false",
+      "Comments": "MCP-QUAL:857f623e09f345ee8a3a16b8800be3ab",
+      "DataCollectionDef": {
+        "Name": "CDX-C6-20261112-DATA",
+        "Revision": "1",
+        "UseRor": "false",
+        "InstanceId": "001c618000000050"
+      }
+    }
+  },
+  "expected_missing_fields": [
+    "ESigRequirement",
+    "AdditionalESigReqs"
+  ]
+}

@@ -75,6 +75,7 @@ from tools import production_station
 from tools import production_labor
 from tools import system_info          # MCP 服务诊断（无外部副作用）
 from tools import quality_spc
+from tools import quality_spc_attributes
 from tools import quality_spc_annotations
 from tools import quality_spc_violations
 from tools import quality_spc_history
@@ -109,6 +110,8 @@ def get_tool_func(name: str):
         return None
     if name == 'prepare_inspection_quality_event':
         return quality_inspection_event.prepare_inspection_quality_event
+    if name == 'analyze_spc_attributes':
+        return quality_spc_attributes.analyze_spc_attributes
     quantity_tool = getattr(quantity_loss_complex, name, None)
     if quantity_tool is not None:
         return quantity_tool

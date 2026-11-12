@@ -39,7 +39,13 @@ def env(monkeypatch,tmp_path):
                chart_count=1,def_count=1,preview_hook=None,context_hook=None,
                columns=[dict(TABLE_NAME=t,COLUMN_NAME=c) for t,cols in a.SCHEMA.items() for c in cols.split(',')])
     async def sql(query,maximum):
-        if 'INFORMATION_SCHEMA.COLUMNS' in query:return copy.deepcopy(state['columns'])
+        if 'INFORMATION_SCHEMA.COLUMNS' in query:
+            if "TABLE_NAME='NamedObjectGroup'" in query:
+                return [dict(TABLE_NAME='NamedObjectGroup',COLUMN_NAME=c) for c in a.GROUP_COLUMNS.split(',')]
+            return copy.deepcopy(state['columns'])
+        if ' FROM NamedObjectGroup WHERE ' in query:
+            return [copy.deepcopy(state.get('persisted_group',dict(NamedObjectGroupId=GROUP,NamedObjectGroupName='Charts',
+                CDOTypeId='8198',ChangeCount='1',IsFrozen='false')))]
         if ' FROM DataPointHistoryDetail d ' in query:
             return [copy.deepcopy(state['source'])] if state['source'] is not None else []
         if ' FROM AddSPCAnnotationHistory a ' in query:return copy.deepcopy(state['histories'])
@@ -159,11 +165,58 @@ def test_custom_unknown_or_frozen_chart_blocked(env,field,value):
 
 @pytest.mark.parametrize('target,field,value',[
     ('definition','Status',2),('definition','IsFrozen',True),('definition','Revision',''),
-    ('definition','SPCChartDefGroup',None),('group','InstanceID',HM),('group','IsFrozen',True),
+    ('group','InstanceID',HM),('group','IsFrozen',True),
     ('group','ResolvedEntries',[]),('group','ResolvedEntries',None),('group','ResolvedEntries',[dict(InstanceId=CHART,Name='wrong')]),
     ('group','ResolvedEntries',[dict(InstanceId=CHART,Name='Diameter chart')]*2),('group','@odata.nextLink','next')])
 def test_definition_group_and_complete_membership_required(env,target,field,value):
     env[target][field]=value;assert 'error' in prepare();a.request.assert_not_awaited()
+
+
+def test_unexpanded_definition_group_uses_verified_persistent_foreign_key(env):
+    env['definition']['SPCChartDefGroup']=None
+    ready=prepare()
+    assert ready.get('state')=='ready',ready
+    assert snapshot(ready)['before']['configuration']['group']['InstanceID']==GROUP
+    env['client'].request.assert_not_awaited()
+
+
+def test_projected_group_inherited_flags_require_persistent_type_name_version_and_state(env):
+    env['definition']['SPCChartDefGroup']=None
+    env['group']['IsFrozen']=None
+    ready=prepare()
+    assert ready.get('state')=='ready',ready
+    group=snapshot(ready)['before']['configuration']['group']
+    assert group['persistent_state']['NamedObjectGroupId']==GROUP
+    assert group['persistent_state']['CDOTypeId']=='8198' and group['persistent_state']['IsFrozen'] is False
+    env['client'].request.assert_not_awaited()
+
+
+@pytest.mark.parametrize('field,value',[
+    ('NamedObjectGroupId',HM),('NamedObjectGroupName','wrong group'),('CDOTypeId','5330'),
+    ('CDOTypeId',None),('ChangeCount',None),('ChangeCount','-1'),('IsFrozen','true'),('IsFrozen',None)])
+def test_projected_group_persistent_unknown_or_wrong_identity_blocks_preparation(env,field,value):
+    env['group']['IsFrozen']=None
+    env['persisted_group']=dict(NamedObjectGroupId=GROUP,NamedObjectGroupName='Charts',CDOTypeId='8198',
+                                ChangeCount='1',IsFrozen='false')
+    env['persisted_group'][field]=value
+    assert 'error' in prepare()
+    a.request.assert_not_awaited();env['client'].request.assert_not_awaited()
+
+
+def test_projected_group_persistent_version_change_during_read_blocks_preparation(env,monkeypatch):
+    env['group']['IsFrozen']=None
+    env['persisted_group']=dict(NamedObjectGroupId=GROUP,NamedObjectGroupName='Charts',CDOTypeId='8198',
+                                ChangeCount='1',IsFrozen='false')
+    prior=a.q.sql_rows;reads=0
+    async def sql(query,maximum):
+        nonlocal reads
+        if ' FROM NamedObjectGroup WHERE ' in query:
+            reads+=1
+            if reads>1:env['persisted_group']['ChangeCount']='2'
+        return await prior(query,maximum)
+    monkeypatch.setattr(a.q,'sql_rows',AsyncMock(side_effect=sql))
+    assert 'error' in prepare()
+    a.request.assert_not_awaited()
 
 
 @pytest.mark.parametrize('field,value',[('HistoryId',HM),('MainlineHistoryId',HM),('MainlineTxnId',HM),('DataPointId',ORIG_POINT),

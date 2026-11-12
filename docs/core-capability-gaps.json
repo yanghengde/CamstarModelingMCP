@@ -272,8 +272,8 @@
       ],
       "status": "partial",
       "priority": "P1",
-      "current": "已有SPC配置查询、部署前置诊断、原始历史窗口核对和本地计算。受限注释及明确报告的单点越限登记支持提交后历史候选。",
-      "missing": "现场图、规则、查询及采集历史为空。外部引擎、控制限、编译规则及自动处置缺少可验证契约和非空验收，更多图型与派生值待开发。",
+      "current": "已有配置诊断、MES原始历史及本地i_mr/xbar_r和p/np/c/u计数图。四笔隔离采集到本地判异已现场核实；新版本受限登记有完整历史结案代码，真实注释准备被缺少签名回显拦截。",
+      "missing": "当前有隔离注释测试图和非空采集历史，但原生引擎/图类型/规则/查询/连接/生效控制限仍未接通。AddSPCAnnotation省略ESigRequirement和AdditionalESigReqs，不能当无签名要求；正式登记、派生/区内结果和自动处置仍待契约及验收。",
       "contracts": [
         "Shopfloor/InlineSPCTxn",
         "Shopfloor/SPCTxn",
@@ -284,11 +284,13 @@
       ],
       "code": [
         "tools/quality_spc.py",
+        "tools/quality_spc_attributes.py",
+        "tools/quality_spc_evidence.py",
         "tools/quality_spc_history.py",
         "tools/quality_spc_violations.py",
         "tools/quality_spc_annotations.py"
       ],
-      "next_step": "在隔离配置及非空数据上核对实际控制限、编译规则、引擎结果与通知或处置副作用。"
+      "next_step": "先补齐原对象签名要求的可核验回显，继续隔离注释/报告登记验收；再接入真实引擎、有效控制限、编译规则和明确通知/处置场景。"
     },
     {
       "id": "G13",
