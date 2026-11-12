@@ -66,6 +66,8 @@ async def get_capabilities(group: str | None = None, tool_name: str | None = Non
               'reference': '基础资料与原因码', 'query': '查询服务', 'excel': '表格导入', 'system': '系统与能力发现'}
     disabled = DISABLED_MODELING_PATCH_TOOLS
     caveats = {
+        'get_spc_test_chart_display': '仅原C6测试图：只读核实显示、现场枚举及四笔历史，返回原状态摘要和拟改字段。不开引擎、不生成图、不批准原生结果。',
+        'update_spc_test_chart_display': '用户授权后绑定原状态摘要，单次将固定测试图切换Inline SPC/Run Time Display及不存图。保持原点、引用和处置关闭；未知不重试。显示保存不等于原生出图，仍缺图类型、查询和连接等实际配置。',
         'prepare_spc_modeling_test': '六类固定SPC建模测试资料的只读准备；新测试前缀、现场契约及同名检查。查询仅存合成9/10/11/14文本；未编译规则和图类型为展示骨架，不代表计算可用。不创建连接或生产绑定。',
         'execute_spc_modeling_test': '用户授权后单次创建六个独立测试根对象，逐次POST前持久记账、读回字段及关联，允许部分成功。失败/超时停止且不重放。显式continue_unattempted只在此前全部持久2xx无错误响应且原字段核实后继续未尝试对象；无响应/拒绝不能继续。不采集、不登记实际违例、不连接引擎或触发处置。',
         'inspect_spc_modeling_test': '只读检查原测试计划和六类对象，不补建、不更新、不解锁unknown，不凭同值回读归因提交成功。',

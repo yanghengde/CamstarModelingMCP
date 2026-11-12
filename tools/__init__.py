@@ -80,6 +80,7 @@ from tools import quality_spc_annotations
 from tools import quality_spc_violations
 from tools import quality_spc_history
 from tools import spc_modeling_test
+from tools import spc_chart_display
 from tools import quality_event_triage
 from tools import quality_capa_approval_revision
 from tools import quality_approval_assignment
@@ -109,6 +110,8 @@ def get_tool_func(name: str):
     """
     if name not in TOOL_POLICIES:
         return None
+    if name in {'get_spc_test_chart_display', 'update_spc_test_chart_display'}:
+        return getattr(spc_chart_display, name)
     if name in {'prepare_spc_modeling_test', 'execute_spc_modeling_test', 'inspect_spc_modeling_test'}:
         return getattr(spc_modeling_test, name)
     if name == 'prepare_inspection_quality_event':

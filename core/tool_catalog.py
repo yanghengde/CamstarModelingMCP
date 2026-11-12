@@ -106,6 +106,8 @@ TOOL_POLICIES = {
     'prepare_spc_modeling_test': ToolPolicy('quality'),
     'execute_spc_modeling_test': ToolPolicy('quality', 'create', always_confirm=True),
     'inspect_spc_modeling_test': ToolPolicy('quality'),
+    'get_spc_test_chart_display': ToolPolicy('quality'),
+    'update_spc_test_chart_display': ToolPolicy('quality', 'update', always_confirm=True),
     'prepare_quality_ncr_closure': ToolPolicy('quality'),
     'prepare_sampling_lot_scrap': ToolPolicy('quality'),
     'prepare_sampling_lot_rework': ToolPolicy('quality'),
