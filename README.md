@@ -1,389 +1,260 @@
 # Camstar Modeling MCP Agent
 
-高级抽样检验组合：[第6部分进度与现场记录](docs/inspection-combinations-completion.md)。计数扣量、分组累计、逐原因损失及归零关闭已验收；独立后续质量事件等待管理员开通 MES 创建服务权限后完成最后一项现场验收。
+面向 Siemens Opcenter（Camstar）MES 的自然语言助手与 MCP 工具服务。项目以 Modeling、Shopfloor 和 Query API 为基础，覆盖主数据建模、工艺查询、容器生产执行、数据采集、物料与设备、质量管理和历史追溯。
 
-生产过站与报工：[第1部分完整流程、工具与限制](docs/production-reporting.md)。六项核心功能已完成独立现场闭环验收，包含MES人工分钟落账、两种不良处置和原生整单生产完成；原生MoveOut仍有服务端错误，使用明确分步生产流程，详见[验收记录](docs/production-acceptance.md)。
+项目提供两个主要入口：内置 Web 工作台通过 LLM 编排业务工具；外部 MCP 客户端通过 Streamable HTTP 调用同一组工具。默认执行引擎为 LangGraph，支持检查点、执行前确认、后台任务与断线后的进度恢复。
 
-共享只读查询：[通用编排、元数据缓存与工单日期模板](docs/read-orchestration.md)。复用原MCP工具，支持受控依赖、有限并发、分页和精确关联/汇总；生产写入流程保持独立。
+**能力范围以当前注册工具、现场 API 契约及对应验收记录为准。** 工具已实现、离线测试通过和真实 MES 业务验收是不同状态；本文不将其合并为“全部可用”。
 
-质量开发当前目标与完成标准：[闭环交付总清单](docs/quality-completion-plan.md)。C1代码和离线验证已交付、现场未验收；本轮推进[C2.A角色替代审批](docs/quality-role-approval.md)。下一闭环为安全电子签名输入与提交，旧阶段报告不等于全部质量功能完成。
+## 业务能力
 
-质量功能入口：[NCR、CAPA、质量对象与抽检/SPC工具及现场验证范围](docs/quality-mcp-tools.md)。
-问答图表：[SPC与工序分布异步出图、聊天响应保护及性能验证](docs/chat-charts.md)。绘图在独立Worker中完成，文字先行；当前支持范围与现场引擎验收分别说明。
-质量分组现有72个工具，覆盖NCR/CAPA、检验定义与抽样表、单容器/批采样、当前采样状态与默认检验水平复位，以及已关闭关联事件后的NCR收尾计划。阶段交付、测试证据、部署步骤和未完成范围见[质量交付说明](docs/quality-delivery.md)；高级功能第一阶段新增[受限批返工](docs/quality-lot-rework.md)，第二阶段新增[数量损失准备与批报废前置检查](docs/quality-quantity-loss.md)，第三阶段扩展[原生全检与测量自动扣量](docs/quality-inspection-effects.md)，第四阶段新增[SPC本地计算与判异](docs/quality-spc-analysis.md)、[原始历史点受限注释](docs/quality-spc-annotations.md)和[明确报告的单点SPC违例登记](docs/quality-spc-violations.md)，第五阶段新增[质量事件首次分流](docs/quality-event-triage.md)与[事件文字资料维护](docs/quality-event-update.md)，后续顺序见[高级功能开发计划](docs/quality-advanced-roadmap.md)；真实MES验收及其余高级功能仍待完成。
+| 领域 | 当前实现范围 | 详细说明 |
+| --- | --- | --- |
+| 主数据与工艺建模 | Spec、Operation、Workflow、Product、MfgOrder、MfgLine、ProductType，以及 UOM、ContainerLevel、编号规则等查询与维护 | [建模更新契约](docs/modeling-updates.md)、[层级建模](docs/container-level-modeling.md)、[计量单位](docs/uoms.md) |
+| 建模工具台 | 路线可视化、完整性检查、版本比较、线性路线模板、Excel/CSV 映射预览 | [建模工具台](docs/modeling-workbench.md) |
+| 工单与生产执行 | 开工准备检查、Container Start、进出站、吞吐、良品/不良报工、人工工时及原生生产完成后的应用收尾 | [开工准备](docs/production-readiness-tools.md)、[生产过站与报工](docs/production-reporting.md) |
+| 容器与追溯 | 状态和历史、工单关联、父子关系、谱系、拆分/合并及关联/解关联的预览与受控执行 | [谱系与恢复](docs/genealogy-and-recovery.md)、[容器转移](docs/container-transfer-development.md) |
+| 物料与设备 | BOM 查询和维护、产品绑定、用料需求、投料计划、设备状态及配置变更 | [BOM 维护](docs/bom-maintenance.md)、[投料计划](docs/component-issue-plans.md)、[设备维护](docs/resource-maintenance.md) |
+| 数据采集与作业任务 | 采集定义、点和组维护、工序绑定、值校验、提交与历史核实；工单前后置任务及作业文档 | [数据采集工具链](docs/collection-workflow-tools.md)、[工单任务](docs/mfgorder-task-development.md)、[作业文档](docs/spec-documents-development.md) |
+| 检验与质量处置 | 检验定义、抽样计划、单容器/批检验、采样状态、数量损失、受限批返工与批报废 | [质量工具入口](docs/quality-mcp-tools.md)、[检验组合验收](docs/inspection-combinations-completion.md) |
+| 质量事件与审批 | NCR/CAPA、事件草稿和生命周期、审批表与决策、角色替代、受限电子签名和审计 | [质量闭环状态](docs/quality-completion-plan.md)、[审批周期](docs/quality-approval-cycle.md)、[电子签名](docs/quality-electronic-signature.md) |
+| SPC 与问答图表 | 原始参数趋势、本地 SPC 计算和判异、历史点分析、异步图表，以及受限原生注释/违例计划和测试建模 | [SPC 当前状态](docs/c6-completion-status.md)、[问答图表](docs/chat-charts.md) |
+| 通用查询 | OData、Inquiry、Advanced/User Query、受限只读 AdHoc SELECT；跨工具依赖编排、分页、关联和汇总 | [共享只读查询层](docs/read-orchestration.md) |
 
-多轮调用评测：[38段问法、真实模型结果与已修复/待修复问题](docs/multiturn-evaluation/README.md)。
+工具目录不在 README 中逐个复制。运行时使用 `get_capabilities()` 查看领域概览，使用 `get_capabilities(group="quality")` 查看某一领域，或指定 `tool_name` 获取实际参数和限制。Web Agent 可通过 `load_tool_group` 按需补充下一轮模型可见工具；加载工具不构成写入授权。
 
-数据采集工具入口：[完整工具链与参数示例](docs/collection-workflow-tools.md)，覆盖定义/采集点/组维护、工序绑定、预览提交、历史及结果核实。
+## 整体架构
 
-> 基于 **FastMCP + FastAPI + LangGraph + LLM** 的 Siemens Opcenter (Camstar) MES 建模 AI 助手。
-> 将 Camstar Modeling REST API 封装为 MCP 工具，通过自然语言对话操控 Spec、Operation、Workflow 等建模实体。
-
-持续开发入口：[核心周边能力开发任务与进度](docs/core-surrounding-capabilities-roadmap.md)。按 T00–T09 推进设备资源、BOM、采集及开工准备检查，并记录各阶段验收结果。
-
----
-
-## ✨ 功能特性
-
-| 功能 | 说明 |
-|---|---|
-| **自然语言建模** | 用对话方式创建/查询/更新/删除 Spec、Operation、Workflow |
-| **流式实时输出** | 基于 SSE 的逐字流式渲染，消除 LLM 阻塞等待 |
-| **安全卡点防护** | 批量操作阈值拦截 + OTP 一次性密码双重验证，防止误操作 |
-| **可恢复工作流** | LangGraph + SQLite 保存执行检查点，确认后从暂停位置继续 |
-| **受控经验闭环** | 自动聚合脱敏失败候选，人工审核后才注入后续相关任务 |
-| **标准 MCP 接入** | 提供带 Bearer 鉴权的 Streamable HTTP 端点，兼容新旧 MCP 客户端 |
-| **多用户多会话** | 按用户名隔离的持久化历史记忆，支持会话切换 |
-| **后台执行与进度恢复** | 切换页面、聊天或刷新后任务继续运行，返回后恢复输出；确认和主动停止保留 |
-| **性能监控** | JSONL 追踪每次 LLM 推理与工具执行耗时，内置可视化 Dashboard |
-| **兼容任意 LLM** | 支持 DeepSeek / 通义千问 / 智谱 / Ollama / OpenAI 等兼容 OpenAI 协议的模型 |
-
----
-
-## 🗂️ 目录结构
-
+```mermaid
+flowchart TD
+    Browser[浏览器：聊天 / 建模工具台 / 操作记录 / 日志] --> Web[FastAPI · web/]
+    Web --> Runs[后台任务与 SSE 事件恢复 · chat_runs.py]
+    Runs --> Agent[Agent：工具路由 / LangGraph / 确认策略]
+    Agent <--> LLM[支持工具调用的 OpenAI 兼容模型接口]
+    Agent --> Tools[业务工具 · tools/]
+    Web --> Workbench[工具台：只读查询与本地计划预览]
+    Workbench --> Tools
+    Client[外部 MCP 客户端] --> Transport[Streamable HTTP + Bearer]
+    Transport --> MCP[FastMCP · tools/__init__.py]
+    MCP --> Tools
+    Tools --> Core[公共基础设施 · core/]
+    Core --> Modeling[Camstar Modeling API]
+    Core --> Shopfloor[Camstar Shopfloor API]
+    Core --> Query[Camstar Query API]
+    Agent --> Storage[(会话 / 检查点 / 经验库)]
+    Runs --> Storage
+    Core --> Storage
 ```
+
+| 层次 | 主要职责 | 关键入口 |
+| --- | --- | --- |
+| 应用与配置 | 创建应用、管理生命周期、读取 `.env`、启动服务 | `main.py`、`config.py`、`web/app.py` |
+| Web 与后台任务 | 页面、会话、上传、任务排队、取消、事件持久化和 SSE 重连 | `web/routes.py`、`web/chat_runs.py`、`web/workbench.py` |
+| Agent | 模型调用、领域工具筛选、上下文预算、状态图、执行确认、记忆和经验注入 | `agent/llm_client.py`、`agent/tool_routing.py`、`agent/langgraph_runtime.py` |
+| 业务工具 | 将 MES 查询、维护和事务封装为 MCP 工具；处理各领域的预检、计划、执行及结果核实 | `tools/__init__.py`、各业务模块 |
+| 公共基础设施 | MES 认证与 HTTP 连接、工具策略目录、响应整理、查询编排、锁、签名通道和日志 | `core/http_client.py`、`core/tool_catalog.py`、`core/read_plan.py` |
+| 持久化 | JSON 会话、SQLite 检查点/任务/业务计划/审计、JSONL 性能日志 | `data/`，部分路径可通过环境变量配置 |
+
+聊天请求先进入后台任务，再由 Agent 按当前问题选择工具。LangGraph 在模型规划、策略检查和工具执行之间循环；需要确认时保存原调用及参数并暂停，收到明确确认后从检查点继续。工具层负责访问 MES，结果再流式返回并保存到会话。
+
+外部 MCP 请求直接进入工具层，不经过 Web Agent 的 LangGraph 确认节点。工具内部的参数校验、计划校验和防重复机制仍按各工具实现生效；外部客户端需自行落实用户授权和失败停止要求。浏览器 SSE 用于聊天输出，MCP 使用独立的 Streamable HTTP 协议端点。
+
+## 目录结构
+
+```text
 CamstarModelingMCP/
-├── main.py              # 启动入口（uvicorn）
-├── config.py            # 统一配置中心（读取 .env）
-├── requirements.txt     # Python 依赖
-├── .env.example         # 环境变量模板
-│
-├── core/                # 核心基础设施
-│   ├── auth.py          # Bearer Token 生成
-│   ├── http_client.py   # 异步 HTTP 请求分发器
-│   ├── response.py      # 智能响应裁剪
-│   └── perf_logger.py   # 性能日志（JSONL）
-│
-├── tools/               # MCP 工具层
-│   ├── __init__.py      # FastMCP 实例 + 工具注册中心
-│   ├── specs.py         # Spec 实体（11 个工具）
-│   ├── operations.py    # Operation 实体（9 个工具）
-│   ├── workflows.py     # Workflow 实体
-│   └── security.py      # OTP 验证守卫
-│
-├── agent/               # 智能体层
-│   ├── llm_client.py    # LLM 客户端 + 新旧执行引擎分发
-│   ├── langgraph_runtime.py # 可恢复的 Agent 状态图
-│   ├── safety.py        # 可测试的工具分类与确认策略
-│   ├── memory.py        # 多用户多会话记忆管理
-│   ├── prompts.py       # System Prompt
-│   └── cli.py           # 命令行调试界面
-│
-├── web/                 # Web API 层
-│   ├── app.py           # FastAPI 应用工厂
-│   └── routes.py        # 路由定义
-│
-├── static/              # 前端静态资源
-│   ├── index.html       # 聊天主界面
-│   └── logs.html        # 性能日志 Dashboard
-│
-├── data/                # 运行时数据（自动创建）
-│   ├── sessions/        # 用户会话 JSON 文件
-│   └── logs/            # performance.jsonl
-│
-├── Swagger/             # Camstar API 原始 Swagger 文档
-└── docs/
-    └── DESIGN.md        # 完整程序设计文档
+├── main.py                 # Web 启动入口，默认 8030
+├── config.py               # 统一环境变量配置
+├── .env.example            # 配置模板
+├── requirements.txt        # 运行依赖
+├── requirements-dev.txt    # 测试依赖
+├── agent/                  # 模型编排、LangGraph、路由、记忆与经验审核
+├── core/                   # HTTP、策略、只读编排、锁、签名与监控
+├── tools/                  # MCP 注册与各业务领域工具
+├── web/                    # FastAPI、后台聊天任务、工具台、MCP 传输
+├── static/                 # 原生 HTML/CSS/JS、图表 Worker、本地前端库
+├── Swagger/                # 归档的 API 定义及扩展契约
+├── docs/                   # 专题说明、设计、验收范围与开发状态
+├── tests/                  # Python 回归、契约 fixture 与 JavaScript 测试
+├── scripts/                # 离线守卫、诊断、评测与现场验收脚本
+└── data/                   # 运行数据，按需生成，不提交到 Git
 ```
 
----
+后端主要使用 FastAPI、FastMCP、LangGraph、httpx、SQLite 和 OpenAI SDK；表格处理使用 pandas/openpyxl。前端为静态页面与原生 JavaScript，图表使用本地 ECharts 和独立 Worker，无需单独执行前端构建。依赖版本以 `requirements.txt` 为准。
 
-## 🚀 快速开始
+## 快速开始
 
-后台聊天的执行方式、接口与验证见[后台任务与进度恢复](docs/background-chat-runs.md)。修改后需重启 Web 服务并刷新页面，使用新的前后端代码。
+### 1. 准备环境
 
-### 1. 安装依赖
+需要可访问的 Camstar API、具备相应业务权限的 MES 账号，以及支持工具调用和流式响应的 OpenAI 兼容模型服务。当前本地开发环境使用 Python 3.13。
 
-```bash
-pip install -r requirements.txt
+在项目根目录执行以下 PowerShell 命令：
+
+```powershell
+python -m venv venv
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-需要运行自动化测试时安装开发依赖：
+### 2. 配置连接
 
-```bash
-pip install -r requirements-dev.txt
+首次配置时复制模板；已有 `.env` 时直接编辑原文件，保留现有配置。
+
+```powershell
+Copy-Item .env.example .env
 ```
 
-### 2. 配置环境变量
+至少填写：
 
-```bash
-cp .env.example .env
-# 编辑 .env，填入 Camstar 地址、账号密码和 LLM API Key
-```
-
-关键配置项：
-
-```ini
+```dotenv
 CAMSTAR_BASE_URL=https://your-camstar-host/Modeling
 CAMSTAR_SHOPFLOOR_BASE_URL=https://your-camstar-host/Shopfloor
-CAMSTAR_USERNAME=CamstarAdmin
+CAMSTAR_QUERY_BASE_URL=https://your-camstar-host/Query
+CAMSTAR_USERNAME=your-username
 CAMSTAR_PASSWORD=your-password
 
-LLM_API_KEY=sk-your-api-key
+LLM_API_KEY=your-api-key
 LLM_BASE_URL=https://api.deepseek.com/v1
 LLM_MODEL=deepseek-chat
 
 AGENT_ENGINE=langgraph
-LANGGRAPH_CHECKPOINT_DB=data/langgraph_checkpoints.sqlite
-EXPERIENCE_DB=data/agent_experience.sqlite
-MEMORY_CONTRACT_VERSION=1
+ENABLE_MCP_HTTP=False
+```
 
-# 对外提供 MCP Streamable HTTP 时启用；必须设置访问令牌
+未设置 Shopfloor/Query 地址时，程序会从 Modeling 地址推导同级服务路径。模型服务通过 `LLM_BASE_URL`、`LLM_MODEL` 和 `LLM_API_KEY` 配置，实际工具调用及流式协议兼容性需在所选服务上验证。
+
+### 3. 启动 Web 服务
+
+```powershell
+.\venv\Scripts\python.exe main.py
+```
+
+| 入口 | 默认地址 |
+| --- | --- |
+| 聊天工作台 | [http://127.0.0.1:8030/](http://127.0.0.1:8030/) |
+| 操作记录 | [http://127.0.0.1:8030/records](http://127.0.0.1:8030/records) |
+| 建模工具台 | [http://127.0.0.1:8030/modeling](http://127.0.0.1:8030/modeling) |
+| 性能日志 | [http://127.0.0.1:8030/logs](http://127.0.0.1:8030/logs) |
+| MCP 端点 | [http://127.0.0.1:8030/mcp/](http://127.0.0.1:8030/mcp/)（需启用） |
+
+可先用只读问题检查连接，例如“列出当前支持的功能”“查询工单 MO001 的产品、在制容器和工序分布”或“检查路线 WF001/A 的引用和路径完整性”。示例名称需替换为现场实际对象。
+
+`main.py` 默认监听 `0.0.0.0:8030`。必须从项目根目录启动，以便正确解析静态资源和运行数据路径；修改源码或环境变量后需重启进程，页面资源更新后需刷新浏览器。
+
+## 外部 MCP 接入
+
+在 `.env` 中显式启用端点并设置独立访问令牌：
+
+```dotenv
 ENABLE_MCP_HTTP=True
 MCP_HTTP_PATH=/mcp
-MCP_API_KEY=请替换为高强度随机字符串
-# 从局域网访问时加入服务端实际 IP，例如 172.25.23.19:*
-MCP_ALLOWED_HOSTS=localhost:*,127.0.0.1:*,[::1]:*,172.25.23.19:*
+MCP_API_KEY=replace-with-a-long-random-secret
+MCP_ALLOWED_HOSTS=localhost:*,127.0.0.1:*,[::1]:*
+MCP_ALLOWED_ORIGINS=
 ```
 
-### 3. 启动服务
+启用后未配置 `MCP_API_KEY` 会拒绝启动。`MCP_API_KEY` 用于客户端访问本服务，与用于访问 MES 的 `CAMSTAR_USERNAME` / `CAMSTAR_PASSWORD` 分开配置。
 
-学习库的审核、过期、撤销、替代、用户纠错捕获与兼容迁移见 [学习与记忆生命周期](docs/learning-and-memory.md)。
-
-能力介绍的即时读取、源码变更检测和生效边界见 [能力目录即时刷新](docs/capability-refresh.md)。
-
-本轮目录直接呈现、历史目录压缩、受控并发读取及实测对比见 [回复性能优化与验证](docs/response-performance-round.md)。
-
-```bash
-python main.py
-```
-
-服务启动后访问：
-
-- 💬 **聊天界面**：http://127.0.0.1:8030/
-- 📊 **性能日志**：http://127.0.0.1:8030/logs
-- 🔌 **MCP Streamable HTTP**：http://127.0.0.1:8030/mcp/（启用后）
-
-### 外部 MCP 客户端配置
-
-当前实现使用标准 **Streamable HTTP**，不再新建旧式 `/sse` MCP 传输。浏览器聊天使用的 `/chat` SSE 只是文本流，两者互不影响。
-
-支持自定义 HTTP Header 的 MCP 客户端可使用以下通用配置：
+客户端连接参数如下，外层配置格式按客户端要求填写：
 
 ```json
 {
   "url": "http://127.0.0.1:8030/mcp/",
   "headers": {
-    "Authorization": "Bearer 与 MCP_API_KEY 相同的值"
+    "Authorization": "Bearer <MCP_API_KEY>"
   }
 }
 ```
 
-局域网客户端还需把服务器 IP 加入 `MCP_ALLOWED_HOSTS`。端点默认关闭；这是因为其中包含创建工单、Start、Move、Rework 等生产写操作，未配置令牌时程序会拒绝启动外部 MCP 服务。
+局域网访问需将实际服务主机名或 IP 加入 `MCP_ALLOWED_HOSTS`；浏览器型 MCP 客户端按需配置 `MCP_ALLOWED_ORIGINS`。新增工具后需重启服务并刷新客户端工具目录。
 
-生产环境请在反向代理上启用 HTTPS；Bearer 令牌不应通过明文局域网 HTTP 传输。需要面向多用户或第三方客户端开放时，应进一步换成 OAuth 2.1，而不是共享一个静态令牌。
+## 执行、确认与恢复
 
----
+- **工具策略显式登记**：`core/tool_catalog.py` 记录工具领域、读写类型、可见性和强制确认规则。启动注册时检查策略及可执行入口；按需筛选只影响模型可见工具，不是权限控制。
+- **确认绑定原参数**：LangGraph 保存待执行调用，确认绑定工具、顺序和参数摘要。更换参数或生成新计划后重新判断确认要求；普通确认不能代替 MES 原生权限或电子签名。
+- **批量与高影响操作分开判断**：默认创建阈值为 20、更新阈值为 3、删除阈值为 0（任意删除需确认）。创建保留任务累计上限，普通修改按本次待执行范围判断；业务强制确认规则独立生效，部分删除入口另有一次性 OTP 守卫。
+- **计划与执行分离**：投料、采集、导入、质量等计划型工具先生成本地计划，再按各领域规则校验环境、摘要、时效和现场状态并执行。预览、计划 ID 或 HTTP 成功均不能单独证明业务完成。
+- **不明结果保留待核实状态**：写入失败或超时不自动重试；`in_flight` / `unknown` 按原计划取证、对账或人工审计。应用内锁不能提供 MES 全局排他，多个 MES 请求也不组成跨步骤原子事务。
+- **后台运行与页面连接分离**：切换聊天、刷新或关闭浏览器后，只要服务进程仍运行，已接受任务可继续；返回原聊天按事件序号恢复。显式停止不会回滚已提交操作，服务重启也不会自动重放遗留事务。
+- **签名口令独立输入**：受支持的质量签名使用独立本机页面和短期内存输入，口令不进入聊天或 MCP 参数。当前签名输入要求浏览器与 Web 服务位于同一台机器，具体范围见[签名说明](docs/quality-electronic-signature.md)。
 
-## 🛠️ MCP 工具一览
+后台任务状态、接口和恢复边界见[后台聊天任务](docs/background-chat-runs.md)；移动失败后的限制见[容器移动与恢复](docs/container-movement-recovery.md)。
 
-### Spec 实体（`/api/Specs`）
+## 配置与运行数据
 
-建模字段更新统一使用实例 ID 和最小 JSON PUT；程序调用方式、同类修复与验收范围见 [建模更新契约](docs/modeling-updates.md)。修改代码后需重启服务，让模型重新加载工具参数。
+完整模板见 [.env.example](.env.example)，程序默认值见 [config.py](config.py)。下表列出常用项；模板可以覆盖程序默认值，例如 `MAX_TOOL_LOOPS` 在代码中默认 15，模板设为 30。
 
-| 工具 | 方法 | 说明 |
-|---|---|---|
-| `list_specs` | GET | OData 查询 Spec 列表 |
-| `get_spec` | GET | 按 key 获取单条 Spec |
-| `get_spec_by_odata_key` | GET | OData 键语法获取 |
-| `create_spec` | POST | 创建新 Spec |
-| `update_spec` | PUT | 按实例 ID 提交明确字段的最小更新 |
-| `update_spec_by_odata_key` | PUT | OData 键最小更新兼容入口 |
-| `patch_spec` | — | 已禁用兼容入口，不发送请求 |
-| `delete_spec` | DELETE | 删除 Spec |
-| `delete_spec_by_odata_key` | DELETE | OData 键删除 |
-| `get_specs_count` | GET | 获取 Spec 总数 |
-| `request_selection_values` | POST | 获取 LOV 值 |
+| 配置 | 程序默认值 / 用途 |
+| --- | --- |
+| `CAMSTAR_TIMEOUT` / `LLM_TIMEOUT` | MES 请求 30 秒 / 模型请求 45 秒 |
+| `CAMSTAR_TRUST_ENV` | `True`；是否沿用系统代理环境，内网直连可明确设为 `False` |
+| `AGENT_ENGINE` | `langgraph`；`legacy` 保留为回退路径，执行确认能力有差异 |
+| `MAX_TOOL_LOOPS` / `LANGGRAPH_RECURSION_LIMIT` | 默认 15 轮；状态图步数默认按 `MAX_TOOL_LOOPS * 6 + 10` 计算 |
+| `READ_QUERY_CONCURRENCY` / `MAX_READ_FAILURES` | 只读并发上限默认 4；连续读取失败上限默认 3 |
+| `SAFE_CREATE_THRESHOLD` / `SAFE_UPDATE_THRESHOLD` / `SAFE_DELETE_THRESHOLD` | 默认 `20` / `3` / `0` |
+| `CHAT_MAX_RUNNING` / `CHAT_MAX_RUNNING_PER_USER` | 单进程同时运行任务默认 4 / 每用户 2 |
+| `CHAT_MAX_QUEUED` / `CHAT_MAX_QUEUED_PER_USER` / `CHAT_QUEUE_TIMEOUT` | 默认排队 32 / 每用户 8 / 等待 120 秒 |
+| `AGENT_HISTORY_TOKEN_BUDGET` | `0`；关闭应用侧历史预算裁剪，正数显式启用本地估算预算 |
+| `UPLOAD_MAX_BYTES` / `EXCEL_MAX_SHEETS` | 通用上传默认 20 MiB / 20 个工作表；具体工具可有更严格限制 |
+| `ENABLE_CHAT_CHARTS` / `ENABLE_PERFORMANCE_LOG` | 均默认 `True` |
+| `PERF_RETENTION_DAYS` / `CHAT_EVENT_RETENTION_DAYS` / `UPLOAD_RETENTION_DAYS` | 性能日志 90 天 / 聊天事件 30 天 / 上传文件 7 天；`0` 禁用对应清理 |
 
-### Operation 实体（`/api/Operations`）
+运行数据主要包括：
 
-| 工具 | 方法 | 说明 |
-|---|---|---|
-| `list_operations` | GET | OData 查询 Operation 列表 |
-| `get_operation` | GET | 按 key 获取单条 |
-| `create_operation` | POST | 创建新 Operation |
-| `update_operation` | PUT | 按实例 ID 提交明确字段的最小更新 |
-| `delete_operation` | DELETE | 删除 Operation |
-| `get_operations_count` | GET | 获取总数 |
-| *(+ OData 变体及 RequestSelectionValues)* | — | — |
+| 数据 | 默认位置 |
+| --- | --- |
+| 用户会话历史 | `data/sessions/` |
+| LangGraph 检查点 | `data/langgraph_checkpoints.sqlite`（`LANGGRAPH_CHECKPOINT_DB`） |
+| 后台任务及事件 | `data/chat_runs.sqlite`（`CHAT_RUN_DB`） |
+| 经验候选与审核结果 | `data/agent_experience.sqlite`（`EXPERIENCE_DB`） |
+| 图表快照 | `data/chat_charts.sqlite3`（`CHAT_CHART_DB`） |
+| 性能日志 | `data/logs/performance.jsonl` |
+| 业务计划、尝试记录和台账 | `data/` 下各领域 SQLite 数据库及相关锁文件 |
 
-### Shopfloor Container 事务
+当前后台任务调度采用**单 Web worker**，不支持多 worker/多实例共享运行任务。备份和迁移应一并保留配置、会话、检查点、业务计划、尝试记录及锁；不要通过删除事务库或占用记录解决 `unknown`。日志清理不会自动删除业务计划、检查点和会话历史。
 
-| 工具 | 方法 | 说明 |
-|---|---|---|
-| `container_start` | POST | 按工单启动 Container，支持显式序列号或自动编号规则 |
-| `container_move` | POST | 通过 MoveStd 将 Container 移动到下一工步 |
-| `container_move_in` | POST | 将 Container 移入当前工步/资源开始处理 |
-| `container_move_out` | POST | 将 Container 移出当前工步并继续流转 |
-| `get_moveout_diagnostics` | 只读查询 | 核对真实容器 ID、状态、层级/工序配置及 ChangeQty 必填明细证据，不执行过站 |
-| `container_defect` | POST | 通过 ContainerDefect 记录 Container 缺陷 |
-| `rework` | POST | 通过原始 Rework 服务将 Container 转入返工流程 |
+Web 会话按 `username` 组织，当前没有独立登录认证体系；外部 MCP 的 Bearer 鉴权不覆盖普通 Web 路由。对外部署需配置访问控制和 HTTPS。普通 MES HTTP 客户端当前使用 `verify=False`，签名专用通道强制校验证书，两条通道的 TLS 行为不同。
 
-移动工具现在先核实实际 ID、Active/InProcess 及层级 AllowMove，Level 不进入写入引用。Agent 本轮移动失败后停止同一容器的后续移动尝试，只读查询不因历史写入次数被重复要求确认。详见[移动参数与审批修复](docs/container-movement-recovery.md)。
+### 经验与记忆
 
-`get_container_details` 顶层 `container_instance_id`/`container_ref` 明确返回真实 Container 引用；`view_record_instance_id` 仅为临时视图行，不能用于移动。新工具及共享执行规则需重启服务、刷新外部 MCP 工具定义后生效。
+工具失败会脱敏、去重并进入经验候选库，经人工审核后才在相关任务中注入；候选不会自动改写 Agent 行为。
 
-### Container 编号与层级维护
-
-| 工具 | 方法 | 说明 |
-|---|---|---|
-| `list_numbering_rules` / `get_numbering_rule` | GET | 查询并校验自动编号规则 |
-| `list_container_levels` / `get_container_level` | GET | 查询 Level 及其默认编号规则 |
-| `get_container_levels_count` | GET | 查询层级数量 |
-| `get_container_level_schema` | 本地只读 | 查看全部字段及复杂字段的完整类型定义 |
-| `create_container_level` | POST | 创建层级，支持完整可写字段 |
-| `update_container_level` | PUT | 更新明确字段，支持唯一性、编号、父子层级、属性、WIP/UI 等配置并回读 |
-| `delete_container_level` | DELETE | 删除指定层级并核实结果 |
-| `request_container_level_selection_values` | POST（读） | 读取原生字段候选值 |
-
-完整字段范围、调用示例与验证边界见[ContainerLevel 完整建模工具](docs/container-level-modeling.md)。新增工具需重启服务并刷新 MCP 工具定义后生效。
-
-### Query API（`/Query/api`）
-
-| 工具 | 方法 | 说明 |
-|---|---|---|
-| `list_query_services` | GET | 从 Query Swagger 动态列出可用 Inquiry 与查询服务 |
-| `get_query_service_schema` | GET | 查询某个 Query CDO 的路径、参数及请求字段 |
-| `execute_query_inquiry` | POST | 执行标准 Inquiry CDO，支持 `$select`、`$expand` 与 `execute=true` |
-| `execute_query_inquiry_event` | POST | 执行 Inquiry CDO 的自定义事件，并纳入修改安全锁 |
-| `request_query_selection_values` | POST | 查询 Inquiry 字段的合法候选值 |
-| `execute_advanced_query` | POST | 执行 Designer 中的系统 Advanced Query |
-| `execute_user_query` | POST | 执行 Modeling UserQueries 中的 User Query |
-| `execute_adhoc_query` | POST | 执行单条只读 SELECT；拒绝写入和多语句查询 |
-
----
-
-## 🛡️ 安全机制
-
-### 批量操作阈值拦截
-
-在 `.env` 中可配置触发强制确认的阈值：
-
-```ini
-SAFE_CREATE_THRESHOLD=20   # 批量创建 > 20 条时暂停并请求确认
-SAFE_UPDATE_THRESHOLD=3    # 本次待执行更新 > 3 条时暂停，不累计此前调用触发连续确认
-SAFE_DELETE_THRESHOLD=0    # 任意删除均需先确认（0 = >=1 拦截）
+```powershell
+.\venv\Scripts\python.exe -m agent.experience list
+.\venv\Scripts\python.exe -m agent.experience list --status all
 ```
 
-普通少量修改及进出站不因此前累计修改次数重复要求确认。用户明确要求执行且本地不可变计划有效时，新建检验指标、检验项目和抽检计划免逐项确认；已有质量配置修改/升版、产品关联、检验提交、库存/数量变化、删除及人工处理不明结果仍须确认。创建数量仍保留任务累计上限，防止拆成单条调用绕过批量保护。同一批完整待执行调用合并确认，授权仍绑定原参数；不扩展到尚未生成的后续计划，也不改变失败停止、单次提交及电子签名规则。
+审核命令、撤销、过期、替代及契约版本迁移见[学习与记忆生命周期](docs/learning-and-memory.md)。Container Start 还会读取项目内的 Start contract 和已知失败资料。修改业务契约后应同步核对 `MEMORY_CONTRACT_VERSION` 及已审核经验的适用性。
 
-LangGraph 会把待执行工具调用保存在 SQLite 检查点中。系统只接受“确认创建”、
-“确认修改”、“确认删除”等明确授权；“不是”“不要创建”“取消执行”不会误触发。
-确认后会从暂停位置继续，不要求 LLM 重新生成工具参数。紧急回退时可设置
-`AGENT_ENGINE=legacy` 并重启服务。
+## 开发与验证
 
-### OTP 单次密码验证
+安装开发依赖并使用 HTTPX 离线守卫运行 Python 回归：
 
-删除等高风险操作额外受到 OTP 守卫保护：LLM 首次尝试删除时系统自动生成一个内部 OTP，要求用户明确回复"确认删除"后，由 LLM 持 OTP 二次发起才能真正执行删除，且 OTP 一次性消耗防止重放攻击。
-
-### 受控 Self-improvement
-
-工具执行失败会以脱敏、去重的方式进入经验候选库，但不会自动改变 Agent 行为。查看状态和候选：
-
-```bash
-python -m agent.experience list
-python -m agent.experience list --status all
+```powershell
+.\venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+.\venv\Scripts\python.exe -m pytest -p scripts.offline_test_guard tests
 ```
 
-验证解决方案后，由管理员显式批准或拒绝：
+守卫阻止当前测试进程中的真实 HTTPX 网络传输，允许显式 Mock 和 ASGI 测试；它不等于操作系统级网络隔离。部分契约及现场回放用例需要未纳入 Git 的本地归档，干净检出下可能跳过。JavaScript 测试和浏览器验收需另行准备 Node.js、Playwright 及对应浏览器，具体要求见专题文档。`scripts/` 同时包含真实 MES 验收脚本，执行前需核对目标环境、对象和写入范围。
 
-```bash
-python -m agent.experience approve 12 --resolution "先通过 Details.Owner SelectionValues 解析 Owner" --evidence "2026-10-08 回归测试通过"
-python -m agent.experience reject 13 --evidence "临时网络故障，不是稳定规则"
-```
+新增工具通常需要：
 
-只有批准的经验会在相关工具或任务中注入。Container Start 请求还会直接读取项目 Skill 中的 Start contract 和 known failures，使 Codex 经验与 Web Agent 使用同一事实来源。只读状态接口为 `/api/experience/status` 和 `/api/experience/candidates`。
+1. 在 `tools/` 实现业务工具，并通过 `tools/__init__.py` 导入注册。
+2. 在 `core/tool_catalog.py` 登记策略，确保 `get_tool_func` 可解析；按需补充 `agent/tool_routing.py` 和能力限制说明。
+3. 对写入明确预检、确认、单次尝试、结果核实及不明结果恢复；复用所属领域计划与占用机制。
+4. 增加相应回归和契约证据，更新专题文档；现场未验收项单独记录。
 
----
+## 当前边界与文档导航
 
-## ⚙️ 完整环境变量
+- **生产流程**：基础容器的分步进出站、吞吐、两种不良处置、人工分钟落 MES 和整单生产完成已有独立现场验收；原生复合 `MoveOut` 仍有服务端错误。已验收流程明确使用 MoveIn、独立 Thruput、独立 MoveStd，各步骤独立提交。见[生产验收](docs/production-acceptance.md)。
+- **质量闭环**：部分检验、损失、批返工和报废已有受限现场证据；审批、电子签名、事件及复杂组合仍有契约、权限或现场验收缺口。见[质量总清单](docs/quality-completion-plan.md)，不以历史工具数量或离线测试数量推断业务完成。
+- **SPC 原生链路**：原始参数趋势、本地分析和聊天出图已有真实端到端验证；原生引擎、编译规则、有效控制限、结果适配和自动处置尚未形成完整现场闭环。测试建模和显示字段保存不能证明原生控制图可运行。见[SPC 收尾状态](docs/c6-completion-status.md)。
+- **导入与查询**：路线导入限定线性路线，预览后执行，复杂配置有阻断条件；只读编排限定已审核工具与数据集，分页不完整时不生成完整汇总，跨查询不保证事务快照。见[导入计划](docs/import-plans-and-order-progress.md)、[只读编排](docs/read-orchestration.md)。
 
-| 变量 | 默认值 | 说明 |
-|---|---|---|
-| `CAMSTAR_BASE_URL` | `http://localhost/Modeling` | Camstar REST API 根地址 |
-| `CAMSTAR_SHOPFLOOR_BASE_URL` | 从 Modeling URL 推导 | Camstar Shopfloor REST API 根地址 |
-| `CAMSTAR_QUERY_BASE_URL` | 从 Modeling URL 推导 | Camstar Query REST API 根地址 |
-| `CAMSTAR_USERNAME` | `CamstarAdmin` | 登录用户名 |
-| `CAMSTAR_PASSWORD` | `Cam1star` | 登录密码 |
-| `CAMSTAR_TIMEOUT` | `30` | HTTP 超时（秒） |
-| `MAX_RESPONSE_LENGTH` | `4000` | 响应裁剪阈值（字符） |
-| `LLM_API_KEY` | — | LLM API Key |
-| `LLM_BASE_URL` | `https://api.deepseek.com/v1` | LLM 接口地址 |
-| `LLM_MODEL` | `deepseek-chat` | 模型名称 |
-| `MAX_TOOL_LOOPS` | `15` | 单轮最大工具调用次数 |
-| `LANGGRAPH_RECURSION_LIMIT` | `MAX_TOOL_LOOPS * 6 + 10` | LangGraph 单次请求的节点步数上限 |
-| `AGENT_ENGINE` | `langgraph` | 执行引擎；可设为 `legacy` 回退 |
-| `LANGGRAPH_CHECKPOINT_DB` | `data/langgraph_checkpoints.sqlite` | 工作流检查点数据库 |
-| `EXPERIENCE_DB` | `data/agent_experience.sqlite` | 脱敏经验事件、候选及审核结果数据库 |
-| `ENABLE_PERFORMANCE_LOG` | `True` | 是否开启性能日志 |
-| `SAFE_CREATE_THRESHOLD` | `20` | 批量创建拦截阈值 |
-| `SAFE_UPDATE_THRESHOLD` | `3` | 批量更新拦截阈值 |
-| `SAFE_DELETE_THRESHOLD` | `0` | 批量删除拦截阈值 |
-
-**支持的 LLM Provider（替换 `LLM_BASE_URL` 即可，代码零改动）：**
-
-| Provider | LLM_BASE_URL |
-|---|---|
-| DeepSeek | `https://api.deepseek.com/v1` |
-| 通义千问 | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
-| 智谱 GLM | `https://open.bigmodel.cn/api/paas/v4` |
-| Ollama 本地 | `http://localhost:11434/v1` |
-| OpenAI | `https://api.openai.com/v1` |
-
----
-
-## 📐 架构概览
-
-```
-Browser ──HTTP/SSE──▶ FastAPI (web/)
-                          │
-                      Agent (agent/)
-                     llm_client.py
-                          │ OpenAI-compatible API
-                      LLM Provider
-                          │ function_call
-                      Tools (tools/)
-                     specs / operations / workflows
-                          │
-                      Core (core/)
-                    auth / http_client / response
-                          │ REST/HTTPS
-                   Camstar Modeling API
-
-MCP Client ──Streamable HTTP + Bearer──▶ FastMCP (/mcp/)
-                                             │
-                                        同一组 Tools
-```
-
-> 详细设计请参阅 [`docs/DESIGN.md`](docs/DESIGN.md)
-
----
-
-## 📦 依赖
-
-```
-fastmcp>=4.0.11,<5.0.0
-mcp>=2.3.0,<3.0.0
-httpx>=0.27.0
-python-dotenv>=1.0.0
-openai>=1.0.0
-fastapi>=0.142.0,<0.143.0
-uvicorn>=0.20.0
-```
-
-2026-10-29补充：[事件关闭前置诊断](docs/quality-event-closure.md)已接入；仅诊断，不开放事件关闭提交。
-
-2026-10-29新增：[受限基础Event关闭计划](docs/quality-event-close-plan.md)，仅无复杂关联/流程/审批/签名的独立事件；真实关闭待验收。
-
-2026-10-29补充：[质量事件创建资料核验](docs/quality-event-creation.md)已接入；仅核验名称/分类/报告人/时间及通知策略，不调用CreateEvent，创建执行仍待完成。
-
-2026-10-29新增：[事件生命周期计划](docs/quality-event-lifecycle.md)，自动编号实际创建、Closed开启、明确人员/角色重新分派；显式复杂关闭扩展CAR/流程/关联NCR和已批准审批。真实效果待验收，事件数据/批次子事务、待审批/签名仍未支持。
-
-2026-10-29后续扩展：[制造NCR原生联动关闭](docs/quality-event-ncr-linked.md)支持显式双选项、标准类别3事件数据、唯一原NCR及同容器处置完整覆盖；只发父关闭请求，不补发NCRCloseQuality。实际复合事务仍待验收。
-
-2026-10-29新增：[审批上下文只读核对](docs/quality-approvals.md)，支持Event/CAPA直接审批表、条目、原生允许决策及当前入口；不路由、签批、撤回或收集口令。
-
-2026-10-29新增：[审批表路由/取消计划](docs/quality-approval-actions.md)，仅空白Pending首次路由和未签批Routed取消，系统确认后单次执行；实际签批、退回和电子签名仍未开放。
-
-2026-10-29新增：[审批决策计划](docs/quality-approval-decisions.md)，认证原审批人对当前Routed条目批准/拒绝，明确原表/条目/决策，确认单次执行；角色代签、退回和需口令的电子签名仍未开放。
+| 阅读目的 | 文档 |
+| --- | --- |
+| 查看当前能力缺口与周边开发状态 | [能力缺口](docs/core-capability-gaps.md)、[周边能力进度](docs/core-surrounding-capabilities-roadmap.md) |
+| 理解工具目录、按需加载与生效边界 | [工具加载](docs/tool-loading-and-details.md)、[能力刷新](docs/capability-refresh.md) |
+| 排查延迟、查询和图表响应 | [响应性能](docs/response-performance-round.md)、[查询与追溯性能](docs/trace-and-query-performance.md)、[聊天图表](docs/chat-charts.md) |
+| 查看发布核对与质量验收入口 | [发布验收记录](docs/c8-release-acceptance.md)、[质量完成清单](docs/quality-completion-plan.md) |
+| 查看真实模型多轮评测 | [多轮调用评测](docs/multiturn-evaluation/README.md) |
+| 了解早期设计与执行流程 | [初版设计](docs/DESIGN.md)、[MCP 执行流程](docs/mcp_execution_flow.md)；历史文档中的版本、数量和状态需与当前源码及专题更新核对 |
