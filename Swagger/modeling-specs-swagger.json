@@ -2087,6 +2087,11 @@
             "description": "CdoId: 4650; FieldId: 11762; Workspace: csi; Flags: None; Annotations: This flag determines if the material consumption check should be enforced for this spec",
             "nullable": true
           },
+          "validateSamplingOverallResult": {
+            "type": "boolean",
+            "description": "CdoId: 4650; FieldId: 29098; Workspace: csi; Flags: None; Annotations: If set to True, validates that the overall Lot Sampling result has been submitted",
+            "nullable": true
+          },
           "verifyMfgLine": {
             "type": "boolean",
             "description": "CdoId: 4650; FieldId: 689966678; Workspace: 60; Flags: None; Annotations: Flag used to trigger the Mfg Line verification logic from the Container's current step.",

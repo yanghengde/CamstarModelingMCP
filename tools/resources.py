@@ -84,6 +84,11 @@ async def get_spec_resource_context(name: str = '', revision: str = '',
                                     max_groups: int = 30, max_resources: int = 100,
                                     max_depth: int = 8) -> str:
     """读取 Spec 配置的资源组及嵌套组候选；无 ID 时必须明确名称/版本，不自动猜 ROR。去重并报告循环、缺失引用和边界；不是实时设备派工校验。"""
+    return await read_spec_resources(name, revision, instance_id, max_groups, max_resources, max_depth)
+
+
+async def read_spec_resources(name='', revision='', instance_id=None, max_groups=30, max_resources=100,
+                              max_depth=8, *, verified_spec=None):
     out = result('Modeling/Specs -> ResourceGroups -> Resources')
     out.update(groups=[], resources=[], cycles=[])
     if not 1 <= max_groups <= 100 or not 1 <= max_resources <= 200 or not 1 <= max_depth <= 20:
@@ -134,7 +139,7 @@ async def get_spec_resource_context(name: str = '', revision: str = '',
             await visit(child, ancestors + [key], depth + 1)
 
     try:
-        spec = await ctx.resolve('Specs', reference(name, instance_id, revision))
+        spec = verified_spec if verified_spec is not None else await ctx.resolve('Specs', reference(name, instance_id, revision))
         out['spec'] = {'InstanceID': spec['InstanceID'], 'Name': spec.get('Name'), 'Revision': spec.get('Revision')}
         if _has_next_link(spec):
             fail(out, 'Spec 响应包含后续页。')

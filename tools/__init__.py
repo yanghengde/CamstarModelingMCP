@@ -101,6 +101,7 @@ from tools import quality_event_logs
 from tools import quality_lot_scrap
 from tools import quality_inspection_event
 from tools import read_orchestration
+from tools import spec_context, spec_versions
 
 
 def get_tool_func(name: str):
@@ -130,6 +131,10 @@ def get_tool_func(name: str):
     orchestration_tool = getattr(read_orchestration, name, None)
     if orchestration_tool is not None:
         return orchestration_tool
+    for module in (spec_context, spec_versions):
+        func = getattr(module, name, None)
+        if func is not None:
+            return func
     from tools import production_verification
     production_tool = (getattr(production_records, name, None) or getattr(production_reporting, name, None)
                        or getattr(production_verification, name, None) or getattr(production_station, name, None)

@@ -119,16 +119,26 @@ async def comparison_snapshot(kind, obj):
 @mcp.tool
 async def compare_modeling_versions(kind: str, left_name: str, left_revision: str,
                                     right_name: str, right_revision: str) -> str:
-    """Compare two Products or Workflows without writes. Workflow comparison covers returned steps/ordinary and advanced paths/Gates, not all metadata. Product compares returned detail fields. Exact names/revisions; completeness reported."""
+    """Compare Products, Workflows or Specs without writes. Specs compares explicit versions, configuration fields and expanded transaction maps, excluding generated row IDs. Workflow compares steps/paths/Gates; Product compares returned detail fields. The response reports completeness."""
     try:
+        if kind == "Specs":
+            from tools.spec_versions import compare_specs, comparison_view
+            left, right = await compare_specs(left_name, left_revision, right_name, right_revision)
+            return raw_json({
+                "complete": left["complete"] and right["complete"],
+                "left": left["spec"], "right": right["spec"],
+                "missing_fields": {"left": left["missing_fields"], "right": right["missing_fields"]},
+                "changes": differences(comparison_view(left), comparison_view(right)),
+                "scope": "Spec 当前部署可返回的配置及已展开的映射。返回双方 ROR 状态用于单独判断版本影响。",
+            })
         left = await resolve_object(kind, left_name, left_revision)
         right = await resolve_object(kind, right_name, right_revision)
         a, ac = await comparison_snapshot(kind, left)
         b, bc = await comparison_snapshot(kind, right)
         return raw_json({"complete": ac and bc, "changes": differences(a, b),
                          "scope": "Workflow 步骤与 Gates；Product 当前详情返回字段。不是全部配置的等价证明。"})
-    except ValueError as exc:
-        return raw_json({"error": str(exc), "complete": False})
+    except (ValueError, TimeoutError) as exc:
+        return raw_json({"error": str(exc) or "版本比较超时。", "complete": False})
 
 
 @mcp.tool

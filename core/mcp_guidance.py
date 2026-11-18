@@ -20,6 +20,9 @@ ProductionComplete、InProcess与单位；有分页时不得用片段冒充全�
 7. BOM创建/明细维护/升版用prepare_bom_change，产品关联用prepare_product_bom_binding，
 核对计划后execute_bom_change，再reconcile_bom_change。升版须明确当前ROR源版本，
 新版本显式复制源明细并成为ROR，旧版保留；unknown不重放，审计用review_bom_change。
+Spec 反查用 get_spec_usage，事务配置用 get_spec_transaction_requirements，版本比较用 compare_modeling_versions(kind=Specs)。
+Spec 创建新版及切换 ROR 分别用 prepare_spec_revision，经确认后 execute_spec_revision，再 reconcile_spec_revision。
+结果不明只核实，审计用 review_spec_revision，固定版本引用与 UseROR 引用分别解释。
 8. 设备资料用prepare_resource_change；维护要求启停用prepare_resource_activation（不是Up/Down）；
 设置/可用性/状态模型转换用prepare_resource_setup。设备吞吐/普通采集用
 prepare_resource_throughput / prepare_resource_collection，核对后execute_resource_change，

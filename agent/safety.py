@@ -327,6 +327,22 @@ def plan_preview(calls):
                     lines.append('证据/结论：'+json.dumps(args,ensure_ascii=False))
             except (ValueError,TypeError,KeyError,AttributeError):
                 lines.append('资源计划无法读取，不应继续。')
+        if function.get('name') in {'execute_spec_revision', 'review_spec_revision'}:
+            try:
+                from tools.spec_versions import confirmation_summary, database, load_plan
+                args = json.loads(arguments)
+                if function['name'] == 'execute_spec_revision':
+                    lines.append(confirmation_summary(args['plan_id'], args['plan_digest']))
+                else:
+                    with database() as db:
+                        row, plan = load_plan(db, args['plan_id'], args['plan_digest'])
+                    lines.append('Spec 升版人工审计：' + json.dumps({
+                        'name': plan['name'], 'source_revision': plan['source_revision'],
+                        'target_revision': plan['target_revision'], 'attempt_id': row['attempt_id'],
+                        'state': row['state'], **args,
+                    }, ensure_ascii=False))
+            except (ValueError, TypeError, KeyError, AttributeError):
+                lines.append('Spec 升版计划无法读取。')
         if function.get('name') in {'execute_bom_change','review_bom_change'}:
             try:
                 from tools.bom_modeling import confirmation_summary,checked,db_connect,load_row
