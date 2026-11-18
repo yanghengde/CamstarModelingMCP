@@ -7,16 +7,23 @@ from pathlib import Path
 from config import LANGGRAPH_CHECKPOINT_DB
 from tools import get_tool_func
 from .handover import handovers
+from . import cases
 
 
 PREFIX = re.compile(r"^(?:在制品助手|在制品|/wip)(?:[：:\s]+|$)", re.I)
 HELP = """### 在制品助手
 
 - `在制品 演示` 查看样例交班报告
+- `在制品 异常演示` 查看白班立单、夜班核实结案的样例
 - `在制品 工单 MO001` 查看关联容器、当前工序和异常标志
 - `在制品 容器 BOX001` 核实单个容器，也可在名称后加容器实例 ID
 - `在制品 登记 BOX001 等质量人员核实` 核实容器后，保存一条本服务共享的交班备注
 - `在制品 交班` 查看最近的交班记录
+- `在制品 立单 1` 将交班记录 #1 转为待接异常单，`在制品 待办` 查看未结事项
+- `在制品 接单 1 白班小李` 指定负责人，`在制品 转交 1 夜班小王` 记录换班
+- `在制品 跟进 1 已联系质量` 追加进展，`在制品 详情 1` 查看完整记录
+- `在制品 结案 1 复核结果及凭据` 记录人工核实结果
+- `在制品 提炼 1 可复用的判断方法` 提交经验候选，`在制品 经验` 查看已审核经验
 
 真实查询请替换为现场工单号或容器号。"""
 
@@ -26,7 +33,7 @@ def matches(message):
     if not match:
         return False
     tail = message.strip()[match.end():].strip()
-    return (not tail or tail.split()[0] in {"助手", "帮助", "演示", "工单", "容器", "登记", "交班"}
+    return (not tail or tail.split()[0] in cases.COMMANDS | {"助手", "帮助", "演示", "异常演示", "工单", "容器", "登记", "交班"}
             or message.strip().lower().startswith("/wip"))
 
 
@@ -71,6 +78,8 @@ async def read_tool(name, **args):
 async def run(message, username, request_id, *, query=read_tool, db_path=None):
     command = PREFIX.sub("", message.strip(), count=1).strip()
     parts = command.split()
+    if parts == ["异常演示"]:
+        return await asyncio.to_thread(cases.demo)
     if parts == ["演示"]:
         items = [
             {"name": "DEMO-001", "current": {"Step": "测试", "Qty": 12, "UOM": "件",
@@ -82,6 +91,8 @@ async def run(message, username, request_id, *, query=read_tool, db_path=None):
     path = db_path or Path(LANGGRAPH_CHECKPOINT_DB).with_name("wip_handovers.sqlite")
     if parts == ["交班"]:
         return await asyncio.to_thread(handovers, path)
+    if parts and parts[0] in cases.COMMANDS:
+        return await asyncio.to_thread(cases.handle, path, command, username, request_id)
     try:
         if parts[:1] == ["工单"] and len(parts) in (2, 3):
             offset = int(parts[2]) if len(parts) == 3 else 0
