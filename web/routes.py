@@ -52,7 +52,8 @@ def index():
 @router.get("/config")
 def config_endpoint():
     """返回前端所需的配置（如当前绑定用户名）。"""
-    return {"username": CAMSTAR_USERNAME, "agent_engine": AGENT_ENGINE, 'chat_charts': ENABLE_CHAT_CHARTS}
+    return {"username": CAMSTAR_USERNAME, "agent_engine": AGENT_ENGINE, 'chat_charts': ENABLE_CHAT_CHARTS,
+            "wip_assistant": AGENT_ENGINE == "langgraph"}
 
 
 @router.get("/workflow/{username}/{session_id}")

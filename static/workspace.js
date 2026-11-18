@@ -546,6 +546,10 @@ $('menuToggle').onclick = () => { const open = document.body.classList.toggle('s
 $('sidebarBackdrop').onclick = closeNavigation;
 document.addEventListener('keydown',event => { if (event.key === 'Escape') closeNavigation(); });
 $('msgs').onclick = event => {
+    if (event.target.closest('[data-wip]') && !busy && initialized) {
+        send('在制品 演示');
+        return;
+    }
     if (event.target.closest('[data-capabilities]') && !busy && initialized) {
         send('你具备哪些能力？请根据实际能力目录简要介绍，并说明尚不支持的内容。');
         return;
@@ -555,7 +559,9 @@ $('msgs').onclick = event => {
 };
 async function initialize() {
     setBusy(true); setView(view,false);
-    try { const config = await api('/config'); username = config.username; globalThis.ChatCharts?.configure(config.chat_charts); $('username').textContent = username; $('connectionText').textContent = '服务已连接'; $('connection').classList.add('connected'); await refreshSessions(); if (!sessionId) { await newSession(); await refreshSessions(); } await loadHistory(); initialized = true; }
+    try { const config = await api('/config'); username = config.username;
+        $('welcomeTemplate').content.querySelector('[data-wip]').hidden = !config.wip_assistant;
+        globalThis.ChatCharts?.configure(config.chat_charts); $('username').textContent = username; $('connectionText').textContent = '服务已连接'; $('connection').classList.add('connected'); await refreshSessions(); if (!sessionId) { await newSession(); await refreshSessions(); } await loadHistory(); initialized = true; }
     catch(error) { $('connectionText').textContent = '连接失败'; $('connection').classList.add('error'); notice(`加载失败，请刷新重试：${error.message}`); }
     finally { setBusy(false); }
 }

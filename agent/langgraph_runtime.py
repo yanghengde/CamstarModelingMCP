@@ -11,6 +11,7 @@ import asyncio
 import json
 import os
 import time
+from uuid import uuid4
 from typing import Any, AsyncIterator, TypedDict
 
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
@@ -30,6 +31,7 @@ from agent.experience import (
     record_tool_outcome,
 )
 from agent.learning import record_feedback
+from agent.domains.wip import workflow as wip
 from agent.capability_query import read_capability_directory, capability_context, render_capability_overview
 from agent.prompts import USER_FACING_LANGUAGE_RULE, QUERY_EFFICIENCY_RULE, APPROVAL_FLOW_RULE, BUSINESS_PRESENTATION_RULE, BUSINESS_RESPONSE_CHECK, deduplicate_runtime_rules
 from agent.safety import (
@@ -67,6 +69,7 @@ class AgentState(TypedDict, total=False):
     username: str
     session_id: str
     request_message: str
+    request_id: str
     loop_count: int
     create_count: int
     update_count: int
@@ -500,12 +503,25 @@ def _route_after_tool(state: AgentState) -> str:
     return "execute_tool" if state.get("pending_tool_calls") else "agent"
 
 
+async def _wip_node(state: AgentState) -> dict[str, Any]:
+    reply = await wip.run(state["request_message"], state["username"], state["request_id"])
+    writer = get_stream_writer()
+    writer({"type": "stream_start"})
+    writer({"type": "stream_chunk", "content": reply})
+    writer({"type": "stream_end", "audience": "answer"})
+    return {"messages": state["messages"] + [{"role": "assistant", "content": reply}],
+            "final_reply": reply, "stop_reason": "complete"}
+
+
 def _build_graph(checkpointer: AsyncSqliteSaver):
     builder = StateGraph(AgentState)
     builder.add_node("agent", _agent_node)
     builder.add_node("policy", _policy_node)
     builder.add_node("execute_tool", _execute_tool_node)
-    builder.add_edge(START, "agent")
+    builder.add_node("wip", _wip_node)
+    builder.add_conditional_edges(START, lambda state: "wip" if wip.matches(
+        state.get("request_message", "")) else "agent", ["wip", "agent"])
+    builder.add_edge("wip", END)
     builder.add_conditional_edges("agent", _route_after_agent)
     builder.add_conditional_edges("policy", _route_after_policy)
     builder.add_conditional_edges("execute_tool", _route_after_tool)
@@ -668,7 +684,7 @@ async def langgraph_chat_stream(
             # Imported lazily to avoid a module cycle with llm_client.
             from agent.llm_client import generate_title
 
-            title = await generate_title(message)
+            title = "在制品管理" if wip.matches(message) else await generate_title(message)
             await durable_io(update_session_title, username, actual_session_id, title)
             yield _sse(
                 {
@@ -683,6 +699,7 @@ async def langgraph_chat_stream(
             "username": username,
             "session_id": actual_session_id,
             "request_message": message,
+            "request_id": uuid4().hex,
             "loop_count": 0,
             "create_count": 0,
             "update_count": 0,
