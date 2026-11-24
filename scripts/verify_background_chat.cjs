@@ -14,7 +14,7 @@ const assert = require('assert');
   const base = `http://127.0.0.1:${port}`;
   const python = process.env.CHAT_TEST_PYTHON || path.join(root, 'venv', 'Scripts', 'python.exe');
   const server = spawn(python, [path.join(__dirname, 'preview_background_chat.py'), '--port', String(port)], {
-    cwd:root, env:{...process.env, CHAT_PREVIEW_ROOT:temp}, windowsHide:true, stdio:['ignore','pipe','pipe']
+    cwd:root, env:{...process.env, CHAT_PREVIEW_ROOT:temp, ENABLE_OPERATION_CONFIRMATION:'true'}, windowsHide:true, stdio:['ignore','pipe','pipe']
   });
   let logs = ''; server.stderr.on('data', data => { logs = (logs + data).slice(-6000); });
   server.stdout.on('data', data => { logs = (logs + data).slice(-6000); });

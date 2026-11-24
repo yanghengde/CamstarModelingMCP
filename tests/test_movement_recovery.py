@@ -248,13 +248,16 @@ def test_legacy_does_not_repeat_failed_move_with_new_parameters(monkeypatch):
     assert any(m.get("content") == MOVEMENT_RETRY_BLOCKED for m in messages)
 
 
-def test_legacy_mixed_batch_still_reads_when_new_write_requires_approval(monkeypatch):
+@pytest.mark.parametrize('confirmation_enabled', [True, False])
+def test_legacy_mixed_batch_respects_confirmation_setting(monkeypatch, confirmation_enabled):
+    from agent import llm_client
+    monkeypatch.setattr(llm_client, 'ENABLE_OPERATION_CONFIRMATION', confirmation_enabled)
     execute = AsyncMock(return_value="updated")
     batches = [[call("container_move_out", {"container_name": f"C{i}"})]
                for i in range(SAFE_UPDATE_THRESHOLD)]
     batches.append([call("release_container", {"container_name": "NEW"}),
                     call("get_container_details", {"container_name": "NEW"})])
     read, messages = legacy_scenario(monkeypatch, batches, execute)
-    assert execute.await_count == SAFE_UPDATE_THRESHOLD
+    assert execute.await_count == SAFE_UPDATE_THRESHOLD + (0 if confirmation_enabled else 1)
     read.assert_awaited_once()
-    assert any("legacy 模式不执行" in m.get("content", "") for m in messages)
+    assert any("legacy 模式不执行" in (m.get("content") or "") for m in messages) == confirmation_enabled

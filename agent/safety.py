@@ -129,6 +129,7 @@ def evaluate_mutations(
     intended: MutationCounts | None = None,
     require_review: bool = False,
     auto_confirm: bool = False,
+    confirmation_enabled: bool = True,
 ) -> SafetyDecision:
     pending_tool_calls = list(pending_tool_calls)
     pending = count_tool_calls(pending_tool_calls)
@@ -139,6 +140,13 @@ def evaluate_mutations(
             updates=max(totals.updates, intended.updates),
             deletes=max(totals.deletes, intended.deletes),
         )
+    if not confirmation_enabled:
+        review = require_review and any(
+            classify_tool((call.get('function') or {}).get('name')) in ('create', 'update', 'delete')
+            for call in pending_tool_calls
+        )
+        return SafetyDecision(review, ('用户要求执行前确认',) if review else (), totals)
+
     categories: list[str] = []
     # Historical updates do not re-confirm each subsequent ordinary write.
     # Keep the cumulative creation cap so splitting a large creation into
@@ -271,7 +279,7 @@ def is_explicit_rejection(text: str) -> bool:
 def approval_prompt(decision: SafetyDecision) -> str:
     return (
         "以下操作需要你确认，目前尚未提交这些操作。\n"
-        "核对无误后点击“确认执行”，或回复“确认执行”；如需调整，请取消后说明修改内容。"
+        "核对无误后回复“确认执行”；如需调整，请直接说明修改内容。"
     )
 
 

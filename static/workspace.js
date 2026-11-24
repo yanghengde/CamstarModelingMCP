@@ -4,6 +4,7 @@ const $ = id => document.getElementById(id);
 const initialDraft = new URLSearchParams(location.search).get('draft');
 let username = '', sessionId = null, sessions = [], attachment = null;
 let busy = false, loading = false, controller = null, pendingApproval = false, initialized = false;
+let operationConfirmationEnabled = true;
 let activeRun = null, viewVersion = 0, runClock = null;
 const activeRunStates = new Set(['queued','running','cancelling']);
 const runIsActive = () => !!activeRun && activeRunStates.has(activeRun.status);
@@ -456,6 +457,8 @@ $('stopBtn').onclick = async () => {
 };
 $('approveBtn').onclick = () => send('确认执行'); $('rejectBtn').onclick = () => send('取消执行');
 function renderConfirmationMode() {
+    $('confirmationModeBtn').closest('.confirmation-control').hidden = !operationConfirmationEnabled;
+    $('approveBtn').hidden = $('rejectBtn').hidden = !operationConfirmationEnabled;
     const enabled = sessions.find(item => item.id === sessionId)?.auto_confirm === true;
     const label = enabled ? '自动确认' : '标准确认';
     $('confirmationModeLabel').textContent = label;
@@ -560,6 +563,8 @@ $('msgs').onclick = event => {
 async function initialize() {
     setBusy(true); setView(view,false);
     try { const config = await api('/config'); username = config.username;
+        operationConfirmationEnabled = config.operation_confirmation_enabled !== false;
+        renderConfirmationMode();
         $('welcomeTemplate').content.querySelector('[data-wip]').hidden = !config.wip_assistant;
         globalThis.ChatCharts?.configure(config.chat_charts); $('username').textContent = username; $('connectionText').textContent = '服务已连接'; $('connection').classList.add('connected'); await refreshSessions(); if (!sessionId) { await newSession(); await refreshSessions(); } await loadHistory(); initialized = true; }
     catch(error) { $('connectionText').textContent = '连接失败'; $('connection').classList.add('error'); notice(`加载失败，请刷新重试：${error.message}`); }

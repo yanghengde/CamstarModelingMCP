@@ -12,18 +12,17 @@ from openai import AsyncOpenAI
 
 from config import (
     LLM_API_KEY, LLM_BASE_URL, LLM_MODEL, MAX_TOOL_LOOPS,
-    SAFE_CREATE_THRESHOLD, SAFE_UPDATE_THRESHOLD, SAFE_DELETE_THRESHOLD,
-    AGENT_ENGINE, LLM_TIMEOUT,
+    AGENT_ENGINE, ENABLE_OPERATION_CONFIRMATION, LLM_TIMEOUT,
 )
 from agent.memory import get_user_messages, save_user_session, update_session_title, user_memories
 from tools import mcp, get_tool_func
 from core.tool_catalog import TOOL_POLICIES
 from agent.tool_routing import select_tools, selection_metrics, ROUTING_INSTRUCTION, routing_instructions
-from agent.prompts import deduplicate_runtime_rules, BUSINESS_PRESENTATION_RULE, BUSINESS_RESPONSE_CHECK
+from agent.prompts import deduplicate_runtime_rules, BUSINESS_PRESENTATION_RULE, BUSINESS_RESPONSE_CHECK, OPERATION_CONFIRMATION_DISABLED_RULE
 from agent.experience import build_runtime_experience_context, record_tool_outcome
 from agent.learning import record_feedback
 from agent.capability_query import read_capability_directory, capability_context, render_capability_overview
-from agent.safety import MutationCounts, classify_tool, count_tool_calls, evaluate_mutations, approval_prompt, is_explicit_confirmation
+from agent.safety import MutationCounts, classify_tool, count_tool_calls, evaluate_mutations, approval_prompt
 from agent.safety import requests_execution_review
 from core.perf_logger import record_perf
 from core.async_io import durable_io
@@ -99,15 +98,6 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
         yield f"data: {json.dumps({'type': 'title_update', 'title': new_title, 'session_id': actual_session_id}, ensure_ascii=False)}\n\n"
 
 
-    # 提取用户最新发言，判断是否为确认授权（用于批量修改大于3条的情况）
-    last_user_msg = ""
-    for m in reversed(chat_messages):
-        if m["role"] == "user":
-            last_user_msg = m.get("content", "").strip()
-            break
-            
-    is_user_confirmation = is_explicit_confirmation(last_user_msg)
-
     loops = 0
     turn_create_count = 0
     turn_update_count = 0
@@ -158,7 +148,9 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             model_messages.insert(1, {"role": "system", "content":
                 deduplicate_runtime_rules(model_messages, routing_instructions(selected_tools) + "\n" + BUSINESS_PRESENTATION_RULE)})
             from agent.memory import session_auto_confirm, AUTO_CONFIRM_INSTRUCTION
-            if session_auto_confirm(username, actual_session_id):
+            if not ENABLE_OPERATION_CONFIRMATION:
+                model_messages.insert(2, {'role': 'system', 'content': OPERATION_CONFIRMATION_DISABLED_RULE})
+            elif session_auto_confirm(username, actual_session_id):
                 model_messages.insert(2, {'role': 'system', 'content': AUTO_CONFIRM_INSTRUCTION})
             model_messages.append({'role': 'system', 'content': BUSINESS_RESPONSE_CHECK})
             metrics = InferenceMetrics()
@@ -259,6 +251,7 @@ async def legacy_chat_stream(username: str, message: str, session_id: str = None
             [call for call in response_tool_calls if not movement_call_blocked(call, blocked_movement_targets)],
             require_review=requests_execution_review(message),
             auto_confirm=session_auto_confirm(username, actual_session_id),
+            confirmation_enabled=ENABLE_OPERATION_CONFIRMATION,
         )
         for tool_call in response_tool_calls:
             func_name = tool_call["function"]["name"]

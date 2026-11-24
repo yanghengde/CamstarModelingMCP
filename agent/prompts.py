@@ -33,6 +33,14 @@ APPROVAL_FLOW_RULE = """审批交互规则（LangGraph）：
 """
 
 
+OPERATION_CONFIRMATION_DISABLED_RULE = (
+    "当前部署已关闭应用层交互确认。用户已明确要求执行、参数齐全时，先完成所需预检和准备，"
+    "然后在同一次请求内提交并如实报告执行结果。工具说明里提到的应用层确认自动处理，"
+    "不要要求点击确认按钮或额外回复同意。用户明确要求先确认时使用文字核对，"
+    "只要求预览时只生成计划。缺少必填信息、有歧义、需要业务签名或身份验证时，按实际要求处理。"
+)
+
+
 QUERY_EFFICIENCY_RULE = """查询执行规则：普通的工艺/工艺路线查询先用 list_specs/list_workflows，默认 top=20，拿到列表即可回答；用户明确要求步骤明细、路线下的工艺或按顺序列出 Spec 时，使用 list_workflow_steps(workflow_id=列表返回的InstanceID)；查询某一步时使用 get_workflow_step。以返回的 standard_route 排列顺序，并检查 standard_route_complete 和 warnings；其他分支单列。Spec 必须取步骤实际 spec 引用，不得从步骤名称或业务语义推断；null 表示未取得关联，不能直接声称未配置。详情优先使用列表实际返回的 InstanceID，不要拼接 Name:Revision。Steps 或 Steps-Expanded 为空不代表没有工艺步骤，应说明接口未返回明细；不要猜测展开字段、SQL 表名或自动转向 Query 服务探测。接口超时、连接失败或相同参数失败后不要重复调用；返回已取得的信息并明确缺失部分。不要把分页结果称为全量。"""
 
 

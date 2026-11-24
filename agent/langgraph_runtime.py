@@ -33,7 +33,7 @@ from agent.experience import (
 from agent.learning import record_feedback
 from agent.domains.wip import workflow as wip
 from agent.capability_query import read_capability_directory, capability_context, render_capability_overview
-from agent.prompts import USER_FACING_LANGUAGE_RULE, QUERY_EFFICIENCY_RULE, APPROVAL_FLOW_RULE, BUSINESS_PRESENTATION_RULE, BUSINESS_RESPONSE_CHECK, deduplicate_runtime_rules
+from agent.prompts import USER_FACING_LANGUAGE_RULE, QUERY_EFFICIENCY_RULE, APPROVAL_FLOW_RULE, BUSINESS_PRESENTATION_RULE, BUSINESS_RESPONSE_CHECK, OPERATION_CONFIRMATION_DISABLED_RULE, deduplicate_runtime_rules
 from agent.safety import (
     MutationCounts,
     SafetyDecision,
@@ -47,6 +47,7 @@ from agent.safety import (
     is_explicit_rejection,
 )
 from config import (
+    ENABLE_OPERATION_CONFIRMATION,
     LANGGRAPH_CHECKPOINT_DB,
     LANGGRAPH_RECURSION_LIMIT,
     LLM_MODEL,
@@ -76,6 +77,7 @@ class AgentState(TypedDict, total=False):
     delete_count: int
     approved_plan: str
     approval_granted: bool
+    operation_confirmation_enabled: bool
     pending_tool_calls: list[dict[str, Any]]
     final_reply: str
     stop_reason: str
@@ -198,7 +200,9 @@ async def _agent_node(state: AgentState) -> dict[str, Any]:
         }
         insert_at = 1 if model_messages and model_messages[0].get("role") == "system" else 0
         model_messages.insert(insert_at, language_message)
-        if session_auto_confirm(state.get('username', ''), state.get('session_id', '')):
+        if not state.get('operation_confirmation_enabled', True):
+            model_messages.insert(insert_at + 1, {'role': 'system', 'content': OPERATION_CONFIRMATION_DISABLED_RULE})
+        elif session_auto_confirm(state.get('username', ''), state.get('session_id', '')):
             model_messages.insert(insert_at + 1, {'role': 'system', 'content': AUTO_CONFIRM_INSTRUCTION})
         if experience_context:
             context_message = {
@@ -330,12 +334,15 @@ def _policy_node(state: AgentState) -> dict[str, Any]:
     intended = infer_intended_mutations(
         state.get("request_message", ""), actionable
     )
+    # Older paused checkpoints must still replay their original interrupt.
+    confirmation_enabled = state.get('operation_confirmation_enabled', True)
     decision = evaluate_mutations(
         _completed_counts(state), actionable, intended=intended,
         require_review=requests_execution_review(state.get('request_message', '')),
         auto_confirm=session_auto_confirm(state.get('username', ''), state.get('session_id', '')),
+        confirmation_enabled=confirmation_enabled,
     )
-    if state.get('approved_plan') and state['approved_plan'] != fingerprint:
+    if confirmation_enabled and state.get('approved_plan') and state['approved_plan'] != fingerprint:
         decision = SafetyDecision(True, ('已确认计划发生变化',), decision.totals)
     if not decision.requires_approval:
         return {}
@@ -353,7 +360,8 @@ def _policy_node(state: AgentState) -> dict[str, Any]:
         }
     )
     if isinstance(approval, dict) and approval.get("approved") is True:
-        return {"approval_granted": True, "approved_plan": fingerprint}
+        return {"approval_granted": True, "approved_plan": fingerprint,
+                "operation_confirmation_enabled": ENABLE_OPERATION_CONFIRMATION}
 
     cancelled_messages = list(state.get("messages", []))
     for tool_call in pending:
@@ -566,6 +574,9 @@ async def get_workflow_status(username: str, session_id: str) -> dict[str, Any]:
         # Reformat existing pending approvals for display without changing the
         # stored interrupt, its arguments, or the plan fingerprint.
         message = approval.get('message', '')
+        if not ENABLE_OPERATION_CONFIRMATION and '点击“确认执行”，或' in message:
+            message = message.replace('点击“确认执行”，或', '')
+            approval = {**approval, 'message': message}
         if '待执行工具与参数：' in message and not approval.get('execution_details'):
             from agent.approval_display import business_preview
             details = '待执行工具与参数：' + message.split('待执行工具与参数：', 1)[1]
@@ -705,6 +716,7 @@ async def langgraph_chat_stream(
             "update_count": 0,
             "delete_count": 0,
             "approval_granted": False,
+            "operation_confirmation_enabled": ENABLE_OPERATION_CONFIRMATION,
             "pending_tool_calls": [],
             "final_reply": "",
             "stop_reason": "",

@@ -114,7 +114,8 @@ def active_call(name):
     return step
 
 
-def execute_replay(tmp_path,monkeypatch,schemas,case,client):
+def execute_replay(tmp_path,monkeypatch,schemas,case,client,confirmation_enabled=True):
+    monkeypatch.setattr(runtime,'ENABLE_OPERATION_CONFIRMATION',confirmation_enabled)
     monkeypatch.setattr(runtime,'LANGGRAPH_CHECKPOINT_DB',str(tmp_path/'checkpoints.sqlite'))
     monkeypatch.setattr(memory,'SESSIONS_DIR',str(tmp_path/'sessions'))
     monkeypatch.setattr(runtime,'get_tool_func',lambda name: lambda **kwargs:ev.CURRENT.get().dispatch(name,kwargs))
@@ -142,6 +143,23 @@ def test_actual_graph_approval_resume_and_cancel_without_live_model(tmp_path,mon
     assert result['simulated_execution_count']==(1 if case_id=='D06' else 0)
     assert result['turns'][0]['approval_pending']
     assert not result['turns'][-1]['approval_pending']
+
+
+def test_integration_mode_executes_prepared_plan_in_one_request(tmp_path,monkeypatch,schemas):
+    case = dict(next(c for c in CASES if c['id'] == 'D06'))
+    case['turns'] = [{'text': '给SN-EVAL-001用质检采集1版提交温度25。',
+                      'expect': {'stage': 'submitted', 'values': {'温度': 25}}}]
+    steps = [
+        {'tool': 'preview_container_data_collection', 'args': {'container_name': 'SN-EVAL-001',
+            'name': '质检采集', 'revision': '1', 'values': {'温度': 25}}},
+        active_call('collect_container_data'),
+        {'content': '已单次提交，结果待核实。'},
+    ]
+    result = execute_replay(tmp_path,monkeypatch,schemas,case,ReplayClient(steps),confirmation_enabled=False)
+    assert result['passed'], result
+    assert result['simulated_execution_count'] == 1
+    assert not result['turns'][0]['approval_pending']
+    assert result['turns'][0]['reply'] == '已单次提交，结果待核实。'
 
 
 class RevisedPlanClient(ReplayClient):
@@ -196,19 +214,22 @@ def test_multiturn_budget_preserves_plan_ids_and_revised_approval(tmp_path, monk
     assert result['turns'][0]['approval_pending'] and result['turns'][1]['approval_pending']
 
 
-@pytest.mark.parametrize('case_id',['D10','D11','D14'])
-def test_pending_gate_accepts_clear_confirmation_or_cancels_for_new_task(tmp_path,monkeypatch,schemas,case_id):
+@pytest.mark.parametrize('case_id,confirmation_enabled', [('D10',True), ('D11',True), ('D11',False), ('D14',True)])
+def test_pending_gate_accepts_clear_confirmation_or_cancels_for_new_task(tmp_path,monkeypatch,schemas,case_id,confirmation_enabled):
     case=next(c for c in CASES if c['id']==case_id)
     steps=[{'tool':'preview_container_data_collection','args':{'container_name':'SN-EVAL-001','name':'质检采集','revision':'1','values':{'温度':25}}},active_call('collect_container_data')]
     if case_id=='D10':steps.extend([{'tool':'get_container_collection_history','args':{'container_name':'SN-EVAL-001'}},{'content':'这是采集历史，未提交。'}])
     elif case_id=='D11':steps.append({'content':'单次提交结束，当前unknown，等待核实。'})
     else:steps.extend([{'tool':'list_products','args':{'filter_expr':"Name eq 'P-EVAL' and Revision eq '1'"}},
                       {'tool':'get_product_process','args':{'product_id':ev.PRODUCT}},{'content':'这是产品P-EVAL的1版实际工艺链。'}])
-    result=execute_replay(tmp_path,monkeypatch,schemas,case,ReplayClient(steps))
+    result=execute_replay(tmp_path,monkeypatch,schemas,case,ReplayClient(steps),confirmation_enabled)
     assert result['passed'],result
     assert result['simulated_execution_count']==(1 if case_id=='D11' else 0)
     assert result['turns'][0]['approval_pending']
     assert not result['turns'][-1]['approval_pending']
+    if not confirmation_enabled:
+        assert '回复“确认执行”' in result['turns'][0]['reply']
+        assert '点击' not in result['turns'][0]['reply']
 
 
 def test_elliptical_verification_exposes_tool_without_enabling_history_writes():

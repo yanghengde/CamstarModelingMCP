@@ -7,7 +7,7 @@ from fastapi import APIRouter, File, Query, UploadFile, HTTPException
 from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel, Field, StrictBool
 
-from config import CAMSTAR_USERNAME, ENABLE_PERFORMANCE_LOG, AGENT_ENGINE, UPLOAD_MAX_BYTES, ENABLE_CHAT_CHARTS
+from config import CAMSTAR_USERNAME, ENABLE_PERFORMANCE_LOG, AGENT_ENGINE, UPLOAD_MAX_BYTES, ENABLE_CHAT_CHARTS, ENABLE_OPERATION_CONFIRMATION
 from core.async_io import durable_io
 from agent.memory import get_user_messages, get_sessions, create_session, set_active_session, get_active_session, user_memories
 from agent.llm_client import chat_stream
@@ -53,6 +53,7 @@ def index():
 def config_endpoint():
     """返回前端所需的配置（如当前绑定用户名）。"""
     return {"username": CAMSTAR_USERNAME, "agent_engine": AGENT_ENGINE, 'chat_charts': ENABLE_CHAT_CHARTS,
+            "operation_confirmation_enabled": ENABLE_OPERATION_CONFIRMATION,
             "wip_assistant": AGENT_ENGINE == "langgraph"}
 
 
